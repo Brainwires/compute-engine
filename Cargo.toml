@@ -1,0 +1,103 @@
+[package]
+name = "computational-engine"
+version = "0.1.0"
+edition = "2024"
+description = "Unified computational engine combining tensor calculus, advanced calculus, physics simulations, and signal processing"
+license = "MIT OR Apache-2.0"
+authors = ["nightness"]
+readme = "README.md"
+keywords = ["mathematics", "physics", "computation", "tensor", "calculus"]
+categories = ["science", "mathematics"]
+
+[lib]
+name = "computational_engine"
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "computational-engine"
+path = "src/main.rs"
+
+[dependencies]
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Linear algebra and tensors
+nalgebra = "0.33"
+ndarray = { version = "0.15", features = ["serde"] }
+
+# Complex numbers
+num-complex = { version = "0.4", features = ["serde"] }
+
+# Mathematical operations
+approx = "0.5"
+libm = "0.2"
+special = "0.10"
+quadrature = "0.1"
+
+# Computer Algebra System - built in-house
+
+# Signal processing
+rustfft = "6.0"
+apodize = "1.0"
+
+# Random and stochastic
+rand = "0.8"
+rand_distr = "0.4"
+getrandom = { version = "0.2", features = ["js"] }
+
+# Cryptography dependencies
+num-bigint = { version = "0.4", features = ["rand"] }
+num-traits = "0.2"
+sha2 = "0.10"
+sha3 = "0.10"
+hex = "0.4"
+
+# CLI
+clap = { version = "4.0", features = ["derive"] }
+
+# MCP SDK (primary interface)
+rmcp = { version = "0.8", features = ["server", "transport-io", "macros"] }
+schemars = { version = "1.0" }
+
+# Error handling
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Utilities
+regex = "1.10"
+indexmap = "2.0"
+petgraph = "0.6"
+
+# Parallelism
+rayon = "1.7"
+
+# Async runtime (for MCP server)
+tokio = { version = "1.0", features = ["full"] }
+
+# GPU acceleration (optional)
+wgpu = { version = "22.0", optional = true }
+bytemuck = { version = "1.0", features = ["derive"], optional = true }
+
+# WebAssembly support (optional)
+wasm-bindgen = { version = "0.2", optional = true, features = ["serde-serialize"] }
+js-sys = { version = "0.3", optional = true }
+web-sys = { version = "0.3", optional = true }
+serde-wasm-bindgen = { version = "0.6", optional = true }
+console_error_panic_hook = { version = "0.1", optional = true }
+
+[dev-dependencies]
+# MCP client for integration tests
+rmcp = { version = "0.8", features = ["server", "client", "transport-io", "macros"] }
+
+[features]
+default = []
+quantum = ["gpu-acceleration"]
+gpu-acceleration = ["wgpu", "bytemuck"]
+wasm = ["wasm-bindgen", "js-sys", "web-sys", "serde-wasm-bindgen", "console_error_panic_hook"]
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3

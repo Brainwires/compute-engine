@@ -1,0 +1,62 @@
+{
+  "name": "@brainwires/computational-engine",
+  "version": "0.1.0",
+  "description": "Unified computational engine for mathematics and physics - WebAssembly bindings",
+  "main": "pkg/bundler/computational_engine.js",
+  "types": "pkg/bundler/computational_engine.d.ts",
+  "files": [
+    "pkg/bundler/*",
+    "pkg/nodejs/*",
+    "pkg/web/*",
+    "pkg/no-modules/*"
+  ],
+  "exports": {
+    ".": {
+      "types": "./pkg/bundler/computational_engine.d.ts",
+      "import": "./pkg/bundler/computational_engine.js",
+      "require": "./pkg/nodejs/computational_engine.js"
+    },
+    "./bundler": {
+      "types": "./pkg/bundler/computational_engine.d.ts",
+      "import": "./pkg/bundler/computational_engine.js"
+    },
+    "./nodejs": {
+      "types": "./pkg/nodejs/computational_engine.d.ts",
+      "require": "./pkg/nodejs/computational_engine.js"
+    },
+    "./web": {
+      "types": "./pkg/web/computational_engine.d.ts",
+      "import": "./pkg/web/computational_engine.js"
+    }
+  },
+  "scripts": {
+    "build": "./build-wasm.sh",
+    "build:bundler": "wasm-pack build --target bundler --features wasm --out-dir pkg/bundler",
+    "build:nodejs": "wasm-pack build --target nodejs --features wasm --out-dir pkg/nodejs",
+    "build:web": "wasm-pack build --target web --features wasm --out-dir pkg/web",
+    "build:no-modules": "wasm-pack build --target no-modules --features wasm --out-dir pkg/no-modules",
+    "test": "wasm-pack test --headless --firefox",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nightness/brainwires-studio.git",
+    "directory": "rust/computational-engine"
+  },
+  "keywords": [
+    "mathematics",
+    "physics",
+    "computation",
+    "tensor",
+    "calculus",
+    "wasm",
+    "webassembly",
+    "computational-engine",
+    "scientific-computing"
+  ],
+  "author": "nightness",
+  "license": "MIT OR Apache-2.0",
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
+}

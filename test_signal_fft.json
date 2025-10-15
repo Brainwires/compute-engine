@@ -1,0 +1,9 @@
+{
+  "module": "signal_processing",
+  "operation": "fft",
+  "parameters": {
+    "signal": [0, 1, 0, -1, 0, 1, 0, -1],
+    "sample_rate": 8.0,
+    "window_type": "hanning"
+  }
+}

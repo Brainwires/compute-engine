@@ -1,0 +1,11 @@
+{
+  "name": "computational-engine-wasm-examples",
+  "version": "1.0.0",
+  "description": "Examples for using computational-engine WASM bindings",
+  "private": true,
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "node": "node node-example.js"
+  },
+  "devDependencies": {}
+}

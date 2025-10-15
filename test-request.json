@@ -1,0 +1,8 @@
+{
+  "tool": "solve",
+  "input": {
+    "equation_type": "LinearSystem",
+    "equations": ["x + y = 5", "x - y = 1"],
+    "variables": ["x", "y"]
+  }
+}
