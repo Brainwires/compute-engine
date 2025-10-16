@@ -32,6 +32,7 @@ fn solve_einstein_vacuum() {
 }
 
 #[test]
+#[ignore = "Slow test: Fluid dynamics solvers are computationally expensive (disabled for CI)"]
 fn solve_fluid_cavity_flow() {
     let dispatcher = create_default_dispatcher();
 

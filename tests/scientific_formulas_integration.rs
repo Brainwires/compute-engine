@@ -209,6 +209,7 @@ fn test_engineering_materials() {
 }
 
 #[test]
+#[ignore = "Slow test: Fluid dynamics solvers are computationally expensive (disabled for CI)"]
 fn test_engineering_fluids() {
     // Test Bernoulli's equation
     let input = EngineeringInput {

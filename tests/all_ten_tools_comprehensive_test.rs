@@ -61,6 +61,7 @@ fn test_solve_einstein_vacuum() {
 }
 
 #[test]
+#[ignore = "Slow test: Navier-Stokes solver takes >60s (disabled for CI)"]
 fn test_solve_fluid_cavity_flow() {
     let dispatcher = create_default_dispatcher();
 

@@ -352,6 +352,47 @@ fn evaluate_derivative(x: f64, request: &RootFindingRequest) -> f64 {
     }
 }
 
+/// Adaptive Simpson's rule helper function
+fn adaptive_simpson_recursive(
+    a: f64,
+    b: f64,
+    tolerance: f64,
+    request: &IntegrationRequest,
+) -> f64 {
+    let c = (a + b) / 2.0;
+    let h = b - a;
+
+    // Compute Simpson's rule on whole interval [a,b]
+    let fa = function_at(a, request);
+    let fb = function_at(b, request);
+    let fc = function_at(c, request);
+    let s_whole = (h / 6.0) * (fa + 4.0 * fc + fb);
+
+    // Compute Simpson's rule on two halves
+    let d = (a + c) / 2.0;
+    let e = (c + b) / 2.0;
+    let fd = function_at(d, request);
+    let fe = function_at(e, request);
+
+    let s_left = (h / 12.0) * (fa + 4.0 * fd + fc);
+    let s_right = (h / 12.0) * (fc + 4.0 * fe + fb);
+    let s_split = s_left + s_right;
+
+    // Error estimate based on Richardson extrapolation
+    let error = (s_split - s_whole).abs() / 15.0;
+
+    // If error is acceptable, return the more accurate split estimate
+    if error < tolerance || h.abs() < 1e-12 {
+        // Use Richardson extrapolation for higher accuracy
+        s_split + (s_split - s_whole) / 15.0
+    } else {
+        // Recursively refine each half with tighter tolerance
+        let left_integral = adaptive_simpson_recursive(a, c, tolerance / 2.0, request);
+        let right_integral = adaptive_simpson_recursive(c, b, tolerance / 2.0, request);
+        left_integral + right_integral
+    }
+}
+
 /// Numerical integration
 pub fn integrate(request: IntegrationRequest) -> Result<IntegrationResult, String> {
     let a = request.lower_bound;
@@ -395,6 +436,11 @@ pub fn integrate(request: IntegrationRequest) -> Result<IntegrationResult, Strin
             let x2 = mid + half / 3.0_f64.sqrt();
 
             half * (function_at(x1, &request) + function_at(x2, &request))
+        }
+        "adaptive" | "adaptive_simpson" => {
+            // Adaptive Simpson's rule with automatic subdivision
+            let tolerance = 1e-10;
+            adaptive_simpson_recursive(a, b, tolerance, &request)
         }
         _ => return Err(format!("Unknown integration method: {}", request.method)),
     };
@@ -1164,5 +1210,40 @@ mod tests {
         });
 
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_adaptive_integration() {
+        let result = integrate(IntegrationRequest {
+            method: "adaptive".to_string(),
+            lower_bound: 0.0,
+            upper_bound: 1.0,
+            num_points: 100, // Not used in adaptive, but required by struct
+            function_type: "polynomial".to_string(),
+            coefficients: Some(vec![0.0, 0.0, 1.0]), // x^2
+        })
+        .unwrap();
+
+        // Integral of x^2 from 0 to 1 is 1/3 ≈ 0.333333
+        assert!((result.integral - 0.333333).abs() < 1e-6);
+        assert_eq!(result.method_used, "adaptive");
+    }
+
+    #[test]
+    fn test_adaptive_integration_cubic() {
+        // Test with a cubic function: x^3
+        let result = integrate(IntegrationRequest {
+            method: "adaptive".to_string(),
+            lower_bound: 0.0,
+            upper_bound: 2.0,
+            num_points: 100,
+            function_type: "polynomial".to_string(),
+            coefficients: Some(vec![0.0, 0.0, 0.0, 1.0]), // x^3
+        })
+        .unwrap();
+
+        // Integral of x^3 from 0 to 2 is 2^4/4 = 4
+        assert!((result.integral - 4.0).abs() < 1e-6);
+        assert_eq!(result.method_used, "adaptive");
     }
 }

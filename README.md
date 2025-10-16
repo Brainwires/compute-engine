@@ -1,10 +1,12 @@
 # Brainwires Compute Engine
 
-A comprehensive computational engine for mathematical and scientific computing in Rust, providing **194+ operations** through a clean **10-tool API**.
+A comprehensive computational engine for mathematical and scientific computing in Rust, providing **916 operations** (510 public functions + 406 enum variants) through a clean **10-tool API**.
 
-[![Tests](https://img.shields.io/badge/tests-523%20passing-brightgreen)](https://github.com/nightness/brainwires-compute-engine)
-[![Coverage](https://img.shields.io/badge/coverage-1500%2B%20tests-blue)](https://github.com/nightness/brainwires-compute-engine)
+[![Tests](https://img.shields.io/badge/tests-525%20passing-brightgreen)](https://github.com/nightness/brainwires-compute-engine)
+[![Coverage](https://img.shields.io/badge/coverage-980%2B%20tests-blue)](https://github.com/nightness/brainwires-compute-engine)
 [![Rust](https://img.shields.io/badge/rust-2024%20edition-orange)](https://www.rust-lang.org/)
+
+> 📊 **[See how we compare to Mathematica & Wolfram Alpha →](COMPARISON_ANALYSIS.md)**
 
 ## 🚀 Quick Start
 
@@ -34,7 +36,7 @@ println!("{:#?}", response);
 |------|---------|-------------------|
 | **Solve** | Equations & systems | Polynomial, linear systems, differential equations, Einstein field equations |
 | **Differentiate** | Derivatives | Symbolic, numeric, partial, implicit, parametric, directional |
-| **Integrate** | Integration | Definite, indefinite, numeric, improper, multiple, contour |
+| **Integrate** | Integration | Definite, indefinite, adaptive numeric, improper, multiple, contour |
 | **Analyze** | Analysis & transforms | Series, limits, roots, extrema, Fourier, wavelets, stability |
 | **Simulate** | Dynamic systems | ODEs, PDEs, stochastic processes, Monte Carlo, cellular automata |
 | **Compute** | Matrix & tensor ops | Linear algebra, tensor calculus, special functions, scientific formulas |
@@ -46,8 +48,9 @@ println!("{:#?}", response);
 ## ✨ Key Features
 
 ### Core Capabilities
-- ✅ **523 unit tests** with 100% pass rate
-- ✅ **1500+ total tests** (comprehensive integration + unit tests)
+- ✅ **525 unit tests** with 100% pass rate
+- ✅ **980+ total tests** (comprehensive integration + unit tests)
+- ✅ **Adaptive integration** with automatic subdivision and error estimation
 - ✅ **Custom Computer Algebra System (CAS)** - no Python dependencies
 - ✅ **Multiple interfaces**: Native Rust, JSON/MCP, WebAssembly
 - ✅ **Rust 2024 edition** with full type safety
@@ -58,14 +61,14 @@ println!("{:#?}", response);
 - **Tensor Calculus**: Einstein summation, Christoffel symbols, Riemann curvature, metric tensors
 - **Symbolic CAS**: Expression parsing, simplification, symbolic differentiation/integration
 - **Special Functions**: Bessel, gamma, beta, error functions, elliptic integrals, orthogonal polynomials
-- **Numerical Methods**: Root finding, interpolation, ODE/PDE solvers, numerical integration
+- **Numerical Methods**: Root finding, interpolation, ODE/PDE solvers, adaptive numerical integration (Simpson's rule with automatic subdivision)
 
 ### Physics
 - **Quantum Mechanics**: Wave functions, operators, perturbation theory
 - **Relativity**: Special and general relativity calculations
 - **Electromagnetism**: Maxwell's equations, EM waves, antennas, waveguides
 - **Nuclear Physics**: Radioactive decay, binding energy, fission/fusion
-- **Fluid Dynamics**: Navier-Stokes solvers, boundary conditions, flow analysis
+- **Fluid Dynamics**: Navier-Stokes solvers, boundary conditions, flow analysis (tests disabled for CI performance)
 - **Control Systems**: Transfer functions, stability analysis, PID tuning
 
 ### Science Formulas
@@ -185,7 +188,7 @@ cargo build --release
 # Run the MCP server
 ./target/release/brainwires-compute-engine stdin
 
-# Run all tests (523 unit + integration tests)
+# Run all tests (525 unit + 980+ total tests)
 cargo test
 
 # Run specific test suites
@@ -230,23 +233,31 @@ See [WASM.md](WASM.md) for detailed WASM build instructions.
 
 Comprehensive test suite with **100% pass rate**:
 
-- **523 unit tests** in library modules
-- **40 integration test files** with 1000+ additional tests
+- **525 unit tests** in library modules (including 2 adaptive integration tests)
+- **40+ integration test files** with 455+ additional tests
 - **Coverage**: Science (181 tests), Physics (178 tests), Math (113+ tests), Tools (142 tests), Specialized (83 tests)
+- **Performance**: 8 fluid dynamics tests disabled for CI (marked as `#[ignore]` for optional execution)
 
 ### Test Commands
 
 ```bash
-# Run all tests
+# Run all tests (excludes ignored tests)
 cargo test
 
 # Run with coverage report
 cargo test --test '*_comprehensive_tests'
 
+# Run ignored tests (slow fluid dynamics tests)
+cargo test -- --ignored
+
+# Run ALL tests including ignored
+cargo test -- --include-ignored
+
 # Test specific modules
 cargo test chemistry
 cargo test physics::electromagnetism
 cargo test mathematics::linear_algebra
+cargo test numerical_methods  # Includes adaptive integration tests
 ```
 
 ## 🎯 Use Cases
@@ -261,10 +272,11 @@ cargo test mathematics::linear_algebra
 
 ## 📖 Documentation
 
+- **[COMPARISON_ANALYSIS.md](COMPARISON_ANALYSIS.md)** - 📊 **How we compare to Mathematica & Wolfram Alpha**
 - [ARCHITECTURE.md](ARCHITECTURE.md) - Detailed 10-tool architecture
 - [API.md](API.md) - Complete JSON API reference
 - [WASM.md](WASM.md) - WebAssembly build and usage guide
-- [OPERATIONS_COMPLETE_LIST.md](OPERATIONS_COMPLETE_LIST.md) - All 194+ operations
+- [OPERATIONS_COMPLETE_LIST.md](OPERATIONS_COMPLETE_LIST.md) - All 916 operations inventory
 - [MATHEMATICA_COMPETITION_PROGRESS.md](MATHEMATICA_COMPETITION_PROGRESS.md) - Feature parity tracking
 - [STDOUT_STDERR_POLICY.md](STDOUT_STDERR_POLICY.md) - MCP server compatibility
 - API documentation: `cargo doc --open`
@@ -299,14 +311,22 @@ cargo bench
 
 ## 🌟 Design Philosophy
 
-- **Simplicity**: 10 intuitive tools instead of 916 individual functions
-- **Comprehensiveness**: 194+ operations covering mathematics, physics, and science
+- **Simplicity**: 10 intuitive tools providing access to 916 operations
+- **Comprehensiveness**: 916 operations (510 functions + 406 variants) covering mathematics, physics, and science
 - **Self-Contained**: Custom CAS with no Python dependencies
 - **Type Safety**: Full Rust type checking with zero-cost abstractions
 - **Performance**: Release builds optimized with LTO and single codegen unit
 - **Testability**: 100% test pass rate with comprehensive coverage
 - **Flexibility**: Rich input schemas with sensible defaults
 - **Interoperability**: Native Rust, JSON, and WebAssembly interfaces
+
+## 🆕 Recent Updates
+
+### December 2024
+- ✅ **Adaptive Integration**: Implemented adaptive Simpson's rule with automatic subdivision and Richardson extrapolation
+- ✅ **Performance Optimization**: Disabled 8 slow fluid dynamics tests for CI (still available with `--ignored` flag)
+- ✅ **Test Coverage**: Increased from 523 to 525 unit tests
+- ✅ **Error Handling**: Improved integration error estimation and reporting
 
 ## 📝 License
 

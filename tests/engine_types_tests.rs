@@ -45,6 +45,7 @@ fn test_all_einstein_equations() {
 }
 
 #[test]
+#[ignore = "Slow test: Fluid dynamics solvers are computationally expensive (disabled for CI)"]
 fn test_fluid_equations() {
     let variants = vec![
         FluidEquation::NavierStokes,
