@@ -6,8 +6,6 @@ A comprehensive computational engine for mathematical and scientific computing i
 [![Coverage](https://img.shields.io/badge/coverage-1500%2B%20tests-blue)](https://github.com/nightness/thalora-compute-engine)
 [![Rust](https://img.shields.io/badge/rust-2024%20edition-orange)](https://www.rust-lang.org/)
 
-> **Note**: This project was extracted from the [brainwires-studio](https://github.com/nightness/brainwires-studio) monorepo to become a standalone computational engine.
-
 ## 🚀 Quick Start
 
 ```rust
@@ -329,8 +327,6 @@ See the implementation files in `src/implementations/` for examples.
 ## 🙏 Acknowledgments
 
 This project aims to provide comprehensive computational capabilities comparable to Mathematica/Wolfram Alpha, but as free and open-source software.
-
-Extracted from the [BrainWires Studio](https://github.com/nightness/brainwires-studio) project to serve as a standalone computational engine for mathematical and scientific computing.
 
 ## 📞 Support
 
