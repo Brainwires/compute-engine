@@ -191,6 +191,48 @@ dependencies = [
 ]
 
 [[package]]
+name = "brainwires-compute-engine"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "apodize",
+ "approx",
+ "bytemuck",
+ "clap",
+ "console_error_panic_hook",
+ "getrandom",
+ "hex",
+ "indexmap",
+ "js-sys",
+ "libm",
+ "nalgebra",
+ "ndarray",
+ "num-bigint",
+ "num-complex",
+ "num-traits",
+ "petgraph",
+ "quadrature",
+ "rand",
+ "rand_distr",
+ "rayon",
+ "regex",
+ "rmcp",
+ "rustfft",
+ "schemars",
+ "serde",
+ "serde-wasm-bindgen",
+ "serde_json",
+ "sha2",
+ "sha3",
+ "special",
+ "thiserror 1.0.69",
+ "tokio",
+ "wasm-bindgen",
+ "web-sys",
+ "wgpu",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -343,48 +385,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
-]
-
-[[package]]
-name = "computational-engine"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "apodize",
- "approx",
- "bytemuck",
- "clap",
- "console_error_panic_hook",
- "getrandom",
- "hex",
- "indexmap",
- "js-sys",
- "libm",
- "nalgebra",
- "ndarray",
- "num-bigint",
- "num-complex",
- "num-traits",
- "petgraph",
- "quadrature",
- "rand",
- "rand_distr",
- "rayon",
- "regex",
- "rmcp",
- "rustfft",
- "schemars",
- "serde",
- "serde-wasm-bindgen",
- "serde_json",
- "sha2",
- "sha3",
- "special",
- "thiserror 1.0.69",
- "tokio",
- "wasm-bindgen",
- "web-sys",
- "wgpu",
 ]
 
 [[package]]

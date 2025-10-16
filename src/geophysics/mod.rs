@@ -7,7 +7,6 @@
  * - Geochemistry (radioactive dating)
  * - Planetary science (escape velocity, Roche limit)
  */
-
 use serde::{Deserialize, Serialize};
 use std::f64::consts::E;
 
@@ -29,32 +28,32 @@ pub enum GeophysicsCategory {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GeophysicsParams {
     // Seismology
-    pub amplitude: Option<f64>,          // μm
-    pub distance: Option<f64>,           // km
-    pub seismic_moment: Option<f64>,     // N·m
-    pub energy: Option<f64>,             // J
-    pub magnitude: Option<f64>,          // Richter or Mw
+    pub amplitude: Option<f64>,      // μm
+    pub distance: Option<f64>,       // km
+    pub seismic_moment: Option<f64>, // N·m
+    pub energy: Option<f64>,         // J
+    pub magnitude: Option<f64>,      // Richter or Mw
 
     // Atmospheric
-    pub pressure: Option<f64>,           // Pa or hPa
-    pub temperature: Option<f64>,        // K or °C
-    pub altitude: Option<f64>,           // m
-    pub density: Option<f64>,            // kg/m³
-    pub relative_humidity: Option<f64>,  // %
-    pub vapor_pressure: Option<f64>,     // Pa
+    pub pressure: Option<f64>,          // Pa or hPa
+    pub temperature: Option<f64>,       // K or °C
+    pub altitude: Option<f64>,          // m
+    pub density: Option<f64>,           // kg/m³
+    pub relative_humidity: Option<f64>, // %
+    pub vapor_pressure: Option<f64>,    // Pa
 
     // Radioactive dating
-    pub parent_isotope: Option<f64>,     // amount
-    pub daughter_isotope: Option<f64>,   // amount
-    pub half_life: Option<f64>,          // years
-    pub isotope_system: Option<String>,  // "C14", "U238Pb206", "K40Ar40"
+    pub parent_isotope: Option<f64>,    // amount
+    pub daughter_isotope: Option<f64>,  // amount
+    pub half_life: Option<f64>,         // years
+    pub isotope_system: Option<String>, // "C14", "U238Pb206", "K40Ar40"
 
     // Planetary
-    pub mass_primary: Option<f64>,       // kg
-    pub mass_secondary: Option<f64>,     // kg
-    pub radius_primary: Option<f64>,     // m
-    pub density_primary: Option<f64>,    // kg/m³
-    pub density_secondary: Option<f64>,  // kg/m³
+    pub mass_primary: Option<f64>,      // kg
+    pub mass_secondary: Option<f64>,    // kg
+    pub radius_primary: Option<f64>,    // m
+    pub density_primary: Option<f64>,   // kg/m³
+    pub density_secondary: Option<f64>, // kg/m³
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -153,7 +152,10 @@ fn calculate_atmosphere(params: &GeophysicsParams) -> Result<GeophysicsResult, S
         let pressure_at_h = p0 * E.powf(-h / scale_height);
 
         additional.insert("scale_height_m".to_string(), scale_height);
-        additional.insert("pressure_drop_percent".to_string(), (p0 - pressure_at_h) / p0 * 100.0);
+        additional.insert(
+            "pressure_drop_percent".to_string(),
+            (p0 - pressure_at_h) / p0 * 100.0,
+        );
 
         return Ok(GeophysicsResult {
             value: pressure_at_h,
@@ -177,8 +179,8 @@ fn calculate_atmosphere(params: &GeophysicsParams) -> Result<GeophysicsResult, S
         let e_actual = (rh / 100.0) * e_sat;
 
         // Dew point approximation
-        let dew_point = 243.5 * (e_actual / 100.0 / 6.112).ln() /
-                       (17.67 - (e_actual / 100.0 / 6.112).ln());
+        let dew_point =
+            243.5 * (e_actual / 100.0 / 6.112).ln() / (17.67 - (e_actual / 100.0 / 6.112).ln());
 
         additional.insert("saturation_vapor_pressure_pa".to_string(), e_sat);
         additional.insert("actual_vapor_pressure_pa".to_string(), e_actual);
@@ -199,15 +201,19 @@ fn calculate_atmosphere(params: &GeophysicsParams) -> Result<GeophysicsResult, S
 
 /// Radioactive dating
 fn calculate_dating(params: &GeophysicsParams) -> Result<GeophysicsResult, String> {
-    let system = params.isotope_system.as_ref()
+    let system = params
+        .isotope_system
+        .as_ref()
         .ok_or("Isotope system required (C14, U238Pb206, K40Ar40)")?;
 
     let half_life = match system.as_str() {
-        "C14" => 5730.0,           // Carbon-14 (years)
-        "U238Pb206" => 4.468e9,    // Uranium-238 (years)
-        "K40Ar40" => 1.25e9,       // Potassium-40 (years)
-        "Rb87Sr87" => 4.88e10,     // Rubidium-87 (years)
-        _ => params.half_life.ok_or("Unknown isotope system or half_life not provided")?,
+        "C14" => 5730.0,        // Carbon-14 (years)
+        "U238Pb206" => 4.468e9, // Uranium-238 (years)
+        "K40Ar40" => 1.25e9,    // Potassium-40 (years)
+        "Rb87Sr87" => 4.88e10,  // Rubidium-87 (years)
+        _ => params
+            .half_life
+            .ok_or("Unknown isotope system or half_life not provided")?,
     };
 
     let decay_constant = 0.693147 / half_life; // λ = ln(2)/t½
@@ -273,23 +279,31 @@ fn calculate_planetary(params: &GeophysicsParams) -> Result<GeophysicsResult, St
     }
 
     // Roche limit: d = 2.46·R·(ρM/ρm)^(1/3)
-    if let (Some(r_primary), Some(rho_primary), Some(rho_secondary)) =
-        (params.radius_primary, params.density_primary, params.density_secondary) {
-
+    if let (Some(r_primary), Some(rho_primary), Some(rho_secondary)) = (
+        params.radius_primary,
+        params.density_primary,
+        params.density_secondary,
+    ) {
         let roche_rigid = 2.46 * r_primary * (rho_primary / rho_secondary).powf(1.0 / 3.0);
         let roche_fluid = 2.44 * r_primary * (rho_primary / rho_secondary).powf(1.0 / 3.0);
 
         additional.insert("roche_limit_rigid".to_string(), roche_rigid);
         additional.insert("roche_limit_fluid".to_string(), roche_fluid);
-        additional.insert("roche_limit_primary_radii".to_string(), roche_fluid / r_primary);
+        additional.insert(
+            "roche_limit_primary_radii".to_string(),
+            roche_fluid / r_primary,
+        );
 
         return Ok(GeophysicsResult {
             value: roche_fluid / 1000.0,
             unit: "km".to_string(),
             formula_used: "Roche limit: d = 2.44·R·(ρM/ρm)^(1/3)".to_string(),
             uncertainty: Some(roche_fluid / 1000.0 * 0.05),
-            interpretation: format!("Roche limit: {:.0} km ({:.2} primary radii)",
-                                   roche_fluid / 1000.0, roche_fluid / r_primary),
+            interpretation: format!(
+                "Roche limit: {:.0} km ({:.2} primary radii)",
+                roche_fluid / 1000.0,
+                roche_fluid / r_primary
+            ),
             additional_data: Some(additional),
         });
     }
@@ -399,9 +413,9 @@ mod tests {
     #[test]
     fn test_atmosphere_pressure_at_altitude() {
         let params = GeophysicsParams {
-            pressure: Some(101325.0),    // Sea level pressure (Pa)
-            temperature: Some(288.15),   // 15°C in Kelvin
-            altitude: Some(1000.0),      // 1 km
+            pressure: Some(101325.0),  // Sea level pressure (Pa)
+            temperature: Some(288.15), // 15°C in Kelvin
+            altitude: Some(1000.0),    // 1 km
             ..Default::default()
         };
 
@@ -475,8 +489,8 @@ mod tests {
     #[test]
     fn test_atmosphere_dew_point() {
         let params = GeophysicsParams {
-            temperature: Some(20.0),        // 20°C
-            relative_humidity: Some(60.0),  // 60% RH
+            temperature: Some(20.0),       // 20°C
+            relative_humidity: Some(60.0), // 60% RH
             ..Default::default()
         };
 
@@ -492,7 +506,7 @@ mod tests {
     #[test]
     fn test_atmosphere_saturation_vapor_pressure() {
         let params = GeophysicsParams {
-            temperature: Some(25.0),       // 25°C
+            temperature: Some(25.0),        // 25°C
             relative_humidity: Some(100.0), // Saturated
             ..Default::default()
         };
@@ -707,8 +721,8 @@ mod tests {
     #[test]
     fn test_escape_velocity_earth() {
         let params = GeophysicsParams {
-            mass_primary: Some(5.972e24),   // Earth mass (kg)
-            radius_primary: Some(6.371e6),  // Earth radius (m)
+            mass_primary: Some(5.972e24),  // Earth mass (kg)
+            radius_primary: Some(6.371e6), // Earth radius (m)
             ..Default::default()
         };
 
@@ -748,8 +762,8 @@ mod tests {
     #[test]
     fn test_escape_velocity_moon() {
         let params = GeophysicsParams {
-            mass_primary: Some(7.342e22),   // Moon mass
-            radius_primary: Some(1.737e6),  // Moon radius
+            mass_primary: Some(7.342e22),  // Moon mass
+            radius_primary: Some(1.737e6), // Moon radius
             ..Default::default()
         };
 
@@ -781,7 +795,7 @@ mod tests {
     #[test]
     fn test_roche_limit_earth_moon() {
         let params = GeophysicsParams {
-            radius_primary: Some(6.371e6),  // Earth radius
+            radius_primary: Some(6.371e6),   // Earth radius
             density_primary: Some(5514.0),   // Earth density (kg/m³)
             density_secondary: Some(3344.0), // Moon density
             ..Default::default()
@@ -797,8 +811,8 @@ mod tests {
     fn test_roche_limit_saturn_rings() {
         let params = GeophysicsParams {
             radius_primary: Some(5.8232e7),  // Saturn radius
-            density_primary: Some(687.0),     // Saturn density
-            density_secondary: Some(1000.0),  // Ice density
+            density_primary: Some(687.0),    // Saturn density
+            density_secondary: Some(1000.0), // Ice density
             ..Default::default()
         };
 

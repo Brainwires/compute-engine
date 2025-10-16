@@ -155,7 +155,10 @@ impl Parser {
                 let expr = self.parse_primary()?;
                 Ok(Expr::mul(Expr::num(-1), expr))
             }
-            _ => Err(SymbolicError::ParseError(format!("Unexpected token: {:?}", self.current()))),
+            _ => Err(SymbolicError::ParseError(format!(
+                "Unexpected token: {:?}",
+                self.current()
+            ))),
         }
     }
 }
@@ -208,7 +211,8 @@ fn tokenize(input: &str) -> SymbolicResult<Vec<Token>> {
                     i += 1;
                 }
                 let num_str: String = chars[start..i].iter().collect();
-                let num = num_str.parse::<i64>()
+                let num = num_str
+                    .parse::<i64>()
                     .map_err(|e| SymbolicError::ParseError(format!("Invalid number: {}", e)))?;
                 tokens.push(Token::Number(num));
             }
@@ -221,7 +225,10 @@ fn tokenize(input: &str) -> SymbolicResult<Vec<Token>> {
                 tokens.push(Token::Symbol(symbol));
             }
             c => {
-                return Err(SymbolicError::ParseError(format!("Unexpected character: {}", c)));
+                return Err(SymbolicError::ParseError(format!(
+                    "Unexpected character: {}",
+                    c
+                )));
             }
         }
     }

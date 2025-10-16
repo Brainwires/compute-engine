@@ -6,9 +6,9 @@
 //! - Fluid dynamics (Lattice Boltzmann)
 //! - Time evolution (Euler, RK4, Adaptive Step, Implicit Euler)
 
-use computational_engine::engine::*;
-use computational_engine::engine::equations::*;
 use computational_engine::create_default_dispatcher;
+use computational_engine::engine::equations::*;
+use computational_engine::engine::*;
 use std::collections::HashMap;
 
 // Helper function to create SimulateInput with required fields
@@ -58,7 +58,11 @@ fn test_brownian_motion() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should simulate Brownian motion: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should simulate Brownian motion: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Simulate(output)) = result {
         assert!(output.results.contains_key("W"), "Should have W path");
@@ -86,7 +90,11 @@ fn test_geometric_brownian() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should simulate geometric Brownian: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should simulate geometric Brownian: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Simulate(output)) = result {
         assert!(output.results.contains_key("S"), "Should have S path");
@@ -114,7 +122,11 @@ fn test_ornstein_uhlenbeck() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should simulate Ornstein-Uhlenbeck: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should simulate Ornstein-Uhlenbeck: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -135,7 +147,11 @@ fn test_poisson_process() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should simulate Poisson process: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should simulate Poisson process: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Simulate(output)) = result {
         assert!(output.results.contains_key("N"), "Should have N path");
@@ -192,7 +208,11 @@ fn test_jump_diffusion() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should simulate jump diffusion: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should simulate jump diffusion: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Simulate(output)) = result {
         let metadata = output.metadata.unwrap();
@@ -219,7 +239,11 @@ fn test_fractional_brownian() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should simulate fractional Brownian: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should simulate fractional Brownian: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Simulate(output)) = result {
         assert!(output.results.contains_key("B_H"), "Should have B_H path");
@@ -249,7 +273,11 @@ fn test_variance_gamma() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should simulate variance gamma: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should simulate variance gamma: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Simulate(output)) = result {
         assert!(output.results.contains_key("X_VG"), "Should have X_VG path");
@@ -279,7 +307,11 @@ fn test_mean_reverting() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should simulate mean-reverting process: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should simulate mean-reverting process: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -313,8 +345,14 @@ fn test_heston_model() {
     assert!(result.is_ok(), "Should simulate Heston model: {:?}", result);
 
     if let Ok(ToolResponse::Simulate(output)) = result {
-        assert!(output.results.contains_key("price"), "Should have price path");
-        assert!(output.results.contains_key("variance"), "Should have variance path");
+        assert!(
+            output.results.contains_key("price"),
+            "Should have price path"
+        );
+        assert!(
+            output.results.contains_key("variance"),
+            "Should have variance path"
+        );
         let metadata = output.metadata.unwrap();
         assert_eq!(metadata["model"], "heston");
     }
@@ -345,8 +383,14 @@ fn test_sabr_model() {
     assert!(result.is_ok(), "Should simulate SABR model: {:?}", result);
 
     if let Ok(ToolResponse::Simulate(output)) = result {
-        assert!(output.results.contains_key("forward_rate"), "Should have forward_rate path");
-        assert!(output.results.contains_key("volatility"), "Should have volatility path");
+        assert!(
+            output.results.contains_key("forward_rate"),
+            "Should have forward_rate path"
+        );
+        assert!(
+            output.results.contains_key("volatility"),
+            "Should have volatility path"
+        );
         let metadata = output.metadata.unwrap();
         assert_eq!(metadata["model"], "SABR");
     }
@@ -375,11 +419,21 @@ fn test_stochastic_volatility() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should simulate stochastic volatility: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should simulate stochastic volatility: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Simulate(output)) = result {
-        assert!(output.results.contains_key("price"), "Should have price path");
-        assert!(output.results.contains_key("volatility"), "Should have volatility path");
+        assert!(
+            output.results.contains_key("price"),
+            "Should have price path"
+        );
+        assert!(
+            output.results.contains_key("volatility"),
+            "Should have volatility path"
+        );
     }
 }
 
@@ -403,10 +457,17 @@ fn test_black_scholes() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should simulate Black-Scholes: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should simulate Black-Scholes: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Simulate(output)) = result {
-        assert!(output.results.contains_key("price"), "Should have price path");
+        assert!(
+            output.results.contains_key("price"),
+            "Should have price path"
+        );
         let metadata = output.metadata.unwrap();
         assert_eq!(metadata["model"], "black_scholes");
     }
@@ -437,12 +498,25 @@ fn test_lattice_boltzmann() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should simulate Lattice Boltzmann: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should simulate Lattice Boltzmann: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Simulate(output)) = result {
-        assert!(output.results.contains_key("velocity_x"), "Should have velocity_x");
-        assert!(output.results.contains_key("velocity_y"), "Should have velocity_y");
-        assert!(output.results.contains_key("density"), "Should have density");
+        assert!(
+            output.results.contains_key("velocity_x"),
+            "Should have velocity_x"
+        );
+        assert!(
+            output.results.contains_key("velocity_y"),
+            "Should have velocity_y"
+        );
+        assert!(
+            output.results.contains_key("density"),
+            "Should have density"
+        );
 
         let metadata = output.metadata.unwrap();
         assert_eq!(metadata["method"], "lattice_boltzmann_d2q9");
@@ -475,7 +549,11 @@ fn test_euler_method() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should simulate with Euler method: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should simulate with Euler method: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Simulate(output)) = result {
         assert!(output.results.contains_key("y"), "Should have y values");
@@ -525,7 +603,11 @@ fn test_adaptive_step() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should simulate with adaptive step: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should simulate with adaptive step: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Simulate(output)) = result {
         let metadata = output.metadata.unwrap();
@@ -551,7 +633,11 @@ fn test_implicit_euler() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should simulate with implicit Euler: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should simulate with implicit Euler: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Simulate(output)) = result {
         let metadata = output.metadata.unwrap();
@@ -578,7 +664,10 @@ fn test_ou_requires_parameters() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Ornstein-Uhlenbeck should require theta parameter");
+    assert!(
+        result.is_err(),
+        "Ornstein-Uhlenbeck should require theta parameter"
+    );
 }
 
 #[test]
@@ -596,7 +685,10 @@ fn test_time_evolution_requires_initial() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Time evolution should require initial conditions");
+    assert!(
+        result.is_err(),
+        "Time evolution should require initial conditions"
+    );
 }
 
 #[test]
@@ -617,5 +709,8 @@ fn test_stochastic_requires_range() {
     ));
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Stochastic simulation should require range");
+    assert!(
+        result.is_err(),
+        "Stochastic simulation should require range"
+    );
 }

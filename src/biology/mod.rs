@@ -8,7 +8,6 @@
  * - Membrane potentials (Goldman-Hodgkin-Katz)
  * - Allometric scaling
  */
-
 use serde::{Deserialize, Serialize};
 use std::f64::consts::E;
 
@@ -57,7 +56,7 @@ pub struct BiologyParams {
     pub valence: Option<Vec<i32>>,
 
     // Allometric scaling
-    pub body_mass: Option<f64>,  // kg
+    pub body_mass: Option<f64>,       // kg
     pub scaling_type: Option<String>, // "metabolic", "surface_area", "lifespan"
 }
 
@@ -70,7 +69,7 @@ pub struct BiologyResult {
     pub additional_data: Option<std::collections::HashMap<String, f64>>,
 }
 
-const R: f64 = 8.314;   // Gas constant J/(mol·K)
+const R: f64 = 8.314; // Gas constant J/(mol·K)
 const F: f64 = 96485.0; // Faraday constant C/mol
 
 pub fn calculate_biology(input: BiologyInput) -> Result<BiologyResult, String> {
@@ -88,7 +87,9 @@ pub fn calculate_biology(input: BiologyInput) -> Result<BiologyResult, String> {
 fn calculate_michaelis_menten(params: &BiologyParams) -> Result<BiologyResult, String> {
     let vmax = params.vmax.ok_or("Vmax required")?;
     let km = params.km.ok_or("Km required")?;
-    let s = params.substrate_concentration.ok_or("Substrate concentration required")?;
+    let s = params
+        .substrate_concentration
+        .ok_or("Substrate concentration required")?;
 
     if km <= 0.0 || vmax <= 0.0 {
         return Err("Vmax and Km must be positive".to_string());
@@ -125,7 +126,9 @@ fn calculate_michaelis_menten(params: &BiologyParams) -> Result<BiologyResult, S
 fn calculate_lineweaver_burk(params: &BiologyParams) -> Result<BiologyResult, String> {
     let vmax = params.vmax.ok_or("Vmax required")?;
     let km = params.km.ok_or("Km required")?;
-    let s = params.substrate_concentration.ok_or("Substrate concentration required")?;
+    let s = params
+        .substrate_concentration
+        .ok_or("Substrate concentration required")?;
 
     if s <= 0.0 {
         return Err("Substrate concentration must be positive".to_string());
@@ -135,8 +138,8 @@ fn calculate_lineweaver_burk(params: &BiologyParams) -> Result<BiologyResult, St
     let v = (vmax * s) / (km + s);
 
     // Lineweaver-Burk coordinates
-    let x = 1.0 / s;  // 1/[S]
-    let y = 1.0 / v;  // 1/v
+    let x = 1.0 / s; // 1/[S]
+    let y = 1.0 / v; // 1/v
 
     let mut additional = std::collections::HashMap::new();
     additional.insert("x_intercept_1_over_s".to_string(), x);
@@ -148,7 +151,10 @@ fn calculate_lineweaver_burk(params: &BiologyParams) -> Result<BiologyResult, St
         value: y,
         unit: "1/v".to_string(),
         formula_used: "Lineweaver-Burk: 1/v = (Km/Vmax)·(1/[S]) + 1/Vmax".to_string(),
-        interpretation: format!("Double reciprocal plot point: (1/[S]={:.3}, 1/v={:.3})", x, y),
+        interpretation: format!(
+            "Double reciprocal plot point: (1/[S]={:.3}, 1/v={:.3})",
+            x, y
+        ),
         additional_data: Some(additional),
     })
 }
@@ -156,9 +162,13 @@ fn calculate_lineweaver_burk(params: &BiologyParams) -> Result<BiologyResult, St
 /// One-compartment pharmacokinetics: C(t) = (F·Dose/V)·exp(-k·t)
 fn calculate_pharmacokinetics(params: &BiologyParams) -> Result<BiologyResult, String> {
     let dose = params.dose.ok_or("Dose (mg) required")?;
-    let v = params.volume_distribution.ok_or("Volume of distribution (L) required")?;
+    let v = params
+        .volume_distribution
+        .ok_or("Volume of distribution (L) required")?;
     let f = params.bioavailability.unwrap_or(1.0); // Default 100%
-    let k = params.elimination_rate.ok_or("Elimination rate constant (1/h) required")?;
+    let k = params
+        .elimination_rate
+        .ok_or("Elimination rate constant (1/h) required")?;
     let t = params.time.ok_or("Time (h) required")?;
 
     // C(t) = (F·Dose/V)·exp(-k·t)
@@ -176,14 +186,19 @@ fn calculate_pharmacokinetics(params: &BiologyParams) -> Result<BiologyResult, S
         value: concentration,
         unit: "mg/L".to_string(),
         formula_used: "One-compartment: C(t) = (F·Dose/V)·exp(-k·t)".to_string(),
-        interpretation: format!("Plasma concentration at t={:.1}h is {:.3} mg/L (t½={:.2}h)", t, concentration, t_half),
+        interpretation: format!(
+            "Plasma concentration at t={:.1}h is {:.3} mg/L (t½={:.2}h)",
+            t, concentration, t_half
+        ),
         additional_data: Some(additional),
     })
 }
 
 /// Hardy-Weinberg equilibrium: p² + 2pq + q² = 1
 fn calculate_hardy_weinberg(params: &BiologyParams) -> Result<BiologyResult, String> {
-    let p = params.allele_frequency_p.ok_or("Allele frequency p required")?;
+    let p = params
+        .allele_frequency_p
+        .ok_or("Allele frequency p required")?;
 
     if p < 0.0 || p > 1.0 {
         return Err("Allele frequency must be between 0 and 1".to_string());
@@ -192,9 +207,9 @@ fn calculate_hardy_weinberg(params: &BiologyParams) -> Result<BiologyResult, Str
     let q = 1.0 - p;
 
     // Genotype frequencies
-    let aa = p * p;      // Homozygous dominant
+    let aa = p * p; // Homozygous dominant
     let aa_het = 2.0 * p * q; // Heterozygous
-    let aa_rec = q * q;  // Homozygous recessive
+    let aa_rec = q * q; // Homozygous recessive
 
     let mut additional = std::collections::HashMap::new();
     additional.insert("freq_AA_homozygous_dominant".to_string(), aa);
@@ -206,18 +221,27 @@ fn calculate_hardy_weinberg(params: &BiologyParams) -> Result<BiologyResult, Str
         value: aa,
         unit: "frequency".to_string(),
         formula_used: "Hardy-Weinberg: p² + 2pq + q² = 1".to_string(),
-        interpretation: format!("AA={:.3}, Aa={:.3}, aa={:.3} (p={:.3}, q={:.3})", aa, aa_het, aa_rec, p, q),
+        interpretation: format!(
+            "AA={:.3}, Aa={:.3}, aa={:.3} (p={:.3}, q={:.3})",
+            aa, aa_het, aa_rec, p, q
+        ),
         additional_data: Some(additional),
     })
 }
 
 /// Goldman-Hodgkin-Katz equation for membrane potential
 fn calculate_goldman(params: &BiologyParams) -> Result<BiologyResult, String> {
-    let inside = params.ion_concentrations_inside.as_ref()
+    let inside = params
+        .ion_concentrations_inside
+        .as_ref()
         .ok_or("Inside ion concentrations required")?;
-    let outside = params.ion_concentrations_outside.as_ref()
+    let outside = params
+        .ion_concentrations_outside
+        .as_ref()
         .ok_or("Outside ion concentrations required")?;
-    let perms = params.permeabilities.as_ref()
+    let perms = params
+        .permeabilities
+        .as_ref()
         .ok_or("Permeabilities required")?;
     let t = params.temperature.unwrap_or(310.0); // Default 37°C
 
@@ -263,7 +287,9 @@ fn calculate_goldman(params: &BiologyParams) -> Result<BiologyResult, String> {
 /// Allometric scaling: Y = a·M^b (Kleiber's law for metabolism: b ≈ 0.75)
 fn calculate_allometric(params: &BiologyParams) -> Result<BiologyResult, String> {
     let mass = params.body_mass.ok_or("Body mass (kg) required")?;
-    let scaling_type = params.scaling_type.as_ref()
+    let scaling_type = params
+        .scaling_type
+        .as_ref()
         .ok_or("Scaling type required (metabolic, surface_area, lifespan)")?;
 
     let (a, b, unit, description) = match scaling_type.as_str() {
@@ -288,7 +314,10 @@ fn calculate_allometric(params: &BiologyParams) -> Result<BiologyResult, String>
         value,
         unit: unit.to_string(),
         formula_used: format!("Allometric: Y = {:.1}·M^{:.2}", a, b),
-        interpretation: format!("{}: {:.2} {} for {:.1} kg organism", description, value, unit, mass),
+        interpretation: format!(
+            "{}: {:.2} {} for {:.1} kg organism",
+            description, value, unit, mass
+        ),
         additional_data: None,
     })
 }
@@ -382,7 +411,7 @@ mod tests {
             dose: Some(100.0),
             volume_distribution: Some(10.0),
             elimination_rate: Some(0.693), // k = 0.693 gives t½ = 1h
-            time: Some(1.0), // One half-life
+            time: Some(1.0),               // One half-life
             ..Default::default()
         };
         let result = calculate_pharmacokinetics(&params).unwrap();
@@ -426,7 +455,9 @@ mod tests {
         };
         let result = calculate_hardy_weinberg(&params).unwrap();
         let additional = result.additional_data.unwrap();
-        let sum = result.value + additional["freq_Aa_heterozygous"] + additional["freq_aa_homozygous_recessive"];
+        let sum = result.value
+            + additional["freq_Aa_heterozygous"]
+            + additional["freq_aa_homozygous_recessive"];
         assert!((sum - 1.0).abs() < 0.001);
     }
 
@@ -468,7 +499,7 @@ mod tests {
     #[test]
     fn test_goldman_equation_basic() {
         let params = BiologyParams {
-            ion_concentrations_inside: Some(vec![140.0, 12.0, 4.0]),  // K+, Na+, Cl-
+            ion_concentrations_inside: Some(vec![140.0, 12.0, 4.0]), // K+, Na+, Cl-
             ion_concentrations_outside: Some(vec![5.0, 145.0, 116.0]),
             permeabilities: Some(vec![1.0, 0.04, 0.45]), // Relative permeabilities
             temperature: Some(310.0),

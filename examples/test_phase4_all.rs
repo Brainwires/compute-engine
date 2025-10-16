@@ -1,5 +1,5 @@
-use computational_engine::mathematics::symbolic_cas::*;
 use computational_engine::mathematics::numerical::*;
+use computational_engine::mathematics::symbolic_cas::*;
 use std::collections::HashMap;
 
 fn main() {
@@ -16,10 +16,7 @@ fn main() {
     println!("Test 1: Density Matrices");
     println!("------------------------");
 
-    let spin_up = SymbolicMatrix::new(vec![
-        vec![Expr::num(1)],
-        vec![Expr::num(0)],
-    ]).unwrap();
+    let spin_up = SymbolicMatrix::new(vec![vec![Expr::num(1)], vec![Expr::num(0)]]).unwrap();
 
     let rho_pure = density_matrix_pure_state(&spin_up).unwrap();
     println!("Pure state density matrix ρ = |↑⟩⟨↑|:");
@@ -98,7 +95,7 @@ fn main() {
 
     let expr = Expr::add(
         Expr::mul(Expr::num(2), Expr::sym("x")),
-        Expr::func("sin", vec![Expr::sym("x")])
+        Expr::func("sin", vec![Expr::sym("x")]),
     );
 
     let mut values = HashMap::new();
@@ -134,7 +131,8 @@ fn main() {
     let matrix = SymbolicMatrix::new(vec![
         vec![Expr::num(4), Expr::num(0)],
         vec![Expr::num(0), Expr::num(2)],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let eigenvalues = eigenvalues_numeric(&matrix, &HashMap::new(), Some(50)).unwrap();
 

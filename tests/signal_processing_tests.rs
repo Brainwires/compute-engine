@@ -8,7 +8,8 @@ fn test_fft() {
         signal,
         sample_rate: 100.0,
         window_type: "hann".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.frequencies.len() > 0);
     assert_eq!(result.frequencies.len(), result.magnitudes.len());
@@ -25,7 +26,8 @@ fn test_filter() {
         cutoff_frequency: 0.3,
         sample_rate: 100.0,
         order: 2,
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.filtered_signal.len() > 0);
 }
@@ -55,7 +57,8 @@ fn test_peak_detection() {
         height: Some(0.5),
         distance: Some(1),
         prominence: None,
-    }).unwrap();
+    })
+    .unwrap();
 
     // Should detect 3 peaks at positions 1, 3, 5
     assert_eq!(result.peak_indices.len(), 3);
@@ -87,7 +90,8 @@ fn test_wavelet_transform() {
         wavelet_type: "morlet".to_string(),
         scales: vec![1.0, 2.0, 4.0],
         sample_rate: 100.0,
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.coefficients.len() > 0);
     assert!(result.scales.len() > 0);

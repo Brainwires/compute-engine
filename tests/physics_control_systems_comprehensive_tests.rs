@@ -12,7 +12,7 @@ use computational_engine::physics::control_systems::*;
 #[test]
 fn test_transfer_function_first_order() {
     let result = transfer_function(TransferFunctionRequest {
-        numerator: vec![1.0],      // G(s) = 1/(s+1)
+        numerator: vec![1.0], // G(s) = 1/(s+1)
         denominator: vec![1.0, 1.0],
         operation: "evaluate".to_string(),
         frequency: None,
@@ -28,7 +28,7 @@ fn test_transfer_function_first_order() {
 #[test]
 fn test_transfer_function_second_order() {
     let result = transfer_function(TransferFunctionRequest {
-        numerator: vec![4.0],           // 4/(s²+2s+4)
+        numerator: vec![4.0], // 4/(s²+2s+4)
         denominator: vec![1.0, 2.0, 4.0],
         operation: "evaluate".to_string(),
         frequency: None,
@@ -214,7 +214,10 @@ fn test_bode_plot_second_order() {
     .unwrap();
 
     // Should have resonance peak near natural frequency
-    let max_mag = result.magnitude_db.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b));
+    let max_mag = result
+        .magnitude_db
+        .iter()
+        .fold(f64::NEG_INFINITY, |a, &b| a.max(b));
     assert!(max_mag > 0.0); // Resonance peak
 }
 
@@ -664,7 +667,11 @@ fn test_state_space_larger_system() {
 #[test]
 fn test_controllability_single_input() {
     let result = controllability(ControllabilityRequest {
-        a_matrix: vec![vec![0.0, 1.0, 0.0], vec![0.0, 0.0, 1.0], vec![-1.0, -2.0, -3.0]],
+        a_matrix: vec![
+            vec![0.0, 1.0, 0.0],
+            vec![0.0, 0.0, 1.0],
+            vec![-1.0, -2.0, -3.0],
+        ],
         b_matrix: vec![vec![0.0], vec![0.0], vec![1.0]],
     })
     .unwrap();

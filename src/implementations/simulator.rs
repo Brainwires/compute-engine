@@ -12,10 +12,16 @@ impl UnifiedSimulator {
     }
 
     /// Simulate time evolution using ODE/PDE solvers
-    fn simulate_time_evolution(&self, method: &TimeEvolutionMethod, input: &SimulateInput) -> ToolResult<SimulateOutput> {
+    fn simulate_time_evolution(
+        &self,
+        method: &TimeEvolutionMethod,
+        input: &SimulateInput,
+    ) -> ToolResult<SimulateOutput> {
         use crate::tools::numerical_methods;
 
-        let initial_conditions = input.initial_conditions.as_ref()
+        let initial_conditions = input
+            .initial_conditions
+            .as_ref()
             .ok_or("initial_conditions required for time evolution")?;
 
         let range = input.range.ok_or("range [start, end] required")?;
@@ -30,7 +36,8 @@ impl UnifiedSimulator {
                     _ => "euler",
                 };
 
-                let initial_value = initial_conditions.values()
+                let initial_value = initial_conditions
+                    .values()
                     .next()
                     .ok_or("At least one initial condition required")?;
 
@@ -47,8 +54,10 @@ impl UnifiedSimulator {
                 .map_err(|e| e.to_string())?;
 
                 let mut results = std::collections::HashMap::new();
-                results.insert(input.variables.first()
-                    .unwrap_or(&"y".to_string()).clone(), result.y_values);
+                results.insert(
+                    input.variables.first().unwrap_or(&"y".to_string()).clone(),
+                    result.y_values,
+                );
 
                 Ok(SimulateOutput {
                     results,
@@ -60,11 +69,12 @@ impl UnifiedSimulator {
                         "steps": result.steps_taken
                     })),
                 })
-            },
+            }
 
             TimeEvolutionMethod::AdaptiveStep => {
                 // Adaptive step size using error estimation
-                let initial_value = initial_conditions.values()
+                let initial_value = initial_conditions
+                    .values()
                     .next()
                     .ok_or("At least one initial condition required")?;
 
@@ -100,8 +110,10 @@ impl UnifiedSimulator {
                 }
 
                 let mut results = std::collections::HashMap::new();
-                results.insert(input.variables.first()
-                    .unwrap_or(&"y".to_string()).clone(), values);
+                results.insert(
+                    input.variables.first().unwrap_or(&"y".to_string()).clone(),
+                    values,
+                );
 
                 Ok(SimulateOutput {
                     results,
@@ -113,11 +125,12 @@ impl UnifiedSimulator {
                         "tolerance": tolerance
                     })),
                 })
-            },
+            }
 
             TimeEvolutionMethod::ImplicitEuler => {
                 // Implicit Euler: y_{n+1} = y_n + h*f(t_{n+1}, y_{n+1})
-                let initial_value = initial_conditions.values()
+                let initial_value = initial_conditions
+                    .values()
                     .next()
                     .ok_or("At least one initial condition required")?;
 
@@ -154,8 +167,10 @@ impl UnifiedSimulator {
                 }
 
                 let mut results = std::collections::HashMap::new();
-                results.insert(input.variables.first()
-                    .unwrap_or(&"y".to_string()).clone(), values);
+                results.insert(
+                    input.variables.first().unwrap_or(&"y".to_string()).clone(),
+                    values,
+                );
 
                 Ok(SimulateOutput {
                     results,
@@ -167,12 +182,16 @@ impl UnifiedSimulator {
                         "note": "Stable for stiff equations"
                     })),
                 })
-            },
+            }
         }
     }
 
     /// Simulate stochastic processes
-    fn simulate_stochastic(&self, process: &StochasticProcess, input: &SimulateInput) -> ToolResult<SimulateOutput> {
+    fn simulate_stochastic(
+        &self,
+        process: &StochasticProcess,
+        input: &SimulateInput,
+    ) -> ToolResult<SimulateOutput> {
         use crate::mathematics::calculus::stochastic;
 
         let range = input.range.ok_or("range [start, end] required")?;
@@ -181,12 +200,9 @@ impl UnifiedSimulator {
 
         match process {
             StochasticProcess::BrownianMotion => {
-                let initial_value = input.parameters.get("initial_value")
-                    .unwrap_or(&0.0);
-                let drift = input.parameters.get("drift")
-                    .unwrap_or(&0.0);
-                let volatility = input.parameters.get("volatility")
-                    .unwrap_or(&1.0);
+                let initial_value = input.parameters.get("initial_value").unwrap_or(&0.0);
+                let drift = input.parameters.get("drift").unwrap_or(&0.0);
+                let volatility = input.parameters.get("volatility").unwrap_or(&1.0);
 
                 let path = stochastic::generate_brownian_motion(
                     range[1] - range[0],
@@ -213,16 +229,13 @@ impl UnifiedSimulator {
                         "volatility": volatility
                     })),
                 })
-            },
+            }
 
             StochasticProcess::GeometricBrownian => {
                 // Geometric Brownian Motion: dS = μS dt + σS dW
-                let initial_value = input.parameters.get("initial_value")
-                    .unwrap_or(&100.0);
-                let drift = input.parameters.get("drift")
-                    .unwrap_or(&0.05);
-                let volatility = input.parameters.get("volatility")
-                    .unwrap_or(&0.2);
+                let initial_value = input.parameters.get("initial_value").unwrap_or(&100.0);
+                let drift = input.parameters.get("drift").unwrap_or(&0.05);
+                let volatility = input.parameters.get("volatility").unwrap_or(&0.2);
 
                 let dt = (range[1] - range[0]) / steps as f64;
                 let mut times = Vec::with_capacity(steps + 1);
@@ -256,17 +269,22 @@ impl UnifiedSimulator {
                         "sde": "dS = μS dt + σS dW"
                     })),
                 })
-            },
+            }
 
             StochasticProcess::OrnsteinUhlenbeck => {
-                let theta = input.parameters.get("theta")
+                let theta = input
+                    .parameters
+                    .get("theta")
                     .ok_or("theta (mean reversion rate) required")?;
-                let mu = input.parameters.get("mu")
+                let mu = input
+                    .parameters
+                    .get("mu")
                     .ok_or("mu (long-term mean) required")?;
-                let sigma = input.parameters.get("sigma")
+                let sigma = input
+                    .parameters
+                    .get("sigma")
                     .ok_or("sigma (volatility) required")?;
-                let initial_value = input.parameters.get("initial_value")
-                    .unwrap_or(&0.0);
+                let initial_value = input.parameters.get("initial_value").unwrap_or(&0.0);
 
                 let path = stochastic::ornstein_uhlenbeck_process(
                     *theta,
@@ -295,12 +313,11 @@ impl UnifiedSimulator {
                         "sigma": sigma
                     })),
                 })
-            },
+            }
 
             StochasticProcess::Poisson => {
                 // Poisson process with rate λ
-                let lambda = input.parameters.get("lambda")
-                    .unwrap_or(&1.0);
+                let lambda = input.parameters.get("lambda").unwrap_or(&1.0);
 
                 let dt = (range[1] - range[0]) / steps as f64;
                 let mut times = Vec::with_capacity(steps + 1);
@@ -335,14 +352,12 @@ impl UnifiedSimulator {
                         "formula": "P(N(t)=k) = (λt)^k e^(-λt) / k!"
                     })),
                 })
-            },
+            }
 
             StochasticProcess::Levy => {
                 // Lévy process (simplified as stable process)
-                let alpha = input.parameters.get("alpha")
-                    .unwrap_or(&1.5); // Stability parameter
-                let beta = input.parameters.get("beta")
-                    .unwrap_or(&0.0); // Skewness
+                let alpha = input.parameters.get("alpha").unwrap_or(&1.5); // Stability parameter
+                let beta = input.parameters.get("beta").unwrap_or(&0.0); // Skewness
 
                 let dt = (range[1] - range[0]) / steps as f64;
                 let mut times = Vec::with_capacity(steps + 1);
@@ -377,20 +392,15 @@ impl UnifiedSimulator {
                         "note": "Stable Lévy process approximation"
                     })),
                 })
-            },
+            }
 
             StochasticProcess::JumpDiffusion => {
                 // Merton jump-diffusion: dS = μS dt + σS dW + S dJ
-                let initial_value = input.parameters.get("initial_value")
-                    .unwrap_or(&100.0);
-                let drift = input.parameters.get("drift")
-                    .unwrap_or(&0.05);
-                let volatility = input.parameters.get("volatility")
-                    .unwrap_or(&0.2);
-                let jump_intensity = input.parameters.get("jump_intensity")
-                    .unwrap_or(&0.1);
-                let jump_mean = input.parameters.get("jump_mean")
-                    .unwrap_or(&0.0);
+                let initial_value = input.parameters.get("initial_value").unwrap_or(&100.0);
+                let drift = input.parameters.get("drift").unwrap_or(&0.05);
+                let volatility = input.parameters.get("volatility").unwrap_or(&0.2);
+                let jump_intensity = input.parameters.get("jump_intensity").unwrap_or(&0.1);
+                let jump_mean = input.parameters.get("jump_mean").unwrap_or(&0.0);
 
                 let dt = (range[1] - range[0]) / steps as f64;
                 let mut times = Vec::with_capacity(steps + 1);
@@ -429,14 +439,12 @@ impl UnifiedSimulator {
                         "sde": "dS = μS dt + σS dW + S dJ"
                     })),
                 })
-            },
+            }
 
             StochasticProcess::FractionalBrownian => {
                 // Fractional Brownian Motion with Hurst parameter H
-                let hurst = input.parameters.get("hurst")
-                    .unwrap_or(&0.7);
-                let initial_value = input.parameters.get("initial_value")
-                    .unwrap_or(&0.0);
+                let hurst = input.parameters.get("hurst").unwrap_or(&0.7);
+                let initial_value = input.parameters.get("initial_value").unwrap_or(&0.0);
 
                 let dt = (range[1] - range[0]) / steps as f64;
                 let mut times = Vec::with_capacity(steps + 1);
@@ -470,18 +478,14 @@ impl UnifiedSimulator {
                         "note": "H=0.5 is standard Brownian, H>0.5 is persistent, H<0.5 is anti-persistent"
                     })),
                 })
-            },
+            }
 
             StochasticProcess::MeanReverting => {
                 // Mean-reverting process (Cox-Ingersoll-Ross type)
-                let kappa = input.parameters.get("kappa")
-                    .unwrap_or(&0.5); // Mean reversion speed
-                let theta = input.parameters.get("theta")
-                    .unwrap_or(&1.0); // Long-term mean
-                let sigma = input.parameters.get("sigma")
-                    .unwrap_or(&0.2); // Volatility
-                let initial_value = input.parameters.get("initial_value")
-                    .unwrap_or(&1.0);
+                let kappa = input.parameters.get("kappa").unwrap_or(&0.5); // Mean reversion speed
+                let theta = input.parameters.get("theta").unwrap_or(&1.0); // Long-term mean
+                let sigma = input.parameters.get("sigma").unwrap_or(&0.2); // Volatility
+                let initial_value = input.parameters.get("initial_value").unwrap_or(&1.0);
 
                 let dt = (range[1] - range[0]) / steps as f64;
                 let mut times = Vec::with_capacity(steps + 1);
@@ -518,16 +522,13 @@ impl UnifiedSimulator {
                         "sde": "dx = κ(θ - x)dt + σ√x dW"
                     })),
                 })
-            },
+            }
 
             StochasticProcess::VarianceGamma => {
                 // Variance Gamma process
-                let nu = input.parameters.get("nu")
-                    .unwrap_or(&0.2); // Variance rate
-                let theta_vg = input.parameters.get("theta")
-                    .unwrap_or(&0.0); // Drift
-                let sigma = input.parameters.get("sigma")
-                    .unwrap_or(&0.3); // Volatility
+                let nu = input.parameters.get("nu").unwrap_or(&0.2); // Variance rate
+                let theta_vg = input.parameters.get("theta").unwrap_or(&0.0); // Drift
+                let sigma = input.parameters.get("sigma").unwrap_or(&0.3); // Volatility
 
                 let dt = (range[1] - range[0]) / steps as f64;
                 let mut times = Vec::with_capacity(steps + 1);
@@ -565,26 +566,32 @@ impl UnifiedSimulator {
                         "note": "Pure jump Lévy process"
                     })),
                 })
-            },
+            }
         }
     }
 
     /// Simulate fluid dynamics
-    fn simulate_fluid(&self, fluid_sim: &FluidSim, input: &SimulateInput) -> ToolResult<SimulateOutput> {
+    fn simulate_fluid(
+        &self,
+        fluid_sim: &FluidSim,
+        input: &SimulateInput,
+    ) -> ToolResult<SimulateOutput> {
         match fluid_sim {
             FluidSim::LatticeBotzmann => {
                 // Lattice Boltzmann Method for fluid simulation
-                let nx = input.parameters.get("nx")
+                let nx = input
+                    .parameters
+                    .get("nx")
                     .map(|v| *v as usize)
                     .unwrap_or(100);
-                let ny = input.parameters.get("ny")
+                let ny = input
+                    .parameters
+                    .get("ny")
                     .map(|v| *v as usize)
                     .unwrap_or(100);
                 let steps = input.steps.unwrap_or(1000);
-                let tau = input.parameters.get("tau")
-                    .unwrap_or(&0.6); // Relaxation time
-                let u_lid = input.parameters.get("lid_velocity")
-                    .unwrap_or(&0.1); // Lid-driven cavity velocity
+                let tau = input.parameters.get("tau").unwrap_or(&0.6); // Relaxation time
+                let u_lid = input.parameters.get("lid_velocity").unwrap_or(&0.1); // Lid-driven cavity velocity
 
                 // D2Q9 model (2D, 9 velocities)
                 // Initialize distribution functions
@@ -594,8 +601,17 @@ impl UnifiedSimulator {
                 // Lattice velocities for D2Q9
                 let cx = vec![0, 1, 0, -1, 0, 1, -1, -1, 1];
                 let cy = vec![0, 0, 1, 0, -1, 1, 1, -1, -1];
-                let w = vec![4.0/9.0, 1.0/9.0, 1.0/9.0, 1.0/9.0, 1.0/9.0,
-                             1.0/36.0, 1.0/36.0, 1.0/36.0, 1.0/36.0];
+                let w = vec![
+                    4.0 / 9.0,
+                    1.0 / 9.0,
+                    1.0 / 9.0,
+                    1.0 / 9.0,
+                    1.0 / 9.0,
+                    1.0 / 36.0,
+                    1.0 / 36.0,
+                    1.0 / 36.0,
+                    1.0 / 36.0,
+                ];
 
                 // Initialize with equilibrium distribution
                 for i in 0..nx {
@@ -627,8 +643,8 @@ impl UnifiedSimulator {
 
                     // Apply lid boundary condition (top boundary moves with velocity u_lid)
                     for i in 0..nx {
-                        ux[i][ny-1] = *u_lid;
-                        uy[i][ny-1] = 0.0;
+                        ux[i][ny - 1] = *u_lid;
+                        uy[i][ny - 1] = 0.0;
                     }
 
                     // Compute equilibrium distribution
@@ -637,8 +653,8 @@ impl UnifiedSimulator {
                             let u2 = ux[i][j] * ux[i][j] + uy[i][j] * uy[i][j];
                             for k in 0..9 {
                                 let cu = cx[k] as f64 * ux[i][j] + cy[k] as f64 * uy[i][j];
-                                f_eq[i][j][k] = rho[i][j] * w[k] *
-                                    (1.0 + 3.0 * cu + 4.5 * cu * cu - 1.5 * u2);
+                                f_eq[i][j][k] =
+                                    rho[i][j] * w[k] * (1.0 + 3.0 * cu + 4.5 * cu * cu - 1.5 * u2);
                             }
                         }
                     }
@@ -709,16 +725,21 @@ impl UnifiedSimulator {
                         "note": "D2Q9 model with BGK collision operator"
                     })),
                 })
-            },
+            }
 
-            FluidSim::NavierStokes | FluidSim::Euler => {
-                Err(format!("Fluid simulation {:?} should use Solve tool with FluidEquation type", fluid_sim))
-            },
+            FluidSim::NavierStokes | FluidSim::Euler => Err(format!(
+                "Fluid simulation {:?} should use Solve tool with FluidEquation type",
+                fluid_sim
+            )),
         }
     }
 
     /// Simulate finance models
-    fn simulate_finance(&self, finance_model: &FinanceModel, input: &SimulateInput) -> ToolResult<SimulateOutput> {
+    fn simulate_finance(
+        &self,
+        finance_model: &FinanceModel,
+        input: &SimulateInput,
+    ) -> ToolResult<SimulateOutput> {
         let range = input.range.ok_or("range [start, end] required")?;
         let steps = input.steps.unwrap_or(1000);
         let dt = (range[1] - range[0]) / steps as f64;
@@ -780,7 +801,7 @@ impl UnifiedSimulator {
                         "rho": rho
                     })),
                 })
-            },
+            }
 
             FinanceModel::SABR => {
                 // SABR (Stochastic Alpha Beta Rho) model
@@ -834,7 +855,7 @@ impl UnifiedSimulator {
                         "nu": nu
                     })),
                 })
-            },
+            }
 
             FinanceModel::StochasticVolatility => {
                 // General stochastic volatility model (similar to Heston but simplified)
@@ -886,7 +907,7 @@ impl UnifiedSimulator {
                         "long_term_vol": theta
                     })),
                 })
-            },
+            }
 
             FinanceModel::BlackScholes => {
                 // Black-Scholes model (Geometric Brownian Motion for asset price)
@@ -928,7 +949,7 @@ impl UnifiedSimulator {
                         "sde": "dS = μS dt + σS dW"
                     })),
                 })
-            },
+            }
         }
     }
 }

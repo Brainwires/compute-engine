@@ -7,8 +7,8 @@
 //! - Symbolic Regression (Evolutionary algorithm)
 //! - Auto Model Selection (AIC, BIC, AICc, R²)
 
-use computational_engine::engine::*;
 use computational_engine::create_default_dispatcher;
+use computational_engine::engine::*;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -186,10 +186,18 @@ fn test_interpolation_linear() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform linear interpolation: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform linear interpolation: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Optimize(output)) = result {
-        assert_eq!(output.r_squared, Some(1.0), "Interpolation should have R²=1");
+        assert_eq!(
+            output.r_squared,
+            Some(1.0),
+            "Interpolation should have R²=1"
+        );
     }
 }
 
@@ -210,7 +218,11 @@ fn test_interpolation_polynomial() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform polynomial interpolation: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform polynomial interpolation: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -230,11 +242,18 @@ fn test_interpolation_spline() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform spline interpolation: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform spline interpolation: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Optimize(output)) = result {
         let metadata = output.metadata.as_ref().unwrap();
-        assert_eq!(metadata.get("method").and_then(|v| v.as_str()).unwrap(), "cubic_spline");
+        assert_eq!(
+            metadata.get("method").and_then(|v| v.as_str()).unwrap(),
+            "cubic_spline"
+        );
     }
 }
 
@@ -255,7 +274,11 @@ fn test_interpolation_cubic() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform cubic interpolation: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform cubic interpolation: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -276,7 +299,11 @@ fn test_minimize_conjugate_gradient() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should handle conjugate gradient: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should handle conjugate gradient: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Optimize(output)) = result {
         assert!(output.convergence.is_some(), "Should have convergence info");
@@ -314,11 +341,18 @@ fn test_minimize_levenberg_marquardt() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should handle Levenberg-Marquardt: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should handle Levenberg-Marquardt: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Optimize(output)) = result {
         let metadata = output.metadata.as_ref().unwrap();
-        assert_eq!(metadata.get("method").and_then(|v| v.as_str()).unwrap(), "levenberg_marquardt");
+        assert_eq!(
+            metadata.get("method").and_then(|v| v.as_str()).unwrap(),
+            "levenberg_marquardt"
+        );
     }
 }
 
@@ -336,7 +370,10 @@ fn test_minimize_gradient_descent_not_supported() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Gradient descent should return error (not supported via JSON API)");
+    assert!(
+        result.is_err(),
+        "Gradient descent should return error (not supported via JSON API)"
+    );
 }
 
 #[test]
@@ -353,7 +390,10 @@ fn test_minimize_nelder_mead_not_supported() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Nelder-Mead should return error (not supported via JSON API)");
+    assert!(
+        result.is_err(),
+        "Nelder-Mead should return error (not supported via JSON API)"
+    );
 }
 
 // ============================================================================
@@ -378,7 +418,11 @@ fn test_symbolic_regression_simple() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform symbolic regression: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform symbolic regression: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Optimize(output)) = result {
         assert!(output.function.is_some(), "Should discover an equation");
@@ -407,7 +451,11 @@ fn test_symbolic_regression_with_domain() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform symbolic regression with physics domain: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform symbolic regression with physics domain: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -435,12 +483,25 @@ fn test_auto_selection_aicc() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should auto-select model using AICc: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should auto-select model using AICc: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Optimize(output)) = result {
         let metadata = output.metadata.as_ref().unwrap();
-        assert_eq!(metadata.get("auto_selection").and_then(|v| v.as_bool()).unwrap(), true);
-        assert_eq!(metadata.get("criteria").and_then(|v| v.as_str()).unwrap(), "AICc");
+        assert_eq!(
+            metadata
+                .get("auto_selection")
+                .and_then(|v| v.as_bool())
+                .unwrap(),
+            true
+        );
+        assert_eq!(
+            metadata.get("criteria").and_then(|v| v.as_str()).unwrap(),
+            "AICc"
+        );
     }
 }
 
@@ -464,7 +525,11 @@ fn test_auto_selection_aic() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should auto-select model using AIC: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should auto-select model using AIC: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -487,7 +552,11 @@ fn test_auto_selection_bic() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should auto-select model using BIC: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should auto-select model using BIC: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -510,7 +579,11 @@ fn test_auto_selection_r_squared() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should auto-select model using R²: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should auto-select model using R²: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -533,7 +606,11 @@ fn test_auto_selection_with_candidates() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should auto-select from specified candidates: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should auto-select from specified candidates: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -554,7 +631,10 @@ fn test_dimensional_analysis_not_implemented() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Dimensional analysis should return error (not yet implemented)");
+    assert!(
+        result.is_err(),
+        "Dimensional analysis should return error (not yet implemented)"
+    );
 }
 
 // ============================================================================
@@ -592,7 +672,10 @@ fn test_interpolation_requires_minimum_points() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Linear interpolation should require at least 2 points");
+    assert!(
+        result.is_err(),
+        "Linear interpolation should require at least 2 points"
+    );
 }
 
 #[test]
@@ -609,5 +692,8 @@ fn test_spline_requires_minimum_points() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Spline interpolation should require at least 3 points");
+    assert!(
+        result.is_err(),
+        "Spline interpolation should require at least 3 points"
+    );
 }

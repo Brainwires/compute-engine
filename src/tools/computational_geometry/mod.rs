@@ -6,7 +6,7 @@
 //! - Triangulation
 //! - Spatial indexing
 
-mod lib;
 mod advanced;
+mod lib;
 
 pub use advanced::*;

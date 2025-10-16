@@ -90,8 +90,7 @@ fn apply_window(signal: &[f64], window_type: &str) -> Vec<f64> {
             .iter()
             .enumerate()
             .map(|(i, &x)| {
-                let window_val = 0.42 
-                    - 0.5 * (2.0 * PI * i as f64 / (n - 1) as f64).cos()
+                let window_val = 0.42 - 0.5 * (2.0 * PI * i as f64 / (n - 1) as f64).cos()
                     + 0.08 * (4.0 * PI * i as f64 / (n - 1) as f64).cos();
                 x * window_val
             })
@@ -103,44 +102,44 @@ fn apply_window(signal: &[f64], window_type: &str) -> Vec<f64> {
 
 pub fn compute_fft(request: FFTRequest) -> Result<FFTResult, String> {
     let start_time = Instant::now();
-    
+
     // Apply window function
     let windowed_signal = apply_window(&request.signal, &request.window_type);
-    
+
     // Pad to next power of 2 for efficiency
     let original_len = windowed_signal.len();
     let fft_len = original_len.next_power_of_two();
-    
+
     // Convert to complex numbers and pad with zeros
     let mut complex_signal: Vec<Complex<f64>> = windowed_signal
         .into_iter()
         .map(|x| Complex::new(x, 0.0))
         .collect();
     complex_signal.resize(fft_len, Complex::new(0.0, 0.0));
-    
+
     // Perform FFT
     let mut planner = FftPlanner::new();
     let fft = planner.plan_fft_forward(fft_len);
     fft.process(&mut complex_signal);
-    
+
     // Extract results (only positive frequencies)
     let half_len = fft_len / 2;
     let frequencies: Vec<f64> = (0..half_len)
         .map(|i| i as f64 * request.sample_rate / fft_len as f64)
         .collect();
-    
+
     let magnitudes: Vec<f64> = complex_signal[0..half_len]
         .iter()
         .map(|c| c.norm() / original_len as f64)
         .collect();
-    
+
     let phases: Vec<f64> = complex_signal[0..half_len]
         .iter()
         .map(|c| c.arg())
         .collect();
-    
+
     let computation_time = start_time.elapsed().as_secs_f64();
-    
+
     Ok(FFTResult {
         frequencies,
         magnitudes,
@@ -154,9 +153,9 @@ fn apply_lowpass_filter(signal: &[f64], cutoff: f64, sample_rate: f64, order: us
     let rc = 1.0 / (2.0 * PI * cutoff);
     let dt = 1.0 / sample_rate;
     let alpha = dt / (rc + dt);
-    
+
     let mut filtered = signal.to_vec();
-    
+
     // Apply multiple stages for higher order
     for _ in 0..order {
         let mut prev_output = filtered[0];
@@ -165,7 +164,7 @@ fn apply_lowpass_filter(signal: &[f64], cutoff: f64, sample_rate: f64, order: us
             filtered[i] = prev_output;
         }
     }
-    
+
     filtered
 }
 
@@ -174,14 +173,14 @@ fn apply_highpass_filter(signal: &[f64], cutoff: f64, sample_rate: f64, order: u
     let rc = 1.0 / (2.0 * PI * cutoff);
     let dt = 1.0 / sample_rate;
     let alpha = rc / (rc + dt);
-    
+
     let mut filtered = signal.to_vec();
-    
+
     // Apply multiple stages for higher order
     for _ in 0..order {
         let mut prev_input = filtered[0];
         let mut prev_output = filtered[0];
-        
+
         for i in 1..filtered.len() {
             let current_input = filtered[i];
             let current_output = alpha * (prev_output + current_input - prev_input);
@@ -190,42 +189,76 @@ fn apply_highpass_filter(signal: &[f64], cutoff: f64, sample_rate: f64, order: u
             prev_output = current_output;
         }
     }
-    
+
     filtered
 }
 
 pub fn apply_filter(request: FilterRequest) -> Result<FilterResult, String> {
     let start_time = Instant::now();
-    
+
     let filtered_signal = match request.filter_type.as_str() {
-        "lowpass" => apply_lowpass_filter(&request.signal, request.cutoff_frequency, request.sample_rate, request.order),
-        "highpass" => apply_highpass_filter(&request.signal, request.cutoff_frequency, request.sample_rate, request.order),
+        "lowpass" => apply_lowpass_filter(
+            &request.signal,
+            request.cutoff_frequency,
+            request.sample_rate,
+            request.order,
+        ),
+        "highpass" => apply_highpass_filter(
+            &request.signal,
+            request.cutoff_frequency,
+            request.sample_rate,
+            request.order,
+        ),
         "bandpass" => {
             // Simple bandpass: high-pass followed by low-pass
             // For a proper bandpass, cutoff_frequency should be center frequency
             let bandwidth = request.cutoff_frequency * 0.2; // 20% bandwidth
             let low_cutoff = request.cutoff_frequency - bandwidth / 2.0;
             let high_cutoff = request.cutoff_frequency + bandwidth / 2.0;
-            
-            let high_passed = apply_highpass_filter(&request.signal, low_cutoff, request.sample_rate, request.order / 2);
-            apply_lowpass_filter(&high_passed, high_cutoff, request.sample_rate, request.order / 2)
-        },
+
+            let high_passed = apply_highpass_filter(
+                &request.signal,
+                low_cutoff,
+                request.sample_rate,
+                request.order / 2,
+            );
+            apply_lowpass_filter(
+                &high_passed,
+                high_cutoff,
+                request.sample_rate,
+                request.order / 2,
+            )
+        }
         "bandstop" => {
             // Simple bandstop: parallel high-pass and low-pass, then add
             let bandwidth = request.cutoff_frequency * 0.2;
             let low_cutoff = request.cutoff_frequency - bandwidth / 2.0;
             let high_cutoff = request.cutoff_frequency + bandwidth / 2.0;
-            
-            let low_passed = apply_lowpass_filter(&request.signal, low_cutoff, request.sample_rate, request.order / 2);
-            let high_passed = apply_highpass_filter(&request.signal, high_cutoff, request.sample_rate, request.order / 2);
-            
-            low_passed.iter().zip(high_passed.iter()).map(|(a, b)| a + b).collect()
-        },
+
+            let low_passed = apply_lowpass_filter(
+                &request.signal,
+                low_cutoff,
+                request.sample_rate,
+                request.order / 2,
+            );
+            let high_passed = apply_highpass_filter(
+                &request.signal,
+                high_cutoff,
+                request.sample_rate,
+                request.order / 2,
+            );
+
+            low_passed
+                .iter()
+                .zip(high_passed.iter())
+                .map(|(a, b)| a + b)
+                .collect()
+        }
         _ => return Err(format!("Unsupported filter type: {}", request.filter_type)),
     };
-    
+
     let computation_time = start_time.elapsed().as_secs_f64();
-    
+
     Ok(FilterResult {
         filtered_signal,
         computation_time,
@@ -234,54 +267,52 @@ pub fn apply_filter(request: FilterRequest) -> Result<FilterResult, String> {
 
 pub fn compute_spectrogram(request: SpectrogramRequest) -> Result<SpectrogramResult, String> {
     let start_time = Instant::now();
-    
+
     if request.window_size > request.signal.len() {
         return Err("Window size cannot be larger than signal length".to_string());
     }
-    
+
     let mut planner = FftPlanner::new();
     let fft = planner.plan_fft_forward(request.window_size);
-    
+
     let num_windows = (request.signal.len() - request.window_size) / request.hop_size + 1;
     let mut magnitudes = Vec::with_capacity(num_windows);
     let mut times = Vec::with_capacity(num_windows);
-    
+
     let frequencies: Vec<f64> = (0..request.window_size / 2)
         .map(|i| i as f64 * request.sample_rate / request.window_size as f64)
         .collect();
-    
+
     for window_idx in 0..num_windows {
         let start = window_idx * request.hop_size;
         let end = start + request.window_size;
-        
+
         if end > request.signal.len() {
             break;
         }
-        
+
         // Extract and window the signal segment
         let window_signal = &request.signal[start..end];
         let windowed = apply_window(window_signal, &request.window_type);
-        
+
         // Convert to complex and perform FFT
-        let mut complex_signal: Vec<Complex<f64>> = windowed
-            .into_iter()
-            .map(|x| Complex::new(x, 0.0))
-            .collect();
-        
+        let mut complex_signal: Vec<Complex<f64>> =
+            windowed.into_iter().map(|x| Complex::new(x, 0.0)).collect();
+
         fft.process(&mut complex_signal);
-        
+
         // Extract magnitudes (only positive frequencies)
         let window_magnitudes: Vec<f64> = complex_signal[0..request.window_size / 2]
             .iter()
             .map(|c| c.norm() / request.window_size as f64)
             .collect();
-        
+
         magnitudes.push(window_magnitudes);
         times.push(start as f64 / request.sample_rate);
     }
-    
+
     let computation_time = start_time.elapsed().as_secs_f64();
-    
+
     Ok(SpectrogramResult {
         frequencies,
         times,
@@ -290,59 +321,61 @@ pub fn compute_spectrogram(request: SpectrogramRequest) -> Result<SpectrogramRes
     })
 }
 
-fn compute_psd_welch(signal: &[f64], sample_rate: f64, window_size: usize) -> (Vec<f64>, Vec<f64>, f64) {
+fn compute_psd_welch(
+    signal: &[f64],
+    sample_rate: f64,
+    window_size: usize,
+) -> (Vec<f64>, Vec<f64>, f64) {
     let overlap = window_size / 2;
     let hop_size = window_size - overlap;
     let num_windows = (signal.len() - overlap) / hop_size;
-    
+
     if num_windows == 0 {
         return (vec![], vec![], 0.0);
     }
-    
+
     let mut planner = FftPlanner::new();
     let fft = planner.plan_fft_forward(window_size);
-    
+
     let frequencies: Vec<f64> = (0..window_size / 2)
         .map(|i| i as f64 * sample_rate / window_size as f64)
         .collect();
-    
+
     let mut psd_sum = vec![0.0; window_size / 2];
-    
+
     for window_idx in 0..num_windows {
         let start = window_idx * hop_size;
         let end = start + window_size;
-        
+
         if end > signal.len() {
             break;
         }
-        
+
         // Extract and window the signal segment
         let window_signal = &signal[start..end];
         let windowed = apply_window(window_signal, "hanning");
-        
+
         // Convert to complex and perform FFT
-        let mut complex_signal: Vec<Complex<f64>> = windowed
-            .into_iter()
-            .map(|x| Complex::new(x, 0.0))
-            .collect();
-        
+        let mut complex_signal: Vec<Complex<f64>> =
+            windowed.into_iter().map(|x| Complex::new(x, 0.0)).collect();
+
         fft.process(&mut complex_signal);
-        
+
         // Accumulate power spectral density
         for (i, c) in complex_signal[0..window_size / 2].iter().enumerate() {
             let magnitude_squared = c.norm_sqr();
             psd_sum[i] += magnitude_squared;
         }
     }
-    
+
     // Average and normalize
     let psd: Vec<f64> = psd_sum
         .into_iter()
         .map(|sum| sum / (num_windows as f64 * sample_rate))
         .collect();
-    
+
     let total_power = psd.iter().sum::<f64>() * (sample_rate / window_size as f64);
-    
+
     (frequencies, psd, total_power)
 }
 
@@ -354,10 +387,8 @@ pub fn compute_psd(request: PSDRequest) -> Result<PSDResult, String> {
         "periodogram" => {
             // Simple periodogram (single FFT)
             let windowed = apply_window(&request.signal, "hanning");
-            let mut complex_signal: Vec<Complex<f64>> = windowed
-                .into_iter()
-                .map(|x| Complex::new(x, 0.0))
-                .collect();
+            let mut complex_signal: Vec<Complex<f64>> =
+                windowed.into_iter().map(|x| Complex::new(x, 0.0)).collect();
 
             let fft_len = complex_signal.len();
             let mut planner = FftPlanner::new();
@@ -376,7 +407,7 @@ pub fn compute_psd(request: PSDRequest) -> Result<PSDResult, String> {
             let total_power = psd.iter().sum::<f64>() * (request.sample_rate / fft_len as f64);
 
             (frequencies, psd, total_power)
-        },
+        }
         _ => return Err(format!("Unsupported PSD method: {}", request.method)),
     };
 
@@ -412,13 +443,16 @@ mod tests {
             signal,
             sample_rate,
             window_type: "rectangular".to_string(),
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(result.frequencies.len(), result.magnitudes.len());
         assert!(result.computation_time >= 0.0);
 
         // Peak should be near 10 Hz
-        let peak_idx = result.magnitudes.iter()
+        let peak_idx = result
+            .magnitudes
+            .iter()
             .enumerate()
             .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap())
             .map(|(i, _)| i)
@@ -434,7 +468,8 @@ mod tests {
             signal,
             sample_rate: 100.0,
             window_type: "hanning".to_string(),
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.magnitudes.len() > 0);
     }
@@ -446,7 +481,8 @@ mod tests {
             signal,
             sample_rate: 100.0,
             window_type: "hamming".to_string(),
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.magnitudes.len() > 0);
     }
@@ -458,7 +494,8 @@ mod tests {
             signal,
             sample_rate: 100.0,
             window_type: "blackman".to_string(),
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.magnitudes.len() > 0);
     }
@@ -473,7 +510,8 @@ mod tests {
             cutoff_frequency: 5.0,
             sample_rate: 100.0,
             order: 2,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(result.filtered_signal.len(), signal.len());
     }
@@ -488,7 +526,8 @@ mod tests {
             cutoff_frequency: 5.0,
             sample_rate: 100.0,
             order: 2,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(result.filtered_signal.len(), signal.len());
     }
@@ -503,7 +542,8 @@ mod tests {
             cutoff_frequency: 10.0,
             sample_rate: 100.0,
             order: 4,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(result.filtered_signal.len(), signal.len());
     }
@@ -518,7 +558,8 @@ mod tests {
             cutoff_frequency: 10.0,
             sample_rate: 100.0,
             order: 4,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(result.filtered_signal.len(), signal.len());
     }
@@ -548,7 +589,8 @@ mod tests {
             window_size: 128,
             hop_size: 64,
             window_type: "hanning".to_string(),
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.frequencies.len() > 0);
         assert!(result.times.len() > 0);
@@ -579,7 +621,8 @@ mod tests {
             sample_rate: 100.0,
             method: "welch".to_string(),
             window_size: 256,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(result.frequencies.len(), result.psd.len());
         assert!(result.total_power > 0.0);
@@ -595,7 +638,8 @@ mod tests {
             sample_rate: 100.0,
             method: "periodogram".to_string(),
             window_size: 256,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(result.frequencies.len(), result.psd.len());
         assert!(result.total_power > 0.0);
@@ -642,7 +686,8 @@ mod tests {
             cutoff_frequency: 10.0,
             sample_rate: 100.0,
             order: 1,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.filtered_signal.len() == 20);
     }
@@ -656,7 +701,8 @@ mod tests {
             cutoff_frequency: 10.0,
             sample_rate: 100.0,
             order: 8,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.filtered_signal.len() == 20);
     }
@@ -668,7 +714,8 @@ mod tests {
             signal,
             sample_rate: 100.0,
             window_type: "rectangular".to_string(),
-        }).unwrap();
+        })
+        .unwrap();
 
         // Should be padded to 128 (next power of 2)
         assert!(result.magnitudes.len() == 64); // Half of 128
@@ -685,7 +732,8 @@ mod tests {
                 window_size: 64,
                 hop_size: 32,
                 window_type: window_type.to_string(),
-            }).unwrap();
+            })
+            .unwrap();
 
             assert!(result.magnitudes.len() > 0);
         }
@@ -699,9 +747,9 @@ mod tests {
             sample_rate: 100.0,
             method: "welch".to_string(),
             window_size: 32,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.frequencies.len() > 0);
     }
 }
-

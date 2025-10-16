@@ -2,10 +2,10 @@
 //!
 //! Specialized computational modules
 
-pub mod stochastic_processes;
+pub mod chemistry;
 pub mod cryptographic_mathematics;
-pub mod statistics;
-pub mod optimization;
 pub mod graph_theory;
 pub mod information_theory;
-pub mod chemistry;
+pub mod optimization;
+pub mod statistics;
+pub mod stochastic_processes;

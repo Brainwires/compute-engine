@@ -3,12 +3,12 @@
 //! This module provides a clean, modular JSON-based interface to all computational functions.
 //! Handlers are organized by domain for better maintainability.
 
-pub mod types;
 pub mod handlers;
 pub mod operations;
+pub mod types;
 
-pub use types::{ComputationRequest, ComputationResponse};
 pub use operations::list_all_operations;
+pub use types::{ComputationRequest, ComputationResponse};
 
 /// Process a computation request and route it to the appropriate module handler
 pub fn process_request(request: &ComputationRequest) -> ComputationResponse {
@@ -27,7 +27,7 @@ pub fn process_json_request(json_str: &str) -> String {
                 result: None,
                 error: Some(format!("Invalid JSON: {}", e)),
             })
-            .unwrap()
+            .unwrap();
         }
     };
 

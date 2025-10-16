@@ -3,8 +3,8 @@
 //! Provides symbolic computation for quantum mechanics including commutators,
 //! quantum matrices (Pauli, Dirac), operators, and quantum state manipulations.
 
-use super::{Expr, SymbolicMatrix, SymbolicResult, SymbolicError};
 use super::simplify::simplify;
+use super::{Expr, SymbolicError, SymbolicMatrix, SymbolicResult};
 use std::collections::HashMap;
 
 /// Compute the commutator [A, B] = AB - BA
@@ -29,8 +29,9 @@ pub fn commutator(a: &SymbolicMatrix, b: &SymbolicMatrix) -> SymbolicResult<Symb
     let mut simplified_data = vec![vec![Expr::num(0); result.cols()]; result.rows()];
     for i in 0..result.rows() {
         for j in 0..result.cols() {
-            let elem = result.get(i, j)
-                .ok_or_else(|| SymbolicError::InvalidOperation("Invalid matrix indices".to_string()))?;
+            let elem = result.get(i, j).ok_or_else(|| {
+                SymbolicError::InvalidOperation("Invalid matrix indices".to_string())
+            })?;
             simplified_data[i][j] = simplify(elem);
         }
     }
@@ -60,8 +61,9 @@ pub fn anticommutator(a: &SymbolicMatrix, b: &SymbolicMatrix) -> SymbolicResult<
     let mut simplified_data = vec![vec![Expr::num(0); result.cols()]; result.rows()];
     for i in 0..result.rows() {
         for j in 0..result.cols() {
-            let elem = result.get(i, j)
-                .ok_or_else(|| SymbolicError::InvalidOperation("Invalid matrix indices".to_string()))?;
+            let elem = result.get(i, j).ok_or_else(|| {
+                SymbolicError::InvalidOperation("Invalid matrix indices".to_string())
+            })?;
             simplified_data[i][j] = simplify(elem);
         }
     }
@@ -76,7 +78,8 @@ pub fn pauli_x() -> SymbolicMatrix {
     SymbolicMatrix::new(vec![
         vec![Expr::num(0), Expr::num(1)],
         vec![Expr::num(1), Expr::num(0)],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// Create the Pauli Y matrix (σ_y)
@@ -86,7 +89,8 @@ pub fn pauli_y() -> SymbolicMatrix {
     SymbolicMatrix::new(vec![
         vec![Expr::num(0), Expr::mul(Expr::num(-1), Expr::sym("i"))],
         vec![Expr::sym("i"), Expr::num(0)],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// Create the Pauli Z matrix (σ_z)
@@ -96,7 +100,8 @@ pub fn pauli_z() -> SymbolicMatrix {
     SymbolicMatrix::new(vec![
         vec![Expr::num(1), Expr::num(0)],
         vec![Expr::num(0), Expr::num(-1)],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// Get all three Pauli matrices
@@ -113,7 +118,8 @@ pub fn dirac_gamma_0() -> SymbolicMatrix {
         vec![Expr::num(0), Expr::num(1), Expr::num(0), Expr::num(0)],
         vec![Expr::num(0), Expr::num(0), Expr::num(-1), Expr::num(0)],
         vec![Expr::num(0), Expr::num(0), Expr::num(0), Expr::num(-1)],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// Create a Dirac gamma matrix (γ^1)
@@ -125,7 +131,8 @@ pub fn dirac_gamma_1() -> SymbolicMatrix {
         vec![Expr::num(0), Expr::num(0), Expr::num(1), Expr::num(0)],
         vec![Expr::num(0), Expr::num(-1), Expr::num(0), Expr::num(0)],
         vec![Expr::num(-1), Expr::num(0), Expr::num(0), Expr::num(0)],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// Create a Dirac gamma matrix (γ^2)
@@ -133,11 +140,22 @@ pub fn dirac_gamma_1() -> SymbolicMatrix {
 /// γ^2 = [[0, σ_y], [-σ_y, 0]]
 pub fn dirac_gamma_2() -> SymbolicMatrix {
     SymbolicMatrix::new(vec![
-        vec![Expr::num(0), Expr::num(0), Expr::num(0), Expr::mul(Expr::num(-1), Expr::sym("i"))],
+        vec![
+            Expr::num(0),
+            Expr::num(0),
+            Expr::num(0),
+            Expr::mul(Expr::num(-1), Expr::sym("i")),
+        ],
         vec![Expr::num(0), Expr::num(0), Expr::sym("i"), Expr::num(0)],
-        vec![Expr::num(0), Expr::mul(Expr::num(-1), Expr::sym("i")), Expr::num(0), Expr::num(0)],
+        vec![
+            Expr::num(0),
+            Expr::mul(Expr::num(-1), Expr::sym("i")),
+            Expr::num(0),
+            Expr::num(0),
+        ],
         vec![Expr::sym("i"), Expr::num(0), Expr::num(0), Expr::num(0)],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// Create a Dirac gamma matrix (γ^3)
@@ -149,12 +167,18 @@ pub fn dirac_gamma_3() -> SymbolicMatrix {
         vec![Expr::num(0), Expr::num(0), Expr::num(0), Expr::num(-1)],
         vec![Expr::num(-1), Expr::num(0), Expr::num(0), Expr::num(0)],
         vec![Expr::num(0), Expr::num(1), Expr::num(0), Expr::num(0)],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// Get all four Dirac gamma matrices
 pub fn dirac_gamma_matrices() -> [SymbolicMatrix; 4] {
-    [dirac_gamma_0(), dirac_gamma_1(), dirac_gamma_2(), dirac_gamma_3()]
+    [
+        dirac_gamma_0(),
+        dirac_gamma_1(),
+        dirac_gamma_2(),
+        dirac_gamma_3(),
+    ]
 }
 
 /// Create the angular momentum operator L_x (for spin)
@@ -195,14 +219,14 @@ pub fn creation_operator_symbolic() -> Expr {
     let prefactor = Expr::pow(
         Expr::mul(
             Expr::mul(Expr::num(2), Expr::sym("m")),
-            Expr::mul(Expr::sym("ω"), Expr::sym("ℏ"))
+            Expr::mul(Expr::sym("ω"), Expr::sym("ℏ")),
         ),
-        Expr::rational_unchecked(-1, 2)
+        Expr::rational_unchecked(-1, 2),
     );
 
     let term = Expr::add(
         Expr::mul(Expr::mul(Expr::sym("m"), Expr::sym("ω")), Expr::sym("x")),
-        Expr::mul(Expr::mul(Expr::num(-1), Expr::sym("i")), Expr::sym("p"))
+        Expr::mul(Expr::mul(Expr::num(-1), Expr::sym("i")), Expr::sym("p")),
     );
 
     Expr::mul(prefactor, term)
@@ -216,14 +240,14 @@ pub fn annihilation_operator_symbolic() -> Expr {
     let prefactor = Expr::pow(
         Expr::mul(
             Expr::mul(Expr::num(2), Expr::sym("m")),
-            Expr::mul(Expr::sym("ω"), Expr::sym("ℏ"))
+            Expr::mul(Expr::sym("ω"), Expr::sym("ℏ")),
         ),
-        Expr::rational_unchecked(-1, 2)
+        Expr::rational_unchecked(-1, 2),
     );
 
     let term = Expr::add(
         Expr::mul(Expr::mul(Expr::sym("m"), Expr::sym("ω")), Expr::sym("x")),
-        Expr::mul(Expr::sym("i"), Expr::sym("p"))
+        Expr::mul(Expr::sym("i"), Expr::sym("p")),
     );
 
     Expr::mul(prefactor, term)
@@ -237,12 +261,9 @@ pub fn time_evolution_operator(hamiltonian: &str, time: &str) -> Expr {
     let exponent = Expr::mul(
         Expr::mul(
             Expr::mul(Expr::num(-1), Expr::sym("i")),
-            Expr::sym(hamiltonian)
+            Expr::sym(hamiltonian),
         ),
-        Expr::mul(
-            Expr::sym(time),
-            Expr::pow(Expr::sym("ℏ"), Expr::num(-1))
-        )
+        Expr::mul(Expr::sym(time), Expr::pow(Expr::sym("ℏ"), Expr::num(-1))),
     );
 
     Expr::func("exp", vec![exponent])
@@ -263,7 +284,7 @@ pub fn expectation_value(
     // Check state is a column vector
     if state.cols() != 1 {
         return Err(SymbolicError::InvalidOperation(
-            "State must be a column vector".to_string()
+            "State must be a column vector".to_string(),
         ));
     }
 
@@ -279,12 +300,13 @@ pub fn expectation_value(
     // Should be a 1x1 matrix
     if result.rows() != 1 || result.cols() != 1 {
         return Err(SymbolicError::InvalidOperation(
-            "Expectation value should be a scalar".to_string()
+            "Expectation value should be a scalar".to_string(),
         ));
     }
 
-    let value = result.get(0, 0)
-        .ok_or_else(|| SymbolicError::InvalidOperation("Failed to get expectation value".to_string()))?;
+    let value = result.get(0, 0).ok_or_else(|| {
+        SymbolicError::InvalidOperation("Failed to get expectation value".to_string())
+    })?;
 
     Ok(simplify(value))
 }
@@ -312,24 +334,32 @@ pub fn verify_pauli_properties() -> HashMap<String, bool> {
 
     // σ_x² = I
     let sigma_x_squared = sigma_x.mul(&sigma_x).unwrap();
-    results.insert("σ_x² = I".to_string(),
-        matrices_equal(&sigma_x_squared, &identity));
+    results.insert(
+        "σ_x² = I".to_string(),
+        matrices_equal(&sigma_x_squared, &identity),
+    );
 
     // σ_y² = I
     let sigma_y_squared = sigma_y.mul(&sigma_y).unwrap();
-    results.insert("σ_y² = I".to_string(),
-        matrices_equal(&sigma_y_squared, &identity));
+    results.insert(
+        "σ_y² = I".to_string(),
+        matrices_equal(&sigma_y_squared, &identity),
+    );
 
     // σ_z² = I
     let sigma_z_squared = sigma_z.mul(&sigma_z).unwrap();
-    results.insert("σ_z² = I".to_string(),
-        matrices_equal(&sigma_z_squared, &identity));
+    results.insert(
+        "σ_z² = I".to_string(),
+        matrices_equal(&sigma_z_squared, &identity),
+    );
 
     // [σ_x, σ_y] = 2i σ_z
     let comm_xy = commutator(&sigma_x, &sigma_y).unwrap();
     let expected_xy = sigma_z.scalar_mul(&Expr::mul(Expr::num(2), Expr::sym("i")));
-    results.insert("[σ_x, σ_y] = 2iσ_z".to_string(),
-        matrices_equal(&comm_xy, &expected_xy));
+    results.insert(
+        "[σ_x, σ_y] = 2iσ_z".to_string(),
+        matrices_equal(&comm_xy, &expected_xy),
+    );
 
     results
 }
@@ -362,12 +392,14 @@ mod tests {
         let a = SymbolicMatrix::new(vec![
             vec![Expr::num(1), Expr::num(2)],
             vec![Expr::num(3), Expr::num(4)],
-        ]).unwrap();
+        ])
+        .unwrap();
 
         let b = SymbolicMatrix::new(vec![
             vec![Expr::num(0), Expr::num(1)],
             vec![Expr::num(1), Expr::num(0)],
-        ]).unwrap();
+        ])
+        .unwrap();
 
         let comm = commutator(&a, &b).unwrap();
         println!("[A, B] = \n{}", comm);
@@ -501,10 +533,7 @@ mod tests {
     #[test]
     fn test_expectation_value() {
         // Simple state |ψ> = [1, 0]
-        let state = SymbolicMatrix::new(vec![
-            vec![Expr::num(1)],
-            vec![Expr::num(0)],
-        ]).unwrap();
+        let state = SymbolicMatrix::new(vec![vec![Expr::num(1)], vec![Expr::num(0)]]).unwrap();
 
         let sigma_z = pauli_z();
 

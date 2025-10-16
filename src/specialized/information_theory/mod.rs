@@ -15,9 +15,9 @@ use std::collections::HashMap;
 #[derive(Debug, Deserialize)]
 pub struct EntropyRequest {
     pub data: Vec<f64>,
-    pub base: Option<f64>, // logarithm base (default: 2 for bits)
+    pub base: Option<f64>,            // logarithm base (default: 2 for bits)
     pub entropy_type: Option<String>, // "shannon", "renyi", "differential"
-    pub alpha: Option<f64>, // for Rényi entropy
+    pub alpha: Option<f64>,           // for Rényi entropy
 }
 
 #[derive(Debug, Serialize)]
@@ -44,7 +44,7 @@ pub struct MutualInfoResult {
 
 #[derive(Debug, Deserialize)]
 pub struct ChannelCapacityRequest {
-    pub transition_matrix: Vec<Vec<f64>>, // P(Y|X) probabilities
+    pub transition_matrix: Vec<Vec<f64>>,     // P(Y|X) probabilities
     pub input_distribution: Option<Vec<f64>>, // if None, optimize for capacity
 }
 
@@ -134,7 +134,9 @@ fn compute_probabilities(values: &[usize], num_bins: usize) -> Vec<f64> {
 /// Calculate Shannon entropy
 pub fn shannon_entropy(request: EntropyRequest) -> Result<EntropyResult, String> {
     let base = request.base.unwrap_or(2.0);
-    let entropy_type = request.entropy_type.unwrap_or_else(|| "shannon".to_string());
+    let entropy_type = request
+        .entropy_type
+        .unwrap_or_else(|| "shannon".to_string());
 
     let data = &request.data;
     if data.is_empty() {
@@ -148,11 +150,12 @@ pub fn shannon_entropy(request: EntropyRequest) -> Result<EntropyResult, String>
             let discretized = discretize(data, bins);
             let probs = compute_probabilities(&discretized, bins);
 
-            -probs.iter()
+            -probs
+                .iter()
                 .filter(|&&p| p > 0.0)
                 .map(|&p| p * p.log(base))
                 .sum::<f64>()
-        },
+        }
         "renyi" => {
             let alpha = request.alpha.unwrap_or(2.0);
             if alpha == 1.0 {
@@ -168,13 +171,14 @@ pub fn shannon_entropy(request: EntropyRequest) -> Result<EntropyResult, String>
             let discretized = discretize(data, bins);
             let probs = compute_probabilities(&discretized, bins);
 
-            let sum: f64 = probs.iter()
+            let sum: f64 = probs
+                .iter()
                 .filter(|&&p| p > 0.0)
                 .map(|&p| p.powf(alpha))
                 .sum();
 
             (1.0 / (1.0 - alpha)) * sum.log(base)
-        },
+        }
         "differential" => {
             // Estimate differential entropy using kernel density estimation
             let n = data.len() as f64;
@@ -185,7 +189,7 @@ pub fn shannon_entropy(request: EntropyRequest) -> Result<EntropyResult, String>
 
             // Differential entropy for Gaussian approximation
             0.5 * (2.0 * std::f64::consts::PI * std::f64::consts::E * std_dev * std_dev).log(base)
-        },
+        }
         _ => return Err(format!("Unknown entropy type: {}", entropy_type)),
     };
 
@@ -218,7 +222,9 @@ pub fn mutual_information(request: MutualInfoRequest) -> Result<MutualInfoResult
         return Err("X and Y must have same length".to_string());
     }
 
-    let bins = request.bins.unwrap_or((request.x.len() as f64).sqrt() as usize + 1);
+    let bins = request
+        .bins
+        .unwrap_or((request.x.len() as f64).sqrt() as usize + 1);
 
     let x_disc = discretize(&request.x, bins);
     let y_disc = discretize(&request.y, bins);
@@ -246,7 +252,8 @@ pub fn mutual_information(request: MutualInfoRequest) -> Result<MutualInfoResult
     }
 
     // Calculate joint entropy for normalization
-    let h_xy = -joint_counts.iter()
+    let h_xy = -joint_counts
+        .iter()
         .flat_map(|row| row.iter())
         .map(|&c| c as f64 / total)
         .filter(|&p| p > 0.0)
@@ -279,9 +286,9 @@ pub fn channel_capacity(request: ChannelCapacityRequest) -> Result<ChannelCapaci
     }
 
     // Use uniform distribution if not provided
-    let input_dist = request.input_distribution.unwrap_or_else(|| {
-        vec![1.0 / n_inputs as f64; n_inputs]
-    });
+    let input_dist = request
+        .input_distribution
+        .unwrap_or_else(|| vec![1.0 / n_inputs as f64; n_inputs]);
 
     // Calculate output distribution
     let n_outputs = matrix[0].len();
@@ -327,7 +334,8 @@ pub fn huffman_coding(request: HuffmanRequest) -> Result<HuffmanResult, String> 
     }
 
     // Build Huffman tree
-    let mut nodes: Vec<(f64, Vec<(String, String)>)> = symbols.iter()
+    let mut nodes: Vec<(f64, Vec<(String, String)>)> = symbols
+        .iter()
         .zip(freqs.iter())
         .map(|(s, &f)| (f, vec![(s.clone(), String::new())]))
         .collect();
@@ -356,21 +364,31 @@ pub fn huffman_coding(request: HuffmanRequest) -> Result<HuffmanResult, String> 
     };
 
     // Calculate average length
-    let avg_length: f64 = symbols.iter()
+    let avg_length: f64 = symbols
+        .iter()
         .zip(freqs.iter())
         .map(|(s, &f)| f * codes.get(s).map(|c| c.len()).unwrap_or(0) as f64)
         .sum();
 
     // Calculate entropy for efficiency
-    let entropy: f64 = -freqs.iter()
+    let entropy: f64 = -freqs
+        .iter()
         .filter(|&&f| f > 0.0)
         .map(|&f| f * f.log2())
         .sum::<f64>();
 
-    let efficiency = if avg_length > 0.0 { entropy / avg_length } else { 0.0 };
+    let efficiency = if avg_length > 0.0 {
+        entropy / avg_length
+    } else {
+        0.0
+    };
 
     // Assume original uses 8 bits per symbol on average
-    let compression_ratio = if avg_length > 0.0 { 8.0 / avg_length } else { 1.0 };
+    let compression_ratio = if avg_length > 0.0 {
+        8.0 / avg_length
+    } else {
+        1.0
+    };
 
     Ok(HuffmanResult {
         codes,
@@ -437,12 +455,16 @@ fn estimate_lz77_compression(data: &[u8]) -> usize {
 }
 
 /// Calculate conditional entropy H(Y|X)
-pub fn conditional_entropy(request: ConditionalEntropyRequest) -> Result<ConditionalEntropyResult, String> {
+pub fn conditional_entropy(
+    request: ConditionalEntropyRequest,
+) -> Result<ConditionalEntropyResult, String> {
     if request.x.len() != request.y.len() {
         return Err("X and Y must have same length".to_string());
     }
 
-    let bins = request.bins.unwrap_or((request.x.len() as f64).sqrt() as usize + 1);
+    let bins = request
+        .bins
+        .unwrap_or((request.x.len() as f64).sqrt() as usize + 1);
 
     let x_disc = discretize(&request.x, bins);
     let y_disc = discretize(&request.y, bins);
@@ -473,7 +495,8 @@ pub fn conditional_entropy(request: ConditionalEntropyRequest) -> Result<Conditi
 
     // Calculate H(Y) for normalization
     let p_y = compute_probabilities(&y_disc, bins);
-    let h_y: f64 = -p_y.iter()
+    let h_y: f64 = -p_y
+        .iter()
         .filter(|&&p| p > 0.0)
         .map(|&p| p * p.log2())
         .sum::<f64>();
@@ -508,7 +531,10 @@ pub fn relative_entropy(request: RelativeEntropyRequest) -> Result<RelativeEntro
     for i in 0..p.len() {
         if p[i] > 0.0 {
             if q[i] <= 0.0 {
-                return Err("Q has zero probability where P is non-zero (KL divergence undefined)".to_string());
+                return Err(
+                    "Q has zero probability where P is non-zero (KL divergence undefined)"
+                        .to_string(),
+                );
             }
             kl_divergence += p[i] * (p[i] / q[i]).log2();
         }
@@ -548,7 +574,8 @@ mod tests {
             base: Some(2.0),
             entropy_type: Some("shannon".to_string()),
             alpha: None,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.entropy > 0.0);
         assert!(result.normalized_entropy <= 1.0);
@@ -563,7 +590,8 @@ mod tests {
             x,
             y,
             bins: Some(3),
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.mutual_information > 0.0);
     }

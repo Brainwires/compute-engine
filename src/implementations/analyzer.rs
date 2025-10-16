@@ -2,8 +2,8 @@
 //!
 //! Routes analysis requests to equation validation, dimensional analysis, and simplification modules
 
-use crate::engine::*;
 use crate::engine::types::ValidationResult;
+use crate::engine::*;
 
 pub struct UnifiedAnalyzer;
 
@@ -16,8 +16,8 @@ impl UnifiedAnalyzer {
     fn analyze_parse(&self, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
         use crate::tools::equation_validation;
 
-        let result = equation_validation::parse_equation(&input.expression)
-            .map_err(|e| e.to_string())?;
+        let result =
+            equation_validation::parse_equation(&input.expression).map_err(|e| e.to_string())?;
 
         Ok(AnalyzeOutput {
             result: serde_json::json!({
@@ -48,7 +48,9 @@ impl UnifiedAnalyzer {
 
         Ok(AnalyzeOutput {
             result: serde_json::json!(result.expression),
-            latex: result.latex.or_else(|| Some(format!("${}$", result.expression))),
+            latex: result
+                .latex
+                .or_else(|| Some(format!("${}$", result.expression))),
             validation: None,
             details: Some(serde_json::json!({
                 "original": expr,
@@ -79,18 +81,26 @@ impl UnifiedAnalyzer {
     fn analyze_validate(&self, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
         use crate::tools::equation_validation;
 
-        let domain = input.options.get("domain")
+        let domain = input
+            .options
+            .get("domain")
             .and_then(|v| v.as_str())
             .unwrap_or("general")
             .to_string();
 
-        let units: Option<std::collections::HashMap<String, String>> = input.options.get("units")
+        let units: Option<std::collections::HashMap<String, String>> = input
+            .options
+            .get("units")
             .and_then(|v| serde_json::from_value(v.clone()).ok());
 
-        let conservation_laws: Option<Vec<String>> = input.options.get("conservation_laws")
+        let conservation_laws: Option<Vec<String>> = input
+            .options
+            .get("conservation_laws")
             .and_then(|v| serde_json::from_value(v.clone()).ok());
 
-        let symmetries: Option<Vec<String>> = input.options.get("symmetries")
+        let symmetries: Option<Vec<String>> = input
+            .options
+            .get("symmetries")
             .and_then(|v| serde_json::from_value(v.clone()).ok());
 
         let legacy_result = equation_validation::validate_equation(
@@ -129,7 +139,9 @@ impl UnifiedAnalyzer {
     /// Check dimensional consistency
     fn analyze_dimensions(&self, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
         // Dimensional analysis with private types - using simplified approach
-        let variable_units: std::collections::HashMap<String, String> = input.options.get("variable_units")
+        let variable_units: std::collections::HashMap<String, String> = input
+            .options
+            .get("variable_units")
             .and_then(|v| serde_json::from_value(v.clone()).ok())
             .unwrap_or_default();
 
@@ -152,22 +164,36 @@ impl UnifiedAnalyzer {
     }
 
     /// Perform field analysis
-    fn analyze_field(&self, field_type: &FieldAnalysisType, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
+    fn analyze_field(
+        &self,
+        field_type: &FieldAnalysisType,
+        input: &AnalyzeInput,
+    ) -> ToolResult<AnalyzeOutput> {
         use crate::mathematics::symbolic_cas;
 
         match field_type {
             FieldAnalysisType::Vector => {
                 // Vector field analysis - compute divergence, curl, check if conservative
-                let components: Vec<String> = input.options.get("components")
+                let components: Vec<String> = input
+                    .options
+                    .get("components")
                     .and_then(|v| serde_json::from_value(v.clone()).ok())
-                    .ok_or("Vector field analysis requires 'components' parameter [F_x, F_y, F_z]")?;
+                    .ok_or(
+                        "Vector field analysis requires 'components' parameter [F_x, F_y, F_z]",
+                    )?;
 
-                let variables: Vec<String> = input.options.get("variables")
+                let variables: Vec<String> = input
+                    .options
+                    .get("variables")
                     .and_then(|v| serde_json::from_value(v.clone()).ok())
                     .unwrap_or_else(|| vec!["x".to_string(), "y".to_string(), "z".to_string()]);
 
                 if components.len() != variables.len() {
-                    return Err(format!("Mismatch: {} components but {} variables", components.len(), variables.len()));
+                    return Err(format!(
+                        "Mismatch: {} components but {} variables",
+                        components.len(),
+                        variables.len()
+                    ));
                 }
 
                 // Compute divergence: ∇·F = ∂F_x/∂x + ∂F_y/∂y + ∂F_z/∂z
@@ -185,17 +211,23 @@ impl UnifiedAnalyzer {
                     let (x, y, z) = (&variables[0], &variables[1], &variables[2]);
 
                     let dfz_dy = symbolic_cas::differentiate(fz, y, None)
-                        .map_err(|e| format!("Failed to compute curl: {}", e))?.expression;
+                        .map_err(|e| format!("Failed to compute curl: {}", e))?
+                        .expression;
                     let dfy_dz = symbolic_cas::differentiate(fy, z, None)
-                        .map_err(|e| format!("Failed to compute curl: {}", e))?.expression;
+                        .map_err(|e| format!("Failed to compute curl: {}", e))?
+                        .expression;
                     let dfx_dz = symbolic_cas::differentiate(fx, z, None)
-                        .map_err(|e| format!("Failed to compute curl: {}", e))?.expression;
+                        .map_err(|e| format!("Failed to compute curl: {}", e))?
+                        .expression;
                     let dfz_dx = symbolic_cas::differentiate(fz, x, None)
-                        .map_err(|e| format!("Failed to compute curl: {}", e))?.expression;
+                        .map_err(|e| format!("Failed to compute curl: {}", e))?
+                        .expression;
                     let dfy_dx = symbolic_cas::differentiate(fy, x, None)
-                        .map_err(|e| format!("Failed to compute curl: {}", e))?.expression;
+                        .map_err(|e| format!("Failed to compute curl: {}", e))?
+                        .expression;
                     let dfx_dy = symbolic_cas::differentiate(fx, y, None)
-                        .map_err(|e| format!("Failed to compute curl: {}", e))?.expression;
+                        .map_err(|e| format!("Failed to compute curl: {}", e))?
+                        .expression;
 
                     let curl_x = format!("({}) - ({})", dfz_dy, dfy_dz);
                     let curl_y = format!("({}) - ({})", dfx_dz, dfz_dx);
@@ -206,7 +238,8 @@ impl UnifiedAnalyzer {
                 };
 
                 // Check if conservative (curl = 0)
-                let is_conservative = curl.as_ref()
+                let is_conservative = curl
+                    .as_ref()
                     .map(|c| c.iter().all(|comp| comp == "0" || comp == "(0) - (0)"))
                     .unwrap_or(false);
 
@@ -227,10 +260,12 @@ impl UnifiedAnalyzer {
                         "variables": variables
                     })),
                 })
-            },
+            }
             FieldAnalysisType::Scalar => {
                 // Scalar field analysis - compute gradient, find critical points
-                let variables: Vec<String> = input.options.get("variables")
+                let variables: Vec<String> = input
+                    .options
+                    .get("variables")
                     .and_then(|v| serde_json::from_value(v.clone()).ok())
                     .unwrap_or_else(|| vec!["x".to_string(), "y".to_string(), "z".to_string()]);
 
@@ -238,7 +273,8 @@ impl UnifiedAnalyzer {
                 let gradient_results = symbolic_cas::gradient(&input.expression, &variables)
                     .map_err(|e| format!("Failed to compute gradient: {}", e))?;
 
-                let gradient_components: Vec<String> = gradient_results.iter()
+                let gradient_components: Vec<String> = gradient_results
+                    .iter()
                     .map(|r| r.expression.clone())
                     .collect();
 
@@ -262,8 +298,11 @@ impl UnifiedAnalyzer {
                         "is_harmonic": is_harmonic,
                         "dimension": variables.len()
                     }),
-                    latex: Some(format!("$\\nabla f = ({})$, $\\nabla^2 f = {}$",
-                        gradient_components.join(", "), laplacian)),
+                    latex: Some(format!(
+                        "$\\nabla f = ({})$, $\\nabla^2 f = {}$",
+                        gradient_components.join(", "),
+                        laplacian
+                    )),
                     validation: None,
                     details: Some(serde_json::json!({
                         "analysis_type": "scalar_field",
@@ -271,19 +310,32 @@ impl UnifiedAnalyzer {
                         "variables": variables
                     })),
                 })
-            },
+            }
             FieldAnalysisType::Tensor => {
                 // Tensor field analysis - compute Ricci tensor, Einstein tensor if metric provided
-                let dimension = input.options.get("dimension")
+                let dimension = input
+                    .options
+                    .get("dimension")
                     .and_then(|v| v.as_u64())
                     .unwrap_or(4) as usize;
 
-                let metric_data: Option<Vec<Vec<f64>>> = input.options.get("metric")
+                let metric_data: Option<Vec<Vec<f64>>> = input
+                    .options
+                    .get("metric")
                     .and_then(|v| serde_json::from_value(v.clone()).ok());
 
-                let variables: Vec<String> = input.options.get("variables")
+                let variables: Vec<String> = input
+                    .options
+                    .get("variables")
                     .and_then(|v| serde_json::from_value(v.clone()).ok())
-                    .unwrap_or_else(|| vec!["t".to_string(), "x".to_string(), "y".to_string(), "z".to_string()]);
+                    .unwrap_or_else(|| {
+                        vec![
+                            "t".to_string(),
+                            "x".to_string(),
+                            "y".to_string(),
+                            "z".to_string(),
+                        ]
+                    });
 
                 let mut properties = serde_json::json!({
                     "dimension": dimension,
@@ -295,8 +347,13 @@ impl UnifiedAnalyzer {
                     let coords: Vec<&str> = variables.iter().map(|s| s.as_str()).collect();
 
                     // Build symbolic metric matrix
-                    let metric_exprs: Vec<Vec<symbolic_cas::Expr>> = metric_vals.iter()
-                        .map(|row| row.iter().map(|&val| symbolic_cas::Expr::num(val as i64)).collect())
+                    let metric_exprs: Vec<Vec<symbolic_cas::Expr>> = metric_vals
+                        .iter()
+                        .map(|row| {
+                            row.iter()
+                                .map(|&val| symbolic_cas::Expr::num(val as i64))
+                                .collect()
+                        })
                         .collect();
 
                     let metric = symbolic_cas::SymbolicMatrix::new(metric_exprs)
@@ -339,15 +396,17 @@ impl UnifiedAnalyzer {
                         "variables": variables
                     })),
                 })
-            },
+            }
         }
     }
 
     /// Check physics validity
     fn analyze_physics(&self, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
         // Check basic physics principles
-        let conserves_energy = !input.expression.contains("energy") || input.expression.contains("conserved");
-        let conserves_momentum = !input.expression.contains("momentum") || input.expression.contains("conserved");
+        let conserves_energy =
+            !input.expression.contains("energy") || input.expression.contains("conserved");
+        let conserves_momentum =
+            !input.expression.contains("momentum") || input.expression.contains("conserved");
 
         Ok(AnalyzeOutput {
             result: serde_json::json!({
@@ -370,7 +429,9 @@ impl UnifiedAnalyzer {
 
     /// Check conservation laws
     fn analyze_conservation(&self, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
-        let conservation_laws: Vec<String> = input.options.get("laws")
+        let conservation_laws: Vec<String> = input
+            .options
+            .get("laws")
             .and_then(|v| serde_json::from_value(v.clone()).ok())
             .unwrap_or_else(|| vec!["energy".to_string(), "momentum".to_string()]);
 
@@ -391,14 +452,19 @@ impl UnifiedAnalyzer {
 
     /// Check symmetries
     fn analyze_symmetries(&self, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
-        let symmetries: Vec<String> = input.options.get("symmetries")
+        let symmetries: Vec<String> = input
+            .options
+            .get("symmetries")
             .and_then(|v| serde_json::from_value(v.clone()).ok())
             .unwrap_or_else(|| vec!["translation".to_string(), "rotation".to_string()]);
 
         let mut results = std::collections::HashMap::new();
         for sym in &symmetries {
             // Simplified symmetry check
-            results.insert(sym.clone(), !input.expression.contains("x") || input.expression.contains("r"));
+            results.insert(
+                sym.clone(),
+                !input.expression.contains("x") || input.expression.contains("r"),
+            );
         }
 
         Ok(AnalyzeOutput {
@@ -424,7 +490,9 @@ impl UnifiedAnalyzer {
             .map_err(|e| format!("Partial fraction simplification failed: {}", e))?;
 
         // Extract variable for partial fraction form
-        let variable = input.options.get("variable")
+        let variable = input
+            .options
+            .get("variable")
             .and_then(|v| v.as_str())
             .unwrap_or("x");
 
@@ -436,7 +504,10 @@ impl UnifiedAnalyzer {
                 "variable": variable,
                 "note": "Advanced partial fraction decomposition with symbolic root finding in progress"
             }),
-            latex: Some(format!("$\\frac{{A}}{{{}-a}} + \\frac{{B}}{{{}-b}} + \\cdots$", variable, variable)),
+            latex: Some(format!(
+                "$\\frac{{A}}{{{}-a}} + \\frac{{B}}{{{}-b}} + \\cdots$",
+                variable, variable
+            )),
             validation: None,
             details: Some(serde_json::json!({
                 "method": "factorization_based",
@@ -450,13 +521,19 @@ impl UnifiedAnalyzer {
     fn analyze_series_expansion(&self, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
         use crate::mathematics::symbolic_cas;
 
-        let order = input.options.get("order")
+        let order = input
+            .options
+            .get("order")
             .and_then(|v| v.as_u64())
             .unwrap_or(3) as usize;
-        let variable = input.options.get("variable")
+        let variable = input
+            .options
+            .get("variable")
             .and_then(|v| v.as_str())
             .unwrap_or("x");
-        let point = input.options.get("point")
+        let point = input
+            .options
+            .get("point")
             .and_then(|v| v.as_f64())
             .unwrap_or(0.0);
 
@@ -485,15 +562,21 @@ impl UnifiedAnalyzer {
     fn analyze_laurent_series(&self, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
         use crate::mathematics::symbolic_cas;
 
-        let order = input.options.get("order")
+        let order = input
+            .options
+            .get("order")
             .and_then(|v| v.as_i64())
             .unwrap_or(3) as usize;
 
-        let variable = input.options.get("variable")
+        let variable = input
+            .options
+            .get("variable")
             .and_then(|v| v.as_str())
             .unwrap_or("z");
 
-        let point = input.options.get("point")
+        let point = input
+            .options
+            .get("point")
             .and_then(|v| v.as_f64())
             .unwrap_or(0.0);
 
@@ -516,7 +599,10 @@ impl UnifiedAnalyzer {
                 "has_singularity_at_point": has_singularity,
                 "note": "Full Laurent series with principal part (negative powers) computation in progress"
             }),
-            latex: Some(format!("$\\sum_{{n=-{}}}^{{{}}} a_n ({}-{})^n$", order, order, variable, point)),
+            latex: Some(format!(
+                "$\\sum_{{n=-{}}}^{{{}}} a_n ({}-{})^n$",
+                order, order, variable, point
+            )),
             validation: None,
             details: Some(serde_json::json!({
                 "expansion_type": "laurent",
@@ -531,14 +617,17 @@ impl UnifiedAnalyzer {
     fn analyze_limit(&self, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
         use crate::mathematics::symbolic_cas;
 
-        let point = input.options.get("point")
+        let point = input
+            .options
+            .get("point")
             .and_then(|v| v.as_str())
             .unwrap_or("0");
-        let variable = input.options.get("variable")
+        let variable = input
+            .options
+            .get("variable")
             .and_then(|v| v.as_str())
             .unwrap_or("x");
-        let direction = input.options.get("direction")
-            .and_then(|v| v.as_str());
+        let direction = input.options.get("direction").and_then(|v| v.as_str());
 
         // Use symbolic CAS for limit computation
         let result = symbolic_cas::limit(&input.expression, variable, point, direction)
@@ -589,7 +678,9 @@ impl UnifiedAnalyzer {
 
     /// Scale analysis
     fn analyze_scale(&self, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
-        let characteristic_scale = input.options.get("scale")
+        let characteristic_scale = input
+            .options
+            .get("scale")
             .and_then(|v| v.as_f64())
             .unwrap_or(1.0);
 
@@ -630,7 +721,9 @@ impl UnifiedAnalyzer {
 
     /// Analyze units
     fn analyze_units(&self, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
-        let variable_units: std::collections::HashMap<String, String> = input.options.get("variable_units")
+        let variable_units: std::collections::HashMap<String, String> = input
+            .options
+            .get("variable_units")
             .and_then(|v| serde_json::from_value(v.clone()).ok())
             .unwrap_or_default();
 
@@ -658,7 +751,9 @@ impl UnifiedAnalyzer {
     /// Graph component analysis
     fn analyze_graph_components(&self, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
         // Placeholder for graph component analysis
-        let num_vertices = input.options.get("vertices")
+        let num_vertices = input
+            .options
+            .get("vertices")
             .and_then(|v| v.as_u64())
             .unwrap_or(0) as usize;
 
@@ -693,7 +788,9 @@ impl UnifiedAnalyzer {
 
     /// Fluid analysis
     fn analyze_fluid(&self, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
-        let reynolds = input.options.get("reynolds")
+        let reynolds = input
+            .options
+            .get("reynolds")
             .and_then(|v| v.as_f64())
             .unwrap_or(100.0);
 
@@ -768,7 +865,9 @@ impl Analyze for UnifiedAnalyzer {
 
             AnalysisOp::IsPrime => {
                 // Simple primality test
-                let n: u64 = input.expression.parse()
+                let n: u64 = input
+                    .expression
+                    .parse()
                     .map_err(|_| "Expression must be a positive integer")?;
 
                 let is_prime = is_prime_simple(n);
@@ -782,7 +881,7 @@ impl Analyze for UnifiedAnalyzer {
                         "is_prime": is_prime
                     })),
                 })
-            },
+            }
 
             AnalysisOp::FluidAnalysis => self.analyze_fluid(input),
         }

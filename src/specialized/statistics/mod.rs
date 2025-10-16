@@ -36,7 +36,7 @@ pub struct StatisticsResult {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Quartiles {
     pub q1: f64,
-    pub q2: f64,  // median
+    pub q2: f64, // median
     pub q3: f64,
     pub iqr: f64,
 }
@@ -46,7 +46,10 @@ pub fn statistics(request: StatisticsRequest) -> Result<StatisticsResult, String
         return Err("Data cannot be empty".to_string());
     }
 
-    let ops = request.operations.as_ref().map(|v| v.iter().map(|s| s.as_str()).collect::<Vec<_>>());
+    let ops = request
+        .operations
+        .as_ref()
+        .map(|v| v.iter().map(|s| s.as_str()).collect::<Vec<_>>());
     let should_compute = |op: &str| ops.as_ref().map_or(true, |o| o.contains(&op));
 
     let mut result = StatisticsResult {
@@ -77,11 +80,21 @@ pub fn statistics(request: StatisticsRequest) -> Result<StatisticsResult, String
     }
 
     if should_compute("min") {
-        result.min = request.data.iter().copied().fold(f64::INFINITY, f64::min).into();
+        result.min = request
+            .data
+            .iter()
+            .copied()
+            .fold(f64::INFINITY, f64::min)
+            .into();
     }
 
     if should_compute("max") {
-        result.max = request.data.iter().copied().fold(f64::NEG_INFINITY, f64::max).into();
+        result.max = request
+            .data
+            .iter()
+            .copied()
+            .fold(f64::NEG_INFINITY, f64::max)
+            .into();
     }
 
     if should_compute("median") || should_compute("quartiles") {
@@ -111,7 +124,8 @@ pub fn statistics(request: StatisticsRequest) -> Result<StatisticsResult, String
             *freq.entry(val.to_string()).or_insert(0) += 1;
         }
         let max_freq = freq.values().max().copied().unwrap_or(0);
-        let modes: Vec<f64> = freq.iter()
+        let modes: Vec<f64> = freq
+            .iter()
             .filter(|(_, count)| **count == max_freq)
             .filter_map(|(val, _)| val.parse().ok())
             .collect();
@@ -120,9 +134,8 @@ pub fn statistics(request: StatisticsRequest) -> Result<StatisticsResult, String
 
     if should_compute("variance") || should_compute("std") {
         let mean = request.data.iter().sum::<f64>() / request.data.len() as f64;
-        let variance = request.data.iter()
-            .map(|x| (x - mean).powi(2))
-            .sum::<f64>() / request.data.len() as f64;
+        let variance = request.data.iter().map(|x| (x - mean).powi(2)).sum::<f64>()
+            / request.data.len() as f64;
 
         if should_compute("variance") {
             result.variance = Some(variance);
@@ -134,26 +147,33 @@ pub fn statistics(request: StatisticsRequest) -> Result<StatisticsResult, String
 
     if should_compute("skewness") {
         let mean = request.data.iter().sum::<f64>() / request.data.len() as f64;
-        let std = (request.data.iter()
-            .map(|x| (x - mean).powi(2))
-            .sum::<f64>() / request.data.len() as f64).sqrt();
+        let std = (request.data.iter().map(|x| (x - mean).powi(2)).sum::<f64>()
+            / request.data.len() as f64)
+            .sqrt();
 
-        let skewness = request.data.iter()
+        let skewness = request
+            .data
+            .iter()
             .map(|x| ((x - mean) / std).powi(3))
-            .sum::<f64>() / request.data.len() as f64;
+            .sum::<f64>()
+            / request.data.len() as f64;
 
         result.skewness = Some(skewness);
     }
 
     if should_compute("kurtosis") {
         let mean = request.data.iter().sum::<f64>() / request.data.len() as f64;
-        let std = (request.data.iter()
-            .map(|x| (x - mean).powi(2))
-            .sum::<f64>() / request.data.len() as f64).sqrt();
+        let std = (request.data.iter().map(|x| (x - mean).powi(2)).sum::<f64>()
+            / request.data.len() as f64)
+            .sqrt();
 
-        let kurtosis = request.data.iter()
+        let kurtosis = request
+            .data
+            .iter()
             .map(|x| ((x - mean) / std).powi(4))
-            .sum::<f64>() / request.data.len() as f64 - 3.0;  // Excess kurtosis
+            .sum::<f64>()
+            / request.data.len() as f64
+            - 3.0; // Excess kurtosis
 
         result.kurtosis = Some(kurtosis);
     }
@@ -176,8 +196,8 @@ fn calculate_percentile(sorted_data: &[f64], percentile: f64) -> f64 {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MonteCarloRequest {
-    pub function: String,  // Function to integrate (simplified - would need parser in practice)
-    pub bounds: Vec<(f64, f64)>,  // Integration bounds for each dimension
+    pub function: String, // Function to integrate (simplified - would need parser in practice)
+    pub bounds: Vec<(f64, f64)>, // Integration bounds for each dimension
     pub samples: usize,
 }
 
@@ -200,13 +220,13 @@ pub fn monte_carlo_integration(request: MonteCarloRequest) -> Result<MonteCarloR
     let mut sum_sq = 0.0;
 
     // Calculate volume of integration region
-    let volume: f64 = request.bounds.iter()
-        .map(|(a, b)| b - a)
-        .product();
+    let volume: f64 = request.bounds.iter().map(|(a, b)| b - a).product();
 
     // Simple example: integrate x^2 + y^2 (would need proper function parser)
     for _ in 0..request.samples {
-        let point: Vec<f64> = request.bounds.iter()
+        let point: Vec<f64> = request
+            .bounds
+            .iter()
             .map(|(a, b)| rng.gen_range(*a..*b))
             .collect();
 
@@ -231,7 +251,7 @@ pub fn monte_carlo_integration(request: MonteCarloRequest) -> Result<MonteCarloR
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MCMCRequest {
-    pub target_distribution: String,  // Target distribution type
+    pub target_distribution: String, // Target distribution type
     pub dimensions: usize,
     pub samples: usize,
     pub burn_in: usize,
@@ -254,7 +274,7 @@ pub fn mcmc_sampling(request: MCMCRequest) -> Result<MCMCResult, String> {
     }
 
     let mut rng = rand::thread_rng();
-    let proposal_std = 0.5;  // Standard deviation for proposal distribution
+    let proposal_std = 0.5; // Standard deviation for proposal distribution
     let normal = Normal::new(0.0, proposal_std).unwrap();
 
     let mut current_state = request.initial_state.clone();
@@ -266,15 +286,14 @@ pub fn mcmc_sampling(request: MCMCRequest) -> Result<MCMCResult, String> {
     let mut accepted = 0;
 
     // Target distribution (simplified - Gaussian for demonstration)
-    let log_target = |x: &[f64]| -> f64 {
-        -0.5 * x.iter().map(|v| v * v).sum::<f64>()
-    };
+    let log_target = |x: &[f64]| -> f64 { -0.5 * x.iter().map(|v| v * v).sum::<f64>() };
 
     let mut current_log_prob = log_target(&current_state);
 
     for i in 0..(request.samples + request.burn_in) {
         // Propose new state
-        let proposed_state: Vec<f64> = current_state.iter()
+        let proposed_state: Vec<f64> = current_state
+            .iter()
             .map(|x| x + normal.sample(&mut rng))
             .collect();
 
@@ -308,7 +327,7 @@ pub fn mcmc_sampling(request: MCMCRequest) -> Result<MCMCResult, String> {
 pub struct CorrelationRequest {
     pub x: Vec<f64>,
     pub y: Vec<f64>,
-    pub method: String,  // "pearson", "spearman", "kendall"
+    pub method: String, // "pearson", "spearman", "kendall"
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -333,13 +352,18 @@ pub fn correlation(request: CorrelationRequest) -> Result<CorrelationResult, Str
             let x_ranks = assign_ranks(&request.x);
             let y_ranks = assign_ranks(&request.y);
             calculate_pearson(&x_ranks, &y_ranks)?
-        },
-        _ => return Err(format!("Unsupported correlation method: {}", request.method)),
+        }
+        _ => {
+            return Err(format!(
+                "Unsupported correlation method: {}",
+                request.method
+            ));
+        }
     };
 
     Ok(CorrelationResult {
         correlation,
-        p_value: None,  // Would need t-distribution for p-value calculation
+        p_value: None, // Would need t-distribution for p-value calculation
         method: request.method,
     })
 }
@@ -382,14 +406,14 @@ fn assign_ranks(data: &[f64]) -> Vec<f64> {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct KLDivergenceRequest {
-    pub p: Vec<f64>,  // Probability distribution P
-    pub q: Vec<f64>,  // Probability distribution Q
+    pub p: Vec<f64>, // Probability distribution P
+    pub q: Vec<f64>, // Probability distribution Q
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct KLDivergenceResult {
     pub kl_divergence: f64,
-    pub js_divergence: f64,  // Jensen-Shannon divergence
+    pub js_divergence: f64, // Jensen-Shannon divergence
 }
 
 pub fn kl_divergence(request: KLDivergenceRequest) -> Result<KLDivergenceResult, String> {
@@ -412,7 +436,9 @@ pub fn kl_divergence(request: KLDivergenceRequest) -> Result<KLDivergenceResult,
     }
 
     // Calculate Jensen-Shannon divergence
-    let m: Vec<f64> = request.p.iter()
+    let m: Vec<f64> = request
+        .p
+        .iter()
         .zip(request.q.iter())
         .map(|(p, q)| (p + q) / 2.0)
         .collect();
@@ -450,7 +476,9 @@ pub struct MutualInformationResult {
     pub normalized_mi: f64,
 }
 
-pub fn mutual_information(request: MutualInformationRequest) -> Result<MutualInformationResult, String> {
+pub fn mutual_information(
+    request: MutualInformationRequest,
+) -> Result<MutualInformationResult, String> {
     if request.x.len() != request.y.len() {
         return Err("X and Y must have the same length".to_string());
     }
@@ -494,7 +522,8 @@ pub fn mutual_information(request: MutualInformationRequest) -> Result<MutualInf
     let n = request.x.len() as f64;
 
     // Calculate H(X)
-    let h_x = x_hist.iter()
+    let h_x = x_hist
+        .iter()
         .filter(|&&count| count > 0)
         .map(|&count| {
             let p = count as f64 / n;
@@ -503,7 +532,8 @@ pub fn mutual_information(request: MutualInformationRequest) -> Result<MutualInf
         .sum::<f64>();
 
     // Calculate H(Y)
-    let h_y = y_hist.iter()
+    let h_y = y_hist
+        .iter()
         .filter(|&&count| count > 0)
         .map(|&count| {
             let p = count as f64 / n;
@@ -512,7 +542,8 @@ pub fn mutual_information(request: MutualInformationRequest) -> Result<MutualInf
         .sum::<f64>();
 
     // Calculate H(X,Y)
-    let h_xy = xy_hist.iter()
+    let h_xy = xy_hist
+        .iter()
         .flat_map(|row| row.iter())
         .filter(|&&count| count > 0)
         .map(|&count| {

@@ -8,8 +8,8 @@
 //! - Network flow algorithms
 
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet, VecDeque, BinaryHeap};
 use std::cmp::Ordering;
+use std::collections::{BinaryHeap, HashMap, HashSet, VecDeque};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Edge {
@@ -104,7 +104,10 @@ pub fn shortest_path(request: ShortestPathRequest) -> Result<ShortestPathResult,
     }
 
     // Reconstruct path
-    let final_distance = distances.get(&request.target).copied().unwrap_or(f64::INFINITY);
+    let final_distance = distances
+        .get(&request.target)
+        .copied()
+        .unwrap_or(f64::INFINITY);
 
     if final_distance.is_infinite() {
         return Ok(ShortestPathResult {
@@ -250,7 +253,9 @@ pub struct ConnectedComponentsResult {
 }
 
 /// Find connected components using DFS
-pub fn connected_components(request: ConnectedComponentsRequest) -> Result<ConnectedComponentsResult, String> {
+pub fn connected_components(
+    request: ConnectedComponentsRequest,
+) -> Result<ConnectedComponentsResult, String> {
     let mut visited: HashSet<String> = HashSet::new();
     let mut components = Vec::new();
 
@@ -432,8 +437,5 @@ pub fn topological_sort(request: TopologicalSortRequest) -> Result<TopologicalSo
 
     let has_cycle = order.len() != request.graph.nodes.len();
 
-    Ok(TopologicalSortResult {
-        order,
-        has_cycle,
-    })
+    Ok(TopologicalSortResult { order, has_cycle })
 }

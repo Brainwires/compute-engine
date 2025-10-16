@@ -1,8 +1,8 @@
 //! Working tests for all 10 unified tools - simplified and validated
 
-use computational_engine::engine::*;
-use computational_engine::engine::equations::*;
 use computational_engine::create_default_dispatcher;
+use computational_engine::engine::equations::*;
+use computational_engine::engine::*;
 use std::collections::HashMap;
 
 #[test]
@@ -31,8 +31,14 @@ fn test_all_10_tools_basic() {
         order: Some(vec![1]),
         evaluate_at: None,
         parameters: HashMap::from([
-            ("x_values".to_string(), serde_json::json!([0.0, 1.0, 2.0, 3.0])),
-            ("y_values".to_string(), serde_json::json!([0.0, 1.0, 4.0, 9.0])),
+            (
+                "x_values".to_string(),
+                serde_json::json!([0.0, 1.0, 2.0, 3.0]),
+            ),
+            (
+                "y_values".to_string(),
+                serde_json::json!([0.0, 1.0, 4.0, 9.0]),
+            ),
         ]),
     }));
     assert!(diff_result.is_ok());
@@ -48,7 +54,10 @@ fn test_all_10_tools_basic() {
         method: None,
         parameters: HashMap::from([
             ("function_type".to_string(), serde_json::json!("polynomial")),
-            ("coefficients".to_string(), serde_json::json!([0.0, 0.0, 1.0])),
+            (
+                "coefficients".to_string(),
+                serde_json::json!([0.0, 0.0, 1.0]),
+            ),
         ]),
     }));
     assert!(int_result.is_ok());
@@ -92,9 +101,7 @@ fn test_all_10_tools_basic() {
         transform_type: TransformType::FFT(FFTType::Forward),
         data: vec![1.0, 2.0, 3.0, 4.0],
         sampling_rate: Some(100.0),
-        parameters: HashMap::from([
-            ("window_type".to_string(), serde_json::json!("hanning")),
-        ]),
+        parameters: HashMap::from([("window_type".to_string(), serde_json::json!("hanning"))]),
     }));
     assert!(transform_result.is_ok());
     println!("✅ Transform tool working");

@@ -22,41 +22,52 @@ fn test_svd_square_matrix() {
         vec![7.0, 8.0, 9.0],
     ];
 
-    let result = compute_svd(MatrixInput { matrix: matrix.clone() }).unwrap();
+    let result = compute_svd(MatrixInput {
+        matrix: matrix.clone(),
+    })
+    .unwrap();
 
     assert_eq!(result.u.len(), 3, "U should have 3 rows");
-    assert_eq!(result.singular_values.len(), 3, "Should have 3 singular values");
+    assert_eq!(
+        result.singular_values.len(),
+        3,
+        "Should have 3 singular values"
+    );
     assert_eq!(result.v_transpose.len(), 3, "V^T should have 3 rows");
     assert!(result.rank <= 3, "Rank should be at most 3");
-    assert!(result.condition_number > 0.0, "Condition number should be positive");
+    assert!(
+        result.condition_number > 0.0,
+        "Condition number should be positive"
+    );
 }
 
 #[test]
 fn test_svd_rectangular_tall() {
-    let matrix = vec![
-        vec![1.0, 2.0],
-        vec![3.0, 4.0],
-        vec![5.0, 6.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0], vec![3.0, 4.0], vec![5.0, 6.0]];
 
     let result = compute_svd(MatrixInput { matrix }).unwrap();
 
     assert_eq!(result.u.len(), 3, "U should have 3 rows");
-    assert_eq!(result.singular_values.len(), 2, "Should have 2 singular values");
+    assert_eq!(
+        result.singular_values.len(),
+        2,
+        "Should have 2 singular values"
+    );
     assert!(result.rank <= 2, "Rank should be at most 2");
 }
 
 #[test]
 fn test_svd_rectangular_wide() {
-    let matrix = vec![
-        vec![1.0, 2.0, 3.0],
-        vec![4.0, 5.0, 6.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]];
 
     let result = compute_svd(MatrixInput { matrix }).unwrap();
 
     assert_eq!(result.u.len(), 2, "U should have 2 rows");
-    assert_eq!(result.singular_values.len(), 2, "Should have 2 singular values");
+    assert_eq!(
+        result.singular_values.len(),
+        2,
+        "Should have 2 singular values"
+    );
     assert!(result.rank <= 2, "Rank should be at most 2");
 }
 
@@ -75,7 +86,10 @@ fn test_svd_identity_matrix() {
         assert!((sv - 1.0).abs() < 1e-10, "Singular values should be 1.0");
     }
     assert_eq!(result.rank, 3, "Identity matrix should be full rank");
-    assert!((result.condition_number - 1.0).abs() < 1e-10, "Condition number should be 1");
+    assert!(
+        (result.condition_number - 1.0).abs() < 1e-10,
+        "Condition number should be 1"
+    );
 }
 
 #[test]
@@ -99,14 +113,17 @@ fn test_svd_rank_deficient() {
     // Matrix with linearly dependent rows
     let matrix = vec![
         vec![1.0, 2.0, 3.0],
-        vec![2.0, 4.0, 6.0],  // 2x first row
-        vec![3.0, 6.0, 9.0],  // 3x first row
+        vec![2.0, 4.0, 6.0], // 2x first row
+        vec![3.0, 6.0, 9.0], // 3x first row
     ];
 
     let result = compute_svd(MatrixInput { matrix }).unwrap();
 
     assert_eq!(result.rank, 1, "Matrix should have rank 1");
-    assert!(result.condition_number > 1e10, "Should have very high condition number");
+    assert!(
+        result.condition_number > 1e10,
+        "Should have very high condition number"
+    );
 }
 
 // ============================================================================
@@ -127,10 +144,7 @@ fn test_matrix_rank_full() {
 
 #[test]
 fn test_matrix_rank_2x2() {
-    let matrix = vec![
-        vec![1.0, 2.0],
-        vec![3.0, 4.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0], vec![3.0, 4.0]];
 
     let rank = compute_matrix_rank(MatrixInput { matrix }).unwrap();
     assert_eq!(rank, 2, "Non-singular 2x2 should have rank 2");
@@ -140,7 +154,7 @@ fn test_matrix_rank_2x2() {
 fn test_matrix_rank_deficient_2x2() {
     let matrix = vec![
         vec![1.0, 2.0],
-        vec![2.0, 4.0],  // Linearly dependent
+        vec![2.0, 4.0], // Linearly dependent
     ];
 
     let rank = compute_matrix_rank(MatrixInput { matrix }).unwrap();
@@ -149,10 +163,7 @@ fn test_matrix_rank_deficient_2x2() {
 
 #[test]
 fn test_matrix_rank_rectangular() {
-    let matrix = vec![
-        vec![1.0, 2.0, 3.0],
-        vec![4.0, 5.0, 6.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]];
 
     let rank = compute_matrix_rank(MatrixInput { matrix }).unwrap();
     assert!(rank <= 2, "Rank cannot exceed min dimension");
@@ -176,12 +187,12 @@ fn test_matrix_rank_zero_row() {
 
 #[test]
 fn test_pseudoinverse_square() {
-    let matrix = vec![
-        vec![1.0, 2.0],
-        vec![3.0, 4.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0], vec![3.0, 4.0]];
 
-    let pinv = compute_pseudoinverse(MatrixInput { matrix: matrix.clone() }).unwrap();
+    let pinv = compute_pseudoinverse(MatrixInput {
+        matrix: matrix.clone(),
+    })
+    .unwrap();
 
     assert_eq!(pinv.len(), 2, "Pseudoinverse should have 2 rows");
     assert_eq!(pinv[0].len(), 2, "Pseudoinverse should have 2 columns");
@@ -193,20 +204,23 @@ fn test_pseudoinverse_square() {
 
     for i in 0..2 {
         for j in 0..2 {
-            assert!((prod2[i][j] - matrix[i][j]).abs() < 1e-8,
+            assert!(
+                (prod2[i][j] - matrix[i][j]).abs() < 1e-8,
                 "A * A+ * A should equal A: prod2[{}][{}] = {}, matrix[{}][{}] = {}",
-                i, j, prod2[i][j], i, j, matrix[i][j]);
+                i,
+                j,
+                prod2[i][j],
+                i,
+                j,
+                matrix[i][j]
+            );
         }
     }
 }
 
 #[test]
 fn test_pseudoinverse_rectangular_tall() {
-    let matrix = vec![
-        vec![1.0, 2.0],
-        vec![3.0, 4.0],
-        vec![5.0, 6.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0], vec![3.0, 4.0], vec![5.0, 6.0]];
 
     let pinv = compute_pseudoinverse(MatrixInput { matrix }).unwrap();
 
@@ -217,10 +231,7 @@ fn test_pseudoinverse_rectangular_tall() {
 
 #[test]
 fn test_pseudoinverse_rectangular_wide() {
-    let matrix = vec![
-        vec![1.0, 2.0, 3.0],
-        vec![4.0, 5.0, 6.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]];
 
     let pinv = compute_pseudoinverse(MatrixInput { matrix }).unwrap();
 
@@ -230,12 +241,12 @@ fn test_pseudoinverse_rectangular_wide() {
 
 #[test]
 fn test_pseudoinverse_identity() {
-    let matrix = vec![
-        vec![1.0, 0.0],
-        vec![0.0, 1.0],
-    ];
+    let matrix = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
 
-    let pinv = compute_pseudoinverse(MatrixInput { matrix: matrix.clone() }).unwrap();
+    let pinv = compute_pseudoinverse(MatrixInput {
+        matrix: matrix.clone(),
+    })
+    .unwrap();
 
     // Pseudoinverse of identity is identity
     for i in 0..2 {
@@ -288,10 +299,7 @@ fn test_eigendecomposition_identity() {
 
 #[test]
 fn test_eigendecomposition_symmetric_2x2() {
-    let matrix = vec![
-        vec![2.0, 1.0],
-        vec![1.0, 2.0],
-    ];
+    let matrix = vec![vec![2.0, 1.0], vec![1.0, 2.0]];
 
     let result = compute_eigendecomposition(MatrixInput { matrix }).unwrap();
 
@@ -305,10 +313,7 @@ fn test_eigendecomposition_symmetric_2x2() {
 
 #[test]
 fn test_eigendecomposition_non_square_error() {
-    let matrix = vec![
-        vec![1.0, 2.0, 3.0],
-        vec![4.0, 5.0, 6.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]];
 
     let result = compute_eigendecomposition(MatrixInput { matrix });
     assert!(result.is_err(), "Non-square matrix should error");
@@ -320,17 +325,23 @@ fn test_eigendecomposition_non_square_error() {
 
 #[test]
 fn test_matrix_operations_square() {
-    let matrix = vec![
-        vec![1.0, 2.0],
-        vec![3.0, 4.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0], vec![3.0, 4.0]];
 
     let result = matrix_operations(MatrixInput { matrix }).unwrap();
 
-    assert!(result.determinant.is_some(), "Square matrix should have determinant");
+    assert!(
+        result.determinant.is_some(),
+        "Square matrix should have determinant"
+    );
     assert!(result.trace.is_some(), "Square matrix should have trace");
-    assert!((result.determinant.unwrap() - (-2.0)).abs() < 1e-10, "det([[1,2],[3,4]]) = -2");
-    assert!((result.trace.unwrap() - 5.0).abs() < 1e-10, "trace([[1,2],[3,4]]) = 5");
+    assert!(
+        (result.determinant.unwrap() - (-2.0)).abs() < 1e-10,
+        "det([[1,2],[3,4]]) = -2"
+    );
+    assert!(
+        (result.trace.unwrap() - 5.0).abs() < 1e-10,
+        "trace([[1,2],[3,4]]) = 5"
+    );
     assert!(result.frobenius_norm > 0.0);
     assert!(result.max_norm > 0.0);
 }
@@ -351,14 +362,14 @@ fn test_matrix_operations_identity() {
 
 #[test]
 fn test_matrix_operations_rectangular() {
-    let matrix = vec![
-        vec![1.0, 2.0, 3.0],
-        vec![4.0, 5.0, 6.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]];
 
     let result = matrix_operations(MatrixInput { matrix }).unwrap();
 
-    assert!(result.determinant.is_none(), "Non-square has no determinant");
+    assert!(
+        result.determinant.is_none(),
+        "Non-square has no determinant"
+    );
     assert!(result.trace.is_none(), "Non-square has no trace");
     assert!(result.frobenius_norm > 0.0);
     assert!(result.max_norm > 0.0);
@@ -370,15 +381,13 @@ fn test_matrix_operations_rectangular() {
 
 #[test]
 fn test_matrix_norm_frobenius() {
-    let matrix = vec![
-        vec![3.0, 0.0],
-        vec![0.0, 4.0],
-    ];
+    let matrix = vec![vec![3.0, 0.0], vec![0.0, 4.0]];
 
     let result = matrix_norm(MatrixNormRequest {
         matrix,
         norm_type: "frobenius".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     // Frobenius norm of diag(3,4) = sqrt(9+16) = 5
     assert!((result.norm - 5.0).abs() < 1e-10);
@@ -386,15 +395,13 @@ fn test_matrix_norm_frobenius() {
 
 #[test]
 fn test_matrix_norm_1() {
-    let matrix = vec![
-        vec![1.0, 2.0, 3.0],
-        vec![4.0, 5.0, 6.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]];
 
     let result = matrix_norm(MatrixNormRequest {
         matrix,
         norm_type: "1".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     // 1-norm is max column sum: max(5, 7, 9) = 9
     assert!((result.norm - 9.0).abs() < 1e-10);
@@ -402,15 +409,13 @@ fn test_matrix_norm_1() {
 
 #[test]
 fn test_matrix_norm_infinity() {
-    let matrix = vec![
-        vec![1.0, 2.0, 3.0],
-        vec![4.0, 5.0, 6.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]];
 
     let result = matrix_norm(MatrixNormRequest {
         matrix,
         norm_type: "inf".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     // Infinity norm is max row sum: max(6, 15) = 15
     assert!((result.norm - 15.0).abs() < 1e-10);
@@ -418,15 +423,13 @@ fn test_matrix_norm_infinity() {
 
 #[test]
 fn test_matrix_norm_fro_alias() {
-    let matrix = vec![
-        vec![1.0, 0.0],
-        vec![0.0, 1.0],
-    ];
+    let matrix = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
 
     let result = matrix_norm(MatrixNormRequest {
         matrix,
         norm_type: "fro".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     // Should work with "fro" alias
     assert!((result.norm - std::f64::consts::SQRT_2).abs() < 1e-10);
@@ -438,15 +441,9 @@ fn test_matrix_norm_fro_alias() {
 
 #[test]
 fn test_matrix_power_zero() {
-    let matrix = vec![
-        vec![2.0, 3.0],
-        vec![4.0, 5.0],
-    ];
+    let matrix = vec![vec![2.0, 3.0], vec![4.0, 5.0]];
 
-    let result = matrix_power(MatrixPowerRequest {
-        matrix,
-        power: 0,
-    }).unwrap();
+    let result = matrix_power(MatrixPowerRequest { matrix, power: 0 }).unwrap();
 
     // A^0 = I
     assert_eq!(result.result[0][0], 1.0);
@@ -457,15 +454,13 @@ fn test_matrix_power_zero() {
 
 #[test]
 fn test_matrix_power_one() {
-    let matrix = vec![
-        vec![2.0, 3.0],
-        vec![4.0, 5.0],
-    ];
+    let matrix = vec![vec![2.0, 3.0], vec![4.0, 5.0]];
 
     let result = matrix_power(MatrixPowerRequest {
         matrix: matrix.clone(),
         power: 1,
-    }).unwrap();
+    })
+    .unwrap();
 
     // A^1 = A
     for i in 0..2 {
@@ -477,15 +472,9 @@ fn test_matrix_power_one() {
 
 #[test]
 fn test_matrix_power_diagonal() {
-    let matrix = vec![
-        vec![2.0, 0.0],
-        vec![0.0, 3.0],
-    ];
+    let matrix = vec![vec![2.0, 0.0], vec![0.0, 3.0]];
 
-    let result = matrix_power(MatrixPowerRequest {
-        matrix,
-        power: 3,
-    }).unwrap();
+    let result = matrix_power(MatrixPowerRequest { matrix, power: 3 }).unwrap();
 
     // diag(2,3)^3 = diag(8,27)
     assert_eq!(result.result[0][0], 8.0);
@@ -496,15 +485,9 @@ fn test_matrix_power_diagonal() {
 
 #[test]
 fn test_matrix_power_identity() {
-    let matrix = vec![
-        vec![1.0, 0.0],
-        vec![0.0, 1.0],
-    ];
+    let matrix = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
 
-    let result = matrix_power(MatrixPowerRequest {
-        matrix,
-        power: 100,
-    }).unwrap();
+    let result = matrix_power(MatrixPowerRequest { matrix, power: 100 }).unwrap();
 
     // I^n = I for any n
     assert_eq!(result.result[0][0], 1.0);
@@ -517,15 +500,13 @@ fn test_matrix_power_identity() {
 
 #[test]
 fn test_matrix_exp_zero() {
-    let matrix = vec![
-        vec![0.0, 0.0],
-        vec![0.0, 0.0],
-    ];
+    let matrix = vec![vec![0.0, 0.0], vec![0.0, 0.0]];
 
     let result = matrix_exp(MatrixExpRequest {
         matrix,
         terms: Some(10),
-    }).unwrap();
+    })
+    .unwrap();
 
     // exp(0) = I
     assert!((result.result[0][0] - 1.0).abs() < 1e-6);
@@ -536,21 +517,27 @@ fn test_matrix_exp_zero() {
 
 #[test]
 fn test_matrix_exp_diagonal() {
-    let matrix = vec![
-        vec![1.0, 0.0],
-        vec![0.0, 2.0],
-    ];
+    let matrix = vec![vec![1.0, 0.0], vec![0.0, 2.0]];
 
     let result = matrix_exp(MatrixExpRequest {
         matrix,
-        terms: Some(30),  // Increase terms for better accuracy
-    }).unwrap();
+        terms: Some(30), // Increase terms for better accuracy
+    })
+    .unwrap();
 
     // exp(diag(1,2)) = diag(e, e^2)
-    assert!((result.result[0][0] - std::f64::consts::E).abs() < 1e-3,
-        "Expected {}, got {}", std::f64::consts::E, result.result[0][0]);
-    assert!((result.result[1][1] - std::f64::consts::E.powi(2)).abs() < 1e-2,
-        "Expected {}, got {}", std::f64::consts::E.powi(2), result.result[1][1]);
+    assert!(
+        (result.result[0][0] - std::f64::consts::E).abs() < 1e-3,
+        "Expected {}, got {}",
+        std::f64::consts::E,
+        result.result[0][0]
+    );
+    assert!(
+        (result.result[1][1] - std::f64::consts::E.powi(2)).abs() < 1e-2,
+        "Expected {}, got {}",
+        std::f64::consts::E.powi(2),
+        result.result[1][1]
+    );
     assert!(result.result[0][1].abs() < 1e-6);
     assert!(result.result[1][0].abs() < 1e-6);
 }
@@ -567,7 +554,10 @@ fn test_cholesky_positive_definite() {
         vec![-16.0, -43.0, 98.0],
     ];
 
-    let result = cholesky_decomposition(CholeskyRequest { matrix: matrix.clone() }).unwrap();
+    let result = cholesky_decomposition(CholeskyRequest {
+        matrix: matrix.clone(),
+    })
+    .unwrap();
 
     // Check that L is lower triangular
     assert_eq!(result.lower[0][1], 0.0);
@@ -580,8 +570,10 @@ fn test_cholesky_positive_definite() {
 
     for i in 0..3 {
         for j in 0..3 {
-            assert!((product[i][j] - matrix[i][j]).abs() < 1e-9,
-                "L*L^T should equal original matrix");
+            assert!(
+                (product[i][j] - matrix[i][j]).abs() < 1e-9,
+                "L*L^T should equal original matrix"
+            );
         }
     }
 }
@@ -594,7 +586,10 @@ fn test_cholesky_identity() {
         vec![0.0, 0.0, 1.0],
     ];
 
-    let result = cholesky_decomposition(CholeskyRequest { matrix: matrix.clone() }).unwrap();
+    let result = cholesky_decomposition(CholeskyRequest {
+        matrix: matrix.clone(),
+    })
+    .unwrap();
 
     // Cholesky of I is I
     for i in 0..3 {
@@ -624,11 +619,14 @@ fn test_cholesky_diagonal() {
 fn test_cholesky_not_positive_definite() {
     let matrix = vec![
         vec![1.0, 2.0],
-        vec![2.0, 1.0],  // Not positive definite
+        vec![2.0, 1.0], // Not positive definite
     ];
 
     let result = cholesky_decomposition(CholeskyRequest { matrix });
-    assert!(result.is_err(), "Should fail for non-positive definite matrix");
+    assert!(
+        result.is_err(),
+        "Should fail for non-positive definite matrix"
+    );
 }
 
 // ============================================================================
@@ -643,7 +641,10 @@ fn test_lu_square_matrix() {
         vec![0.0, -1.0, 2.0],
     ];
 
-    let result = lu_decomposition(LURequest { matrix: matrix.clone() }).unwrap();
+    let result = lu_decomposition(LURequest {
+        matrix: matrix.clone(),
+    })
+    .unwrap();
 
     assert_eq!(result.l.len(), 3);
     assert_eq!(result.u.len(), 3);
@@ -685,7 +686,10 @@ fn test_lu_lower_triangular() {
         vec![4.0, 5.0, 6.0],
     ];
 
-    let result = lu_decomposition(LURequest { matrix: matrix.clone() }).unwrap();
+    let result = lu_decomposition(LURequest {
+        matrix: matrix.clone(),
+    })
+    .unwrap();
 
     // Verify the decomposition
     let pa = matrix_multiply(&result.p, &matrix);
@@ -772,10 +776,7 @@ fn test_schur_diagonal() {
 
 #[test]
 fn test_matrix_inverse_2x2() {
-    let matrix = vec![
-        vec![1.0, 2.0],
-        vec![3.0, 4.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0], vec![3.0, 4.0]];
 
     let inv = matrix_inverse(matrix.clone()).unwrap();
 
@@ -784,14 +785,26 @@ fn test_matrix_inverse_2x2() {
 
     // The inverse of [[1,2],[3,4]] is [[-2, 1], [1.5, -0.5]]
     // Check that product is close to identity
-    assert!((product[0][0] - 1.0).abs() < 1e-8,
-        "product[0][0] = {}, expected 1.0", product[0][0]);
-    assert!((product[1][1] - 1.0).abs() < 1e-8,
-        "product[1][1] = {}, expected 1.0", product[1][1]);
-    assert!(product[0][1].abs() < 1e-8,
-        "product[0][1] = {}, expected 0.0", product[0][1]);
-    assert!(product[1][0].abs() < 1e-8,
-        "product[1][0] = {}, expected 0.0", product[1][0]);
+    assert!(
+        (product[0][0] - 1.0).abs() < 1e-8,
+        "product[0][0] = {}, expected 1.0",
+        product[0][0]
+    );
+    assert!(
+        (product[1][1] - 1.0).abs() < 1e-8,
+        "product[1][1] = {}, expected 1.0",
+        product[1][1]
+    );
+    assert!(
+        product[0][1].abs() < 1e-8,
+        "product[0][1] = {}, expected 0.0",
+        product[0][1]
+    );
+    assert!(
+        product[1][0].abs() < 1e-8,
+        "product[1][0] = {}, expected 0.0",
+        product[1][0]
+    );
 }
 
 #[test]
@@ -824,16 +837,13 @@ fn test_matrix_inverse_diagonal() {
 
     // Inverse of diag(2,3,4) is diag(0.5, 1/3, 0.25)
     assert!((inv[0][0] - 0.5).abs() < 1e-10);
-    assert!((inv[1][1] - 1.0/3.0).abs() < 1e-10);
+    assert!((inv[1][1] - 1.0 / 3.0).abs() < 1e-10);
     assert!((inv[2][2] - 0.25).abs() < 1e-10);
 }
 
 #[test]
 fn test_matrix_inverse_singular_error() {
-    let matrix = vec![
-        vec![1.0, 2.0],
-        vec![2.0, 4.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0], vec![2.0, 4.0]];
 
     let result = matrix_inverse(matrix);
     assert!(result.is_err(), "Should fail for singular matrix");
@@ -841,10 +851,7 @@ fn test_matrix_inverse_singular_error() {
 
 #[test]
 fn test_matrix_inverse_non_square_error() {
-    let matrix = vec![
-        vec![1.0, 2.0, 3.0],
-        vec![4.0, 5.0, 6.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0, 3.0], vec![4.0, 5.0, 6.0]];
 
     let result = matrix_inverse(matrix);
     assert!(result.is_err(), "Should fail for non-square matrix");
@@ -935,7 +942,8 @@ fn test_matrix_norm_single_element() {
     let result = matrix_norm(MatrixNormRequest {
         matrix,
         norm_type: "frobenius".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!((result.norm - 3.0).abs() < 1e-10);
 }
@@ -962,15 +970,9 @@ fn test_matrix_inverse_3x3() {
 
 #[test]
 fn test_matrix_power_large() {
-    let matrix = vec![
-        vec![1.0, 1.0],
-        vec![0.0, 1.0],
-    ];
+    let matrix = vec![vec![1.0, 1.0], vec![0.0, 1.0]];
 
-    let result = matrix_power(MatrixPowerRequest {
-        matrix,
-        power: 5,
-    }).unwrap();
+    let result = matrix_power(MatrixPowerRequest { matrix, power: 5 }).unwrap();
 
     // [[1,1],[0,1]]^5 = [[1,5],[0,1]]
     assert_eq!(result.result[0][0], 1.0);
@@ -981,12 +983,12 @@ fn test_matrix_power_large() {
 
 #[test]
 fn test_cholesky_2x2() {
-    let matrix = vec![
-        vec![4.0, 2.0],
-        vec![2.0, 3.0],
-    ];
+    let matrix = vec![vec![4.0, 2.0], vec![2.0, 3.0]];
 
-    let result = cholesky_decomposition(CholeskyRequest { matrix: matrix.clone() }).unwrap();
+    let result = cholesky_decomposition(CholeskyRequest {
+        matrix: matrix.clone(),
+    })
+    .unwrap();
 
     let lt = transpose(&result.lower);
     let product = matrix_multiply(&result.lower, &lt);
@@ -1006,7 +1008,10 @@ fn test_lu_with_pivoting() {
         vec![2.0, 3.0, 5.0],
     ];
 
-    let result = lu_decomposition(LURequest { matrix: matrix.clone() }).unwrap();
+    let result = lu_decomposition(LURequest {
+        matrix: matrix.clone(),
+    })
+    .unwrap();
 
     // Verify PA = LU
     let pa = matrix_multiply(&result.p, &matrix);
@@ -1021,9 +1026,7 @@ fn test_lu_with_pivoting() {
 
 #[test]
 fn test_svd_very_wide() {
-    let matrix = vec![
-        vec![1.0, 2.0, 3.0, 4.0, 5.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0, 3.0, 4.0, 5.0]];
 
     let result = compute_svd(MatrixInput { matrix }).unwrap();
 
@@ -1033,13 +1036,7 @@ fn test_svd_very_wide() {
 
 #[test]
 fn test_svd_very_tall() {
-    let matrix = vec![
-        vec![1.0],
-        vec![2.0],
-        vec![3.0],
-        vec![4.0],
-        vec![5.0],
-    ];
+    let matrix = vec![vec![1.0], vec![2.0], vec![3.0], vec![4.0], vec![5.0]];
 
     let result = compute_svd(MatrixInput { matrix }).unwrap();
 
@@ -1054,7 +1051,8 @@ fn test_matrix_norm_infinity_single_row() {
     let result = matrix_norm(MatrixNormRequest {
         matrix,
         norm_type: "infinity".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     // Max row sum = 1+2+3+4 = 10
     assert!((result.norm - 10.0).abs() < 1e-10);
@@ -1062,17 +1060,13 @@ fn test_matrix_norm_infinity_single_row() {
 
 #[test]
 fn test_matrix_norm_1_single_column() {
-    let matrix = vec![
-        vec![1.0],
-        vec![2.0],
-        vec![3.0],
-        vec![4.0],
-    ];
+    let matrix = vec![vec![1.0], vec![2.0], vec![3.0], vec![4.0]];
 
     let result = matrix_norm(MatrixNormRequest {
         matrix,
         norm_type: "1".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     // Max column sum = 1+2+3+4 = 10
     assert!((result.norm - 10.0).abs() < 1e-10);
@@ -1112,10 +1106,7 @@ fn test_pca_single_component() {
 
 #[test]
 fn test_pseudoinverse_rank_deficient() {
-    let matrix = vec![
-        vec![1.0, 2.0],
-        vec![2.0, 4.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0], vec![2.0, 4.0]];
 
     let pinv = compute_pseudoinverse(MatrixInput { matrix }).unwrap();
 
@@ -1145,15 +1136,9 @@ fn test_matrix_operations_large() {
 fn test_matrix_power_negative() {
     // For negative powers, we'd need matrix inverse, but current implementation
     // only handles positive powers. This test verifies the current behavior.
-    let matrix = vec![
-        vec![2.0, 0.0],
-        vec![0.0, 3.0],
-    ];
+    let matrix = vec![vec![2.0, 0.0], vec![0.0, 3.0]];
 
-    let result = matrix_power(MatrixPowerRequest {
-        matrix,
-        power: -1,
-    }).unwrap();
+    let result = matrix_power(MatrixPowerRequest { matrix, power: -1 }).unwrap();
 
     // With current implementation, negative powers behave like positive
     // This is a limitation we're documenting
@@ -1162,10 +1147,7 @@ fn test_matrix_power_negative() {
 
 #[test]
 fn test_schur_2x2() {
-    let matrix = vec![
-        vec![1.0, 2.0],
-        vec![3.0, 4.0],
-    ];
+    let matrix = vec![vec![1.0, 2.0], vec![3.0, 4.0]];
 
     let result = schur_decomposition(SchurRequest { matrix }).unwrap();
 
@@ -1175,12 +1157,12 @@ fn test_schur_2x2() {
 
 #[test]
 fn test_lu_2x2() {
-    let matrix = vec![
-        vec![4.0, 3.0],
-        vec![6.0, 3.0],
-    ];
+    let matrix = vec![vec![4.0, 3.0], vec![6.0, 3.0]];
 
-    let result = lu_decomposition(LURequest { matrix: matrix.clone() }).unwrap();
+    let result = lu_decomposition(LURequest {
+        matrix: matrix.clone(),
+    })
+    .unwrap();
 
     let pa = matrix_multiply(&result.p, &matrix);
     let lu = matrix_multiply(&result.l, &result.u);
@@ -1212,15 +1194,13 @@ fn test_pca_more_components_than_features() {
 
 #[test]
 fn test_matrix_exp_small_matrix() {
-    let matrix = vec![
-        vec![0.1, 0.0],
-        vec![0.0, 0.1],
-    ];
+    let matrix = vec![vec![0.1, 0.0], vec![0.0, 0.1]];
 
     let result = matrix_exp(MatrixExpRequest {
         matrix,
         terms: Some(15),
-    }).unwrap();
+    })
+    .unwrap();
 
     // exp(0.1*I) ≈ 1.105*I
     let expected = (0.1_f64).exp();

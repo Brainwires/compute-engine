@@ -1,9 +1,9 @@
 //! Type definitions for the 10-tool architecture
 
+use super::equations::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
-use super::equations::*;
 
 /// Common result type for all tool operations
 pub type ToolResult<T> = Result<T, String>;

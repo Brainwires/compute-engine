@@ -2,8 +2,7 @@
  * Integration tests for new scientific formula modules
  * Verifies each module compiles and produces valid results
  */
-
-use computational_engine::{chemistry::*, biology::*, optics::*, geophysics::*, engineering::*};
+use computational_engine::{biology::*, chemistry::*, engineering::*, geophysics::*, optics::*};
 
 #[test]
 fn test_chemistry_ph() {

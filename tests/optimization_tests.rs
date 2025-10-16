@@ -9,7 +9,8 @@ fn test_curve_fitting() {
         x_data,
         y_data,
         model: "linear".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     // Should fit y = 2x + 1
     assert!(result.coefficients.len() >= 2);
@@ -27,7 +28,8 @@ fn test_curve_fitting_quadratic() {
         x_data,
         y_data,
         model: "quadratic".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert_eq!(result.coefficients.len(), 3);
     // Quadratic fit should give reasonable coefficients
@@ -49,7 +51,8 @@ fn test_curve_fitting_exponential() {
         x_data,
         y_data,
         model: "exponential".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert_eq!(result.coefficients.len(), 2);
     assert!((result.coefficients[0] - 1.0).abs() < 0.2); // a
@@ -66,7 +69,8 @@ fn test_curve_fitting_logarithmic() {
         x_data,
         y_data,
         model: "logarithmic".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert_eq!(result.coefficients.len(), 2);
     assert!(result.coefficients[0].abs() < 0.1); // a should be ~0
@@ -83,7 +87,8 @@ fn test_curve_fitting_power() {
         x_data,
         y_data,
         model: "power".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert_eq!(result.coefficients.len(), 2);
     assert!((result.coefficients[0] - 1.0).abs() < 0.1); // a should be ~1
@@ -100,7 +105,8 @@ fn test_curve_fitting_rational() {
         x_data,
         y_data,
         model: "rational".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert_eq!(result.coefficients.len(), 3);
     assert!(result.r_squared > 0.0);
@@ -115,7 +121,8 @@ fn test_curve_fitting_trigonometric() {
         x_data,
         y_data,
         model: "trigonometric".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert_eq!(result.coefficients.len(), 3);
     assert!(result.r_squared > 0.8);
@@ -130,13 +137,15 @@ fn test_curve_fitting_information_criteria() {
         x_data: x_data.clone(),
         y_data: y_data.clone(),
         model: "linear".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     let quadratic = curve_fitting(CurveFitRequest {
         x_data,
         y_data,
         model: "quadratic".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     // Linear should have better (lower) AIC/BIC for linear data
     assert!(linear.aic.unwrap() < quadratic.aic.unwrap());
@@ -164,7 +173,8 @@ fn test_gradient_descent() {
             step_size: 0.1,
             maximize: false,
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     // Should converge to (0,0)
     assert!(result.variables.get("x1").unwrap().abs() < 0.1);
@@ -201,10 +211,16 @@ fn test_gradient_descent_rosenbrock() {
             step_size: 0.001,
             maximize: false,
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     // Rosenbrock is hard to optimize, check if it gets close
-    assert!(objective(&[*result.variables.get("x1").unwrap(), *result.variables.get("x2").unwrap()]) < 1.0);
+    assert!(
+        objective(&[
+            *result.variables.get("x1").unwrap(),
+            *result.variables.get("x2").unwrap()
+        ]) < 1.0
+    );
 }
 
 #[test]
@@ -228,7 +244,8 @@ fn test_gradient_descent_different_step_sizes() {
             step_size: 0.01,
             maximize: false,
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     // Large step size
     let result2 = gradient_descent(
@@ -241,7 +258,8 @@ fn test_gradient_descent_different_step_sizes() {
             step_size: 0.2,
             maximize: false,
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     // Both should converge, but larger step size might be faster
     assert!(result1.objective_value < 0.1);
@@ -264,7 +282,8 @@ fn test_nelder_mead() {
             step_size: 0.1,
             maximize: false,
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     // Should converge to (3,2)
     assert!((result.variables.get("x1").unwrap() - 3.0).abs() < 0.1);
@@ -290,7 +309,8 @@ fn test_nelder_mead_himmelblau() {
             step_size: 0.1,
             maximize: false,
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     // Should find one of the minima (value ~0)
     assert!(result.objective_value < 0.1);
@@ -312,7 +332,8 @@ fn test_nelder_mead_sphere() {
             step_size: 0.1,
             maximize: false,
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     // Should converge to origin
     assert!(result.objective_value < 0.1);

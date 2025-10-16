@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Simple MCP client to test the computational-engine MCP server
+// Simple MCP client to test the brainwires-compute-engine MCP server
 const { spawn } = require('child_process');
 
 async function testMCPServer() {

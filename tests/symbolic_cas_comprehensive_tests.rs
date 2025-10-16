@@ -578,12 +578,14 @@ fn test_matrix_add() {
     let a = SymbolicMatrix::new(vec![
         vec![Expr::num(1), Expr::num(2)],
         vec![Expr::num(3), Expr::num(4)],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let b = SymbolicMatrix::new(vec![
         vec![Expr::num(5), Expr::num(6)],
         vec![Expr::num(7), Expr::num(8)],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let c = a.add(&b).unwrap();
     assert_eq!(c.rows(), 2);
@@ -597,12 +599,14 @@ fn test_matrix_mul() {
     let a = SymbolicMatrix::new(vec![
         vec![Expr::num(1), Expr::num(2)],
         vec![Expr::num(3), Expr::num(4)],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let b = SymbolicMatrix::new(vec![
         vec![Expr::num(5), Expr::num(6)],
         vec![Expr::num(7), Expr::num(8)],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let c = a.mul(&b).unwrap();
     assert_eq!(c.rows(), 2);
@@ -615,7 +619,8 @@ fn test_matrix_scalar_mul() {
     let mat = SymbolicMatrix::new(vec![
         vec![Expr::num(1), Expr::num(2)],
         vec![Expr::num(3), Expr::num(4)],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let scaled = mat.scalar_mul(&Expr::num(3));
     assert_eq!(scaled.rows(), 2);
@@ -628,7 +633,8 @@ fn test_matrix_determinant_2x2() {
     let mat = SymbolicMatrix::new(vec![
         vec![Expr::num(1), Expr::num(2)],
         vec![Expr::num(3), Expr::num(4)],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let det = mat.determinant().unwrap();
     eprintln!("Det of 2x2: {}", det);
@@ -640,7 +646,8 @@ fn test_matrix_determinant_symbolic() {
     let mat = SymbolicMatrix::new(vec![
         vec![Expr::sym("a"), Expr::sym("b")],
         vec![Expr::sym("c"), Expr::sym("d")],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let det = mat.determinant().unwrap();
     eprintln!("Symbolic det: {}", det);
@@ -653,7 +660,8 @@ fn test_matrix_determinant_3x3() {
         vec![Expr::num(1), Expr::num(2), Expr::num(3)],
         vec![Expr::num(4), Expr::num(5), Expr::num(6)],
         vec![Expr::num(7), Expr::num(8), Expr::num(9)],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let det = mat.determinant().unwrap();
     eprintln!("Det of 3x3: {}", det);
@@ -666,7 +674,8 @@ fn test_matrix_trace() {
         vec![Expr::num(1), Expr::num(2), Expr::num(3)],
         vec![Expr::num(4), Expr::num(5), Expr::num(6)],
         vec![Expr::num(7), Expr::num(8), Expr::num(9)],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let trace = mat.trace().unwrap();
     eprintln!("Trace: {}", trace);
@@ -678,7 +687,8 @@ fn test_matrix_symbolic_trace() {
     let mat = SymbolicMatrix::new(vec![
         vec![Expr::sym("a"), Expr::num(0)],
         vec![Expr::num(0), Expr::sym("b")],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let trace = mat.trace().unwrap();
     eprintln!("Symbolic trace: {}", trace);
@@ -918,7 +928,8 @@ fn test_matrix_determinant_4x4() {
         vec![Expr::num(0), Expr::num(2), Expr::num(0), Expr::num(0)],
         vec![Expr::num(0), Expr::num(0), Expr::num(3), Expr::num(0)],
         vec![Expr::num(0), Expr::num(0), Expr::num(0), Expr::num(4)],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let det = mat.determinant().unwrap();
     eprintln!("Det of 4x4 diagonal: {}", det);
@@ -930,12 +941,14 @@ fn test_matrix_symbolic_multiplication() {
     let a = SymbolicMatrix::new(vec![
         vec![Expr::sym("a"), Expr::sym("b")],
         vec![Expr::sym("c"), Expr::sym("d")],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let b = SymbolicMatrix::new(vec![
         vec![Expr::sym("x"), Expr::num(0)],
         vec![Expr::num(0), Expr::sym("y")],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let c = a.mul(&b).unwrap();
     eprintln!("Symbolic matrix product:\n{}", c);
@@ -985,7 +998,8 @@ fn test_matrix_nonsquare_determinant_error() {
     let mat = SymbolicMatrix::new(vec![
         vec![Expr::num(1), Expr::num(2), Expr::num(3)],
         vec![Expr::num(4), Expr::num(5), Expr::num(6)],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let result = mat.determinant();
     assert!(result.is_err());
@@ -1089,7 +1103,8 @@ fn test_matrix_identity_multiplication() {
     let a = SymbolicMatrix::new(vec![
         vec![Expr::num(1), Expr::num(2)],
         vec![Expr::num(3), Expr::num(4)],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let identity = SymbolicMatrix::identity(2);
     let result = a.mul(&identity).unwrap();

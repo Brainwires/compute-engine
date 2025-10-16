@@ -1,6 +1,6 @@
 use computational_engine::mathematics::symbolic_cas::{
-    Expr, SymbolicMatrix, SymbolicTensor, IndexType,
-    minkowski_metric, schwarzschild_metric, euclidean_metric
+    Expr, IndexType, SymbolicMatrix, SymbolicTensor, euclidean_metric, minkowski_metric,
+    schwarzschild_metric,
 };
 
 fn main() {
@@ -14,29 +14,58 @@ fn main() {
     // Test 2: Vector tensor
     println!("Test 2: Contravariant vector (rank-1 tensor)");
     let vector = SymbolicTensor::vector(
-        vec![Expr::sym("v^0"), Expr::sym("v^1"), Expr::sym("v^2"), Expr::sym("v^3")],
-        IndexType::Contravariant
-    ).unwrap();
+        vec![
+            Expr::sym("v^0"),
+            Expr::sym("v^1"),
+            Expr::sym("v^2"),
+            Expr::sym("v^3"),
+        ],
+        IndexType::Contravariant,
+    )
+    .unwrap();
     println!("{}\n", vector);
 
     // Test 3: Covariant vector
     println!("Test 3: Covariant vector");
     let covector = SymbolicTensor::vector(
         vec![Expr::sym("p_0"), Expr::sym("p_1"), Expr::sym("p_2")],
-        IndexType::Covariant
-    ).unwrap();
+        IndexType::Covariant,
+    )
+    .unwrap();
     println!("{}\n", covector);
 
     // Test 4: Matrix as rank-2 tensor
     println!("Test 4: Rank-2 tensor (electromagnetic field tensor)");
     let f_matrix = SymbolicMatrix::new(vec![
-        vec![Expr::num(0), Expr::sym("E_x"), Expr::sym("E_y"), Expr::sym("E_z")],
-        vec![Expr::mul(Expr::num(-1), Expr::sym("E_x")), Expr::num(0), Expr::sym("B_z"), Expr::mul(Expr::num(-1), Expr::sym("B_y"))],
-        vec![Expr::mul(Expr::num(-1), Expr::sym("E_y")), Expr::mul(Expr::num(-1), Expr::sym("B_z")), Expr::num(0), Expr::sym("B_x")],
-        vec![Expr::mul(Expr::num(-1), Expr::sym("E_z")), Expr::sym("B_y"), Expr::mul(Expr::num(-1), Expr::sym("B_x")), Expr::num(0)],
-    ]).unwrap();
+        vec![
+            Expr::num(0),
+            Expr::sym("E_x"),
+            Expr::sym("E_y"),
+            Expr::sym("E_z"),
+        ],
+        vec![
+            Expr::mul(Expr::num(-1), Expr::sym("E_x")),
+            Expr::num(0),
+            Expr::sym("B_z"),
+            Expr::mul(Expr::num(-1), Expr::sym("B_y")),
+        ],
+        vec![
+            Expr::mul(Expr::num(-1), Expr::sym("E_y")),
+            Expr::mul(Expr::num(-1), Expr::sym("B_z")),
+            Expr::num(0),
+            Expr::sym("B_x"),
+        ],
+        vec![
+            Expr::mul(Expr::num(-1), Expr::sym("E_z")),
+            Expr::sym("B_y"),
+            Expr::mul(Expr::num(-1), Expr::sym("B_x")),
+            Expr::num(0),
+        ],
+    ])
+    .unwrap();
 
-    let f_tensor = SymbolicTensor::from_matrix(&f_matrix, [IndexType::Contravariant, IndexType::Covariant]);
+    let f_tensor =
+        SymbolicTensor::from_matrix(&f_matrix, [IndexType::Contravariant, IndexType::Covariant]);
     println!("Electromagnetic field tensor F^μ_ν:");
     println!("{}\n", f_tensor);
 
@@ -45,9 +74,11 @@ fn main() {
     let mat = SymbolicMatrix::new(vec![
         vec![Expr::sym("T^0_0"), Expr::sym("T^0_1")],
         vec![Expr::sym("T^1_0"), Expr::sym("T^1_1")],
-    ]).unwrap();
+    ])
+    .unwrap();
 
-    let stress_tensor = SymbolicTensor::from_matrix(&mat, [IndexType::Contravariant, IndexType::Covariant]);
+    let stress_tensor =
+        SymbolicTensor::from_matrix(&mat, [IndexType::Contravariant, IndexType::Covariant]);
     let trace = stress_tensor.contract(0, 1).unwrap();
     println!("Trace of T^μ_ν:");
     println!("{}\n", trace);
@@ -56,13 +87,15 @@ fn main() {
     println!("Test 6: Outer product of two vectors");
     let u = SymbolicTensor::vector(
         vec![Expr::sym("u^0"), Expr::sym("u^1")],
-        IndexType::Contravariant
-    ).unwrap();
+        IndexType::Contravariant,
+    )
+    .unwrap();
 
     let v = SymbolicTensor::vector(
         vec![Expr::sym("v_0"), Expr::sym("v_1")],
-        IndexType::Covariant
-    ).unwrap();
+        IndexType::Covariant,
+    )
+    .unwrap();
 
     let tensor_product = u.outer_product(&v).unwrap();
     println!("u^i ⊗ v_j:");
@@ -79,12 +112,12 @@ fn main() {
     let minkowski_2d = SymbolicMatrix::new(vec![
         vec![Expr::num(1), Expr::num(0)],
         vec![Expr::num(0), Expr::num(-1)],
-    ]).unwrap();
+    ])
+    .unwrap();
 
-    let covariant_momentum = SymbolicTensor::vector(
-        vec![Expr::sym("E"), Expr::sym("p_x")],
-        IndexType::Covariant
-    ).unwrap();
+    let covariant_momentum =
+        SymbolicTensor::vector(vec![Expr::sym("E"), Expr::sym("p_x")], IndexType::Covariant)
+            .unwrap();
 
     let contravariant_momentum = covariant_momentum.raise_index(&minkowski_2d, 0).unwrap();
     println!("Original (covariant): p_μ");
@@ -103,7 +136,8 @@ fn main() {
     let simple_metric = SymbolicMatrix::new(vec![
         vec![Expr::sym("g_00"), Expr::num(0)],
         vec![Expr::num(0), Expr::sym("g_11")],
-    ]).unwrap();
+    ])
+    .unwrap();
 
     let det = simple_metric.determinant().unwrap();
     println!("det(g) for diagonal 2×2 metric:");

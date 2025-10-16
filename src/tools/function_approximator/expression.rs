@@ -34,14 +34,16 @@ pub enum ExpressionNode {
 
 impl ExpressionNode {
     /// Evaluate the expression tree given variable values
-    pub fn evaluate(&self, variables: &std::collections::HashMap<String, f64>) -> Result<f64, String> {
+    pub fn evaluate(
+        &self,
+        variables: &std::collections::HashMap<String, f64>,
+    ) -> Result<f64, String> {
         match self {
             ExpressionNode::Constant(val) => Ok(*val),
-            ExpressionNode::Variable(name) => {
-                variables.get(name)
-                    .copied()
-                    .ok_or_else(|| format!("Variable '{}' not found", name))
-            }
+            ExpressionNode::Variable(name) => variables
+                .get(name)
+                .copied()
+                .ok_or_else(|| format!("Variable '{}' not found", name)),
             ExpressionNode::Binary { op, left, right } => {
                 let left_val = left.evaluate(variables)?;
                 let right_val = right.evaluate(variables)?;

@@ -1,11 +1,8 @@
 use computational_engine::mathematics::symbolic_cas::{
-    commutator, anticommutator,
-    pauli_x, pauli_y, pauli_z,
-    dirac_gamma_0, dirac_gamma_1, dirac_gamma_2, dirac_gamma_3,
-    angular_momentum_x, angular_momentum_y, angular_momentum_z,
-    creation_operator_symbolic, annihilation_operator_symbolic,
-    time_evolution_operator, expectation_value,
-    SymbolicMatrix, Expr,
+    Expr, SymbolicMatrix, angular_momentum_x, angular_momentum_y, angular_momentum_z,
+    annihilation_operator_symbolic, anticommutator, commutator, creation_operator_symbolic,
+    dirac_gamma_0, dirac_gamma_1, dirac_gamma_2, dirac_gamma_3, expectation_value, pauli_x,
+    pauli_y, pauli_z, time_evolution_operator,
 };
 
 fn main() {
@@ -113,16 +110,10 @@ fn main() {
     println!("Test 7: Expectation Values");
 
     // Spin-up state |↑> = [1, 0]
-    let spin_up = SymbolicMatrix::new(vec![
-        vec![Expr::num(1)],
-        vec![Expr::num(0)],
-    ]).unwrap();
+    let spin_up = SymbolicMatrix::new(vec![vec![Expr::num(1)], vec![Expr::num(0)]]).unwrap();
 
     // Spin-down state |↓> = [0, 1]
-    let spin_down = SymbolicMatrix::new(vec![
-        vec![Expr::num(0)],
-        vec![Expr::num(1)],
-    ]).unwrap();
+    let spin_down = SymbolicMatrix::new(vec![vec![Expr::num(0)], vec![Expr::num(1)]]).unwrap();
 
     println!("Spin-up state |↑> = [1, 0]ᵀ");
     println!("Spin-down state |↓> = [0, 1]ᵀ\n");

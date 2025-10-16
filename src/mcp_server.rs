@@ -7,9 +7,9 @@ pub mod server {
     use crate::implementations::create_default_dispatcher;
     use rmcp::{
         handler::server::{ServerHandler, tool::ToolRouter, wrapper::Parameters},
-        model::{ServerInfo, Implementation, ProtocolVersion, ServerCapabilities},
-        tool, tool_router, tool_handler,
+        model::{Implementation, ProtocolVersion, ServerCapabilities, ServerInfo},
         service::ServiceExt,
+        tool, tool_handler, tool_router,
     };
     use schemars::JsonSchema;
     use serde::{Deserialize, Serialize};
@@ -39,8 +39,13 @@ pub mod server {
         }
 
         /// Execute a computational request using JSON
-        #[tool(description = "Execute computational operations via JSON. Accepts ToolRequest JSON format with 10 tools: Solve, Differentiate, Integrate, Analyze, Simulate, Compute, Transform, FieldTheory, Sample, Optimize")]
-        async fn compute_json(&self, Parameters(req): Parameters<ComputeJsonRequest>) -> Result<String, String> {
+        #[tool(
+            description = "Execute computational operations via JSON. Accepts ToolRequest JSON format with 10 tools: Solve, Differentiate, Integrate, Analyze, Simulate, Compute, Transform, FieldTheory, Sample, Optimize"
+        )]
+        async fn compute_json(
+            &self,
+            Parameters(req): Parameters<ComputeJsonRequest>,
+        ) -> Result<String, String> {
             // Parse the JSON request
             let tool_request: ToolRequest = serde_json::from_str(&req.request_json)
                 .map_err(|e| format!("JSON parse error: {}", e))?;
@@ -53,9 +58,7 @@ pub mod server {
 
                     Ok(result_json)
                 }
-                Err(e) => {
-                    Err(format!("Computation error: {}", e))
-                }
+                Err(e) => Err(format!("Computation error: {}", e)),
             }
         }
     }
@@ -65,12 +68,10 @@ pub mod server {
         fn get_info(&self) -> ServerInfo {
             ServerInfo {
                 protocol_version: ProtocolVersion::default(),
-                capabilities: ServerCapabilities::builder()
-                    .enable_tools()
-                    .build(),
+                capabilities: ServerCapabilities::builder().enable_tools().build(),
                 server_info: Implementation {
-                    name: "computational-engine".into(),
-                    title: Some("Computational Engine - Mathematics & Physics".into()),
+                    name: "brainwires-compute-engine".into(),
+                    title: Some("Brainwires Compute Engine - Mathematics & Physics".into()),
                     version: env!("CARGO_PKG_VERSION").into(),
                     icons: None,
                     website_url: None,
@@ -78,7 +79,8 @@ pub mod server {
                 instructions: Some(
                     "Use compute_json tool with ToolRequest JSON. Example: \
                     {\"tool\":\"solve\",\"input\":{\"equations\":[\"x^2-4=0\"]}}. \
-                    Supports 229+ operations across 10 tools.".into()
+                    Supports 229+ operations across 10 tools."
+                        .into(),
                 ),
             }
         }
@@ -89,10 +91,15 @@ pub mod server {
         let engine = ComputationalEngine::new();
         let transport = rmcp::transport::io::stdio();
 
-        eprintln!("Starting Computational Engine MCP Server v{}", env!("CARGO_PKG_VERSION"));
+        eprintln!(
+            "Starting Computational Engine MCP Server v{}",
+            env!("CARGO_PKG_VERSION")
+        );
         eprintln!("Protocol: MCP 2024-11-05");
         eprintln!("Tool: compute_json");
-        eprintln!("Operations: Solve, Differentiate, Integrate, Analyze, Simulate, Compute, Transform, FieldTheory, Sample, Optimize");
+        eprintln!(
+            "Operations: Solve, Differentiate, Integrate, Analyze, Simulate, Compute, Transform, FieldTheory, Sample, Optimize"
+        );
         eprintln!("Total: 229+ mathematical and physics operations");
         eprintln!("");
 

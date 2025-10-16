@@ -1,9 +1,9 @@
-# Thalora Compute Engine
+# Brainwires Compute Engine
 
 A comprehensive computational engine for mathematical and scientific computing in Rust, providing **194+ operations** through a clean **10-tool API**.
 
-[![Tests](https://img.shields.io/badge/tests-523%20passing-brightgreen)](https://github.com/nightness/thalora-compute-engine)
-[![Coverage](https://img.shields.io/badge/coverage-1500%2B%20tests-blue)](https://github.com/nightness/thalora-compute-engine)
+[![Tests](https://img.shields.io/badge/tests-523%20passing-brightgreen)](https://github.com/nightness/brainwires-compute-engine)
+[![Coverage](https://img.shields.io/badge/coverage-1500%2B%20tests-blue)](https://github.com/nightness/brainwires-compute-engine)
 [![Rust](https://img.shields.io/badge/rust-2024%20edition-orange)](https://www.rust-lang.org/)
 
 ## 🚀 Quick Start
@@ -92,7 +92,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-computational-engine = { git = "https://github.com/nightness/thalora-compute-engine" }
+brainwires-compute-engine = { git = "https://github.com/nightness/brainwires-compute-engine" }
 ```
 
 ## 🔧 Multiple Interfaces
@@ -147,7 +147,7 @@ JSON request format:
 Use in JavaScript/TypeScript for on-device computation:
 
 ```javascript
-import init, { ComputationalEngine } from '@brainwires/computational-engine';
+import init, { ComputationalEngine } from '@brainwires/brainwires-compute-engine';
 
 await init();
 const engine = new ComputationalEngine();
@@ -183,7 +183,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed documentation.
 cargo build --release
 
 # Run the MCP server
-./target/release/computational-engine stdin
+./target/release/brainwires-compute-engine stdin
 
 # Run all tests (523 unit + integration tests)
 cargo test
@@ -330,7 +330,7 @@ This project aims to provide comprehensive computational capabilities comparable
 
 ## 📞 Support
 
-- Issues: [GitHub Issues](https://github.com/nightness/thalora-compute-engine/issues)
+- Issues: [GitHub Issues](https://github.com/nightness/brainwires-compute-engine/issues)
 - Documentation: See `docs/` directory and inline documentation
 
 ---

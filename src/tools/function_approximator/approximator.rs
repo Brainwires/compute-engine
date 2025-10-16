@@ -174,7 +174,10 @@ impl FunctionApproximator {
             // Optional: log progress
             if generation % 10 == 0 || generation == self.config.generations - 1 {
                 let best_fitness = population[0].fitness;
-                eprintln!("Generation {}: Best fitness = {:.6}", generation, best_fitness);
+                eprintln!(
+                    "Generation {}: Best fitness = {:.6}",
+                    generation, best_fitness
+                );
             }
         }
 

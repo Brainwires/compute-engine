@@ -279,7 +279,7 @@ fn test_transmission_line_attenuation() {
     let result = transmission_line(TransmissionLineRequest {
         line_type: "coax".to_string(),
         frequency: 10e9, // 10 GHz
-        length: 100.0, // 100 m
+        length: 100.0,   // 100 m
         z0: 50.0,
         load_impedance: Some(50.0),
         attenuation: Some(0.5), // 0.5 dB/m
@@ -298,8 +298,8 @@ fn test_transmission_line_attenuation() {
 fn test_rectangular_waveguide_te10() {
     let result = waveguide(WaveguideRequest {
         guide_type: "rectangular".to_string(),
-        frequency: 10e9, // 10 GHz (X-band)
-        width: 0.023,    // 23 mm (standard WR-90)
+        frequency: 10e9,    // 10 GHz (X-band)
+        width: 0.023,       // 23 mm (standard WR-90)
         height: Some(0.01), // 10 mm
         mode: "TE10".to_string(),
     })
@@ -348,7 +348,7 @@ fn test_coaxial_waveguide() {
     let result = waveguide(WaveguideRequest {
         guide_type: "coaxial".to_string(),
         frequency: 1e9,
-        width: 0.001,  // 1 mm inner radius
+        width: 0.001,        // 1 mm inner radius
         height: Some(0.003), // 3 mm outer radius
         mode: "TEM".to_string(),
     })
@@ -383,7 +383,7 @@ fn test_dielectric_waveguide() {
 fn test_rayleigh_scattering() {
     let result = scattering(ScatteringRequest {
         scatterer_type: "sphere".to_string(),
-        radius: 0.001, // 1 mm
+        radius: 0.001,   // 1 mm
         wavelength: 0.1, // 10 cm (ka << 1)
         incident_angle: 0.0,
         polarization: "TE".to_string(),
@@ -401,7 +401,7 @@ fn test_rayleigh_scattering() {
 fn test_geometric_scattering() {
     let result = scattering(ScatteringRequest {
         scatterer_type: "sphere".to_string(),
-        radius: 1.0, // 1 m
+        radius: 1.0,     // 1 m
         wavelength: 0.1, // 10 cm (ka >> 1)
         incident_angle: 0.0,
         polarization: "TM".to_string(),
@@ -499,7 +499,7 @@ fn test_poynting_power_density() {
 #[test]
 fn test_skin_effect_copper_1mhz() {
     let result = skin_effect(SkinEffectRequest {
-        frequency: 1e6, // 1 MHz
+        frequency: 1e6,      // 1 MHz
         conductivity: 5.8e7, // Copper
         permeability: None,
     })

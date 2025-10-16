@@ -16,9 +16,9 @@ use std::f64::consts::PI;
 
 #[derive(Debug, Deserialize)]
 pub struct TransferFunctionRequest {
-    pub numerator: Vec<f64>,   // Coefficients of numerator polynomial (highest order first)
+    pub numerator: Vec<f64>, // Coefficients of numerator polynomial (highest order first)
     pub denominator: Vec<f64>, // Coefficients of denominator polynomial
-    pub operation: String,     // "evaluate", "simplify", "series", "parallel", "feedback"
+    pub operation: String,   // "evaluate", "simplify", "series", "parallel", "feedback"
     pub frequency: Option<f64>, // For evaluation at specific frequency
     pub second_tf: Option<(Vec<f64>, Vec<f64>)>, // For series/parallel/feedback
 }
@@ -27,7 +27,7 @@ pub struct TransferFunctionRequest {
 pub struct TransferFunctionResult {
     pub numerator: Vec<f64>,
     pub denominator: Vec<f64>,
-    pub gain: f64,              // DC gain (H(0) if stable)
+    pub gain: f64, // DC gain (H(0) if stable)
     pub poles: Vec<Complex>,
     pub zeros: Vec<Complex>,
     pub frequency_response: Option<FrequencyResponse>,
@@ -46,7 +46,9 @@ pub struct FrequencyResponse {
 }
 
 /// Transfer function operations
-pub fn transfer_function(request: TransferFunctionRequest) -> Result<TransferFunctionResult, String> {
+pub fn transfer_function(
+    request: TransferFunctionRequest,
+) -> Result<TransferFunctionResult, String> {
     if request.denominator.is_empty() {
         return Err("Denominator cannot be empty".to_string());
     }
@@ -56,22 +58,26 @@ pub fn transfer_function(request: TransferFunctionRequest) -> Result<TransferFun
 
         "series" => {
             // H1(s) * H2(s)
-            let (num2, den2) = request.second_tf.ok_or("Second transfer function required")?;
+            let (num2, den2) = request
+                .second_tf
+                .ok_or("Second transfer function required")?;
             let new_num = poly_multiply(&request.numerator, &num2);
             let new_den = poly_multiply(&request.denominator, &den2);
             (new_num, new_den)
-        },
+        }
 
         "parallel" => {
             // H1(s) + H2(s)
-            let (num2, den2) = request.second_tf.ok_or("Second transfer function required")?;
+            let (num2, den2) = request
+                .second_tf
+                .ok_or("Second transfer function required")?;
             // (num1*den2 + num2*den1) / (den1*den2)
             let term1 = poly_multiply(&request.numerator, &den2);
             let term2 = poly_multiply(&num2, &request.denominator);
             let new_num = poly_add(&term1, &term2);
             let new_den = poly_multiply(&request.denominator, &den2);
             (new_num, new_den)
-        },
+        }
 
         "feedback" => {
             // H(s) / (1 + H(s)) for negative feedback
@@ -82,7 +88,7 @@ pub fn transfer_function(request: TransferFunctionRequest) -> Result<TransferFun
             let num_prod = poly_multiply(&request.numerator, &num2);
             let new_den = poly_add(&den_prod, &num_prod);
             (new_num, new_den)
-        },
+        }
 
         _ => (request.numerator.clone(), request.denominator.clone()),
     };
@@ -100,7 +106,10 @@ pub fn transfer_function(request: TransferFunctionRequest) -> Result<TransferFun
 
     // Evaluate at specific frequency if requested
     let freq_response = if let Some(omega) = request.frequency {
-        let s = Complex { real: 0.0, imag: omega };
+        let s = Complex {
+            real: 0.0,
+            imag: omega,
+        };
         let h = eval_poly_complex(&num, &s) / eval_poly_complex(&den, &s);
         let magnitude = (h.real * h.real + h.imag * h.imag).sqrt();
         let phase = h.imag.atan2(h.real);
@@ -154,10 +163,14 @@ pub fn pole_zero_analysis(request: PoleZeroRequest) -> Result<PoleZeroResult, St
     };
 
     // Find dominant pole (closest to imaginary axis)
-    let dominant_pole = poles.iter()
+    let dominant_pole = poles
+        .iter()
         .min_by(|a, b| a.real.abs().partial_cmp(&b.real.abs()).unwrap())
         .cloned()
-        .unwrap_or(Complex { real: 0.0, imag: 0.0 });
+        .unwrap_or(Complex {
+            real: 0.0,
+            imag: 0.0,
+        });
 
     // For second-order systems, calculate natural frequency and damping
     let (wn, zeta) = if poles.len() == 2 {
@@ -218,8 +231,12 @@ pub fn bode_plot(request: BodePlotRequest) -> Result<BodePlotResult, String> {
         let omega = (log_min + i as f64 * step).exp();
         frequencies.push(omega);
 
-        let s = Complex { real: 0.0, imag: omega };
-        let h = eval_poly_complex(&request.numerator, &s) / eval_poly_complex(&request.denominator, &s);
+        let s = Complex {
+            real: 0.0,
+            imag: omega,
+        };
+        let h =
+            eval_poly_complex(&request.numerator, &s) / eval_poly_complex(&request.denominator, &s);
 
         let mag = (h.real * h.real + h.imag * h.imag).sqrt();
         let mag_db = 20.0 * mag.log10();
@@ -264,7 +281,7 @@ pub struct NyquistPlotRequest {
 pub struct NyquistPlotResult {
     pub real_parts: Vec<f64>,
     pub imag_parts: Vec<f64>,
-    pub encirclements: i32,  // Number of encirclements of -1 point
+    pub encirclements: i32, // Number of encirclements of -1 point
     pub stable: bool,
 }
 
@@ -278,8 +295,12 @@ pub fn nyquist_plot(request: NyquistPlotRequest) -> Result<NyquistPlotResult, St
 
     for i in 0..n {
         let omega = request.freq_min + i as f64 * step;
-        let s = Complex { real: 0.0, imag: omega };
-        let h = eval_poly_complex(&request.numerator, &s) / eval_poly_complex(&request.denominator, &s);
+        let s = Complex {
+            real: 0.0,
+            imag: omega,
+        };
+        let h =
+            eval_poly_complex(&request.numerator, &s) / eval_poly_complex(&request.denominator, &s);
 
         real_parts.push(h.real);
         imag_parts.push(h.imag);
@@ -377,7 +398,7 @@ pub struct StateSpaceRequest {
     pub b_matrix: Vec<Vec<f64>>, // Input matrix
     pub c_matrix: Vec<Vec<f64>>, // Output matrix
     pub d_matrix: Vec<Vec<f64>>, // Feedthrough matrix
-    pub operation: String,        // "to_transfer_function", "simulate"
+    pub operation: String,       // "to_transfer_function", "simulate"
     pub time: Option<f64>,
 }
 
@@ -528,16 +549,16 @@ pub fn routh_hurwitz(request: RouthHurwitzRequest) -> Result<RouthHurwitzResult,
 
     // Fill remaining rows
     for i in 2..n {
-        let m = routh[i-1].len();
+        let m = routh[i - 1].len();
         let mut new_row = Vec::new();
 
         // Collect values first to avoid borrow checker issues
-        let a = *routh[i-2].get(0).unwrap_or(&0.0);
-        let b = *routh[i-1].get(0).unwrap_or(&0.0);
+        let a = *routh[i - 2].get(0).unwrap_or(&0.0);
+        let b = *routh[i - 1].get(0).unwrap_or(&0.0);
 
-        for j in 0..(m-1) {
-            let c = *routh[i-2].get(j+1).unwrap_or(&0.0);
-            let d = *routh[i-1].get(j+1).unwrap_or(&0.0);
+        for j in 0..(m - 1) {
+            let c = *routh[i - 2].get(j + 1).unwrap_or(&0.0);
+            let d = *routh[i - 1].get(j + 1).unwrap_or(&0.0);
 
             if b.abs() < 1e-10 {
                 new_row.push(0.0);
@@ -553,13 +574,14 @@ pub fn routh_hurwitz(request: RouthHurwitzRequest) -> Result<RouthHurwitzResult,
     }
 
     // Count sign changes in first column
-    let first_col: Vec<f64> = routh.iter()
+    let first_col: Vec<f64> = routh
+        .iter()
         .filter_map(|row| row.first().copied())
         .collect();
 
     let mut sign_changes = 0;
     for i in 1..first_col.len() {
-        if first_col[i-1].signum() != first_col[i].signum() {
+        if first_col[i - 1].signum() != first_col[i].signum() {
             sign_changes += 1;
         }
     }
@@ -598,8 +620,12 @@ pub fn gain_margin(request: GainMarginRequest) -> Result<GainMarginResult, Strin
 
     for i in 0..100 {
         let omega = 0.1 * (i as f64 + 1.0);
-        let s = Complex { real: 0.0, imag: omega };
-        let h = eval_poly_complex(&request.numerator, &s) / eval_poly_complex(&request.denominator, &s);
+        let s = Complex {
+            real: 0.0,
+            imag: omega,
+        };
+        let h =
+            eval_poly_complex(&request.numerator, &s) / eval_poly_complex(&request.denominator, &s);
         let phase = h.imag.atan2(h.real);
 
         let diff = (phase + PI).abs();
@@ -610,7 +636,10 @@ pub fn gain_margin(request: GainMarginRequest) -> Result<GainMarginResult, Strin
     }
 
     // Evaluate magnitude at phase crossover
-    let s = Complex { real: 0.0, imag: phase_crossover };
+    let s = Complex {
+        real: 0.0,
+        imag: phase_crossover,
+    };
     let h = eval_poly_complex(&request.numerator, &s) / eval_poly_complex(&request.denominator, &s);
     let mag = (h.real * h.real + h.imag * h.imag).sqrt();
     let gm_db = -20.0 * mag.log10();
@@ -645,8 +674,12 @@ pub fn phase_margin(request: PhaseMarginRequest) -> Result<PhaseMarginResult, St
 
     for i in 0..100 {
         let omega = 0.1 * (i as f64 + 1.0);
-        let s = Complex { real: 0.0, imag: omega };
-        let h = eval_poly_complex(&request.numerator, &s) / eval_poly_complex(&request.denominator, &s);
+        let s = Complex {
+            real: 0.0,
+            imag: omega,
+        };
+        let h =
+            eval_poly_complex(&request.numerator, &s) / eval_poly_complex(&request.denominator, &s);
         let mag = (h.real * h.real + h.imag * h.imag).sqrt();
 
         let diff = (mag - 1.0).abs();
@@ -657,7 +690,10 @@ pub fn phase_margin(request: PhaseMarginRequest) -> Result<PhaseMarginResult, St
     }
 
     // Evaluate phase at gain crossover
-    let s = Complex { real: 0.0, imag: gain_crossover };
+    let s = Complex {
+        real: 0.0,
+        imag: gain_crossover,
+    };
     let h = eval_poly_complex(&request.numerator, &s) / eval_poly_complex(&request.denominator, &s);
     let phase = h.imag.atan2(h.real);
     let pm_deg = (phase + PI) * 180.0 / PI;
@@ -701,7 +737,8 @@ pub fn step_response(request: StepResponseRequest) -> Result<StepResponseResult,
 
     // Simplified step response using poles
     let poles = find_roots(&request.denominator);
-    let gain = request.numerator.last().unwrap_or(&1.0) / request.denominator.last().unwrap_or(&1.0);
+    let gain =
+        request.numerator.last().unwrap_or(&1.0) / request.denominator.last().unwrap_or(&1.0);
 
     for i in 0..n {
         let t = i as f64 * dt;
@@ -732,11 +769,15 @@ pub fn step_response(request: StepResponseRequest) -> Result<StepResponseResult,
     // Rise time (10% to 90%)
     let target_10 = steady_state * 0.1;
     let target_90 = steady_state * 0.9;
-    let t10 = time.iter().zip(&response)
+    let t10 = time
+        .iter()
+        .zip(&response)
         .find(|(_, y)| **y >= target_10)
         .map(|(t, _)| *t)
         .unwrap_or(0.0);
-    let t90 = time.iter().zip(&response)
+    let t90 = time
+        .iter()
+        .zip(&response)
         .find(|(_, y)| **y >= target_90)
         .map(|(t, _)| *t)
         .unwrap_or(0.0);
@@ -745,14 +786,18 @@ pub fn step_response(request: StepResponseRequest) -> Result<StepResponseResult,
     // Settling time (2% criterion)
     let lower_bound = steady_state * 0.98;
     let upper_bound = steady_state * 1.02;
-    let settling_time = time.iter().zip(&response)
+    let settling_time = time
+        .iter()
+        .zip(&response)
         .rev()
         .find(|(_, y)| **y < lower_bound || **y > upper_bound)
         .map(|(t, _)| *t)
         .unwrap_or(request.time_span);
 
     // Peak time
-    let peak_time = time.iter().zip(&response)
+    let peak_time = time
+        .iter()
+        .zip(&response)
         .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap())
         .map(|(t, _)| *t)
         .unwrap_or(0.0);
@@ -780,11 +825,11 @@ fn count_encirclements(real_parts: &[f64], imag_parts: &[f64]) -> i32 {
     let mut winding_number = 0.0;
     let n = real_parts.len();
 
-    for i in 0..n-1 {
+    for i in 0..n - 1 {
         let x1 = real_parts[i] - target_x;
         let y1 = imag_parts[i] - target_y;
-        let x2 = real_parts[i+1] - target_x;
-        let y2 = imag_parts[i+1] - target_y;
+        let x2 = real_parts[i + 1] - target_x;
+        let y2 = imag_parts[i + 1] - target_y;
 
         // Calculate angle change using cross product sign
         let cross = x1 * y2 - y1 * x2;
@@ -834,7 +879,10 @@ fn find_roots(poly: &[f64]) -> Vec<Complex> {
     if n == 2 {
         // Linear: ax + b = 0 => x = -b/a
         if poly[0].abs() > 1e-10 {
-            return vec![Complex { real: -poly[1] / poly[0], imag: 0.0 }];
+            return vec![Complex {
+                real: -poly[1] / poly[0],
+                imag: 0.0,
+            }];
         }
     } else if n == 3 {
         // Quadratic: ax² + bx + c = 0
@@ -847,26 +895,47 @@ fn find_roots(poly: &[f64]) -> Vec<Complex> {
             if disc >= 0.0 {
                 let sqrt_disc = disc.sqrt();
                 return vec![
-                    Complex { real: (-b + sqrt_disc) / (2.0 * a), imag: 0.0 },
-                    Complex { real: (-b - sqrt_disc) / (2.0 * a), imag: 0.0 },
+                    Complex {
+                        real: (-b + sqrt_disc) / (2.0 * a),
+                        imag: 0.0,
+                    },
+                    Complex {
+                        real: (-b - sqrt_disc) / (2.0 * a),
+                        imag: 0.0,
+                    },
                 ];
             } else {
                 let sqrt_disc = (-disc).sqrt();
                 return vec![
-                    Complex { real: -b / (2.0 * a), imag: sqrt_disc / (2.0 * a) },
-                    Complex { real: -b / (2.0 * a), imag: -sqrt_disc / (2.0 * a) },
+                    Complex {
+                        real: -b / (2.0 * a),
+                        imag: sqrt_disc / (2.0 * a),
+                    },
+                    Complex {
+                        real: -b / (2.0 * a),
+                        imag: -sqrt_disc / (2.0 * a),
+                    },
                 ];
             }
         }
     }
 
     // For higher order, return placeholder
-    vec![Complex { real: -1.0, imag: 0.0 }]
+    vec![Complex {
+        real: -1.0,
+        imag: 0.0,
+    }]
 }
 
 fn eval_poly_complex(poly: &[f64], s: &Complex) -> Complex {
-    let mut result = Complex { real: 0.0, imag: 0.0 };
-    let mut s_power = Complex { real: 1.0, imag: 0.0 };
+    let mut result = Complex {
+        real: 0.0,
+        imag: 0.0,
+    };
+    let mut s_power = Complex {
+        real: 1.0,
+        imag: 0.0,
+    };
 
     for &coeff in poly.iter().rev() {
         result = result + (s_power * coeff);
@@ -996,7 +1065,13 @@ fn matrix_rank(m: &[Vec<f64>]) -> usize {
 fn matrix_eigenvalues(m: &[Vec<f64>]) -> Vec<Complex> {
     // Simplified: return placeholder eigenvalues
     let n = m.len();
-    vec![Complex { real: -1.0, imag: 0.0 }; n]
+    vec![
+        Complex {
+            real: -1.0,
+            imag: 0.0
+        };
+        n
+    ]
 }
 
 fn characteristic_polynomial(m: &[Vec<f64>]) -> Vec<f64> {
@@ -1020,7 +1095,8 @@ mod tests {
             operation: "evaluate".to_string(),
             frequency: None,
             second_tf: None,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!((result.gain - 0.5).abs() < 0.01);
     }
@@ -1029,7 +1105,8 @@ mod tests {
     fn test_routh_hurwitz_stable() {
         let result = routh_hurwitz(RouthHurwitzRequest {
             characteristic_polynomial: vec![1.0, 3.0, 3.0, 1.0], // (s+1)³
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.stable);
         assert_eq!(result.sign_changes, 0);

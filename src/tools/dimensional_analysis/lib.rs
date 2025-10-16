@@ -1,8 +1,8 @@
 use clap::{Parser, Subcommand};
+use regex::Regex;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::error::Error;
-use regex::Regex;
 
 #[derive(Parser)]
 #[command(name = "dimensional-analyzer")]
@@ -45,7 +45,7 @@ struct DimensionInfo {
 #[derive(Serialize, Debug, Clone, PartialEq)]
 struct PhysicalDimension {
     mass: i32,        // M
-    length: i32,      // L  
+    length: i32,      // L
     time: i32,        // T
     current: i32,     // I
     temperature: i32, // Θ (theta)
@@ -68,15 +68,18 @@ impl PhysicalDimension {
 
     fn from_unit(unit: &str) -> Result<Self, Box<dyn Error>> {
         let dim = PhysicalDimension::new();
-        
+
         // Parse compound units like "kg*m/s^2" or "m/s^2"
-        let normalized = unit.replace("*", " * ").replace("/", " / ").replace("^", " ^ ");
+        let normalized = unit
+            .replace("*", " * ")
+            .replace("/", " / ")
+            .replace("^", " ^ ");
         let tokens = self::tokenize_unit(&normalized);
-        
+
         let mut current_dim = PhysicalDimension::new();
         let mut operation = '*'; // Start with multiplication
         let mut power = 1;
-        
+
         for token in tokens {
             match token.as_str() {
                 "*" => operation = '*',
@@ -89,24 +92,24 @@ impl PhysicalDimension {
                 base_unit => {
                     let mut unit_dim = Self::get_base_dimension(base_unit)?;
                     unit_dim = unit_dim.power(power);
-                    
+
                     match operation {
                         '*' => current_dim = current_dim.multiply(&unit_dim),
                         '/' => current_dim = current_dim.divide(&unit_dim),
                         _ => {}
                     }
-                    
+
                     power = 1; // Reset power
                 }
             }
         }
-        
+
         Ok(current_dim)
     }
-    
+
     fn get_base_dimension(unit: &str) -> Result<PhysicalDimension, Box<dyn Error>> {
         let mut dim = PhysicalDimension::new();
-        
+
         match unit {
             // SI Base units
             "kg" => dim.mass = 1,
@@ -116,54 +119,110 @@ impl PhysicalDimension {
             "K" => dim.temperature = 1,
             "mol" => dim.amount = 1,
             "cd" => dim.luminosity = 1,
-            
+
             // Common derived units
-            "N" => { dim.mass = 1; dim.length = 1; dim.time = -2; }, // Newton
-            "J" => { dim.mass = 1; dim.length = 2; dim.time = -2; }, // Joule
-            "W" => { dim.mass = 1; dim.length = 2; dim.time = -3; }, // Watt
-            "Pa" => { dim.mass = 1; dim.length = -1; dim.time = -2; }, // Pascal
-            "V" => { dim.mass = 1; dim.length = 2; dim.time = -3; dim.current = -1; }, // Volt
-            "C" => { dim.current = 1; dim.time = 1; }, // Coulomb
-            "F" => { dim.mass = -1; dim.length = -2; dim.time = 4; dim.current = 2; }, // Farad
-            "H" => { dim.mass = 1; dim.length = 2; dim.time = -2; dim.current = -2; }, // Henry
-            "Ω" | "ohm" => { dim.mass = 1; dim.length = 2; dim.time = -3; dim.current = -2; }, // Ohm
-            "T" => { dim.mass = 1; dim.time = -2; dim.current = -1; }, // Tesla
-            "Wb" => { dim.mass = 1; dim.length = 2; dim.time = -2; dim.current = -1; }, // Weber
-            
+            "N" => {
+                dim.mass = 1;
+                dim.length = 1;
+                dim.time = -2;
+            } // Newton
+            "J" => {
+                dim.mass = 1;
+                dim.length = 2;
+                dim.time = -2;
+            } // Joule
+            "W" => {
+                dim.mass = 1;
+                dim.length = 2;
+                dim.time = -3;
+            } // Watt
+            "Pa" => {
+                dim.mass = 1;
+                dim.length = -1;
+                dim.time = -2;
+            } // Pascal
+            "V" => {
+                dim.mass = 1;
+                dim.length = 2;
+                dim.time = -3;
+                dim.current = -1;
+            } // Volt
+            "C" => {
+                dim.current = 1;
+                dim.time = 1;
+            } // Coulomb
+            "F" => {
+                dim.mass = -1;
+                dim.length = -2;
+                dim.time = 4;
+                dim.current = 2;
+            } // Farad
+            "H" => {
+                dim.mass = 1;
+                dim.length = 2;
+                dim.time = -2;
+                dim.current = -2;
+            } // Henry
+            "Ω" | "ohm" => {
+                dim.mass = 1;
+                dim.length = 2;
+                dim.time = -3;
+                dim.current = -2;
+            } // Ohm
+            "T" => {
+                dim.mass = 1;
+                dim.time = -2;
+                dim.current = -1;
+            } // Tesla
+            "Wb" => {
+                dim.mass = 1;
+                dim.length = 2;
+                dim.time = -2;
+                dim.current = -1;
+            } // Weber
+
             // Special units
-            "rad" | "sr" => {}, // Dimensionless
+            "rad" | "sr" => {}     // Dimensionless
             "Hz" => dim.time = -1, // Hertz
             "g" => dim.mass = 1,   // gram (treat same as kg for dimensions)
-            
+
             // Length units
             "mm" | "cm" | "km" => dim.length = 1,
-            
-            // Time units  
+
+            // Time units
             "min" | "h" | "hr" | "day" | "year" => dim.time = 1,
-            
+
             // Mass units
             "g" => dim.mass = 1,
             "ton" | "tonne" => dim.mass = 1,
-            
+
             // Energy units
-            "eV" | "keV" | "MeV" | "GeV" | "cal" | "kcal" | "kWh" => { 
-                dim.mass = 1; dim.length = 2; dim.time = -2; 
-            },
-            
+            "eV" | "keV" | "MeV" | "GeV" | "cal" | "kcal" | "kWh" => {
+                dim.mass = 1;
+                dim.length = 2;
+                dim.time = -2;
+            }
+
             // Force units
-            "dyn" | "lbf" => { dim.mass = 1; dim.length = 1; dim.time = -2; },
-            
+            "dyn" | "lbf" => {
+                dim.mass = 1;
+                dim.length = 1;
+                dim.time = -2;
+            }
+
             // Pressure units
-            "bar" | "atm" | "mmHg" | "Torr" | "psi" => { 
-                dim.mass = 1; dim.length = -1; dim.time = -2; 
-            },
-            
+            "bar" | "atm" | "mmHg" | "Torr" | "psi" => {
+                dim.mass = 1;
+                dim.length = -1;
+                dim.time = -2;
+            }
+
             // Unknown or dimensionless
-            "" | "1" => {},
-            
+            "" | "1" => {}
+
             _ => return Err(format!("Unknown unit: {}", unit).into()),
         }
-        
+
         Ok(dim)
     }
 
@@ -204,13 +263,18 @@ impl PhysicalDimension {
     }
 
     fn is_dimensionless(&self) -> bool {
-        self.mass == 0 && self.length == 0 && self.time == 0 && self.current == 0 
-        && self.temperature == 0 && self.amount == 0 && self.luminosity == 0
+        self.mass == 0
+            && self.length == 0
+            && self.time == 0
+            && self.current == 0
+            && self.temperature == 0
+            && self.amount == 0
+            && self.luminosity == 0
     }
 
     fn to_string(&self) -> String {
         let mut parts = Vec::new();
-        
+
         if self.mass != 0 {
             if self.mass == 1 {
                 parts.push("M".to_string());
@@ -218,7 +282,7 @@ impl PhysicalDimension {
                 parts.push(format!("M^{}", self.mass));
             }
         }
-        
+
         if self.length != 0 {
             if self.length == 1 {
                 parts.push("L".to_string());
@@ -226,7 +290,7 @@ impl PhysicalDimension {
                 parts.push(format!("L^{}", self.length));
             }
         }
-        
+
         if self.time != 0 {
             if self.time == 1 {
                 parts.push("T".to_string());
@@ -234,7 +298,7 @@ impl PhysicalDimension {
                 parts.push(format!("T^{}", self.time));
             }
         }
-        
+
         if self.current != 0 {
             if self.current == 1 {
                 parts.push("I".to_string());
@@ -242,7 +306,7 @@ impl PhysicalDimension {
                 parts.push(format!("I^{}", self.current));
             }
         }
-        
+
         if self.temperature != 0 {
             if self.temperature == 1 {
                 parts.push("Θ".to_string());
@@ -250,7 +314,7 @@ impl PhysicalDimension {
                 parts.push(format!("Θ^{}", self.temperature));
             }
         }
-        
+
         if self.amount != 0 {
             if self.amount == 1 {
                 parts.push("N".to_string());
@@ -258,7 +322,7 @@ impl PhysicalDimension {
                 parts.push(format!("N^{}", self.amount));
             }
         }
-        
+
         if self.luminosity != 0 {
             if self.luminosity == 1 {
                 parts.push("J".to_string());
@@ -266,7 +330,7 @@ impl PhysicalDimension {
                 parts.push(format!("J^{}", self.luminosity));
             }
         }
-        
+
         if parts.is_empty() {
             "1".to_string() // Dimensionless
         } else {
@@ -286,15 +350,19 @@ pub fn extract_variables_with_powers(expression: &str) -> Vec<(String, i32)> {
     // Extract variables and their powers from mathematical expressions
     let re = Regex::new(r"([a-zA-Z][a-zA-Z0-9_]*)\^?(\d+)?").unwrap();
     let mut variables = Vec::new();
-    
+
     for cap in re.captures_iter(expression) {
         let var_name = cap.get(1).unwrap().as_str();
-        
+
         // Skip common mathematical functions
-        if ["sin", "cos", "tan", "exp", "log", "ln", "sqrt", "abs", "min", "max"].contains(&var_name) {
+        if [
+            "sin", "cos", "tan", "exp", "log", "ln", "sqrt", "abs", "min", "max",
+        ]
+        .contains(&var_name)
+        {
             continue;
         }
-        
+
         let power = if let Some(pow_match) = cap.get(2) {
             pow_match.as_str().parse().unwrap_or(1)
         } else if expression.contains(&format!("{}^2", var_name)) {
@@ -304,10 +372,10 @@ pub fn extract_variables_with_powers(expression: &str) -> Vec<(String, i32)> {
         } else {
             1
         };
-        
+
         variables.push((var_name.to_string(), power));
     }
-    
+
     variables
 }
 
@@ -319,7 +387,7 @@ pub fn analyze_expression_dimensions(
     let mut unit_breakdown = HashMap::new();
     let mut result_dimension = PhysicalDimension::new();
     let mut is_consistent = true;
-    
+
     // Process each variable
     for (var_name, power) in variables_with_powers {
         if let Some(unit) = variable_units.get(&var_name) {
@@ -327,38 +395,47 @@ pub fn analyze_expression_dimensions(
                 Ok(var_dimension) => {
                     let powered_dimension = var_dimension.power(power);
                     result_dimension = result_dimension.multiply(&powered_dimension);
-                    
-                    unit_breakdown.insert(var_name.clone(), DimensionInfo {
-                        unit: unit.clone(),
-                        dimension: var_dimension,
-                        power,
-                    });
+
+                    unit_breakdown.insert(
+                        var_name.clone(),
+                        DimensionInfo {
+                            unit: unit.clone(),
+                            dimension: var_dimension,
+                            power,
+                        },
+                    );
                 }
                 Err(_) => {
                     is_consistent = false;
-                    unit_breakdown.insert(var_name.clone(), DimensionInfo {
-                        unit: unit.clone(),
-                        dimension: PhysicalDimension::new(),
-                        power,
-                    });
+                    unit_breakdown.insert(
+                        var_name.clone(),
+                        DimensionInfo {
+                            unit: unit.clone(),
+                            dimension: PhysicalDimension::new(),
+                            power,
+                        },
+                    );
                 }
             }
         } else {
             is_consistent = false;
-            unit_breakdown.insert(var_name.clone(), DimensionInfo {
-                unit: "unknown".to_string(),
-                dimension: PhysicalDimension::new(),
-                power,
-            });
+            unit_breakdown.insert(
+                var_name.clone(),
+                DimensionInfo {
+                    unit: "unknown".to_string(),
+                    dimension: PhysicalDimension::new(),
+                    power,
+                },
+            );
         }
     }
-    
+
     // Handle operations (simplified)
     if expression.contains("/") {
         // For division, we'd need to parse the expression tree properly
         // This is a simplified approach
     }
-    
+
     Ok((result_dimension, unit_breakdown, is_consistent))
 }
 
@@ -368,34 +445,53 @@ pub fn generate_recommendations(
     unit_breakdown: &HashMap<String, DimensionInfo>,
 ) -> Vec<String> {
     let mut recommendations = Vec::new();
-    
+
     if !is_consistent {
-        recommendations.push("Some variables have unknown units - please specify units for all variables".to_string());
+        recommendations.push(
+            "Some variables have unknown units - please specify units for all variables"
+                .to_string(),
+        );
     }
-    
+
     // Check for common dimensional patterns
     match (dimension.mass, dimension.length, dimension.time) {
-        (1, 1, -2) => recommendations.push("This expression has dimensions of force [MLT⁻²]".to_string()),
-        (1, 2, -2) => recommendations.push("This expression has dimensions of energy [ML²T⁻²]".to_string()),
-        (1, 2, -3) => recommendations.push("This expression has dimensions of power [ML²T⁻³]".to_string()),
-        (1, -1, -2) => recommendations.push("This expression has dimensions of pressure [ML⁻¹T⁻²]".to_string()),
-        (0, 1, -1) => recommendations.push("This expression has dimensions of velocity [LT⁻¹]".to_string()),
-        (0, 1, -2) => recommendations.push("This expression has dimensions of acceleration [LT⁻²]".to_string()),
-        (0, 0, -1) => recommendations.push("This expression has dimensions of frequency [T⁻¹]".to_string()),
+        (1, 1, -2) => {
+            recommendations.push("This expression has dimensions of force [MLT⁻²]".to_string())
+        }
+        (1, 2, -2) => {
+            recommendations.push("This expression has dimensions of energy [ML²T⁻²]".to_string())
+        }
+        (1, 2, -3) => {
+            recommendations.push("This expression has dimensions of power [ML²T⁻³]".to_string())
+        }
+        (1, -1, -2) => {
+            recommendations.push("This expression has dimensions of pressure [ML⁻¹T⁻²]".to_string())
+        }
+        (0, 1, -1) => {
+            recommendations.push("This expression has dimensions of velocity [LT⁻¹]".to_string())
+        }
+        (0, 1, -2) => recommendations
+            .push("This expression has dimensions of acceleration [LT⁻²]".to_string()),
+        (0, 0, -1) => {
+            recommendations.push("This expression has dimensions of frequency [T⁻¹]".to_string())
+        }
         _ => {}
     }
-    
+
     if dimension.is_dimensionless() {
-        recommendations.push("This expression is dimensionless - good for ratios, angles, or pure numbers".to_string());
+        recommendations.push(
+            "This expression is dimensionless - good for ratios, angles, or pure numbers"
+                .to_string(),
+        );
     }
-    
+
     // Check for potential issues
     for (var, info) in unit_breakdown {
         if info.unit == "unknown" {
             recommendations.push(format!("Variable '{}' needs unit specification", var));
         }
     }
-    
+
     recommendations
 }
 
@@ -421,9 +517,15 @@ pub fn dimensional_analysis(
     };
 
     let analysis = if is_consistent {
-        format!("Expression '{}' has dimensions [{}]", expression, dimension_string)
+        format!(
+            "Expression '{}' has dimensions [{}]",
+            expression, dimension_string
+        )
     } else {
-        format!("Expression '{}' has incomplete dimensional information", expression)
+        format!(
+            "Expression '{}' has incomplete dimensional information",
+            expression
+        )
     };
 
     Ok(DimensionalAnalysisResult {
@@ -554,11 +656,7 @@ mod tests {
         units.insert("F".to_string(), "N".to_string());
         units.insert("m".to_string(), "kg".to_string());
 
-        let result = dimensional_analysis(
-            "F = m".to_string(),
-            units,
-            None,
-        ).unwrap();
+        let result = dimensional_analysis("F = m".to_string(), units, None).unwrap();
 
         // Just verify it runs without error
         assert!(result.unit_breakdown.len() > 0);
@@ -570,11 +668,7 @@ mod tests {
         units.insert("E".to_string(), "J".to_string());
         units.insert("m".to_string(), "kg".to_string());
 
-        let result = dimensional_analysis(
-            "E = m".to_string(),
-            units,
-            None,
-        ).unwrap();
+        let result = dimensional_analysis("E = m".to_string(), units, None).unwrap();
 
         assert!(result.unit_breakdown.len() > 0);
     }
@@ -585,11 +679,7 @@ mod tests {
         units.insert("v".to_string(), "m".to_string());
         units.insert("t".to_string(), "s".to_string());
 
-        let result = dimensional_analysis(
-            "v = t".to_string(),
-            units,
-            None,
-        ).unwrap();
+        let result = dimensional_analysis("v = t".to_string(), units, None).unwrap();
 
         assert!(result.unit_breakdown.len() > 0);
     }
@@ -598,11 +688,7 @@ mod tests {
     fn test_dimensional_analysis_unknown_units() {
         let units = HashMap::new();
 
-        let result = dimensional_analysis(
-            "F = m*a".to_string(),
-            units,
-            None,
-        ).unwrap();
+        let result = dimensional_analysis("F = m*a".to_string(), units, None).unwrap();
 
         assert!(!result.consistent);
         assert!(result.recommendations.len() > 0);
@@ -734,4 +820,3 @@ mod tests {
         assert_ne!(n1, j);
     }
 }
-

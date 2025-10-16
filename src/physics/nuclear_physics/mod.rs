@@ -23,22 +23,24 @@ const ELECTRON_MASS: f64 = 0.00054857990946; // amu
 
 #[derive(Debug, Deserialize)]
 pub struct RadioactiveDecayRequest {
-    pub initial_quantity: f64,  // N₀ (number of atoms or activity)
-    pub decay_constant: f64,    // λ (1/s)
-    pub time: f64,              // t (seconds)
+    pub initial_quantity: f64, // N₀ (number of atoms or activity)
+    pub decay_constant: f64,   // λ (1/s)
+    pub time: f64,             // t (seconds)
 }
 
 #[derive(Debug, Serialize)]
 pub struct RadioactiveDecayResult {
-    pub remaining_quantity: f64,      // N(t) = N₀e^(-λt)
-    pub decayed_quantity: f64,        // N₀ - N(t)
-    pub activity: f64,                // A(t) = λN(t)
-    pub decay_rate: f64,              // dN/dt = -λN(t)
-    pub fraction_remaining: f64,      // N(t)/N₀
+    pub remaining_quantity: f64, // N(t) = N₀e^(-λt)
+    pub decayed_quantity: f64,   // N₀ - N(t)
+    pub activity: f64,           // A(t) = λN(t)
+    pub decay_rate: f64,         // dN/dt = -λN(t)
+    pub fraction_remaining: f64, // N(t)/N₀
 }
 
 /// Calculate radioactive decay over time
-pub fn radioactive_decay(request: RadioactiveDecayRequest) -> Result<RadioactiveDecayResult, String> {
+pub fn radioactive_decay(
+    request: RadioactiveDecayRequest,
+) -> Result<RadioactiveDecayResult, String> {
     if request.decay_constant <= 0.0 {
         return Err("Decay constant must be positive".to_string());
     }
@@ -68,19 +70,19 @@ pub fn radioactive_decay(request: RadioactiveDecayRequest) -> Result<Radioactive
 
 #[derive(Debug, Deserialize)]
 pub struct DecayChainRequest {
-    pub parent_initial: f64,           // N₁(0)
-    pub parent_decay_constant: f64,    // λ₁
-    pub daughter_decay_constant: f64,  // λ₂
-    pub time: f64,                     // t
+    pub parent_initial: f64,          // N₁(0)
+    pub parent_decay_constant: f64,   // λ₁
+    pub daughter_decay_constant: f64, // λ₂
+    pub time: f64,                    // t
 }
 
 #[derive(Debug, Serialize)]
 pub struct DecayChainResult {
-    pub parent_quantity: f64,     // N₁(t)
-    pub daughter_quantity: f64,   // N₂(t)
-    pub parent_activity: f64,     // A₁(t)
-    pub daughter_activity: f64,   // A₂(t)
-    pub secular_equilibrium: bool, // λ₁ << λ₂
+    pub parent_quantity: f64,        // N₁(t)
+    pub daughter_quantity: f64,      // N₂(t)
+    pub parent_activity: f64,        // A₁(t)
+    pub daughter_activity: f64,      // A₂(t)
+    pub secular_equilibrium: bool,   // λ₁ << λ₂
     pub transient_equilibrium: bool, // λ₁ < λ₂
 }
 
@@ -130,15 +132,15 @@ pub fn decay_chain(request: DecayChainRequest) -> Result<DecayChainResult, Strin
 #[derive(Debug, Deserialize)]
 pub struct HalfLifeRequest {
     pub decay_constant: Option<f64>, // λ (1/s)
-    pub half_life: Option<f64>,       // t₁/₂ (seconds)
-    pub mean_lifetime: Option<f64>,   // τ (seconds)
+    pub half_life: Option<f64>,      // t₁/₂ (seconds)
+    pub mean_lifetime: Option<f64>,  // τ (seconds)
 }
 
 #[derive(Debug, Serialize)]
 pub struct HalfLifeResult {
-    pub half_life: f64,        // t₁/₂ = ln(2)/λ
-    pub decay_constant: f64,   // λ = ln(2)/t₁/₂
-    pub mean_lifetime: f64,    // τ = 1/λ
+    pub half_life: f64,         // t₁/₂ = ln(2)/λ
+    pub decay_constant: f64,    // λ = ln(2)/t₁/₂
+    pub mean_lifetime: f64,     // τ = 1/λ
     pub decay_probability: f64, // Probability of decay per unit time
 }
 
@@ -181,18 +183,18 @@ pub fn half_life(request: HalfLifeRequest) -> Result<HalfLifeResult, String> {
 
 #[derive(Debug, Deserialize)]
 pub struct BindingEnergyRequest {
-    pub atomic_number: u32,     // Z (number of protons)
-    pub mass_number: u32,       // A (total nucleons)
+    pub atomic_number: u32,       // Z (number of protons)
+    pub mass_number: u32,         // A (total nucleons)
     pub atomic_mass: Option<f64>, // Measured atomic mass in amu
 }
 
 #[derive(Debug, Serialize)]
 pub struct BindingEnergyResult {
-    pub binding_energy_mev: f64,           // Total BE
-    pub binding_energy_per_nucleon: f64,   // BE/A
-    pub mass_defect_amu: f64,              // Δm in amu
-    pub mass_defect_kg: f64,               // Δm in kg
-    pub separation_energy: f64,            // Approximate
+    pub binding_energy_mev: f64,         // Total BE
+    pub binding_energy_per_nucleon: f64, // BE/A
+    pub mass_defect_amu: f64,            // Δm in amu
+    pub mass_defect_kg: f64,             // Δm in kg
+    pub separation_energy: f64,          // Approximate
 }
 
 /// Calculate nuclear binding energy
@@ -211,9 +213,9 @@ pub fn binding_energy(request: BindingEnergyRequest) -> Result<BindingEnergyResu
         // Use semi-empirical mass formula (SEMF) if not provided
         // This is a simplified approximation
         let a_v = 15.75; // Volume term
-        let a_s = 17.8;  // Surface term
+        let a_s = 17.8; // Surface term
         let a_c = 0.711; // Coulomb term
-        let a_a = 23.7;  // Asymmetry term
+        let a_a = 23.7; // Asymmetry term
         let a_p = 11.18; // Pairing term
 
         let binding = a_v * a
@@ -271,8 +273,7 @@ pub struct MassDefectResult {
 
 /// Calculate mass defect
 pub fn mass_defect(request: MassDefectRequest) -> Result<MassDefectResult, String> {
-    let expected = request.protons as f64 * PROTON_MASS
-        + request.neutrons as f64 * NEUTRON_MASS;
+    let expected = request.protons as f64 * PROTON_MASS + request.neutrons as f64 * NEUTRON_MASS;
 
     let defect_amu = expected - request.nuclear_mass;
     let defect_kg = defect_amu * AMU;
@@ -297,17 +298,17 @@ pub fn mass_defect(request: MassDefectRequest) -> Result<MassDefectResult, Strin
 
 #[derive(Debug, Deserialize)]
 pub struct FissionEnergyRequest {
-    pub parent_mass: f64,      // amu
-    pub fragment1_mass: f64,   // amu
-    pub fragment2_mass: f64,   // amu
+    pub parent_mass: f64,       // amu
+    pub fragment1_mass: f64,    // amu
+    pub fragment2_mass: f64,    // amu
     pub neutrons_released: u32, // Number of neutrons
 }
 
 #[derive(Debug, Serialize)]
 pub struct FissionEnergyResult {
-    pub q_value_mev: f64,             // Total energy released
-    pub kinetic_energy_mev: f64,      // KE of fragments
-    pub energy_per_neutron_mev: f64,  // Average energy per neutron
+    pub q_value_mev: f64,               // Total energy released
+    pub kinetic_energy_mev: f64,        // KE of fragments
+    pub energy_per_neutron_mev: f64,    // Average energy per neutron
     pub mass_to_energy_efficiency: f64, // Fraction of mass converted to energy
 }
 
@@ -350,9 +351,9 @@ pub fn fission_energy(request: FissionEnergyRequest) -> Result<FissionEnergyResu
 
 #[derive(Debug, Deserialize)]
 pub struct FusionEnergyRequest {
-    pub reactant1_mass: f64, // amu
-    pub reactant2_mass: f64, // amu
-    pub product1_mass: f64,  // amu
+    pub reactant1_mass: f64,        // amu
+    pub reactant2_mass: f64,        // amu
+    pub product1_mass: f64,         // amu
     pub product2_mass: Option<f64>, // amu (if two products)
 }
 
@@ -401,18 +402,18 @@ pub fn fusion_energy(request: FusionEnergyRequest) -> Result<FusionEnergyResult,
 
 #[derive(Debug, Deserialize)]
 pub struct NuclearReactionRequest {
-    pub reactants: Vec<f64>,  // Masses in amu
-    pub products: Vec<f64>,   // Masses in amu
+    pub reactants: Vec<f64>,                // Masses in amu
+    pub products: Vec<f64>,                 // Masses in amu
     pub projectile_energy_mev: Option<f64>, // Kinetic energy of projectile
 }
 
 #[derive(Debug, Serialize)]
 pub struct NuclearReactionResult {
     pub q_value_mev: f64,
-    pub threshold_energy_mev: f64,     // Minimum projectile energy for reaction
-    pub reaction_type: String,          // "exothermic" or "endothermic"
-    pub available_energy_mev: f64,      // Energy available to products
-    pub cross_section_barns: f64,       // Approximate
+    pub threshold_energy_mev: f64, // Minimum projectile energy for reaction
+    pub reaction_type: String,     // "exothermic" or "endothermic"
+    pub available_energy_mev: f64, // Energy available to products
+    pub cross_section_barns: f64,  // Approximate
 }
 
 /// Calculate Q-value and properties of nuclear reactions
@@ -472,7 +473,7 @@ mod tests {
         let result = radioactive_decay(RadioactiveDecayRequest {
             initial_quantity: 1000.0,
             decay_constant: 0.693 / 5730.0, // C-14 (5730 years)
-            time: 5730.0,                    // One half-life
+            time: 5730.0,                   // One half-life
         })
         .unwrap();
 

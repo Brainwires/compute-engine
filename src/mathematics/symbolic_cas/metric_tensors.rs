@@ -43,8 +43,8 @@ pub fn schwarzschild_metric() -> SymbolicResult<SymbolicMatrix> {
         Expr::num(1),
         Expr::mul(
             Expr::num(-2),
-            Expr::mul(m.clone(), Expr::pow(r.clone(), Expr::num(-1)))
-        )
+            Expr::mul(m.clone(), Expr::pow(r.clone(), Expr::num(-1))),
+        ),
     );
 
     // g_tt = -(1 - 2M/r)
@@ -59,7 +59,7 @@ pub fn schwarzschild_metric() -> SymbolicResult<SymbolicMatrix> {
     // g_φφ = r²sin²θ
     let g_phi_phi = Expr::mul(
         Expr::pow(r, Expr::num(2)),
-        Expr::pow(Expr::func("sin", vec![Expr::sym("θ")]), Expr::num(2))
+        Expr::pow(Expr::func("sin", vec![Expr::sym("θ")]), Expr::num(2)),
     );
 
     SymbolicMatrix::new(vec![
@@ -83,18 +83,18 @@ pub fn kerr_metric_2d() -> SymbolicResult<SymbolicMatrix> {
     let denom = Expr::add(r_squared.clone(), a_squared);
     let factor = Expr::mul(
         Expr::mul(Expr::num(2), m),
-        Expr::mul(r.clone(), Expr::pow(denom.clone(), Expr::num(-1)))
+        Expr::mul(r.clone(), Expr::pow(denom.clone(), Expr::num(-1))),
     );
 
-    let g_tt = Expr::mul(Expr::num(-1), Expr::add(Expr::num(1), Expr::mul(Expr::num(-1), factor)));
+    let g_tt = Expr::mul(
+        Expr::num(-1),
+        Expr::add(Expr::num(1), Expr::mul(Expr::num(-1), factor)),
+    );
 
     // g_rr = simplified
     let g_rr = Expr::pow(denom.clone(), Expr::num(-1));
 
-    SymbolicMatrix::new(vec![
-        vec![g_tt, Expr::num(0)],
-        vec![Expr::num(0), g_rr],
-    ])
+    SymbolicMatrix::new(vec![vec![g_tt, Expr::num(0)], vec![Expr::num(0), g_rr]])
 }
 
 /// Create Friedmann-Lemaître-Robertson-Walker (FLRW) metric for cosmology
@@ -112,17 +112,11 @@ pub fn flrw_metric_2d() -> SymbolicResult<SymbolicMatrix> {
     let a_squared = Expr::pow(a, Expr::num(2));
     let one_minus_kr2 = Expr::add(
         Expr::num(1),
-        Expr::mul(
-            Expr::num(-1),
-            Expr::mul(k, Expr::pow(r, Expr::num(2)))
-        )
+        Expr::mul(Expr::num(-1), Expr::mul(k, Expr::pow(r, Expr::num(2)))),
     );
     let g_rr = Expr::mul(a_squared, Expr::pow(one_minus_kr2, Expr::num(-1)));
 
-    SymbolicMatrix::new(vec![
-        vec![g_tt, Expr::num(0)],
-        vec![Expr::num(0), g_rr],
-    ])
+    SymbolicMatrix::new(vec![vec![g_tt, Expr::num(0)], vec![Expr::num(0), g_rr]])
 }
 
 /// Create a general diagonal metric from symbolic expressions
@@ -145,10 +139,7 @@ pub fn ads_metric_2d() -> SymbolicResult<SymbolicMatrix> {
     let z = Expr::sym("z");
 
     // Conformal factor: L²/z²
-    let conformal_factor = Expr::mul(
-        Expr::pow(l, Expr::num(2)),
-        Expr::pow(z, Expr::num(-2))
-    );
+    let conformal_factor = Expr::mul(Expr::pow(l, Expr::num(2)), Expr::pow(z, Expr::num(-2)));
 
     // g_tt = -L²/z²
     let g_tt = Expr::mul(Expr::num(-1), conformal_factor.clone());
@@ -156,10 +147,7 @@ pub fn ads_metric_2d() -> SymbolicResult<SymbolicMatrix> {
     // g_zz = L²/z²
     let g_zz = conformal_factor;
 
-    SymbolicMatrix::new(vec![
-        vec![g_tt, Expr::num(0)],
-        vec![Expr::num(0), g_zz],
-    ])
+    SymbolicMatrix::new(vec![vec![g_tt, Expr::num(0)], vec![Expr::num(0), g_zz]])
 }
 
 #[cfg(test)]

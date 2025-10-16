@@ -1,9 +1,9 @@
 use clap::{Parser, Subcommand};
+use regex::Regex;
 use serde::Serialize;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt;
-use regex::Regex;
 
 #[derive(Parser)]
 #[command(name = "equation-validator")]
@@ -56,13 +56,13 @@ impl Error for ValidationError {}
 // Unit dimension representation
 #[derive(Debug, Clone, PartialEq)]
 struct Dimension {
-    mass: i32,      // kg
-    length: i32,    // m
-    time: i32,      // s
-    current: i32,   // A
+    mass: i32,        // kg
+    length: i32,      // m
+    time: i32,        // s
+    current: i32,     // A
     temperature: i32, // K
-    amount: i32,    // mol
-    luminosity: i32, // cd
+    amount: i32,      // mol
+    luminosity: i32,  // cd
 }
 
 impl Dimension {
@@ -80,7 +80,7 @@ impl Dimension {
 
     fn from_unit(unit: &str) -> Result<Self, Box<dyn Error>> {
         let mut dim = Dimension::new();
-        
+
         match unit {
             // Base units
             "kg" => dim.mass = 1,
@@ -90,31 +90,84 @@ impl Dimension {
             "K" => dim.temperature = 1,
             "mol" => dim.amount = 1,
             "cd" => dim.luminosity = 1,
-            
+
             // Common derived units
-            "N" => { dim.mass = 1; dim.length = 1; dim.time = -2; }, // kg⋅m⋅s⁻²
-            "J" => { dim.mass = 1; dim.length = 2; dim.time = -2; }, // kg⋅m²⋅s⁻²
-            "W" => { dim.mass = 1; dim.length = 2; dim.time = -3; }, // kg⋅m²⋅s⁻³
-            "Pa" => { dim.mass = 1; dim.length = -1; dim.time = -2; }, // kg⋅m⁻¹⋅s⁻²
-            "V" => { dim.mass = 1; dim.length = 2; dim.time = -3; dim.current = -1; }, // kg⋅m²⋅s⁻³⋅A⁻¹
-            "C" => { dim.current = 1; dim.time = 1; }, // A⋅s
-            "F" => { dim.mass = -1; dim.length = -2; dim.time = 4; dim.current = 2; }, // A²⋅s⁴⋅kg⁻¹⋅m⁻²
-            "H" => { dim.mass = 1; dim.length = 2; dim.time = -2; dim.current = -2; }, // kg⋅m²⋅s⁻²⋅A⁻²
-            
+            "N" => {
+                dim.mass = 1;
+                dim.length = 1;
+                dim.time = -2;
+            } // kg⋅m⋅s⁻²
+            "J" => {
+                dim.mass = 1;
+                dim.length = 2;
+                dim.time = -2;
+            } // kg⋅m²⋅s⁻²
+            "W" => {
+                dim.mass = 1;
+                dim.length = 2;
+                dim.time = -3;
+            } // kg⋅m²⋅s⁻³
+            "Pa" => {
+                dim.mass = 1;
+                dim.length = -1;
+                dim.time = -2;
+            } // kg⋅m⁻¹⋅s⁻²
+            "V" => {
+                dim.mass = 1;
+                dim.length = 2;
+                dim.time = -3;
+                dim.current = -1;
+            } // kg⋅m²⋅s⁻³⋅A⁻¹
+            "C" => {
+                dim.current = 1;
+                dim.time = 1;
+            } // A⋅s
+            "F" => {
+                dim.mass = -1;
+                dim.length = -2;
+                dim.time = 4;
+                dim.current = 2;
+            } // A²⋅s⁴⋅kg⁻¹⋅m⁻²
+            "H" => {
+                dim.mass = 1;
+                dim.length = 2;
+                dim.time = -2;
+                dim.current = -2;
+            } // kg⋅m²⋅s⁻²⋅A⁻²
+
             // Compound units (simplified parsing)
-            "m/s" => { dim.length = 1; dim.time = -1; },
-            "m/s^2" => { dim.length = 1; dim.time = -2; },
-            "kg*m/s^2" => { dim.mass = 1; dim.length = 1; dim.time = -2; },
-            "kg*m^2/s^2" => { dim.mass = 1; dim.length = 2; dim.time = -2; },
-            "N/m" => { dim.mass = 1; dim.time = -2; },
-            "rad/s" => { dim.time = -1; }, // radians are dimensionless
-            
+            "m/s" => {
+                dim.length = 1;
+                dim.time = -1;
+            }
+            "m/s^2" => {
+                dim.length = 1;
+                dim.time = -2;
+            }
+            "kg*m/s^2" => {
+                dim.mass = 1;
+                dim.length = 1;
+                dim.time = -2;
+            }
+            "kg*m^2/s^2" => {
+                dim.mass = 1;
+                dim.length = 2;
+                dim.time = -2;
+            }
+            "N/m" => {
+                dim.mass = 1;
+                dim.time = -2;
+            }
+            "rad/s" => {
+                dim.time = -1;
+            } // radians are dimensionless
+
             // Dimensionless
-            "" | "1" | "rad" => {},
-            
+            "" | "1" | "rad" => {}
+
             _ => return Err(format!("Unknown unit: {}", unit).into()),
         }
-        
+
         Ok(dim)
     }
 
@@ -155,8 +208,13 @@ impl Dimension {
     }
 
     fn is_dimensionless(&self) -> bool {
-        self.mass == 0 && self.length == 0 && self.time == 0 && self.current == 0 
-        && self.temperature == 0 && self.amount == 0 && self.luminosity == 0
+        self.mass == 0
+            && self.length == 0
+            && self.time == 0
+            && self.current == 0
+            && self.temperature == 0
+            && self.amount == 0
+            && self.luminosity == 0
     }
 }
 
@@ -166,36 +224,37 @@ pub fn parse_equation(equation: &str) -> Result<(String, String), Box<dyn Error>
     if parts.len() != 2 {
         return Err("Equation must have exactly one '=' sign".into());
     }
-    
+
     Ok((parts[0].trim().to_string(), parts[1].trim().to_string()))
 }
 
 pub fn extract_variables(expression: &str) -> Vec<String> {
     let re = Regex::new(r"[a-zA-Z][a-zA-Z0-9_]*").unwrap();
     let mut variables = Vec::new();
-    
+
     for cap in re.find_iter(expression) {
         let var = cap.as_str();
         // Skip common functions
-        if !["sin", "cos", "tan", "exp", "log", "sqrt", "abs"].contains(&var) && 
-           !variables.contains(&var.to_string()) {
+        if !["sin", "cos", "tan", "exp", "log", "sqrt", "abs"].contains(&var)
+            && !variables.contains(&var.to_string())
+        {
             variables.push(var.to_string());
         }
     }
-    
+
     variables
 }
 
 pub fn check_dimensional_consistency(
     equation: &str,
-    units: &HashMap<String, String>
+    units: &HashMap<String, String>,
 ) -> Result<(bool, HashMap<String, String>), Box<dyn Error>> {
     let (left_side, right_side) = parse_equation(equation)?;
-    
+
     // Extract variables from both sides
     let left_vars = extract_variables(&left_side);
     let right_vars = extract_variables(&right_side);
-    
+
     // Combine all variables
     let mut all_vars = left_vars;
     for var in right_vars {
@@ -203,7 +262,7 @@ pub fn check_dimensional_consistency(
             all_vars.push(var);
         }
     }
-    
+
     // Create unit analysis map
     let mut unit_analysis = HashMap::new();
     for var in &all_vars {
@@ -213,20 +272,20 @@ pub fn check_dimensional_consistency(
             unit_analysis.insert(var.clone(), "unknown".to_string());
         }
     }
-    
+
     // Perform dimensional analysis by evaluating both sides
     let left_dim = evaluate_expression_dimensions(&left_side, units)?;
     let right_dim = evaluate_expression_dimensions(&right_side, units)?;
 
     // Check if dimensions match
     let consistency = left_dim == right_dim;
-    
+
     Ok((consistency, unit_analysis))
 }
 
 fn evaluate_expression_dimensions(
     expression: &str,
-    units: &HashMap<String, String>
+    units: &HashMap<String, String>,
 ) -> Result<Dimension, Box<dyn Error>> {
     // Simplified dimensional evaluation
     // Extract variables from expression
@@ -252,10 +311,10 @@ fn evaluate_expression_dimensions(
 pub fn check_conservation_laws(
     equation: &str,
     domain: &str,
-    conservation_laws: &[String]
+    conservation_laws: &[String],
 ) -> Result<Vec<String>, Box<dyn Error>> {
     let mut violations = Vec::new();
-    
+
     for law in conservation_laws {
         match law.as_str() {
             "energy" => {
@@ -285,17 +344,17 @@ pub fn check_conservation_laws(
             _ => {}
         }
     }
-    
+
     Ok(violations)
 }
 
 pub fn check_symmetries(
     equation: &str,
     _domain: &str,
-    symmetries: &[String]
+    symmetries: &[String],
 ) -> Result<Vec<String>, Box<dyn Error>> {
     let violations = Vec::new();
-    
+
     for symmetry in symmetries {
         match symmetry.as_str() {
             "time_translation" => {
@@ -325,62 +384,66 @@ pub fn check_symmetries(
             _ => {}
         }
     }
-    
+
     Ok(violations)
 }
 
 pub fn check_mathematical_correctness(equation: &str) -> Result<bool, Box<dyn Error>> {
     // Basic mathematical checks
     let (left, right) = parse_equation(equation)?;
-    
+
     // Check for basic mathematical validity
     let mut is_correct = true;
-    
+
     // Check for division by zero patterns
     if equation.contains("/0") {
         is_correct = false;
     }
-    
+
     // Check for negative square roots (simplified)
     if equation.contains("sqrt(-") {
         is_correct = false;
     }
-    
+
     // Check for logarithms of non-positive numbers (simplified)
     if equation.contains("log(0") || equation.contains("log(-") {
         is_correct = false;
     }
-    
+
     // Check bracket matching
     let left_parens = left.matches('(').count();
     let right_parens = left.matches(')').count();
     if left_parens != right_parens {
         is_correct = false;
     }
-    
+
     let left_parens_r = right.matches('(').count();
     let right_parens_r = right.matches(')').count();
     if left_parens_r != right_parens_r {
         is_correct = false;
     }
-    
+
     Ok(is_correct)
 }
 
-pub fn check_physics_compliance(equation: &str, domain: &str) -> Result<(bool, Vec<String>), Box<dyn Error>> {
+pub fn check_physics_compliance(
+    equation: &str,
+    domain: &str,
+) -> Result<(bool, Vec<String>), Box<dyn Error>> {
     let mut violations = Vec::new();
     let mut is_compliant = true;
-    
+
     match domain {
         "mechanics" => {
             // Check Newton's laws compliance
             if equation.contains("F") && equation.contains("=") {
                 if !equation.contains("m") && !equation.contains("a") {
-                    violations.push("Force equation should relate to mass and acceleration".to_string());
+                    violations
+                        .push("Force equation should relate to mass and acceleration".to_string());
                     is_compliant = false;
                 }
             }
-            
+
             // Check energy conservation
             if equation.contains("E") && equation.contains("=") {
                 // Look for kinetic + potential energy patterns
@@ -391,7 +454,7 @@ pub fn check_physics_compliance(equation: &str, domain: &str) -> Result<(bool, V
             if equation.contains("E") && equation.contains("B") {
                 // Electromagnetic field relationships
             }
-            
+
             // Check Coulomb's law patterns
             if equation.contains("F") && equation.contains("q") {
                 if !equation.contains("r") {
@@ -404,7 +467,7 @@ pub fn check_physics_compliance(equation: &str, domain: &str) -> Result<(bool, V
             if equation.contains("PV") && !equation.contains("T") {
                 violations.push("Ideal gas law should include temperature".to_string());
             }
-            
+
             // Check entropy relationships
             if equation.contains("S") && equation.contains("T") {
                 // Entropy-temperature relationships
@@ -415,7 +478,7 @@ pub fn check_physics_compliance(equation: &str, domain: &str) -> Result<(bool, V
             if equation.contains("psi") {
                 // Wave function normalization checks
             }
-            
+
             // Check uncertainty principle
             if equation.contains("delta") {
                 // Heisenberg uncertainty relationships
@@ -432,7 +495,7 @@ pub fn check_physics_compliance(equation: &str, domain: &str) -> Result<(bool, V
         }
         _ => {} // General physics
     }
-    
+
     Ok((is_compliant, violations))
 }
 
@@ -451,10 +514,12 @@ pub fn validate_equation(
     let mathematical_correctness = check_mathematical_correctness(&equation)?;
 
     // Check dimensional consistency
-    let (dimensional_consistency, unit_analysis) = check_dimensional_consistency(&equation, &units_map)?;
+    let (dimensional_consistency, unit_analysis) =
+        check_dimensional_consistency(&equation, &units_map)?;
 
     // Check physics compliance
-    let (physics_compliance, mut physics_violations) = check_physics_compliance(&equation, &domain)?;
+    let (physics_compliance, mut physics_violations) =
+        check_physics_compliance(&equation, &domain)?;
 
     // Check conservation laws
     let mut conservation_violations = check_conservation_laws(&equation, &domain, &conservation)?;
@@ -477,14 +542,25 @@ pub fn validate_equation(
     }
 
     // Overall validation
-    let is_valid = mathematical_correctness && dimensional_consistency && physics_compliance && all_violations.is_empty();
+    let is_valid = mathematical_correctness
+        && dimensional_consistency
+        && physics_compliance
+        && all_violations.is_empty();
 
     // Calculate confidence based on number of checks passed
     let mut confidence = 0.0;
-    if mathematical_correctness { confidence += 0.25; }
-    if dimensional_consistency { confidence += 0.25; }
-    if physics_compliance { confidence += 0.25; }
-    if all_violations.is_empty() { confidence += 0.25; }
+    if mathematical_correctness {
+        confidence += 0.25;
+    }
+    if dimensional_consistency {
+        confidence += 0.25;
+    }
+    if physics_compliance {
+        confidence += 0.25;
+    }
+    if all_violations.is_empty() {
+        confidence += 0.25;
+    }
 
     Ok(ValidationResult {
         is_valid,
@@ -618,7 +694,8 @@ mod tests {
             Some(units),
             None,
             None,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert!(result.mathematical_correctness);
     }
@@ -636,7 +713,8 @@ mod tests {
             Some(units),
             None,
             None,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert!(result.mathematical_correctness);
     }
@@ -678,7 +756,8 @@ mod tests {
             None,
             None,
             None,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert!(!result.is_valid);
         assert!(!result.mathematical_correctness);
@@ -692,7 +771,8 @@ mod tests {
             None,
             None,
             None,
-        ).unwrap();
+        )
+        .unwrap();
 
         // Should still check mathematical correctness
         assert!(result.mathematical_correctness);
@@ -731,7 +811,8 @@ mod tests {
             Some(units),
             None,
             None,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert!(result.confidence >= 0.0 && result.confidence <= 1.0);
     }
@@ -807,9 +888,9 @@ mod tests {
             Some(units),
             Some(vec!["momentum".to_string()]),
             None,
-        ).unwrap();
+        )
+        .unwrap();
 
         assert!(result.mathematical_correctness);
     }
 }
-

@@ -39,9 +39,9 @@ pub struct MaxwellResult {
 
 #[derive(Debug, Deserialize)]
 pub struct WaveRequest {
-    pub frequency: f64, // Hz
+    pub frequency: f64,          // Hz
     pub wavelength: Option<f64>, // m
-    pub medium: String, // "vacuum", "air", "dielectric"
+    pub medium: String,          // "vacuum", "air", "dielectric"
     pub permittivity: Option<f64>,
     pub permeability: Option<f64>,
 }
@@ -62,8 +62,8 @@ pub struct AntennaRequest {
     pub frequency: f64,
     pub length: Option<f64>,
     pub distance: f64, // observation distance
-    pub theta: f64, // angle in radians
-    pub power: f64, // input power (W)
+    pub theta: f64,    // angle in radians
+    pub power: f64,    // input power (W)
 }
 
 #[derive(Debug, Serialize)]
@@ -90,7 +90,7 @@ pub struct TransmissionLineRequest {
 pub struct TransmissionLineResult {
     pub vswr: f64,
     pub reflection_coefficient: f64,
-    pub return_loss: f64, // dB
+    pub return_loss: f64,    // dB
     pub insertion_loss: f64, // dB
     pub input_impedance: f64,
 }
@@ -99,9 +99,9 @@ pub struct TransmissionLineResult {
 pub struct WaveguideRequest {
     pub guide_type: String, // "rectangular", "circular"
     pub frequency: f64,
-    pub width: f64, // a dimension
+    pub width: f64,          // a dimension
     pub height: Option<f64>, // b dimension (for rectangular)
-    pub mode: String, // "TE10", "TM11", etc.
+    pub mode: String,        // "TE10", "TM11", etc.
 }
 
 #[derive(Debug, Serialize)]
@@ -152,7 +152,7 @@ pub struct SkinEffectRequest {
 
 #[derive(Debug, Serialize)]
 pub struct SkinEffectResult {
-    pub skin_depth: f64, // meters
+    pub skin_depth: f64,         // meters
     pub surface_resistance: f64, // Ohms/square
 }
 
@@ -170,7 +170,7 @@ pub fn maxwell_equations(request: MaxwellRequest) -> Result<MaxwellResult, Strin
                 field_strength: vector_magnitude(&e_field),
                 equation: "Gauss's Law (Electric)".to_string(),
             })
-        },
+        }
         "gauss_magnetic" => {
             // ∇·B = 0
             let b_field = request.magnetic_field.ok_or("Need magnetic field")?;
@@ -182,7 +182,7 @@ pub fn maxwell_equations(request: MaxwellRequest) -> Result<MaxwellResult, Strin
                 field_strength: vector_magnitude(&b_field),
                 equation: "Gauss's Law (Magnetic)".to_string(),
             })
-        },
+        }
         "faraday" => {
             // ∇×E = -∂B/∂t
             let e_field = request.electric_field.ok_or("Need electric field")?;
@@ -194,7 +194,7 @@ pub fn maxwell_equations(request: MaxwellRequest) -> Result<MaxwellResult, Strin
                 field_strength: vector_magnitude(&curl),
                 equation: "Faraday's Law".to_string(),
             })
-        },
+        }
         "ampere" => {
             // ∇×B = μ₀(J + ε₀∂E/∂t)
             let b_field = request.magnetic_field.ok_or("Need magnetic field")?;
@@ -206,7 +206,7 @@ pub fn maxwell_equations(request: MaxwellRequest) -> Result<MaxwellResult, Strin
                 field_strength: vector_magnitude(&curl),
                 equation: "Ampere-Maxwell Law".to_string(),
             })
-        },
+        }
         _ => Err(format!("Unknown Maxwell equation: {}", request.equation)),
     }
 }
@@ -242,7 +242,7 @@ pub fn em_wave(request: WaveRequest) -> Result<WaveResult, String> {
         "vacuum" | "air" => (EPSILON_0, MU_0),
         "dielectric" => (
             request.permittivity.unwrap_or(EPSILON_0),
-            request.permeability.unwrap_or(MU_0)
+            request.permeability.unwrap_or(MU_0),
         ),
         _ => return Err(format!("Unknown medium: {}", request.medium)),
     };
@@ -267,34 +267,35 @@ pub fn em_wave(request: WaveRequest) -> Result<WaveResult, String> {
 pub fn antenna_analysis(request: AntennaRequest) -> Result<AntennaResult, String> {
     let wavelength = C / request.frequency;
 
-    let (gain, directivity, rad_resistance, efficiency, beam_width) = match request.antenna_type.as_str() {
-        "dipole" => {
-            let length = request.length.unwrap_or(wavelength / 2.0);
-            let directivity = 1.64; // dBi for half-wave dipole
-            let rad_resistance = 73.0; // Ohms for half-wave dipole
-            let efficiency = 0.95;
-            let beam_width = 78.0; // degrees
-            let gain = directivity * efficiency;
-            (gain, directivity, rad_resistance, efficiency, beam_width)
-        },
-        "monopole" => {
-            let directivity = 5.16; // dBi
-            let rad_resistance = 36.5; // Ohms
-            let efficiency = 0.93;
-            let beam_width = 90.0;
-            let gain = directivity * efficiency;
-            (gain, directivity, rad_resistance, efficiency, beam_width)
-        },
-        "patch" => {
-            let directivity = 6.0; // dBi (typical)
-            let rad_resistance = 200.0; // Ohms (typical)
-            let efficiency = 0.85;
-            let beam_width = 65.0;
-            let gain = directivity * efficiency;
-            (gain, directivity, rad_resistance, efficiency, beam_width)
-        },
-        _ => return Err(format!("Unknown antenna type: {}", request.antenna_type)),
-    };
+    let (gain, directivity, rad_resistance, efficiency, beam_width) =
+        match request.antenna_type.as_str() {
+            "dipole" => {
+                let length = request.length.unwrap_or(wavelength / 2.0);
+                let directivity = 1.64; // dBi for half-wave dipole
+                let rad_resistance = 73.0; // Ohms for half-wave dipole
+                let efficiency = 0.95;
+                let beam_width = 78.0; // degrees
+                let gain = directivity * efficiency;
+                (gain, directivity, rad_resistance, efficiency, beam_width)
+            }
+            "monopole" => {
+                let directivity = 5.16; // dBi
+                let rad_resistance = 36.5; // Ohms
+                let efficiency = 0.93;
+                let beam_width = 90.0;
+                let gain = directivity * efficiency;
+                (gain, directivity, rad_resistance, efficiency, beam_width)
+            }
+            "patch" => {
+                let directivity = 6.0; // dBi (typical)
+                let rad_resistance = 200.0; // Ohms (typical)
+                let efficiency = 0.85;
+                let beam_width = 65.0;
+                let gain = directivity * efficiency;
+                (gain, directivity, rad_resistance, efficiency, beam_width)
+            }
+            _ => return Err(format!("Unknown antenna type: {}", request.antenna_type)),
+        };
 
     // Calculate field strength at distance
     let power_density = request.power * gain / (4.0 * PI * request.distance.powi(2));
@@ -311,7 +312,9 @@ pub fn antenna_analysis(request: AntennaRequest) -> Result<AntennaResult, String
 }
 
 /// Transmission line analysis
-pub fn transmission_line(request: TransmissionLineRequest) -> Result<TransmissionLineResult, String> {
+pub fn transmission_line(
+    request: TransmissionLineRequest,
+) -> Result<TransmissionLineResult, String> {
     let z_load = request.load_impedance.unwrap_or(request.z0);
 
     // Reflection coefficient
@@ -330,8 +333,8 @@ pub fn transmission_line(request: TransmissionLineRequest) -> Result<Transmissio
 
     // Input impedance (simplified for lossless line)
     let beta = 2.0 * PI * request.frequency / C; // propagation constant
-    let input_z = request.z0 * (z_load + request.z0 * (beta * request.length).tan()) /
-                               (request.z0 + z_load * (beta * request.length).tan());
+    let input_z = request.z0 * (z_load + request.z0 * (beta * request.length).tan())
+        / (request.z0 + z_load * (beta * request.length).tan());
 
     Ok(TransmissionLineResult {
         vswr,
@@ -358,7 +361,8 @@ pub fn waveguide(request: WaveguideRequest) -> Result<WaveguideResult, String> {
                 return Err("Frequency below cutoff".to_string());
             }
 
-            let beta = (2.0 * PI / wavelength) * (1.0 - (cutoff_freq / request.frequency).powi(2)).sqrt();
+            let beta =
+                (2.0 * PI / wavelength) * (1.0 - (cutoff_freq / request.frequency).powi(2)).sqrt();
             let guide_wavelength = 2.0 * PI / beta;
             let phase_velocity = request.frequency * guide_wavelength;
             let group_velocity = C * C / phase_velocity;
@@ -373,7 +377,7 @@ pub fn waveguide(request: WaveguideRequest) -> Result<WaveguideResult, String> {
                 group_velocity,
                 attenuation,
             })
-        },
+        }
         "circular" => {
             let radius = request.width; // Use width as radius for circular waveguide
 
@@ -385,7 +389,8 @@ pub fn waveguide(request: WaveguideRequest) -> Result<WaveguideResult, String> {
                 return Err("Frequency below cutoff for circular waveguide".to_string());
             }
 
-            let beta = (2.0 * PI / wavelength) * (1.0 - (cutoff_freq / request.frequency).powi(2)).sqrt();
+            let beta =
+                (2.0 * PI / wavelength) * (1.0 - (cutoff_freq / request.frequency).powi(2)).sqrt();
             let guide_wavelength = 2.0 * PI / beta;
             let phase_velocity = request.frequency * guide_wavelength;
             let group_velocity = C * C / phase_velocity;
@@ -398,7 +403,7 @@ pub fn waveguide(request: WaveguideRequest) -> Result<WaveguideResult, String> {
                 group_velocity,
                 attenuation,
             })
-        },
+        }
 
         "coaxial" => {
             // Coaxial waveguide (TEM mode)
@@ -426,7 +431,7 @@ pub fn waveguide(request: WaveguideRequest) -> Result<WaveguideResult, String> {
                 group_velocity,
                 attenuation,
             })
-        },
+        }
 
         "dielectric" => {
             // Dielectric slab waveguide
@@ -435,7 +440,8 @@ pub fn waveguide(request: WaveguideRequest) -> Result<WaveguideResult, String> {
             let n_cladding = 1.0; // Air cladding
 
             // Approximate cutoff for TE₀ mode
-            let cutoff_wavelength = 2.0 * slab_thickness * (n_core * n_core - n_cladding * n_cladding).sqrt();
+            let cutoff_wavelength =
+                2.0 * slab_thickness * (n_core * n_core - n_cladding * n_cladding).sqrt();
             let cutoff_freq = C / cutoff_wavelength;
 
             if request.frequency < cutoff_freq {
@@ -456,9 +462,12 @@ pub fn waveguide(request: WaveguideRequest) -> Result<WaveguideResult, String> {
                 group_velocity,
                 attenuation,
             })
-        },
+        }
 
-        _ => Err(format!("Waveguide type {} not implemented", request.guide_type)),
+        _ => Err(format!(
+            "Waveguide type {} not implemented",
+            request.guide_type
+        )),
     }
 }
 
@@ -560,7 +569,8 @@ mod tests {
             medium: "vacuum".to_string(),
             permittivity: None,
             permeability: None,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!((result.wavelength - 0.3).abs() < 0.01);
     }
@@ -568,10 +578,11 @@ mod tests {
     #[test]
     fn test_skin_effect() {
         let result = skin_effect(SkinEffectRequest {
-            frequency: 1e6, // 1 MHz
+            frequency: 1e6,      // 1 MHz
             conductivity: 5.8e7, // Copper
             permeability: None,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.skin_depth > 0.0);
     }

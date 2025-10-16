@@ -1,10 +1,10 @@
-use serde::{Deserialize, Serialize};
 use num_bigint::{BigInt, BigUint, RandBigInt};
-use num_traits::{Zero, One, Num};
+use num_traits::{Num, One, Zero};
 use rand::prelude::*;
+use serde::{Deserialize, Serialize};
+use sha2::{Digest as Sha2Digest, Sha256};
+use sha3::{Digest as Sha3Digest, Sha3_256};
 use std::collections::HashMap;
-use sha2::{Sha256, Digest as Sha2Digest};
-use sha3::{Sha3_256, Digest as Sha3Digest};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct CryptographicRequest {
@@ -24,11 +24,11 @@ pub fn mod_exp(base: &BigInt, exp: &BigInt, modulus: &BigInt) -> BigInt {
     if modulus == &BigInt::one() {
         return BigInt::zero();
     }
-    
+
     let mut result = BigInt::one();
     let mut base = base % modulus;
     let mut exp = exp.clone();
-    
+
     while exp > BigInt::zero() {
         if &exp % 2 == BigInt::one() {
             result = (&result * &base) % modulus;
@@ -36,7 +36,7 @@ pub fn mod_exp(base: &BigInt, exp: &BigInt, modulus: &BigInt) -> BigInt {
         exp >>= 1;
         base = (&base * &base) % modulus;
     }
-    
+
     result
 }
 
@@ -45,11 +45,11 @@ pub fn extended_gcd(a: &BigInt, b: &BigInt) -> (BigInt, BigInt, BigInt) {
     if b == &BigInt::zero() {
         return (a.clone(), BigInt::one(), BigInt::zero());
     }
-    
+
     let (gcd, x1, y1) = extended_gcd(b, &(a % b));
     let x = y1.clone();
     let y = x1 - (a / b) * &y1;
-    
+
     (gcd, x, y)
 }
 
@@ -68,16 +68,16 @@ pub fn chinese_remainder_theorem(remainders: &[BigInt], moduli: &[BigInt]) -> Op
     if remainders.len() != moduli.len() || remainders.is_empty() {
         return None;
     }
-    
+
     let product = moduli.iter().fold(BigInt::one(), |acc, m| acc * m);
     let mut result = BigInt::zero();
-    
+
     for (i, remainder) in remainders.iter().enumerate() {
         let mi = &product / &moduli[i];
         let yi = mod_inverse(&mi, &moduli[i])?;
         result += remainder * &mi * &yi;
     }
-    
+
     Some(result % &product)
 }
 
@@ -92,56 +92,56 @@ pub fn miller_rabin_test(n: &BigInt, k: u32) -> bool {
     if n % 2 == BigInt::zero() {
         return false;
     }
-    
+
     // Write n-1 as d * 2^r
     let n_minus_1: BigInt = n - 1;
     let mut r = 0u32;
     let mut d = n_minus_1.clone();
-    
+
     while &d % 2 == BigInt::zero() {
         d >>= 1;
         r += 1;
     }
-    
+
     let mut rng = thread_rng();
-    
+
     for _ in 0..k {
         let a = rng.gen_bigint_range(&BigInt::from(2), &(&n_minus_1 + 1));
         let mut x = mod_exp(&a, &d, n);
-        
+
         if x == BigInt::one() || x == n_minus_1 {
             continue;
         }
-        
+
         let mut composite = true;
-        for _ in 0..r-1 {
+        for _ in 0..r - 1 {
             x = mod_exp(&x, &BigInt::from(2), n);
             if x == n_minus_1 {
                 composite = false;
                 break;
             }
         }
-        
+
         if composite {
             return false;
         }
     }
-    
+
     true
 }
 
 // Generate large prime number
 pub fn generate_prime(bits: u32) -> BigInt {
     let mut rng = thread_rng();
-    
+
     loop {
         let mut candidate = rng.gen_biguint(bits as u64);
-        
+
         // Ensure odd number
         if &candidate % 2u32 == BigUint::zero() {
             candidate += 1u32;
         }
-        
+
         let candidate_bigint = BigInt::from(candidate);
         if miller_rabin_test(&candidate_bigint, 10) {
             return candidate_bigint;
@@ -154,13 +154,13 @@ pub fn generate_rsa_keypair(bits: u32) -> (BigInt, BigInt, BigInt) {
     let half_bits = bits / 2;
     let p = generate_prime(half_bits);
     let q = generate_prime(half_bits);
-    
+
     let n = &p * &q;
     let phi_n = (&p - 1) * (&q - 1);
-    
+
     let e = BigInt::from(65537); // Common choice for public exponent
     let d = mod_inverse(&e, &phi_n).expect("Failed to compute private exponent");
-    
+
     (n, e, d)
 }
 
@@ -175,10 +175,15 @@ pub fn rsa_decrypt(ciphertext: &BigInt, d: &BigInt, n: &BigInt) -> BigInt {
 }
 
 // Discrete logarithm (baby-step giant-step for small groups)
-pub fn discrete_log_bsgs(base: &BigInt, target: &BigInt, modulus: &BigInt, max_exp: u32) -> Option<BigInt> {
+pub fn discrete_log_bsgs(
+    base: &BigInt,
+    target: &BigInt,
+    modulus: &BigInt,
+    max_exp: u32,
+) -> Option<BigInt> {
     let m = ((max_exp as f64).sqrt().ceil() as u32) + 1;
     let mut baby_steps = HashMap::new();
-    
+
     // Baby steps
     let mut gamma = BigInt::one();
     for j in 0..m {
@@ -188,11 +193,11 @@ pub fn discrete_log_bsgs(base: &BigInt, target: &BigInt, modulus: &BigInt, max_e
         baby_steps.insert(gamma.clone(), j);
         gamma = (&gamma * base) % modulus;
     }
-    
+
     // Giant steps
     let base_inv_m = mod_inverse(&mod_exp(base, &BigInt::from(m), modulus), modulus)?;
     let mut y = target.clone();
-    
+
     for i in 0..m {
         if let Some(&j) = baby_steps.get(&y) {
             let result = BigInt::from(i) * BigInt::from(m) + BigInt::from(j);
@@ -202,7 +207,7 @@ pub fn discrete_log_bsgs(base: &BigInt, target: &BigInt, modulus: &BigInt, max_e
         }
         y = (&y * &base_inv_m) % modulus;
     }
-    
+
     None
 }
 
@@ -222,14 +227,15 @@ fn ec_add(p1: &ECPoint, p2: &ECPoint, a: &BigInt, modulus: &BigInt) -> ECPoint {
                     // Point doubling
                     let numerator = (3 * x1 * x1 + a) % modulus;
                     let denominator = (2 * y1) % modulus;
-                    let slope = (&numerator * &mod_inverse(&denominator, modulus).unwrap()) % modulus;
-                    
+                    let slope =
+                        (&numerator * &mod_inverse(&denominator, modulus).unwrap()) % modulus;
+
                     let x3 = (&slope * &slope - 2 * x1) % modulus;
                     let x3 = ((x3 % modulus) + modulus) % modulus;
-                    
+
                     let y3 = (&slope * (x1 - &x3) - y1) % modulus;
                     let y3 = ((y3 % modulus) + modulus) % modulus;
-                    
+
                     ECPoint::Point(x3, y3)
                 } else {
                     ECPoint::Infinity
@@ -238,18 +244,18 @@ fn ec_add(p1: &ECPoint, p2: &ECPoint, a: &BigInt, modulus: &BigInt) -> ECPoint {
                 // Point addition
                 let numerator = (y2 - y1) % modulus;
                 let numerator = ((numerator % modulus) + modulus) % modulus;
-                
+
                 let denominator = (x2 - x1) % modulus;
                 let denominator = ((denominator % modulus) + modulus) % modulus;
-                
+
                 let slope = (&numerator * &mod_inverse(&denominator, modulus).unwrap()) % modulus;
-                
+
                 let x3 = (&slope * &slope - x1 - x2) % modulus;
                 let x3 = ((x3 % modulus) + modulus) % modulus;
-                
+
                 let y3 = (&slope * (x1 - &x3) - y1) % modulus;
                 let y3 = ((y3 % modulus) + modulus) % modulus;
-                
+
                 ECPoint::Point(x3, y3)
             }
         }
@@ -275,22 +281,39 @@ pub fn sha3_256(input: &str) -> String {
 fn process_request(input: &str) -> String {
     let request: CryptographicRequest = match serde_json::from_str(input) {
         Ok(req) => req,
-        Err(e) => return serde_json::to_string(&CryptographicResult {
-            success: false,
-            result: None,
-            error: Some(format!("Invalid JSON: {}", e)),
-        }).unwrap(),
+        Err(e) => {
+            return serde_json::to_string(&CryptographicResult {
+                success: false,
+                result: None,
+                error: Some(format!("Invalid JSON: {}", e)),
+            })
+            .unwrap();
+        }
     };
 
     let result = match request.operation.as_str() {
         "modular_exponentiation" => {
-            let base_str = request.parameters.get("base").and_then(|v| v.as_str()).unwrap_or("0");
-            let exp_str = request.parameters.get("exponent").and_then(|v| v.as_str()).unwrap_or("0");
-            let mod_str = request.parameters.get("modulus").and_then(|v| v.as_str()).unwrap_or("1");
-            
-            match (BigInt::from_str_radix(base_str, 10), 
-                   BigInt::from_str_radix(exp_str, 10), 
-                   BigInt::from_str_radix(mod_str, 10)) {
+            let base_str = request
+                .parameters
+                .get("base")
+                .and_then(|v| v.as_str())
+                .unwrap_or("0");
+            let exp_str = request
+                .parameters
+                .get("exponent")
+                .and_then(|v| v.as_str())
+                .unwrap_or("0");
+            let mod_str = request
+                .parameters
+                .get("modulus")
+                .and_then(|v| v.as_str())
+                .unwrap_or("1");
+
+            match (
+                BigInt::from_str_radix(base_str, 10),
+                BigInt::from_str_radix(exp_str, 10),
+                BigInt::from_str_radix(mod_str, 10),
+            ) {
                 (Ok(base), Ok(exp), Ok(modulus)) => {
                     let result = mod_exp(&base, &exp, &modulus);
                     CryptographicResult {
@@ -298,20 +321,31 @@ fn process_request(input: &str) -> String {
                         result: Some(serde_json::json!({ "result": result.to_string() })),
                         error: None,
                     }
-                },
+                }
                 _ => CryptographicResult {
                     success: false,
                     result: None,
                     error: Some("Invalid number format".to_string()),
-                }
+                },
             }
-        },
-        
+        }
+
         "extended_gcd" => {
-            let a_str = request.parameters.get("a").and_then(|v| v.as_str()).unwrap_or("0");
-            let b_str = request.parameters.get("b").and_then(|v| v.as_str()).unwrap_or("0");
-            
-            match (BigInt::from_str_radix(a_str, 10), BigInt::from_str_radix(b_str, 10)) {
+            let a_str = request
+                .parameters
+                .get("a")
+                .and_then(|v| v.as_str())
+                .unwrap_or("0");
+            let b_str = request
+                .parameters
+                .get("b")
+                .and_then(|v| v.as_str())
+                .unwrap_or("0");
+
+            match (
+                BigInt::from_str_radix(a_str, 10),
+                BigInt::from_str_radix(b_str, 10),
+            ) {
                 (Ok(a), Ok(b)) => {
                     let (gcd, x, y) = extended_gcd(&a, &b);
                     CryptographicResult {
@@ -323,31 +357,40 @@ fn process_request(input: &str) -> String {
                         })),
                         error: None,
                     }
-                },
+                }
                 _ => CryptographicResult {
                     success: false,
                     result: None,
                     error: Some("Invalid number format".to_string()),
-                }
+                },
             }
-        },
-        
+        }
+
         "chinese_remainder_theorem" => {
-            let remainders_json = request.parameters.get("remainders").cloned().unwrap_or_default();
-            let moduli_json = request.parameters.get("moduli").cloned().unwrap_or_default();
-            
-            let remainders: Result<Vec<BigInt>, _> = serde_json::from_value::<Vec<String>>(remainders_json)
-                .unwrap_or_default()
-                .iter()
-                .map(|s| BigInt::from_str_radix(s, 10))
-                .collect();
-            
+            let remainders_json = request
+                .parameters
+                .get("remainders")
+                .cloned()
+                .unwrap_or_default();
+            let moduli_json = request
+                .parameters
+                .get("moduli")
+                .cloned()
+                .unwrap_or_default();
+
+            let remainders: Result<Vec<BigInt>, _> =
+                serde_json::from_value::<Vec<String>>(remainders_json)
+                    .unwrap_or_default()
+                    .iter()
+                    .map(|s| BigInt::from_str_radix(s, 10))
+                    .collect();
+
             let moduli: Result<Vec<BigInt>, _> = serde_json::from_value::<Vec<String>>(moduli_json)
                 .unwrap_or_default()
                 .iter()
                 .map(|s| BigInt::from_str_radix(s, 10))
                 .collect();
-            
+
             match (remainders, moduli) {
                 (Ok(remainders), Ok(moduli)) => {
                     match chinese_remainder_theorem(&remainders, &moduli) {
@@ -360,19 +403,23 @@ fn process_request(input: &str) -> String {
                             success: false,
                             result: None,
                             error: Some("No solution exists".to_string()),
-                        }
+                        },
                     }
-                },
+                }
                 _ => CryptographicResult {
                     success: false,
                     result: None,
                     error: Some("Invalid number format".to_string()),
-                }
+                },
             }
-        },
-        
+        }
+
         "generate_prime" => {
-            let bits = request.parameters.get("bits").and_then(|v| v.as_u64()).unwrap_or(1024) as u32;
+            let bits = request
+                .parameters
+                .get("bits")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(1024) as u32;
             if bits < 8 || bits > 4096 {
                 CryptographicResult {
                     success: false,
@@ -387,10 +434,14 @@ fn process_request(input: &str) -> String {
                     error: None,
                 }
             }
-        },
-        
+        }
+
         "generate_rsa_keypair" => {
-            let bits = request.parameters.get("bits").and_then(|v| v.as_u64()).unwrap_or(2048) as u32;
+            let bits = request
+                .parameters
+                .get("bits")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(2048) as u32;
             if bits < 512 || bits > 4096 {
                 CryptographicResult {
                     success: false,
@@ -414,52 +465,68 @@ fn process_request(input: &str) -> String {
                     error: None,
                 }
             }
-        },
-        
+        }
+
         "primality_test" => {
-            let n_str = request.parameters.get("n").and_then(|v| v.as_str()).unwrap_or("0");
-            let rounds = request.parameters.get("rounds").and_then(|v| v.as_u64()).unwrap_or(10) as u32;
-            
+            let n_str = request
+                .parameters
+                .get("n")
+                .and_then(|v| v.as_str())
+                .unwrap_or("0");
+            let rounds = request
+                .parameters
+                .get("rounds")
+                .and_then(|v| v.as_u64())
+                .unwrap_or(10) as u32;
+
             match BigInt::from_str_radix(n_str, 10) {
                 Ok(n) => {
                     let is_prime = miller_rabin_test(&n, rounds);
                     CryptographicResult {
                         success: true,
-                        result: Some(serde_json::json!({ 
+                        result: Some(serde_json::json!({
                             "is_prime": is_prime,
                             "confidence": format!("{:.6}", 1.0 - (0.25_f64).powi(rounds as i32))
                         })),
                         error: None,
                     }
-                },
+                }
                 _ => CryptographicResult {
                     success: false,
                     result: None,
                     error: Some("Invalid number format".to_string()),
-                }
+                },
             }
-        },
-        
+        }
+
         "sha256" => {
-            let input = request.parameters.get("input").and_then(|v| v.as_str()).unwrap_or("");
+            let input = request
+                .parameters
+                .get("input")
+                .and_then(|v| v.as_str())
+                .unwrap_or("");
             let hash = sha256(input);
             CryptographicResult {
                 success: true,
                 result: Some(serde_json::json!({ "hash": hash })),
                 error: None,
             }
-        },
+        }
 
         "sha3_256" => {
-            let input = request.parameters.get("input").and_then(|v| v.as_str()).unwrap_or("");
+            let input = request
+                .parameters
+                .get("input")
+                .and_then(|v| v.as_str())
+                .unwrap_or("");
             let hash = sha3_256(input);
             CryptographicResult {
                 success: true,
                 result: Some(serde_json::json!({ "hash": hash })),
                 error: None,
             }
-        },
-        
+        }
+
         _ => CryptographicResult {
             success: false,
             result: None,
@@ -538,13 +605,19 @@ mod tests {
     #[test]
     fn test_sha256_known_hash() {
         let hash = sha256("hello world");
-        assert_eq!(hash, "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9");
+        assert_eq!(
+            hash,
+            "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+        );
     }
 
     #[test]
     fn test_sha3_256_known_hash() {
         let hash = sha3_256("hello world");
-        assert_eq!(hash, "644bcc7e564373040999aac89e7622f3ca71fba1d972fd94a31c3bfbf24e3938");
+        assert_eq!(
+            hash,
+            "644bcc7e564373040999aac89e7622f3ca71fba1d972fd94a31c3bfbf24e3938"
+        );
     }
 
     #[test]

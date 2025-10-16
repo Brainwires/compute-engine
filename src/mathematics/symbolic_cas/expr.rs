@@ -49,7 +49,10 @@ impl Rational {
     }
 
     pub fn from_int(n: i64) -> Self {
-        Rational { numerator: n, denominator: 1 }
+        Rational {
+            numerator: n,
+            denominator: 1,
+        }
     }
 
     pub fn to_f64(&self) -> f64 {
@@ -75,8 +78,9 @@ impl std::ops::Add for Rational {
         // Denominators are always non-zero for valid Rationals
         Rational::new(
             self.numerator * other.denominator + other.numerator * self.denominator,
-            self.denominator * other.denominator
-        ).expect("BUG: denominator became zero in Add")
+            self.denominator * other.denominator,
+        )
+        .expect("BUG: denominator became zero in Add")
     }
 }
 
@@ -86,8 +90,9 @@ impl std::ops::Mul for Rational {
         // Denominators are always non-zero for valid Rationals
         Rational::new(
             self.numerator * other.numerator,
-            self.denominator * other.denominator
-        ).expect("BUG: denominator became zero in Mul")
+            self.denominator * other.denominator,
+        )
+        .expect("BUG: denominator became zero in Mul")
     }
 }
 
@@ -133,7 +138,9 @@ impl Expr {
     /// This is a convenience method for internal use where denominators are known to be non-zero.
     /// For user input or external data, use `rational()` which returns Result.
     pub fn rational_unchecked(n: i64, d: i64) -> Self {
-        Expr::Number(Rational::new(n, d).expect("BUG: rational_unchecked called with zero denominator"))
+        Expr::Number(
+            Rational::new(n, d).expect("BUG: rational_unchecked called with zero denominator"),
+        )
     }
 
     /// Create a symbol/variable
@@ -165,22 +172,24 @@ impl Expr {
     pub fn evaluate(&self, vars: &HashMap<String, f64>) -> SymbolicResult<f64> {
         match self {
             Expr::Number(r) => Ok(r.to_f64()),
-            Expr::Symbol(s) => vars.get(s)
+            Expr::Symbol(s) => vars
+                .get(s)
                 .copied()
                 .ok_or_else(|| SymbolicError::EvaluationError(format!("Unknown variable: {}", s))),
             Expr::Add(a, b) => Ok(a.evaluate(vars)? + b.evaluate(vars)?),
             Expr::Mul(a, b) => Ok(a.evaluate(vars)? * b.evaluate(vars)?),
             Expr::Pow(base, exp) => Ok(base.evaluate(vars)?.powf(exp.evaluate(vars)?)),
-            Expr::Function(name, args) => {
-                match name.as_str() {
-                    "sin" if args.len() == 1 => Ok(args[0].evaluate(vars)?.sin()),
-                    "cos" if args.len() == 1 => Ok(args[0].evaluate(vars)?.cos()),
-                    "exp" if args.len() == 1 => Ok(args[0].evaluate(vars)?.exp()),
-                    "ln" if args.len() == 1 => Ok(args[0].evaluate(vars)?.ln()),
-                    "sqrt" if args.len() == 1 => Ok(args[0].evaluate(vars)?.sqrt()),
-                    _ => Err(SymbolicError::EvaluationError(format!("Unknown function: {}", name)))
-                }
-            }
+            Expr::Function(name, args) => match name.as_str() {
+                "sin" if args.len() == 1 => Ok(args[0].evaluate(vars)?.sin()),
+                "cos" if args.len() == 1 => Ok(args[0].evaluate(vars)?.cos()),
+                "exp" if args.len() == 1 => Ok(args[0].evaluate(vars)?.exp()),
+                "ln" if args.len() == 1 => Ok(args[0].evaluate(vars)?.ln()),
+                "sqrt" if args.len() == 1 => Ok(args[0].evaluate(vars)?.sqrt()),
+                _ => Err(SymbolicError::EvaluationError(format!(
+                    "Unknown function: {}",
+                    name
+                ))),
+            },
         }
     }
 
@@ -206,7 +215,9 @@ impl fmt::Display for Expr {
             Expr::Function(name, args) => {
                 write!(f, "{}(", name)?;
                 for (i, arg) in args.iter().enumerate() {
-                    if i > 0 { write!(f, ", ")?; }
+                    if i > 0 {
+                        write!(f, ", ")?;
+                    }
                     write!(f, "{}", arg)?;
                 }
                 write!(f, ")")

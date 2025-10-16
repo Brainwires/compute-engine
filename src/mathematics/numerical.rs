@@ -10,11 +10,10 @@ use std::collections::HashMap;
 pub fn evaluate_numeric(expr: &Expr, values: &HashMap<String, f64>) -> Result<f64, String> {
     match expr {
         Expr::Number(r) => Ok(r.numerator as f64 / r.denominator as f64),
-        Expr::Symbol(s) => {
-            values.get(s)
-                .copied()
-                .ok_or_else(|| format!("Undefined variable: {}", s))
-        }
+        Expr::Symbol(s) => values
+            .get(s)
+            .copied()
+            .ok_or_else(|| format!("Undefined variable: {}", s)),
         Expr::Add(a, b) => {
             let a_val = evaluate_numeric(a, values)?;
             let b_val = evaluate_numeric(b, values)?;
@@ -30,53 +29,51 @@ pub fn evaluate_numeric(expr: &Expr, values: &HashMap<String, f64>) -> Result<f6
             let exp_val = evaluate_numeric(exp, values)?;
             Ok(base_val.powf(exp_val))
         }
-        Expr::Function(name, args) => {
-            match name.as_str() {
-                "sin" => {
-                    if args.len() != 1 {
-                        return Err("sin requires 1 argument".to_string());
-                    }
-                    let arg = evaluate_numeric(&args[0], values)?;
-                    Ok(arg.sin())
+        Expr::Function(name, args) => match name.as_str() {
+            "sin" => {
+                if args.len() != 1 {
+                    return Err("sin requires 1 argument".to_string());
                 }
-                "cos" => {
-                    if args.len() != 1 {
-                        return Err("cos requires 1 argument".to_string());
-                    }
-                    let arg = evaluate_numeric(&args[0], values)?;
-                    Ok(arg.cos())
-                }
-                "tan" => {
-                    if args.len() != 1 {
-                        return Err("tan requires 1 argument".to_string());
-                    }
-                    let arg = evaluate_numeric(&args[0], values)?;
-                    Ok(arg.tan())
-                }
-                "exp" => {
-                    if args.len() != 1 {
-                        return Err("exp requires 1 argument".to_string());
-                    }
-                    let arg = evaluate_numeric(&args[0], values)?;
-                    Ok(arg.exp())
-                }
-                "log" | "ln" => {
-                    if args.len() != 1 {
-                        return Err("log requires 1 argument".to_string());
-                    }
-                    let arg = evaluate_numeric(&args[0], values)?;
-                    Ok(arg.ln())
-                }
-                "sqrt" => {
-                    if args.len() != 1 {
-                        return Err("sqrt requires 1 argument".to_string());
-                    }
-                    let arg = evaluate_numeric(&args[0], values)?;
-                    Ok(arg.sqrt())
-                }
-                _ => Err(format!("Unknown function: {}", name)),
+                let arg = evaluate_numeric(&args[0], values)?;
+                Ok(arg.sin())
             }
-        }
+            "cos" => {
+                if args.len() != 1 {
+                    return Err("cos requires 1 argument".to_string());
+                }
+                let arg = evaluate_numeric(&args[0], values)?;
+                Ok(arg.cos())
+            }
+            "tan" => {
+                if args.len() != 1 {
+                    return Err("tan requires 1 argument".to_string());
+                }
+                let arg = evaluate_numeric(&args[0], values)?;
+                Ok(arg.tan())
+            }
+            "exp" => {
+                if args.len() != 1 {
+                    return Err("exp requires 1 argument".to_string());
+                }
+                let arg = evaluate_numeric(&args[0], values)?;
+                Ok(arg.exp())
+            }
+            "log" | "ln" => {
+                if args.len() != 1 {
+                    return Err("log requires 1 argument".to_string());
+                }
+                let arg = evaluate_numeric(&args[0], values)?;
+                Ok(arg.ln())
+            }
+            "sqrt" => {
+                if args.len() != 1 {
+                    return Err("sqrt requires 1 argument".to_string());
+                }
+                let arg = evaluate_numeric(&args[0], values)?;
+                Ok(arg.sqrt())
+            }
+            _ => Err(format!("Unknown function: {}", name)),
+        },
     }
 }
 
@@ -89,7 +86,8 @@ pub fn evaluate_matrix_numeric(
 
     for i in 0..matrix.rows() {
         for j in 0..matrix.cols() {
-            let elem = matrix.get(i, j)
+            let elem = matrix
+                .get(i, j)
                 .ok_or_else(|| "Invalid matrix indices".to_string())?;
             result[i][j] = evaluate_numeric(elem, values)?;
         }
@@ -317,15 +315,18 @@ pub fn time_evolution(
 
 /// Helper: convert numerical matrix to symbolic
 fn numeric_to_symbolic_matrix(matrix: &[Vec<f64>]) -> SymbolicMatrix {
-    let data: Vec<Vec<Expr>> = matrix.iter()
-        .map(|row| row.iter()
-            .map(|&val| {
-                // Convert to rational approximation
-                let factor = 1000000;
-                let num = (val * factor as f64).round() as i64;
-                Expr::rational_unchecked(num, factor)
-            })
-            .collect())
+    let data: Vec<Vec<Expr>> = matrix
+        .iter()
+        .map(|row| {
+            row.iter()
+                .map(|&val| {
+                    // Convert to rational approximation
+                    let factor = 1000000;
+                    let num = (val * factor as f64).round() as i64;
+                    Expr::rational_unchecked(num, factor)
+                })
+                .collect()
+        })
         .collect();
 
     SymbolicMatrix::new(data).unwrap()
@@ -383,10 +384,7 @@ mod tests {
 
     #[test]
     fn test_evaluate_numeric() {
-        let expr = Expr::add(
-            Expr::mul(Expr::num(2), Expr::sym("x")),
-            Expr::num(3)
-        );
+        let expr = Expr::add(Expr::mul(Expr::num(2), Expr::sym("x")), Expr::num(3));
 
         let mut values = HashMap::new();
         values.insert("x".to_string(), 5.0);
@@ -413,7 +411,8 @@ mod tests {
         let matrix = SymbolicMatrix::new(vec![
             vec![Expr::num(2), Expr::num(0)],
             vec![Expr::num(0), Expr::num(3)],
-        ]).unwrap();
+        ])
+        .unwrap();
 
         let eigenvalues = eigenvalues_numeric(&matrix, &HashMap::new(), Some(50)).unwrap();
 
@@ -429,7 +428,8 @@ mod tests {
         let matrix = SymbolicMatrix::new(vec![
             vec![Expr::num(2), Expr::num(0)],
             vec![Expr::num(0), Expr::num(3)],
-        ]).unwrap();
+        ])
+        .unwrap();
 
         let result = matrix_power_numeric(&matrix, 2, &HashMap::new()).unwrap();
 

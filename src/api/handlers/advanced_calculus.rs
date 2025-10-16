@@ -8,14 +8,14 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
             return ComputationResponse::error(
                 request.module.clone(),
                 request.operation.clone(),
-                format!("Operation '{}' not yet fully mapped", request.operation)
+                format!("Operation '{}' not yet fully mapped", request.operation),
             );
-        },
+        }
         _ => {
             return ComputationResponse::error(
                 request.module.clone(),
                 request.operation.clone(),
-                format!("Unknown operation: {}", request.operation)
+                format!("Unknown operation: {}", request.operation),
             );
         }
     };

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Test all 10 unified tools
 
-ENGINE="./target/release/computational-engine"
+ENGINE="./target/release/brainwires-compute-engine"
 
 echo "=== Testing All 10 Unified Computational Tools ==="
 echo

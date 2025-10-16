@@ -8,9 +8,9 @@
 //! - Variational calculus
 //! - Differential forms
 
-use computational_engine::engine::*;
-use computational_engine::engine::equations::*;
 use computational_engine::create_default_dispatcher;
+use computational_engine::engine::equations::*;
+use computational_engine::engine::*;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -48,7 +48,10 @@ fn test_symbolic_trigonometric() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should differentiate trigonometric functions");
+    assert!(
+        result.is_ok(),
+        "Should differentiate trigonometric functions"
+    );
 }
 
 #[test]
@@ -89,7 +92,10 @@ fn test_gradient() {
     assert!(result.is_ok(), "Should compute gradient: {:?}", result);
 
     if let Ok(ToolResponse::Differentiate(output)) = result {
-        assert!(output.derivatives.contains_key("gradient"), "Should have gradient key");
+        assert!(
+            output.derivatives.contains_key("gradient"),
+            "Should have gradient key"
+        );
     }
 }
 
@@ -167,7 +173,11 @@ fn test_directional_derivative() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute directional derivative: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute directional derivative: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -179,8 +189,14 @@ fn test_covariant_derivative() {
     let dispatcher = create_default_dispatcher();
 
     let mut params = HashMap::new();
-    params.insert("metric".to_string(), serde_json::json!([[1.0, 0.0], [0.0, 1.0]]));
-    params.insert("tensor_components".to_string(), serde_json::json!(["x", "y"]));
+    params.insert(
+        "metric".to_string(),
+        serde_json::json!([[1.0, 0.0], [0.0, 1.0]]),
+    );
+    params.insert(
+        "tensor_components".to_string(),
+        serde_json::json!(["x", "y"]),
+    );
 
     let request = ToolRequest::Differentiate(DifferentiateInput {
         operation: DifferentiationOp::TensorCalc(TensorDiffOp::Covariant),
@@ -192,7 +208,11 @@ fn test_covariant_derivative() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute covariant derivative: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute covariant derivative: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -212,7 +232,11 @@ fn test_lie_derivative_scalar() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute Lie derivative of scalar: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute Lie derivative of scalar: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -221,7 +245,10 @@ fn test_lie_derivative_vector() {
 
     let mut params = HashMap::new();
     params.insert("vector_field".to_string(), serde_json::json!(["y", "x"]));
-    params.insert("target_components".to_string(), serde_json::json!(["x", "y"]));
+    params.insert(
+        "target_components".to_string(),
+        serde_json::json!(["x", "y"]),
+    );
 
     let request = ToolRequest::Differentiate(DifferentiateInput {
         operation: DifferentiationOp::TensorCalc(TensorDiffOp::Lie),
@@ -233,7 +260,11 @@ fn test_lie_derivative_vector() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute Lie derivative of vector: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute Lie derivative of vector: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -253,7 +284,11 @@ fn test_exterior_derivative_0form() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute exterior derivative of 0-form: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute exterior derivative of 0-form: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -274,7 +309,11 @@ fn test_exterior_derivative_1form() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute exterior derivative of 1-form: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute exterior derivative of 1-form: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -300,12 +339,25 @@ fn test_variational_euler_lagrange() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute Euler-Lagrange equation: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute Euler-Lagrange equation: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Differentiate(output)) = result {
-        assert!(output.derivatives.contains_key("euler_lagrange"), "Should have Euler-Lagrange equation");
-        assert!(output.derivatives.contains_key("∂L/∂y"), "Should have ∂L/∂y");
-        assert!(output.derivatives.contains_key("∂L/∂y'"), "Should have ∂L/∂y'");
+        assert!(
+            output.derivatives.contains_key("euler_lagrange"),
+            "Should have Euler-Lagrange equation"
+        );
+        assert!(
+            output.derivatives.contains_key("∂L/∂y"),
+            "Should have ∂L/∂y"
+        );
+        assert!(
+            output.derivatives.contains_key("∂L/∂y'"),
+            "Should have ∂L/∂y'"
+        );
     }
 }
 
@@ -327,7 +379,11 @@ fn test_differential_forms_scalar() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute differential of scalar function: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute differential of scalar function: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -339,8 +395,14 @@ fn test_numeric_differentiation_central() {
     let dispatcher = create_default_dispatcher();
 
     let mut params = HashMap::new();
-    params.insert("x_values".to_string(), serde_json::json!([0.0, 0.1, 0.2, 0.3, 0.4]));
-    params.insert("y_values".to_string(), serde_json::json!([0.0, 0.01, 0.04, 0.09, 0.16]));
+    params.insert(
+        "x_values".to_string(),
+        serde_json::json!([0.0, 0.1, 0.2, 0.3, 0.4]),
+    );
+    params.insert(
+        "y_values".to_string(),
+        serde_json::json!([0.0, 0.01, 0.04, 0.09, 0.16]),
+    );
     params.insert("method".to_string(), serde_json::json!("central"));
 
     let request = ToolRequest::Differentiate(DifferentiateInput {
@@ -353,7 +415,11 @@ fn test_numeric_differentiation_central() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform numeric differentiation: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform numeric differentiation: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -361,8 +427,14 @@ fn test_numeric_differentiation_forward() {
     let dispatcher = create_default_dispatcher();
 
     let mut params = HashMap::new();
-    params.insert("x_values".to_string(), serde_json::json!([0.0, 1.0, 2.0, 3.0]));
-    params.insert("y_values".to_string(), serde_json::json!([0.0, 1.0, 4.0, 9.0]));
+    params.insert(
+        "x_values".to_string(),
+        serde_json::json!([0.0, 1.0, 2.0, 3.0]),
+    );
+    params.insert(
+        "y_values".to_string(),
+        serde_json::json!([0.0, 1.0, 4.0, 9.0]),
+    );
     params.insert("method".to_string(), serde_json::json!("forward"));
 
     let request = ToolRequest::Differentiate(DifferentiateInput {
@@ -375,7 +447,11 @@ fn test_numeric_differentiation_forward() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform forward difference: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform forward difference: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -416,7 +492,10 @@ fn test_directional_requires_direction() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Directional derivative should require direction parameter");
+    assert!(
+        result.is_err(),
+        "Directional derivative should require direction parameter"
+    );
 }
 
 #[test]
@@ -433,7 +512,10 @@ fn test_covariant_requires_metric() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Covariant derivative should require metric tensor");
+    assert!(
+        result.is_err(),
+        "Covariant derivative should require metric tensor"
+    );
 }
 
 #[test]
@@ -450,5 +532,8 @@ fn test_lie_requires_vector_field() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Lie derivative should require vector field parameter");
+    assert!(
+        result.is_err(),
+        "Lie derivative should require vector field parameter"
+    );
 }

@@ -16,7 +16,7 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
                             request.module.clone(),
                             request.operation.clone(),
                             format!("Invalid inputs: {}", e),
-                        )
+                        );
                     }
                 },
                 None => {
@@ -24,7 +24,7 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
                         request.module.clone(),
                         request.operation.clone(),
                         "Missing inputs parameter".to_string(),
-                    )
+                    );
                 }
             };
 
@@ -37,7 +37,7 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
                             request.module.clone(),
                             request.operation.clone(),
                             format!("Invalid outputs: {}", e),
-                        )
+                        );
                     }
                 },
                 None => {
@@ -45,7 +45,7 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
                         request.module.clone(),
                         request.operation.clone(),
                         "Missing outputs parameter".to_string(),
-                    )
+                    );
                 }
             };
 
@@ -83,16 +83,17 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
             }
 
             // Create approximator and run
-            let approximator = match FunctionApproximator::new(inputs.clone(), outputs.clone(), config) {
-                Ok(a) => a,
-                Err(e) => {
-                    return ComputationResponse::error(
-                        request.module.clone(),
-                        request.operation.clone(),
-                        e,
-                    )
-                }
-            };
+            let approximator =
+                match FunctionApproximator::new(inputs.clone(), outputs.clone(), config) {
+                    Ok(a) => a,
+                    Err(e) => {
+                        return ComputationResponse::error(
+                            request.module.clone(),
+                            request.operation.clone(),
+                            e,
+                        );
+                    }
+                };
 
             match approximator.approximate() {
                 Ok(result) => Ok(json!(result)),
@@ -114,10 +115,8 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
             request.operation.clone(),
             result_value,
         ),
-        Err(error_msg) => ComputationResponse::error(
-            request.module.clone(),
-            request.operation.clone(),
-            error_msg,
-        ),
+        Err(error_msg) => {
+            ComputationResponse::error(request.module.clone(), request.operation.clone(), error_msg)
+        }
     }
 }

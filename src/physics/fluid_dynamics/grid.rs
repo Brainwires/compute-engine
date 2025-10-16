@@ -16,7 +16,7 @@ impl Grid2D {
     pub fn new(nx: usize, ny: usize, x_min: f64, x_max: f64, y_min: f64, y_max: f64) -> Self {
         let dx = (x_max - x_min) / (nx - 1) as f64;
         let dy = (y_max - y_min) / (ny - 1) as f64;
-        
+
         Self {
             nx,
             ny,
@@ -63,7 +63,8 @@ impl Grid2D {
     }
 
     pub fn diffusion_condition(&self, viscosity: f64) -> f64 {
-        let dt_diffusive = 0.25 / (viscosity * (1.0 / (self.dx * self.dx) + 1.0 / (self.dy * self.dy)));
+        let dt_diffusive =
+            0.25 / (viscosity * (1.0 / (self.dx * self.dx) + 1.0 / (self.dy * self.dy)));
         dt_diffusive
     }
 

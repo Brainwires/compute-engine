@@ -2,8 +2,8 @@
 //!
 //! Density matrices, quantum entanglement, quantum gates, and quantum information theory
 
-use super::{Expr, SymbolicMatrix, SymbolicResult, SymbolicError};
 use super::simplify::simplify;
+use super::{Expr, SymbolicError, SymbolicMatrix, SymbolicResult};
 
 /// Create a density matrix from a pure state |ψ⟩
 ///
@@ -11,7 +11,7 @@ use super::simplify::simplify;
 pub fn density_matrix_pure_state(state: &SymbolicMatrix) -> SymbolicResult<SymbolicMatrix> {
     if state.cols() != 1 {
         return Err(SymbolicError::InvalidOperation(
-            "State must be a column vector".to_string()
+            "State must be a column vector".to_string(),
         ));
     }
 
@@ -28,12 +28,14 @@ pub fn density_matrix_mixed(
     probabilities: &[Expr],
 ) -> SymbolicResult<SymbolicMatrix> {
     if states.is_empty() {
-        return Err(SymbolicError::InvalidOperation("Need at least one state".to_string()));
+        return Err(SymbolicError::InvalidOperation(
+            "Need at least one state".to_string(),
+        ));
     }
 
     if states.len() != probabilities.len() {
         return Err(SymbolicError::InvalidOperation(
-            "Number of states must equal number of probabilities".to_string()
+            "Number of states must equal number of probabilities".to_string(),
         ));
     }
 
@@ -66,12 +68,13 @@ pub fn von_neumann_entropy_symbolic(dimension: usize) -> Expr {
     // Symbolic representation
     Expr::mul(
         Expr::num(-1),
-        Expr::func("Tr", vec![
-            Expr::mul(
+        Expr::func(
+            "Tr",
+            vec![Expr::mul(
                 Expr::sym("ρ"),
-                Expr::func("log", vec![Expr::sym("ρ")])
-            )
-        ])
+                Expr::func("log", vec![Expr::sym("ρ")]),
+            )],
+        ),
     )
 }
 
@@ -87,10 +90,13 @@ pub fn maximally_mixed_state(dimension: usize) -> SymbolicMatrix {
 /// Compute partial trace over subsystem B for a bipartite system
 ///
 /// For a 2-qubit system (4×4 density matrix), traces out second qubit
-pub fn partial_trace_qubit(rho: &SymbolicMatrix, trace_out_second: bool) -> SymbolicResult<SymbolicMatrix> {
+pub fn partial_trace_qubit(
+    rho: &SymbolicMatrix,
+    trace_out_second: bool,
+) -> SymbolicResult<SymbolicMatrix> {
     if rho.rows() != 4 || rho.cols() != 4 {
         return Err(SymbolicError::InvalidOperation(
-            "Partial trace implemented for 2-qubit systems (4×4) only".to_string()
+            "Partial trace implemented for 2-qubit systems (4×4) only".to_string(),
         ));
     }
 
@@ -103,8 +109,9 @@ pub fn partial_trace_qubit(rho: &SymbolicMatrix, trace_out_second: bool) -> Symb
             for j in 0..2 {
                 let mut sum = Expr::num(0);
                 for k in 0..2 {
-                    let elem = rho.get(i * 2 + k, j * 2 + k)
-                        .ok_or_else(|| SymbolicError::InvalidOperation("Invalid indices".to_string()))?;
+                    let elem = rho.get(i * 2 + k, j * 2 + k).ok_or_else(|| {
+                        SymbolicError::InvalidOperation("Invalid indices".to_string())
+                    })?;
                     sum = Expr::add(sum, elem.clone());
                 }
                 result[i][j] = simplify(&sum);
@@ -121,8 +128,9 @@ pub fn partial_trace_qubit(rho: &SymbolicMatrix, trace_out_second: bool) -> Symb
             for j in 0..2 {
                 let mut sum = Expr::num(0);
                 for k in 0..2 {
-                    let elem = rho.get(k * 2 + i, k * 2 + j)
-                        .ok_or_else(|| SymbolicError::InvalidOperation("Invalid indices".to_string()))?;
+                    let elem = rho.get(k * 2 + i, k * 2 + j).ok_or_else(|| {
+                        SymbolicError::InvalidOperation("Invalid indices".to_string())
+                    })?;
                     sum = Expr::add(sum, elem.clone());
                 }
                 result[i][j] = simplify(&sum);
@@ -164,7 +172,8 @@ pub fn hadamard_gate() -> SymbolicMatrix {
     SymbolicMatrix::new(vec![
         vec![factor.clone(), factor.clone()],
         vec![factor.clone(), Expr::mul(factor, Expr::num(-1))],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// Pauli X gate (bit flip)
@@ -195,24 +204,27 @@ pub fn phase_gate() -> SymbolicMatrix {
     SymbolicMatrix::new(vec![
         vec![Expr::num(1), Expr::num(0)],
         vec![Expr::num(0), Expr::sym("i")],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// T gate (π/8 gate)
 ///
 /// T = [[1, 0], [0, exp(iπ/4)]]
 pub fn t_gate() -> SymbolicMatrix {
-    let phase = Expr::func("exp", vec![
-        Expr::mul(
+    let phase = Expr::func(
+        "exp",
+        vec![Expr::mul(
             Expr::mul(Expr::sym("i"), Expr::sym("π")),
-            Expr::rational_unchecked(1, 4)
-        )
-    ]);
+            Expr::rational_unchecked(1, 4),
+        )],
+    );
 
     SymbolicMatrix::new(vec![
         vec![Expr::num(1), Expr::num(0)],
         vec![Expr::num(0), phase],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// Rotation gate around X axis
@@ -228,7 +240,8 @@ pub fn rotation_x_gate(theta: &str) -> SymbolicMatrix {
     SymbolicMatrix::new(vec![
         vec![cos_term.clone(), minus_i_sin.clone()],
         vec![minus_i_sin, cos_term],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// Rotation gate around Y axis
@@ -244,7 +257,8 @@ pub fn rotation_y_gate(theta: &str) -> SymbolicMatrix {
     SymbolicMatrix::new(vec![
         vec![cos_term.clone(), neg_sin],
         vec![sin_term, cos_term],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// Rotation gate around Z axis
@@ -253,18 +267,21 @@ pub fn rotation_y_gate(theta: &str) -> SymbolicMatrix {
 pub fn rotation_z_gate(theta: &str) -> SymbolicMatrix {
     let half_theta = Expr::mul(Expr::sym(theta), Expr::rational_unchecked(1, 2));
 
-    let exp_minus = Expr::func("exp", vec![
-        Expr::mul(Expr::mul(Expr::num(-1), Expr::sym("i")), half_theta.clone())
-    ]);
+    let exp_minus = Expr::func(
+        "exp",
+        vec![Expr::mul(
+            Expr::mul(Expr::num(-1), Expr::sym("i")),
+            half_theta.clone(),
+        )],
+    );
 
-    let exp_plus = Expr::func("exp", vec![
-        Expr::mul(Expr::sym("i"), half_theta)
-    ]);
+    let exp_plus = Expr::func("exp", vec![Expr::mul(Expr::sym("i"), half_theta)]);
 
     SymbolicMatrix::new(vec![
         vec![exp_minus, Expr::num(0)],
         vec![Expr::num(0), exp_plus],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// CNOT gate (controlled-NOT)
@@ -276,7 +293,8 @@ pub fn cnot_gate() -> SymbolicMatrix {
         vec![Expr::num(0), Expr::num(1), Expr::num(0), Expr::num(0)],
         vec![Expr::num(0), Expr::num(0), Expr::num(0), Expr::num(1)],
         vec![Expr::num(0), Expr::num(0), Expr::num(1), Expr::num(0)],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// SWAP gate
@@ -288,7 +306,8 @@ pub fn swap_gate() -> SymbolicMatrix {
         vec![Expr::num(0), Expr::num(0), Expr::num(1), Expr::num(0)],
         vec![Expr::num(0), Expr::num(1), Expr::num(0), Expr::num(0)],
         vec![Expr::num(0), Expr::num(0), Expr::num(0), Expr::num(1)],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// Toffoli gate (CCNOT - controlled-controlled-NOT)
@@ -314,11 +333,12 @@ pub fn bell_state_phi_plus() -> SymbolicMatrix {
     let factor = Expr::pow(Expr::num(2), Expr::rational_unchecked(-1, 2));
 
     SymbolicMatrix::new(vec![
-        vec![factor.clone()],  // |00⟩
-        vec![Expr::num(0)],     // |01⟩
-        vec![Expr::num(0)],     // |10⟩
-        vec![factor],           // |11⟩
-    ]).unwrap()
+        vec![factor.clone()], // |00⟩
+        vec![Expr::num(0)],   // |01⟩
+        vec![Expr::num(0)],   // |10⟩
+        vec![factor],         // |11⟩
+    ])
+    .unwrap()
 }
 
 /// Create Bell state |Φ-⟩ = (|00⟩ - |11⟩)/√2
@@ -330,7 +350,8 @@ pub fn bell_state_phi_minus() -> SymbolicMatrix {
         vec![Expr::num(0)],
         vec![Expr::num(0)],
         vec![Expr::mul(Expr::num(-1), factor)],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// Create Bell state |Ψ+⟩ = (|01⟩ + |10⟩)/√2
@@ -342,7 +363,8 @@ pub fn bell_state_psi_plus() -> SymbolicMatrix {
         vec![factor.clone()],
         vec![factor],
         vec![Expr::num(0)],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// Create Bell state |Ψ-⟩ = (|01⟩ - |10⟩)/√2
@@ -354,7 +376,8 @@ pub fn bell_state_psi_minus() -> SymbolicMatrix {
         vec![factor.clone()],
         vec![Expr::mul(Expr::num(-1), factor)],
         vec![Expr::num(0)],
-    ]).unwrap()
+    ])
+    .unwrap()
 }
 
 /// Compute fidelity between two quantum states
@@ -363,7 +386,7 @@ pub fn bell_state_psi_minus() -> SymbolicMatrix {
 pub fn state_fidelity(state1: &SymbolicMatrix, state2: &SymbolicMatrix) -> SymbolicResult<Expr> {
     if state1.rows() != state2.rows() || state1.cols() != 1 || state2.cols() != 1 {
         return Err(SymbolicError::InvalidOperation(
-            "Both states must be column vectors of same dimension".to_string()
+            "Both states must be column vectors of same dimension".to_string(),
         ));
     }
 
@@ -371,8 +394,9 @@ pub fn state_fidelity(state1: &SymbolicMatrix, state2: &SymbolicMatrix) -> Symbo
     let state1_dagger = state1.transpose();
     let inner_product = state1_dagger.mul(state2)?;
 
-    let value = inner_product.get(0, 0)
-        .ok_or_else(|| SymbolicError::InvalidOperation("Failed to get inner product".to_string()))?;
+    let value = inner_product.get(0, 0).ok_or_else(|| {
+        SymbolicError::InvalidOperation("Failed to get inner product".to_string())
+    })?;
 
     // |⟨ψ|φ⟩|² = ⟨ψ|φ⟩ * ⟨ψ|φ⟩*
     // For symbolic, we represent as (value)²
@@ -387,10 +411,7 @@ mod tests {
 
     #[test]
     fn test_density_matrix_pure() {
-        let state = SymbolicMatrix::new(vec![
-            vec![Expr::num(1)],
-            vec![Expr::num(0)],
-        ]).unwrap();
+        let state = SymbolicMatrix::new(vec![vec![Expr::num(1)], vec![Expr::num(0)]]).unwrap();
 
         let rho = density_matrix_pure_state(&state).unwrap();
         println!("ρ = |ψ⟩⟨ψ|:\n{}", rho);
@@ -404,10 +425,7 @@ mod tests {
 
     #[test]
     fn test_density_matrix_trace() {
-        let state = SymbolicMatrix::new(vec![
-            vec![Expr::num(1)],
-            vec![Expr::num(0)],
-        ]).unwrap();
+        let state = SymbolicMatrix::new(vec![vec![Expr::num(1)], vec![Expr::num(0)]]).unwrap();
 
         let rho = density_matrix_pure_state(&state).unwrap();
         let trace = density_matrix_trace(&rho).unwrap();

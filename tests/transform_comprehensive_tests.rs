@@ -9,8 +9,8 @@
 //! - Window Functions (Hamming, Hanning, Blackman, Kaiser)
 //! - Conformal Mappings
 
-use computational_engine::engine::*;
 use computational_engine::create_default_dispatcher;
+use computational_engine::engine::*;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -22,7 +22,9 @@ fn test_fft_forward() {
     let dispatcher = create_default_dispatcher();
 
     // Simple sine wave
-    let data: Vec<f64> = (0..64).map(|i| (2.0 * std::f64::consts::PI * i as f64 / 64.0).sin()).collect();
+    let data: Vec<f64> = (0..64)
+        .map(|i| (2.0 * std::f64::consts::PI * i as f64 / 64.0).sin())
+        .collect();
 
     let request = ToolRequest::Transform(TransformInput {
         transform_type: TransformType::FFT(FFTType::Forward),
@@ -46,7 +48,10 @@ fn test_fft_inverse() {
 
     let data = vec![1.0, 0.5, 0.25, 0.1];
     let mut params = HashMap::new();
-    params.insert("frequency_data".to_string(), serde_json::json!(data.clone()));
+    params.insert(
+        "frequency_data".to_string(),
+        serde_json::json!(data.clone()),
+    );
 
     let request = ToolRequest::Transform(TransformInput {
         transform_type: TransformType::FFT(FFTType::Inverse),
@@ -77,7 +82,11 @@ fn test_fourier_forward() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should handle Fourier forward transform: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should handle Fourier forward transform: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -94,7 +103,11 @@ fn test_fourier_inverse() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should handle Fourier inverse transform: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should handle Fourier inverse transform: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -115,7 +128,11 @@ fn test_laplace_forward() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should handle Laplace forward transform: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should handle Laplace forward transform: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -132,7 +149,11 @@ fn test_laplace_inverse() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should handle Laplace inverse transform: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should handle Laplace inverse transform: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -153,7 +174,11 @@ fn test_wavelet_haar() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute Haar wavelet transform: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute Haar wavelet transform: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -170,20 +195,29 @@ fn test_wavelet_daubechies() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute Daubechies wavelet transform: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute Daubechies wavelet transform: {:?}",
+        result
+    );
 }
 
 #[test]
 fn test_wavelet_morlet() {
     let dispatcher = create_default_dispatcher();
 
-    let data: Vec<f64> = (0..64).map(|i| {
-        let t = i as f64 / 64.0;
-        (2.0 * std::f64::consts::PI * 5.0 * t).sin()
-    }).collect();
+    let data: Vec<f64> = (0..64)
+        .map(|i| {
+            let t = i as f64 / 64.0;
+            (2.0 * std::f64::consts::PI * 5.0 * t).sin()
+        })
+        .collect();
 
     let mut params = HashMap::new();
-    params.insert("scales".to_string(), serde_json::json!([1.0, 2.0, 4.0, 8.0]));
+    params.insert(
+        "scales".to_string(),
+        serde_json::json!([1.0, 2.0, 4.0, 8.0]),
+    );
 
     let request = ToolRequest::Transform(TransformInput {
         transform_type: TransformType::Wavelet(WaveletType::Morlet),
@@ -193,17 +227,23 @@ fn test_wavelet_morlet() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute Morlet wavelet transform: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute Morlet wavelet transform: {:?}",
+        result
+    );
 }
 
 #[test]
 fn test_wavelet_mexican_hat() {
     let dispatcher = create_default_dispatcher();
 
-    let data: Vec<f64> = (0..64).map(|i| {
-        let t = i as f64 / 64.0;
-        (-t * t).exp()
-    }).collect();
+    let data: Vec<f64> = (0..64)
+        .map(|i| {
+            let t = i as f64 / 64.0;
+            (-t * t).exp()
+        })
+        .collect();
 
     let request = ToolRequest::Transform(TransformInput {
         transform_type: TransformType::Wavelet(WaveletType::Mexican),
@@ -213,7 +253,11 @@ fn test_wavelet_mexican_hat() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute Mexican Hat wavelet transform: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute Mexican Hat wavelet transform: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -224,10 +268,12 @@ fn test_wavelet_mexican_hat() {
 fn test_filter_lowpass() {
     let dispatcher = create_default_dispatcher();
 
-    let data: Vec<f64> = (0..100).map(|i| {
-        (2.0 * std::f64::consts::PI * 5.0 * i as f64 / 100.0).sin() +
-        0.5 * (2.0 * std::f64::consts::PI * 50.0 * i as f64 / 100.0).sin()
-    }).collect();
+    let data: Vec<f64> = (0..100)
+        .map(|i| {
+            (2.0 * std::f64::consts::PI * 5.0 * i as f64 / 100.0).sin()
+                + 0.5 * (2.0 * std::f64::consts::PI * 50.0 * i as f64 / 100.0).sin()
+        })
+        .collect();
 
     let mut params = HashMap::new();
     params.insert("cutoff".to_string(), serde_json::json!(10.0));
@@ -247,9 +293,9 @@ fn test_filter_lowpass() {
 fn test_filter_highpass() {
     let dispatcher = create_default_dispatcher();
 
-    let data: Vec<f64> = (0..100).map(|i| {
-        (2.0 * std::f64::consts::PI * 5.0 * i as f64 / 100.0).sin()
-    }).collect();
+    let data: Vec<f64> = (0..100)
+        .map(|i| (2.0 * std::f64::consts::PI * 5.0 * i as f64 / 100.0).sin())
+        .collect();
 
     let mut params = HashMap::new();
     params.insert("cutoff".to_string(), serde_json::json!(50.0));
@@ -405,7 +451,11 @@ fn test_conformal_mobius() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should handle Möbius conformal mapping: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should handle Möbius conformal mapping: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -424,7 +474,11 @@ fn test_conformal_joukowski() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should handle Joukowski conformal mapping: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should handle Joukowski conformal mapping: {:?}",
+        result
+    );
 }
 
 // ============================================================================

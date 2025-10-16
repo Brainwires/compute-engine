@@ -7,7 +7,8 @@ fn test_statistics() {
     let result = statistics(StatisticsRequest {
         data,
         operations: None,
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.mean.is_some());
     assert!(result.median.is_some());
@@ -21,8 +22,13 @@ fn test_statistics_mean_median_mode() {
 
     let result = statistics(StatisticsRequest {
         data,
-        operations: Some(vec!["mean".to_string(), "median".to_string(), "mode".to_string()]),
-    }).unwrap();
+        operations: Some(vec![
+            "mean".to_string(),
+            "median".to_string(),
+            "mode".to_string(),
+        ]),
+    })
+    .unwrap();
 
     assert_eq!(result.mean.unwrap(), 2.8333333333333335);
     assert_eq!(result.median.unwrap(), 2.5);
@@ -36,7 +42,8 @@ fn test_statistics_quartiles() {
     let result = statistics(StatisticsRequest {
         data,
         operations: Some(vec!["quartiles".to_string()]),
-    }).unwrap();
+    })
+    .unwrap();
 
     let quartiles = result.quartiles.unwrap();
     assert!(quartiles.q1 > 0.0);
@@ -52,7 +59,8 @@ fn test_statistics_skewness_kurtosis() {
     let result = statistics(StatisticsRequest {
         data,
         operations: Some(vec!["skewness".to_string(), "kurtosis".to_string()]),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.skewness.is_some());
     assert!(result.kurtosis.is_some());
@@ -64,8 +72,14 @@ fn test_statistics_min_max_sum_count() {
 
     let result = statistics(StatisticsRequest {
         data: data.clone(),
-        operations: Some(vec!["min".to_string(), "max".to_string(), "sum".to_string(), "count".to_string()]),
-    }).unwrap();
+        operations: Some(vec![
+            "min".to_string(),
+            "max".to_string(),
+            "sum".to_string(),
+            "count".to_string(),
+        ]),
+    })
+    .unwrap();
 
     assert_eq!(result.min.unwrap(), 1.0);
     assert_eq!(result.max.unwrap(), 9.0);
@@ -80,7 +94,8 @@ fn test_statistics_variance_std() {
     let result = statistics(StatisticsRequest {
         data,
         operations: Some(vec!["variance".to_string(), "std".to_string()]),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.variance.unwrap() > 0.0);
     assert!(result.std.unwrap() > 0.0);
@@ -94,7 +109,8 @@ fn test_statistics_selective_operations() {
     let result = statistics(StatisticsRequest {
         data,
         operations: Some(vec!["mean".to_string(), "std".to_string()]),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.mean.is_some());
     assert!(result.std.is_some());
@@ -108,7 +124,8 @@ fn test_monte_carlo() {
         function: "x^2".to_string(),
         bounds: vec![(0.0, 1.0)],
         samples: 10000,
-    }).unwrap();
+    })
+    .unwrap();
 
     // Integral of x^2 from 0 to 1 is 1/3 ≈ 0.333
     assert!((result.integral_estimate - 0.333).abs() < 0.1);
@@ -120,7 +137,8 @@ fn test_monte_carlo_2d() {
         function: "x^2 + y^2".to_string(),
         bounds: vec![(0.0, 1.0), (0.0, 1.0)],
         samples: 10000,
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.integral_estimate > 0.0);
     assert!(result.standard_error > 0.0);
@@ -133,7 +151,8 @@ fn test_monte_carlo_3d() {
         function: "x^2 + y^2 + z^2".to_string(),
         bounds: vec![(0.0, 1.0), (0.0, 1.0), (0.0, 1.0)],
         samples: 10000,
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.integral_estimate > 0.0);
     assert!(result.standard_error > 0.0);
@@ -147,7 +166,8 @@ fn test_mcmc() {
         samples: 1000,
         burn_in: 100,
         initial_state: vec![0.0],
-    }).unwrap();
+    })
+    .unwrap();
 
     assert_eq!(result.samples.len(), 1000);
     assert!(result.acceptance_rate > 0.0);
@@ -161,7 +181,8 @@ fn test_mcmc_multidimensional() {
         samples: 500,
         burn_in: 50,
         initial_state: vec![0.0, 0.0, 0.0],
-    }).unwrap();
+    })
+    .unwrap();
 
     assert_eq!(result.samples.len(), 500);
     assert!(result.acceptance_rate > 0.0 && result.acceptance_rate < 1.0);
@@ -176,7 +197,8 @@ fn test_mcmc_different_initial_states() {
         samples: 100,
         burn_in: 20,
         initial_state: vec![0.0],
-    }).unwrap();
+    })
+    .unwrap();
 
     let result2 = mcmc_sampling(MCMCRequest {
         target_distribution: "normal".to_string(),
@@ -184,7 +206,8 @@ fn test_mcmc_different_initial_states() {
         samples: 100,
         burn_in: 20,
         initial_state: vec![10.0],
-    }).unwrap();
+    })
+    .unwrap();
 
     assert_eq!(result1.samples.len(), 100);
     assert_eq!(result2.samples.len(), 100);
@@ -199,7 +222,8 @@ fn test_correlation() {
         x,
         y,
         method: "pearson".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!((result.correlation - 1.0).abs() < 1e-10);
 }
@@ -213,7 +237,8 @@ fn test_correlation_negative() {
         x,
         y,
         method: "pearson".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!((result.correlation + 1.0).abs() < 1e-10);
 }
@@ -227,7 +252,8 @@ fn test_correlation_uncorrelated() {
         x,
         y,
         method: "pearson".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     // Correlation should be weak (not perfect)
     assert!(result.correlation.abs() < 1.0);
@@ -242,7 +268,8 @@ fn test_correlation_spearman() {
         x,
         y,
         method: "spearman".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!((result.correlation - 1.0).abs() < 1e-10);
 }
@@ -273,7 +300,11 @@ fn test_kl_divergence_js_symmetric() {
     let p = vec![0.7, 0.3];
     let q = vec![0.3, 0.7];
 
-    let result1 = kl_divergence(KLDivergenceRequest { p: p.clone(), q: q.clone() }).unwrap();
+    let result1 = kl_divergence(KLDivergenceRequest {
+        p: p.clone(),
+        q: q.clone(),
+    })
+    .unwrap();
     let result2 = kl_divergence(KLDivergenceRequest { p: q, q: p }).unwrap();
 
     // Both should compute valid divergences
@@ -288,11 +319,7 @@ fn test_mutual_information() {
     let x = vec![1.0, 2.0, 3.0, 4.0, 5.0];
     let y = vec![1.0, 2.0, 3.0, 4.0, 5.0];
 
-    let result = mutual_information(MutualInformationRequest {
-        x,
-        y,
-        bins: 5,
-    }).unwrap();
+    let result = mutual_information(MutualInformationRequest { x, y, bins: 5 }).unwrap();
 
     assert!(result.mutual_information >= 0.0);
 }
@@ -303,11 +330,7 @@ fn test_mutual_information_independent() {
     let x = vec![1.0, 1.0, 2.0, 2.0, 3.0, 3.0];
     let y = vec![1.0, 2.0, 1.0, 2.0, 1.0, 2.0];
 
-    let result = mutual_information(MutualInformationRequest {
-        x,
-        y,
-        bins: 3,
-    }).unwrap();
+    let result = mutual_information(MutualInformationRequest { x, y, bins: 3 }).unwrap();
 
     // Independent variables should have low MI
     assert!(result.mutual_information < 1.0);
@@ -322,13 +345,10 @@ fn test_mutual_information_bins() {
         x: x.clone(),
         y: y.clone(),
         bins: 2,
-    }).unwrap();
+    })
+    .unwrap();
 
-    let result_large = mutual_information(MutualInformationRequest {
-        x,
-        y,
-        bins: 4,
-    }).unwrap();
+    let result_large = mutual_information(MutualInformationRequest { x, y, bins: 4 }).unwrap();
 
     assert!(result_small.mutual_information > 0.0);
     assert!(result_large.mutual_information > 0.0);

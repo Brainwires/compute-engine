@@ -4,8 +4,16 @@ use computational_engine::graph_theory::*;
 fn test_shortest_path() {
     // Simple directed graph: A -> B -> D
     let edges = vec![
-        Edge { from: "A".to_string(), to: "B".to_string(), weight: Some(1.0) },
-        Edge { from: "B".to_string(), to: "D".to_string(), weight: Some(1.0) },
+        Edge {
+            from: "A".to_string(),
+            to: "B".to_string(),
+            weight: Some(1.0),
+        },
+        Edge {
+            from: "B".to_string(),
+            to: "D".to_string(),
+            weight: Some(1.0),
+        },
     ];
 
     let graph = Graph {
@@ -17,9 +25,13 @@ fn test_shortest_path() {
         graph,
         source: "A".to_string(),
         target: "D".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
-    println!("Result: found={}, distance={}, path={:?}", result.found, result.distance, result.path);
+    println!(
+        "Result: found={}, distance={}, path={:?}",
+        result.found, result.distance, result.path
+    );
 
     assert!(result.found, "Path should be found");
     assert_eq!(result.distance, 2.0);
@@ -29,19 +41,62 @@ fn test_shortest_path() {
 #[test]
 fn test_shortest_path_weighted() {
     let edges = vec![
-        Edge { from: "A".to_string(), to: "B".to_string(), weight: Some(7.0) },
-        Edge { from: "A".to_string(), to: "C".to_string(), weight: Some(9.0) },
-        Edge { from: "A".to_string(), to: "F".to_string(), weight: Some(14.0) },
-        Edge { from: "B".to_string(), to: "C".to_string(), weight: Some(10.0) },
-        Edge { from: "B".to_string(), to: "D".to_string(), weight: Some(15.0) },
-        Edge { from: "C".to_string(), to: "D".to_string(), weight: Some(11.0) },
-        Edge { from: "C".to_string(), to: "F".to_string(), weight: Some(2.0) },
-        Edge { from: "D".to_string(), to: "E".to_string(), weight: Some(6.0) },
-        Edge { from: "E".to_string(), to: "F".to_string(), weight: Some(9.0) },
+        Edge {
+            from: "A".to_string(),
+            to: "B".to_string(),
+            weight: Some(7.0),
+        },
+        Edge {
+            from: "A".to_string(),
+            to: "C".to_string(),
+            weight: Some(9.0),
+        },
+        Edge {
+            from: "A".to_string(),
+            to: "F".to_string(),
+            weight: Some(14.0),
+        },
+        Edge {
+            from: "B".to_string(),
+            to: "C".to_string(),
+            weight: Some(10.0),
+        },
+        Edge {
+            from: "B".to_string(),
+            to: "D".to_string(),
+            weight: Some(15.0),
+        },
+        Edge {
+            from: "C".to_string(),
+            to: "D".to_string(),
+            weight: Some(11.0),
+        },
+        Edge {
+            from: "C".to_string(),
+            to: "F".to_string(),
+            weight: Some(2.0),
+        },
+        Edge {
+            from: "D".to_string(),
+            to: "E".to_string(),
+            weight: Some(6.0),
+        },
+        Edge {
+            from: "E".to_string(),
+            to: "F".to_string(),
+            weight: Some(9.0),
+        },
     ];
 
     let graph = Graph {
-        nodes: vec!["A".to_string(), "B".to_string(), "C".to_string(), "D".to_string(), "E".to_string(), "F".to_string()],
+        nodes: vec![
+            "A".to_string(),
+            "B".to_string(),
+            "C".to_string(),
+            "D".to_string(),
+            "E".to_string(),
+            "F".to_string(),
+        ],
         edges,
     };
 
@@ -49,7 +104,8 @@ fn test_shortest_path_weighted() {
         graph,
         source: "A".to_string(),
         target: "E".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.found);
     assert!(result.distance < 30.0); // Should find efficient path
@@ -58,12 +114,25 @@ fn test_shortest_path_weighted() {
 #[test]
 fn test_shortest_path_no_path() {
     let edges = vec![
-        Edge { from: "A".to_string(), to: "B".to_string(), weight: Some(1.0) },
-        Edge { from: "C".to_string(), to: "D".to_string(), weight: Some(1.0) },
+        Edge {
+            from: "A".to_string(),
+            to: "B".to_string(),
+            weight: Some(1.0),
+        },
+        Edge {
+            from: "C".to_string(),
+            to: "D".to_string(),
+            weight: Some(1.0),
+        },
     ];
 
     let graph = Graph {
-        nodes: vec!["A".to_string(), "B".to_string(), "C".to_string(), "D".to_string()],
+        nodes: vec![
+            "A".to_string(),
+            "B".to_string(),
+            "C".to_string(),
+            "D".to_string(),
+        ],
         edges,
     };
 
@@ -71,7 +140,8 @@ fn test_shortest_path_no_path() {
         graph,
         source: "A".to_string(),
         target: "D".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(!result.found);
     assert!(result.distance.is_infinite());
@@ -80,8 +150,16 @@ fn test_shortest_path_no_path() {
 #[test]
 fn test_shortest_path_self_loop() {
     let edges = vec![
-        Edge { from: "A".to_string(), to: "A".to_string(), weight: Some(5.0) },
-        Edge { from: "A".to_string(), to: "B".to_string(), weight: Some(3.0) },
+        Edge {
+            from: "A".to_string(),
+            to: "A".to_string(),
+            weight: Some(5.0),
+        },
+        Edge {
+            from: "A".to_string(),
+            to: "B".to_string(),
+            weight: Some(3.0),
+        },
     ];
 
     let graph = Graph {
@@ -93,7 +171,8 @@ fn test_shortest_path_self_loop() {
         graph,
         source: "A".to_string(),
         target: "B".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.found);
     assert_eq!(result.distance, 3.0);
@@ -102,15 +181,40 @@ fn test_shortest_path_self_loop() {
 #[test]
 fn test_minimum_spanning_tree() {
     let edges = vec![
-        Edge { from: "A".to_string(), to: "B".to_string(), weight: Some(4.0) },
-        Edge { from: "A".to_string(), to: "C".to_string(), weight: Some(2.0) },
-        Edge { from: "B".to_string(), to: "C".to_string(), weight: Some(1.0) },
-        Edge { from: "B".to_string(), to: "D".to_string(), weight: Some(5.0) },
-        Edge { from: "C".to_string(), to: "D".to_string(), weight: Some(8.0) },
+        Edge {
+            from: "A".to_string(),
+            to: "B".to_string(),
+            weight: Some(4.0),
+        },
+        Edge {
+            from: "A".to_string(),
+            to: "C".to_string(),
+            weight: Some(2.0),
+        },
+        Edge {
+            from: "B".to_string(),
+            to: "C".to_string(),
+            weight: Some(1.0),
+        },
+        Edge {
+            from: "B".to_string(),
+            to: "D".to_string(),
+            weight: Some(5.0),
+        },
+        Edge {
+            from: "C".to_string(),
+            to: "D".to_string(),
+            weight: Some(8.0),
+        },
     ];
 
     let graph = Graph {
-        nodes: vec!["A".to_string(), "B".to_string(), "C".to_string(), "D".to_string()],
+        nodes: vec![
+            "A".to_string(),
+            "B".to_string(),
+            "C".to_string(),
+            "D".to_string(),
+        ],
         edges,
     };
 
@@ -124,9 +228,21 @@ fn test_minimum_spanning_tree() {
 #[test]
 fn test_minimum_spanning_tree_complete_graph() {
     let edges = vec![
-        Edge { from: "A".to_string(), to: "B".to_string(), weight: Some(1.0) },
-        Edge { from: "A".to_string(), to: "C".to_string(), weight: Some(3.0) },
-        Edge { from: "B".to_string(), to: "C".to_string(), weight: Some(2.0) },
+        Edge {
+            from: "A".to_string(),
+            to: "B".to_string(),
+            weight: Some(1.0),
+        },
+        Edge {
+            from: "A".to_string(),
+            to: "C".to_string(),
+            weight: Some(3.0),
+        },
+        Edge {
+            from: "B".to_string(),
+            to: "C".to_string(),
+            weight: Some(2.0),
+        },
     ];
 
     let graph = Graph {
@@ -157,12 +273,25 @@ fn test_minimum_spanning_tree_single_node() {
 #[test]
 fn test_connected_components() {
     let edges = vec![
-        Edge { from: "A".to_string(), to: "B".to_string(), weight: None },
-        Edge { from: "C".to_string(), to: "D".to_string(), weight: None },
+        Edge {
+            from: "A".to_string(),
+            to: "B".to_string(),
+            weight: None,
+        },
+        Edge {
+            from: "C".to_string(),
+            to: "D".to_string(),
+            weight: None,
+        },
     ];
 
     let graph = Graph {
-        nodes: vec!["A".to_string(), "B".to_string(), "C".to_string(), "D".to_string()],
+        nodes: vec![
+            "A".to_string(),
+            "B".to_string(),
+            "C".to_string(),
+            "D".to_string(),
+        ],
         edges,
     };
 
@@ -175,13 +304,30 @@ fn test_connected_components() {
 #[test]
 fn test_connected_components_single() {
     let edges = vec![
-        Edge { from: "A".to_string(), to: "B".to_string(), weight: None },
-        Edge { from: "B".to_string(), to: "C".to_string(), weight: None },
-        Edge { from: "C".to_string(), to: "D".to_string(), weight: None },
+        Edge {
+            from: "A".to_string(),
+            to: "B".to_string(),
+            weight: None,
+        },
+        Edge {
+            from: "B".to_string(),
+            to: "C".to_string(),
+            weight: None,
+        },
+        Edge {
+            from: "C".to_string(),
+            to: "D".to_string(),
+            weight: None,
+        },
     ];
 
     let graph = Graph {
-        nodes: vec!["A".to_string(), "B".to_string(), "C".to_string(), "D".to_string()],
+        nodes: vec![
+            "A".to_string(),
+            "B".to_string(),
+            "C".to_string(),
+            "D".to_string(),
+        ],
         edges,
     };
 
@@ -210,14 +356,35 @@ fn test_connected_components_isolated_nodes() {
 #[test]
 fn test_topological_sort() {
     let edges = vec![
-        Edge { from: "A".to_string(), to: "B".to_string(), weight: None },
-        Edge { from: "A".to_string(), to: "C".to_string(), weight: None },
-        Edge { from: "B".to_string(), to: "D".to_string(), weight: None },
-        Edge { from: "C".to_string(), to: "D".to_string(), weight: None },
+        Edge {
+            from: "A".to_string(),
+            to: "B".to_string(),
+            weight: None,
+        },
+        Edge {
+            from: "A".to_string(),
+            to: "C".to_string(),
+            weight: None,
+        },
+        Edge {
+            from: "B".to_string(),
+            to: "D".to_string(),
+            weight: None,
+        },
+        Edge {
+            from: "C".to_string(),
+            to: "D".to_string(),
+            weight: None,
+        },
     ];
 
     let graph = Graph {
-        nodes: vec!["A".to_string(), "B".to_string(), "C".to_string(), "D".to_string()],
+        nodes: vec![
+            "A".to_string(),
+            "B".to_string(),
+            "C".to_string(),
+            "D".to_string(),
+        ],
         edges,
     };
 
@@ -233,13 +400,30 @@ fn test_topological_sort() {
 #[test]
 fn test_topological_sort_linear() {
     let edges = vec![
-        Edge { from: "A".to_string(), to: "B".to_string(), weight: None },
-        Edge { from: "B".to_string(), to: "C".to_string(), weight: None },
-        Edge { from: "C".to_string(), to: "D".to_string(), weight: None },
+        Edge {
+            from: "A".to_string(),
+            to: "B".to_string(),
+            weight: None,
+        },
+        Edge {
+            from: "B".to_string(),
+            to: "C".to_string(),
+            weight: None,
+        },
+        Edge {
+            from: "C".to_string(),
+            to: "D".to_string(),
+            weight: None,
+        },
     ];
 
     let graph = Graph {
-        nodes: vec!["A".to_string(), "B".to_string(), "C".to_string(), "D".to_string()],
+        nodes: vec![
+            "A".to_string(),
+            "B".to_string(),
+            "C".to_string(),
+            "D".to_string(),
+        ],
         edges,
     };
 
@@ -252,9 +436,21 @@ fn test_topological_sort_linear() {
 #[test]
 fn test_topological_sort_cycle_detection() {
     let edges = vec![
-        Edge { from: "A".to_string(), to: "B".to_string(), weight: None },
-        Edge { from: "B".to_string(), to: "C".to_string(), weight: None },
-        Edge { from: "C".to_string(), to: "A".to_string(), weight: None },
+        Edge {
+            from: "A".to_string(),
+            to: "B".to_string(),
+            weight: None,
+        },
+        Edge {
+            from: "B".to_string(),
+            to: "C".to_string(),
+            weight: None,
+        },
+        Edge {
+            from: "C".to_string(),
+            to: "A".to_string(),
+            weight: None,
+        },
     ];
 
     let graph = Graph {
@@ -270,9 +466,21 @@ fn test_topological_sort_cycle_detection() {
 #[test]
 fn test_graph_properties() {
     let edges = vec![
-        Edge { from: "A".to_string(), to: "B".to_string(), weight: None },
-        Edge { from: "B".to_string(), to: "C".to_string(), weight: None },
-        Edge { from: "C".to_string(), to: "A".to_string(), weight: None },
+        Edge {
+            from: "A".to_string(),
+            to: "B".to_string(),
+            weight: None,
+        },
+        Edge {
+            from: "B".to_string(),
+            to: "C".to_string(),
+            weight: None,
+        },
+        Edge {
+            from: "C".to_string(),
+            to: "A".to_string(),
+            weight: None,
+        },
     ];
 
     let graph = Graph {
@@ -282,8 +490,9 @@ fn test_graph_properties() {
 
     let result = graph_properties(GraphPropertiesRequest {
         graph,
-        directed: false
-    }).unwrap();
+        directed: false,
+    })
+    .unwrap();
 
     assert_eq!(result.node_count, 3);
     assert_eq!(result.edge_count, 3);
@@ -293,8 +502,16 @@ fn test_graph_properties() {
 #[test]
 fn test_graph_properties_directed() {
     let edges = vec![
-        Edge { from: "A".to_string(), to: "B".to_string(), weight: None },
-        Edge { from: "B".to_string(), to: "C".to_string(), weight: None },
+        Edge {
+            from: "A".to_string(),
+            to: "B".to_string(),
+            weight: None,
+        },
+        Edge {
+            from: "B".to_string(),
+            to: "C".to_string(),
+            weight: None,
+        },
     ];
 
     let graph = Graph {
@@ -304,8 +521,9 @@ fn test_graph_properties_directed() {
 
     let result = graph_properties(GraphPropertiesRequest {
         graph,
-        directed: true
-    }).unwrap();
+        directed: true,
+    })
+    .unwrap();
 
     assert_eq!(result.node_count, 3);
     assert_eq!(result.edge_count, 2);
@@ -317,9 +535,21 @@ fn test_graph_properties_directed() {
 #[test]
 fn test_graph_properties_complete_graph() {
     let edges = vec![
-        Edge { from: "A".to_string(), to: "B".to_string(), weight: None },
-        Edge { from: "A".to_string(), to: "C".to_string(), weight: None },
-        Edge { from: "B".to_string(), to: "C".to_string(), weight: None },
+        Edge {
+            from: "A".to_string(),
+            to: "B".to_string(),
+            weight: None,
+        },
+        Edge {
+            from: "A".to_string(),
+            to: "C".to_string(),
+            weight: None,
+        },
+        Edge {
+            from: "B".to_string(),
+            to: "C".to_string(),
+            weight: None,
+        },
     ];
 
     let graph = Graph {
@@ -329,8 +559,9 @@ fn test_graph_properties_complete_graph() {
 
     let result = graph_properties(GraphPropertiesRequest {
         graph,
-        directed: false
-    }).unwrap();
+        directed: false,
+    })
+    .unwrap();
 
     assert_eq!(result.density, 1.0); // Complete graph has maximum density
     assert!(result.is_connected);
@@ -338,9 +569,11 @@ fn test_graph_properties_complete_graph() {
 
 #[test]
 fn test_graph_properties_disconnected() {
-    let edges = vec![
-        Edge { from: "A".to_string(), to: "B".to_string(), weight: None },
-    ];
+    let edges = vec![Edge {
+        from: "A".to_string(),
+        to: "B".to_string(),
+        weight: None,
+    }];
 
     let graph = Graph {
         nodes: vec!["A".to_string(), "B".to_string(), "C".to_string()],
@@ -349,8 +582,9 @@ fn test_graph_properties_disconnected() {
 
     let result = graph_properties(GraphPropertiesRequest {
         graph,
-        directed: false
-    }).unwrap();
+        directed: false,
+    })
+    .unwrap();
 
     assert!(!result.is_connected);
 }

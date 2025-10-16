@@ -76,13 +76,13 @@ pub mod implementations;
 pub mod mcp_server;
 
 // Scientific formula modules (NEW - 2025 Expansion)
-pub mod chemistry;
 pub mod biology;
-pub mod thermodynamics;
-pub mod optics;
-pub mod geophysics;
-pub mod engineering;
+pub mod chemistry;
 pub mod datetime;
+pub mod engineering;
+pub mod geophysics;
+pub mod optics;
+pub mod thermodynamics;
 
 // WebAssembly bindings (when compiled with wasm feature)
 #[cfg(feature = "wasm")]
@@ -91,29 +91,29 @@ pub mod wasm;
 // Domain modules (Legacy - for implementation)
 pub mod mathematics;
 pub mod physics;
-pub mod tools;
 pub mod specialized;
+pub mod tools;
 
 // Backwards compatibility - re-export modules at top level
-pub use mathematics::tensor_calculus;
 pub use mathematics::advanced_calculus;
 pub use mathematics::linear_algebra;
-pub use mathematics::symbolic_regression;
 pub use mathematics::special_functions;
+pub use mathematics::symbolic_regression;
+pub use mathematics::tensor_calculus;
+pub use physics::electromagnetism;
 pub use physics::fluid_dynamics;
 pub use physics::quantum_physics;
-pub use physics::electromagnetism;
-pub use tools::signal_processing;
-pub use tools::dimensional_analysis;
-pub use tools::equation_validation;
-pub use tools::computational_geometry;
-pub use tools::numerical_methods;
-pub use specialized::stochastic_processes;
 pub use specialized::cryptographic_mathematics;
-pub use specialized::statistics;
-pub use specialized::optimization;
 pub use specialized::graph_theory;
 pub use specialized::information_theory;
+pub use specialized::optimization;
+pub use specialized::statistics;
+pub use specialized::stochastic_processes;
+pub use tools::computational_geometry;
+pub use tools::dimensional_analysis;
+pub use tools::equation_validation;
+pub use tools::numerical_methods;
+pub use tools::signal_processing;
 // Note: specialized::chemistry has been replaced by the new chemistry module
 
 // Unified API for all operations
@@ -121,35 +121,70 @@ pub mod api;
 
 // Re-export new engine types (Recommended)
 pub use engine::{
-    // Traits
-    Solve, Differentiate, Integrate, Analyze, Simulate,
-    Compute, Transform, FieldTheory, Sample, Optimize,
-    // Types
-    SolveInput, SolveOutput,
-    DifferentiateInput, DifferentiateOutput,
-    IntegrateInput, IntegrateOutput,
-    AnalyzeInput, AnalyzeOutput,
-    SimulateInput, SimulateOutput,
-    ComputeInput, ComputeOutput,
-    TransformInput, TransformOutput,
-    FieldTheoryInput, FieldTheoryOutput,
-    SampleInput, SampleOutput,
-    OptimizeInput, OptimizeOutput,
-    // Dispatcher
-    ToolDispatcher, ToolRequest, ToolResponse, ToolResult,
+    AnalysisOp,
+    Analyze,
+    AnalyzeInput,
+    AnalyzeOutput,
+    ChemicalEquation,
+    Compute,
+    ComputeInput,
+    ComputeOp,
+    ComputeOutput,
+    DifferentialEquation,
+    Differentiate,
+    DifferentiateInput,
+    DifferentiateOutput,
+    DifferentiationOp,
+    EMEquation,
+    EinsteinEquation,
     // Equation types
-    EquationType, EinsteinEquation, FluidEquation, DifferentialEquation,
-    EMEquation, ChemicalEquation, DifferentiationOp, IntegrationType,
-    AnalysisOp, SimulationModel, ComputeOp, TransformType, FieldType,
-    SamplingMethod, OptimizationMethod,
+    EquationType,
+    FieldTheory,
+    FieldTheoryInput,
+    FieldTheoryOutput,
+    FieldType,
+    FluidEquation,
+    Integrate,
+    IntegrateInput,
+    IntegrateOutput,
+    IntegrationType,
+    OptimizationMethod,
+    Optimize,
+    OptimizeInput,
+    OptimizeOutput,
+    Sample,
+    SampleInput,
+    SampleOutput,
+    SamplingMethod,
+    Simulate,
+    SimulateInput,
+    SimulateOutput,
+    SimulationModel,
+    // Traits
+    Solve,
+    // Types
+    SolveInput,
+    SolveOutput,
+    // Dispatcher
+    ToolDispatcher,
+    ToolRequest,
+    ToolResponse,
+    ToolResult,
+    Transform,
+    TransformInput,
+    TransformOutput,
+    TransformType,
 };
 
 // Re-export implementation helper
 pub use implementations::create_default_dispatcher;
 
 // Re-export legacy API (Still supported for backwards compatibility)
+pub use api::{
+    ComputationRequest, ComputationResponse, list_all_operations, process_json_request,
+    process_request,
+};
 pub use tensor_calculus::TensorError;
-pub use api::{ComputationRequest, ComputationResponse, process_request, process_json_request, list_all_operations};
 
 /// Common result type for computational operations
 pub type ComputationalResult<T> = Result<T, Box<dyn std::error::Error>>;
@@ -165,6 +200,6 @@ mod tests {
     #[test]
     fn test_version() {
         assert!(!VERSION.is_empty());
-        assert_eq!(NAME, "computational-engine");
+        assert_eq!(NAME, "brainwires-compute-engine");
     }
 }

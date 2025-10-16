@@ -23,13 +23,13 @@
 //! }));
 //! ```
 
-use wasm_bindgen::prelude::*;
-use serde::{Deserialize, Serialize};
 use crate::{
+    api::process_json_request,
     engine::{ToolRequest, ToolResponse},
     implementations::create_default_dispatcher,
-    api::process_json_request,
 };
+use serde::{Deserialize, Serialize};
+use wasm_bindgen::prelude::*;
 
 /// Set panic hook for better error messages in WASM
 #[wasm_bindgen(start)]
@@ -74,11 +74,12 @@ impl ComputationalEngine {
             Ok(tool_request) => {
                 let dispatcher = create_default_dispatcher();
                 match dispatcher.dispatch(tool_request) {
-                    Ok(response) => {
-                        serde_json::to_string(&response).unwrap_or_else(|e| {
-                            format!(r#"{{"success":false,"error":"Serialization error: {}"}}"#, e)
-                        })
-                    }
+                    Ok(response) => serde_json::to_string(&response).unwrap_or_else(|e| {
+                        format!(
+                            r#"{{"success":false,"error":"Serialization error: {}"}}"#,
+                            e
+                        )
+                    }),
                     Err(e) => {
                         format!(r#"{{"success":false,"error":"{}"}}"#, e)
                     }
@@ -107,10 +108,8 @@ impl ComputationalEngine {
         let dispatcher = create_default_dispatcher();
 
         match dispatcher.dispatch(request) {
-            Ok(response) => {
-                serde_wasm_bindgen::to_value(&response)
-                    .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e)))
-            }
+            Ok(response) => serde_wasm_bindgen::to_value(&response)
+                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
             Err(e) => Err(JsValue::from_str(&e)),
         }
     }
@@ -118,17 +117,16 @@ impl ComputationalEngine {
     /// Differentiate expressions
     #[wasm_bindgen(js_name = differentiate)]
     pub fn differentiate(&self, input: JsValue) -> Result<JsValue, JsValue> {
-        let diff_input: crate::engine::DifferentiateInput = serde_wasm_bindgen::from_value(input)
-            .map_err(|e| JsValue::from_str(&format!("Invalid input: {}", e)))?;
+        let diff_input: crate::engine::DifferentiateInput =
+            serde_wasm_bindgen::from_value(input)
+                .map_err(|e| JsValue::from_str(&format!("Invalid input: {}", e)))?;
 
         let request = ToolRequest::Differentiate(diff_input);
         let dispatcher = create_default_dispatcher();
 
         match dispatcher.dispatch(request) {
-            Ok(response) => {
-                serde_wasm_bindgen::to_value(&response)
-                    .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e)))
-            }
+            Ok(response) => serde_wasm_bindgen::to_value(&response)
+                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
             Err(e) => Err(JsValue::from_str(&e)),
         }
     }
@@ -143,10 +141,8 @@ impl ComputationalEngine {
         let dispatcher = create_default_dispatcher();
 
         match dispatcher.dispatch(request) {
-            Ok(response) => {
-                serde_wasm_bindgen::to_value(&response)
-                    .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e)))
-            }
+            Ok(response) => serde_wasm_bindgen::to_value(&response)
+                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
             Err(e) => Err(JsValue::from_str(&e)),
         }
     }
@@ -161,10 +157,8 @@ impl ComputationalEngine {
         let dispatcher = create_default_dispatcher();
 
         match dispatcher.dispatch(request) {
-            Ok(response) => {
-                serde_wasm_bindgen::to_value(&response)
-                    .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e)))
-            }
+            Ok(response) => serde_wasm_bindgen::to_value(&response)
+                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
             Err(e) => Err(JsValue::from_str(&e)),
         }
     }
@@ -179,10 +173,8 @@ impl ComputationalEngine {
         let dispatcher = create_default_dispatcher();
 
         match dispatcher.dispatch(request) {
-            Ok(response) => {
-                serde_wasm_bindgen::to_value(&response)
-                    .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e)))
-            }
+            Ok(response) => serde_wasm_bindgen::to_value(&response)
+                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
             Err(e) => Err(JsValue::from_str(&e)),
         }
     }
@@ -197,10 +189,8 @@ impl ComputationalEngine {
         let dispatcher = create_default_dispatcher();
 
         match dispatcher.dispatch(request) {
-            Ok(response) => {
-                serde_wasm_bindgen::to_value(&response)
-                    .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e)))
-            }
+            Ok(response) => serde_wasm_bindgen::to_value(&response)
+                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
             Err(e) => Err(JsValue::from_str(&e)),
         }
     }
@@ -215,10 +205,8 @@ impl ComputationalEngine {
         let dispatcher = create_default_dispatcher();
 
         match dispatcher.dispatch(request) {
-            Ok(response) => {
-                serde_wasm_bindgen::to_value(&response)
-                    .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e)))
-            }
+            Ok(response) => serde_wasm_bindgen::to_value(&response)
+                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
             Err(e) => Err(JsValue::from_str(&e)),
         }
     }
@@ -233,10 +221,8 @@ impl ComputationalEngine {
         let dispatcher = create_default_dispatcher();
 
         match dispatcher.dispatch(request) {
-            Ok(response) => {
-                serde_wasm_bindgen::to_value(&response)
-                    .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e)))
-            }
+            Ok(response) => serde_wasm_bindgen::to_value(&response)
+                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
             Err(e) => Err(JsValue::from_str(&e)),
         }
     }
@@ -251,10 +237,8 @@ impl ComputationalEngine {
         let dispatcher = create_default_dispatcher();
 
         match dispatcher.dispatch(request) {
-            Ok(response) => {
-                serde_wasm_bindgen::to_value(&response)
-                    .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e)))
-            }
+            Ok(response) => serde_wasm_bindgen::to_value(&response)
+                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
             Err(e) => Err(JsValue::from_str(&e)),
         }
     }
@@ -269,10 +253,8 @@ impl ComputationalEngine {
         let dispatcher = create_default_dispatcher();
 
         match dispatcher.dispatch(request) {
-            Ok(response) => {
-                serde_wasm_bindgen::to_value(&response)
-                    .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e)))
-            }
+            Ok(response) => serde_wasm_bindgen::to_value(&response)
+                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
             Err(e) => Err(JsValue::from_str(&e)),
         }
     }

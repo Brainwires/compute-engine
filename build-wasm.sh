@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Building computational-engine for WebAssembly..."
+echo "Building brainwires-compute-engine for WebAssembly..."
 
 # Check if wasm-pack is installed
 if ! command -v wasm-pack &> /dev/null; then
@@ -41,5 +41,5 @@ echo "  - pkg/          (bundler - for client-side webpack/rollup/vite)"
 echo "  - pkg/nodejs/   (nodejs - for server-side API routes)"
 echo ""
 echo "Usage in Next.js:"
-echo "  Client: import from '../rust/computational-engine/pkg/computational_engine.js'"
-echo "  Server: import from '../rust/computational-engine/pkg/nodejs/computational_engine.js'"
+echo "  Client: import from '../rust/brainwires-compute-engine/pkg/computational_engine.js'"
+echo "  Server: import from '../rust/brainwires-compute-engine/pkg/nodejs/computational_engine.js'"

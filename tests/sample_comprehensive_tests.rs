@@ -6,8 +6,8 @@
 //! - Signal Analysis (Spectral, Autocorrelation, CrossCorrelation, PowerSpectrum, Coherence, Cepstrum, PeakDetection)
 //! - Path Generation and Moments
 
-use computational_engine::engine::*;
 use computational_engine::create_default_dispatcher;
+use computational_engine::engine::*;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -30,11 +30,18 @@ fn test_monte_carlo_integration() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform Monte Carlo integration: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform Monte Carlo integration: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Sample(output)) = result {
         let res = output.result.as_object().unwrap();
-        assert!(res.contains_key("integral"), "Should have integral estimate");
+        assert!(
+            res.contains_key("integral"),
+            "Should have integral estimate"
+        );
         assert!(res.contains_key("error"), "Should have error estimate");
     }
 }
@@ -81,12 +88,22 @@ fn test_metropolis_hastings() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform Metropolis-Hastings: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform Metropolis-Hastings: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Sample(output)) = result {
         let metadata = output.metadata.as_ref().unwrap();
-        assert!(metadata.get("acceptance_rate").is_some(), "Should have acceptance rate");
-        assert_eq!(metadata.get("method").and_then(|v| v.as_str()).unwrap(), "metropolis_hastings");
+        assert!(
+            metadata.get("acceptance_rate").is_some(),
+            "Should have acceptance rate"
+        );
+        assert_eq!(
+            metadata.get("method").and_then(|v| v.as_str()).unwrap(),
+            "metropolis_hastings"
+        );
     }
 }
 
@@ -105,7 +122,11 @@ fn test_gibbs_sampling() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform Gibbs sampling: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform Gibbs sampling: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Sample(output)) = result {
         let res = output.result.as_object().unwrap();
@@ -136,7 +157,11 @@ fn test_path_generation_brownian() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should generate Brownian motion path: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should generate Brownian motion path: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Sample(output)) = result {
         assert!(output.moments.is_some(), "Should have moments");
@@ -193,7 +218,11 @@ fn test_basic_stats() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute basic statistics: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute basic statistics: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -212,7 +241,11 @@ fn test_hypothesis_test() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform hypothesis test: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform hypothesis test: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Sample(output)) = result {
         let res = output.result.as_object().unwrap();
@@ -253,7 +286,11 @@ fn test_linear_regression() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform linear regression: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform linear regression: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Sample(output)) = result {
         let res = output.result.as_object().unwrap();
@@ -283,7 +320,11 @@ fn test_time_series_analysis() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform time series analysis: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform time series analysis: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Sample(output)) = result {
         let res = output.result.as_object().unwrap();
@@ -309,7 +350,10 @@ fn test_correlation() {
 
     if let Ok(ToolResponse::Sample(output)) = result {
         let res = output.result.as_object().unwrap();
-        assert!(res.contains_key("correlation"), "Should have correlation coefficient");
+        assert!(
+            res.contains_key("correlation"),
+            "Should have correlation coefficient"
+        );
         assert!(res.contains_key("covariance"), "Should have covariance");
     }
 }
@@ -322,7 +366,9 @@ fn test_correlation() {
 fn test_spectral_analysis() {
     let dispatcher = create_default_dispatcher();
 
-    let data: Vec<f64> = (0..64).map(|i| (2.0 * std::f64::consts::PI * i as f64 / 64.0).sin()).collect();
+    let data: Vec<f64> = (0..64)
+        .map(|i| (2.0 * std::f64::consts::PI * i as f64 / 64.0).sin())
+        .collect();
 
     let request = ToolRequest::Sample(SampleInput {
         method: SamplingMethod::SignalAnalysis(SignalMethod::SpectralAnalysis),
@@ -332,14 +378,20 @@ fn test_spectral_analysis() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should handle spectral analysis: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should handle spectral analysis: {:?}",
+        result
+    );
 }
 
 #[test]
 fn test_autocorrelation() {
     let dispatcher = create_default_dispatcher();
 
-    let data: Vec<f64> = (0..100).map(|i| (2.0 * std::f64::consts::PI * i as f64 / 20.0).sin()).collect();
+    let data: Vec<f64> = (0..100)
+        .map(|i| (2.0 * std::f64::consts::PI * i as f64 / 20.0).sin())
+        .collect();
 
     let request = ToolRequest::Sample(SampleInput {
         method: SamplingMethod::SignalAnalysis(SignalMethod::Autocorrelation),
@@ -349,7 +401,11 @@ fn test_autocorrelation() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute autocorrelation: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute autocorrelation: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Sample(output)) = result {
         let acf = output.result.as_array().unwrap();
@@ -374,14 +430,20 @@ fn test_cross_correlation() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should handle cross-correlation: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should handle cross-correlation: {:?}",
+        result
+    );
 }
 
 #[test]
 fn test_power_spectrum() {
     let dispatcher = create_default_dispatcher();
 
-    let data: Vec<f64> = (0..64).map(|i| (2.0 * std::f64::consts::PI * i as f64 / 64.0).sin()).collect();
+    let data: Vec<f64> = (0..64)
+        .map(|i| (2.0 * std::f64::consts::PI * i as f64 / 64.0).sin())
+        .collect();
 
     let request = ToolRequest::Sample(SampleInput {
         method: SamplingMethod::SignalAnalysis(SignalMethod::PowerSpectrum),
@@ -391,7 +453,11 @@ fn test_power_spectrum() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute power spectrum: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute power spectrum: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Sample(output)) = result {
         let res = output.result.as_object().unwrap();
@@ -487,7 +553,10 @@ fn test_regression_requires_multiple_points() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Regression should require at least 2 points");
+    assert!(
+        result.is_err(),
+        "Regression should require at least 2 points"
+    );
 }
 
 // ============================================================================
@@ -512,7 +581,11 @@ fn test_monte_carlo_convergence() {
         });
 
         let result = dispatcher.dispatch(request);
-        assert!(result.is_ok(), "Should succeed with {} samples", num_samples);
+        assert!(
+            result.is_ok(),
+            "Should succeed with {} samples",
+            num_samples
+        );
     }
 }
 

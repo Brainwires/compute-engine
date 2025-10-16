@@ -809,9 +809,9 @@ pub enum OptimizationMethod {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SelectionCriteria {
-    Aic,   // Akaike Information Criterion
-    Bic,   // Bayesian Information Criterion
-    Aicc,  // Corrected AIC for small samples
+    Aic,      // Akaike Information Criterion
+    Bic,      // Bayesian Information Criterion
+    Aicc,     // Corrected AIC for small samples
     RSquared, // Simple R² comparison
 }
 

@@ -21,7 +21,10 @@ fn test_function_approximator_basic() {
     let response = process_json_request(&request.to_string());
     let parsed: serde_json::Value = serde_json::from_str(&response).unwrap();
 
-    eprintln!("Response: {}", serde_json::to_string_pretty(&parsed).unwrap());
+    eprintln!(
+        "Response: {}",
+        serde_json::to_string_pretty(&parsed).unwrap()
+    );
 
     assert!(parsed["success"].as_bool().unwrap_or(false));
 
@@ -62,5 +65,8 @@ fn test_function_approximator_simple() {
 
     assert!(parsed["success"].as_bool().unwrap_or(false));
 
-    eprintln!("Best function for 2x: {}", parsed["result"]["best_functions"][0]["expression"]);
+    eprintln!(
+        "Best function for 2x: {}",
+        parsed["result"]["best_functions"][0]["expression"]
+    );
 }

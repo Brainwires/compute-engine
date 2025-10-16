@@ -108,7 +108,7 @@ fn test_decay_chain_simple() {
 fn test_decay_chain_secular_equilibrium() {
     let result = decay_chain(DecayChainRequest {
         parent_initial: 1e6,
-        parent_decay_constant: 1e-5, // Very long-lived
+        parent_decay_constant: 1e-5,  // Very long-lived
         daughter_decay_constant: 1.0, // Short-lived
         time: 100.0,
     })
@@ -325,8 +325,8 @@ fn test_fission_energy_u235() {
     // This test validates the calculation works with reasonable inputs
     let result = fission_energy(FissionEnergyRequest {
         parent_mass: 235.0439,
-        fragment1_mass: 140.00,  // Effective mass
-        fragment2_mass: 91.00,   // Effective mass
+        fragment1_mass: 140.00, // Effective mass
+        fragment2_mass: 91.00,  // Effective mass
         neutrons_released: 3,
     })
     .unwrap();
@@ -342,8 +342,8 @@ fn test_fission_energy_u235() {
 fn test_fission_energy_pu239() {
     let result = fission_energy(FissionEnergyRequest {
         parent_mass: 239.0522,
-        fragment1_mass: 139.50,  // Effective mass
-        fragment2_mass: 95.50,   // Effective mass
+        fragment1_mass: 139.50, // Effective mass
+        fragment2_mass: 95.50,  // Effective mass
         neutrons_released: 3,
     })
     .unwrap();
@@ -375,9 +375,9 @@ fn test_fission_neutron_energy() {
 fn test_fusion_energy_dt() {
     // D + T → He-4 + n
     let result = fusion_energy(FusionEnergyRequest {
-        reactant1_mass: 2.014102, // Deuterium
-        reactant2_mass: 3.016049, // Tritium
-        product1_mass: 4.002603,  // He-4
+        reactant1_mass: 2.014102,      // Deuterium
+        reactant2_mass: 3.016049,      // Tritium
+        product1_mass: 4.002603,       // He-4
         product2_mass: Some(1.008665), // neutron
     })
     .unwrap();
@@ -393,7 +393,7 @@ fn test_fusion_energy_dd() {
     let result = fusion_energy(FusionEnergyRequest {
         reactant1_mass: 2.014102,
         reactant2_mass: 2.014102,
-        product1_mass: 3.016029,  // He-3
+        product1_mass: 3.016029, // He-3
         product2_mass: Some(1.008665),
     })
     .unwrap();

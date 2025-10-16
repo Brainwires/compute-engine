@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-// Simple MCP client to test the computational-engine MCP server (release binary)
+// Simple MCP client to test the brainwires-compute-engine MCP server (release binary)
 const { spawn } = require('child_process');
 const path = require('path');
 
 async function testMCPServer() {
     console.log('Starting MCP server (release)...');
 
-    const serverPath = path.join(__dirname, 'target/release/computational-engine');
+    const serverPath = path.join(__dirname, 'target/release/brainwires-compute-engine');
     const server = spawn(serverPath, ['mcp-server'], {
         stdio: ['pipe', 'pipe', 'pipe']
     });

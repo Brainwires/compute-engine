@@ -93,7 +93,9 @@ pub fn compute_pseudoinverse(input: MatrixInput) -> Result<Vec<Vec<f64>>, String
     );
 
     let svd = SVD::new(matrix, true, true);
-    let pinv = svd.pseudo_inverse(1e-10).map_err(|e| format!("Pseudoinverse failed: {}", e))?;
+    let pinv = svd
+        .pseudo_inverse(1e-10)
+        .map_err(|e| format!("Pseudoinverse failed: {}", e))?;
 
     let rows = pinv.nrows();
     let cols = pinv.ncols();
@@ -152,7 +154,9 @@ pub fn compute_pca(input: MatrixInput, n_components: Option<usize>) -> Result<PC
 
     // Calculate explained variance
     let total_variance: f64 = eigenvalues.iter().sum();
-    let explained_variance: Vec<f64> = eigenvalues.iter().take(n_comp)
+    let explained_variance: Vec<f64> = eigenvalues
+        .iter()
+        .take(n_comp)
         .map(|ev| ev / total_variance)
         .collect();
 
@@ -331,19 +335,19 @@ pub fn matrix_norm(request: MatrixNormRequest) -> Result<MatrixNormResult, Strin
                 .map(|&x| x * x)
                 .sum::<f64>()
                 .sqrt()
-        },
+        }
         "1" => {
             // Maximum absolute column sum
-            (0..n).map(|j| {
-                (0..m).map(|i| mat[i][j].abs()).sum::<f64>()
-            }).fold(0.0, f64::max)
-        },
+            (0..n)
+                .map(|j| (0..m).map(|i| mat[i][j].abs()).sum::<f64>())
+                .fold(0.0, f64::max)
+        }
         "inf" | "infinity" => {
             // Maximum absolute row sum
             mat.iter()
                 .map(|row| row.iter().map(|x| x.abs()).sum::<f64>())
                 .fold(0.0, f64::max)
-        },
+        }
         _ => return Err(format!("Unknown norm type: {}", request.norm_type)),
     };
 
@@ -536,7 +540,8 @@ pub fn matrix_inverse(matrix: Vec<Vec<f64>>) -> Result<Vec<Vec<f64>>, String> {
     let mat = DMatrix::from_row_slice(n, n, &matrix.concat());
 
     // Compute inverse
-    let inv = mat.try_inverse()
+    let inv = mat
+        .try_inverse()
         .ok_or("Matrix is singular and cannot be inverted".to_string())?;
 
     // Convert back to Vec<Vec<f64>>

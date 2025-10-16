@@ -9,7 +9,6 @@
  * - Gas laws (Van der Waals, virial)
  * - Spectroscopy (Beer-Lambert)
  */
-
 use serde::{Deserialize, Serialize};
 use std::f64::consts::E;
 
@@ -45,11 +44,11 @@ pub struct ChemistryParams {
     pub pre_exponential: Option<f64>,   // A in Arrhenius
     pub rate_constant: Option<f64>,
     pub concentration: Option<f64>,
-    pub order: Option<i32>,             // reaction order
+    pub order: Option<i32>, // reaction order
 
     // Thermodynamics
-    pub enthalpy: Option<f64>,          // ΔH in kJ/mol
-    pub entropy: Option<f64>,           // ΔS in J/(mol·K)
+    pub enthalpy: Option<f64>, // ΔH in kJ/mol
+    pub entropy: Option<f64>,  // ΔS in J/(mol·K)
 
     // Electrochemistry
     pub standard_potential: Option<f64>, // E° in V
@@ -58,15 +57,15 @@ pub struct ChemistryParams {
 
     // Spectroscopy
     pub absorbance: Option<f64>,
-    pub path_length: Option<f64>,      // cm
+    pub path_length: Option<f64>,        // cm
     pub molar_absorptivity: Option<f64>, // L/(mol·cm)
 
     // Gas laws
-    pub pressure: Option<f64>,          // atm
-    pub volume: Option<f64>,            // L
+    pub pressure: Option<f64>, // atm
+    pub volume: Option<f64>,   // L
     pub moles: Option<f64>,
-    pub a_constant: Option<f64>,        // Van der Waals a
-    pub b_constant: Option<f64>,        // Van der Waals b
+    pub a_constant: Option<f64>, // Van der Waals a
+    pub b_constant: Option<f64>, // Van der Waals b
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -77,8 +76,8 @@ pub struct ChemistryResult {
     pub interpretation: String,
 }
 
-const R: f64 = 8.314;      // Gas constant J/(mol·K)
-const F: f64 = 96485.0;    // Faraday constant C/mol
+const R: f64 = 8.314; // Gas constant J/(mol·K)
+const F: f64 = 96485.0; // Faraday constant C/mol
 
 pub fn calculate_chemistry(input: ChemistryInput) -> Result<ChemistryResult, String> {
     match input.operation {
@@ -96,8 +95,12 @@ pub fn calculate_chemistry(input: ChemistryInput) -> Result<ChemistryResult, Str
 /// Henderson-Hasselbalch: pH = pKa + log([A⁻]/[HA])
 fn calculate_ph(params: &ChemistryParams) -> Result<ChemistryResult, String> {
     let pka = params.pka.ok_or("pKa required")?;
-    let conc_base = params.concentration_base.ok_or("Base concentration required")?;
-    let conc_acid = params.concentration_acid.ok_or("Acid concentration required")?;
+    let conc_base = params
+        .concentration_base
+        .ok_or("Base concentration required")?;
+    let conc_acid = params
+        .concentration_acid
+        .ok_or("Acid concentration required")?;
 
     if conc_acid <= 0.0 {
         return Err("Acid concentration must be positive".to_string());
@@ -123,8 +126,12 @@ fn calculate_ph(params: &ChemistryParams) -> Result<ChemistryResult, String> {
 
 /// Buffer capacity
 fn calculate_buffer_capacity(params: &ChemistryParams) -> Result<ChemistryResult, String> {
-    let conc_acid = params.concentration_acid.ok_or("Acid concentration required")?;
-    let conc_base = params.concentration_base.ok_or("Base concentration required")?;
+    let conc_acid = params
+        .concentration_acid
+        .ok_or("Acid concentration required")?;
+    let conc_base = params
+        .concentration_base
+        .ok_or("Base concentration required")?;
 
     // Buffer capacity β = 2.303 * [HA][A⁻]/([HA] + [A⁻])
     let total = conc_acid + conc_base;
@@ -134,15 +141,22 @@ fn calculate_buffer_capacity(params: &ChemistryParams) -> Result<ChemistryResult
         value: capacity,
         unit: "mol/(L·pH)".to_string(),
         formula_used: "β = 2.303·[HA][A⁻]/([HA]+[A⁻])".to_string(),
-        interpretation: format!("Buffer can resist pH change by absorbing {:.3e} mol/L of acid/base per pH unit", capacity),
+        interpretation: format!(
+            "Buffer can resist pH change by absorbing {:.3e} mol/L of acid/base per pH unit",
+            capacity
+        ),
     })
 }
 
 /// Arrhenius equation: k = A·exp(-Ea/RT)
 fn calculate_arrhenius(params: &ChemistryParams) -> Result<ChemistryResult, String> {
-    let ea = params.activation_energy.ok_or("Activation energy (kJ/mol) required")?;
+    let ea = params
+        .activation_energy
+        .ok_or("Activation energy (kJ/mol) required")?;
     let t = params.temperature.ok_or("Temperature (K) required")?;
-    let a = params.pre_exponential.ok_or("Pre-exponential factor A required")?;
+    let a = params
+        .pre_exponential
+        .ok_or("Pre-exponential factor A required")?;
 
     if t <= 0.0 {
         return Err("Temperature must be positive".to_string());
@@ -213,10 +227,17 @@ fn calculate_gibbs(params: &ChemistryParams) -> Result<ChemistryResult, String> 
 
 /// Nernst equation: E = E° - (RT/nF)ln(Q)
 fn calculate_nernst(params: &ChemistryParams) -> Result<ChemistryResult, String> {
-    let e_standard = params.standard_potential.ok_or("Standard potential E° (V) required")?;
-    let n = params.n_electrons.ok_or("Number of electrons transferred required")? as f64;
+    let e_standard = params
+        .standard_potential
+        .ok_or("Standard potential E° (V) required")?;
+    let n = params
+        .n_electrons
+        .ok_or("Number of electrons transferred required")? as f64;
     let t = params.temperature.unwrap_or(298.15); // Default 25°C
-    let concs = params.concentrations.as_ref().ok_or("Concentrations required")?;
+    let concs = params
+        .concentrations
+        .as_ref()
+        .ok_or("Concentrations required")?;
 
     if concs.len() < 2 {
         return Err("Need at least 2 concentrations for reaction quotient".to_string());
@@ -277,8 +298,12 @@ fn calculate_van_der_waals(params: &ChemistryParams) -> Result<ChemistryResult, 
     let p = params.pressure.ok_or("Pressure (atm) required")?;
     let v = params.volume.ok_or("Molar volume (L/mol) required")?;
     let t = params.temperature.ok_or("Temperature (K) required")?;
-    let a = params.a_constant.ok_or("Van der Waals constant 'a' required")?;
-    let b = params.b_constant.ok_or("Van der Waals constant 'b' required")?;
+    let a = params
+        .a_constant
+        .ok_or("Van der Waals constant 'a' required")?;
+    let b = params
+        .b_constant
+        .ok_or("Van der Waals constant 'b' required")?;
 
     // R in L·atm/(mol·K)
     let r_gas = 0.08206;
@@ -454,8 +479,8 @@ mod tests {
     #[test]
     fn test_gibbs_spontaneous() {
         let params = ChemistryParams {
-            enthalpy: Some(-100.0),    // Exothermic
-            entropy: Some(200.0),       // Entropy increase
+            enthalpy: Some(-100.0), // Exothermic
+            entropy: Some(200.0),   // Entropy increase
             temperature: Some(298.0),
             ..Default::default()
         };
@@ -467,8 +492,8 @@ mod tests {
     #[test]
     fn test_gibbs_nonspontaneous() {
         let params = ChemistryParams {
-            enthalpy: Some(100.0),     // Endothermic
-            entropy: Some(-50.0),       // Entropy decrease
+            enthalpy: Some(100.0), // Endothermic
+            entropy: Some(-50.0),  // Entropy decrease
             temperature: Some(298.0),
             ..Default::default()
         };
@@ -580,9 +605,9 @@ mod tests {
     fn test_van_der_waals_real_gas() {
         let params = ChemistryParams {
             pressure: Some(1.0),
-            volume: Some(22.4),  // Near ideal at STP
+            volume: Some(22.4), // Near ideal at STP
             temperature: Some(273.15),
-            a_constant: Some(1.36),  // CO2
+            a_constant: Some(1.36), // CO2
             b_constant: Some(0.0318),
             ..Default::default()
         };
@@ -593,7 +618,7 @@ mod tests {
     #[test]
     fn test_van_der_waals_high_pressure() {
         let params = ChemistryParams {
-            pressure: Some(100.0),  // High pressure
+            pressure: Some(100.0), // High pressure
             volume: Some(0.5),
             temperature: Some(300.0),
             a_constant: Some(1.36),

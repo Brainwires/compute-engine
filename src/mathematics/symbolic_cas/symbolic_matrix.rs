@@ -24,15 +24,20 @@ impl SymbolicMatrix {
         let cols = data[0].len();
 
         if cols == 0 {
-            return Err(SymbolicError::InvalidOperation("Matrix has no columns".to_string()));
+            return Err(SymbolicError::InvalidOperation(
+                "Matrix has no columns".to_string(),
+            ));
         }
 
         // Verify all rows have the same number of columns
         for (i, row) in data.iter().enumerate() {
             if row.len() != cols {
-                return Err(SymbolicError::InvalidOperation(
-                    format!("Row {} has {} columns, expected {}", i, row.len(), cols)
-                ));
+                return Err(SymbolicError::InvalidOperation(format!(
+                    "Row {} has {} columns, expected {}",
+                    i,
+                    row.len(),
+                    cols
+                )));
             }
         }
 
@@ -45,7 +50,11 @@ impl SymbolicMatrix {
         for i in 0..n {
             data[i][i] = Expr::num(1);
         }
-        SymbolicMatrix { rows: n, cols: n, data }
+        SymbolicMatrix {
+            rows: n,
+            cols: n,
+            data,
+        }
     }
 
     /// Create a zero matrix of size rows x cols
@@ -72,7 +81,9 @@ impl SymbolicMatrix {
     /// Set element at (row, col)
     pub fn set(&mut self, row: usize, col: usize, expr: Expr) -> SymbolicResult<()> {
         if row >= self.rows || col >= self.cols {
-            return Err(SymbolicError::InvalidOperation("Index out of bounds".to_string()));
+            return Err(SymbolicError::InvalidOperation(
+                "Index out of bounds".to_string(),
+            ));
         }
         self.data[row][col] = expr;
         Ok(())
@@ -96,10 +107,10 @@ impl SymbolicMatrix {
     /// Matrix addition
     pub fn add(&self, other: &SymbolicMatrix) -> SymbolicResult<Self> {
         if self.rows != other.rows || self.cols != other.cols {
-            return Err(SymbolicError::InvalidOperation(
-                format!("Matrix dimensions don't match: {}x{} vs {}x{}",
-                    self.rows, self.cols, other.rows, other.cols)
-            ));
+            return Err(SymbolicError::InvalidOperation(format!(
+                "Matrix dimensions don't match: {}x{} vs {}x{}",
+                self.rows, self.cols, other.rows, other.cols
+            )));
         }
 
         let mut result = vec![vec![Expr::num(0); self.cols]; self.rows];
@@ -119,10 +130,10 @@ impl SymbolicMatrix {
     /// Matrix multiplication
     pub fn mul(&self, other: &SymbolicMatrix) -> SymbolicResult<Self> {
         if self.cols != other.rows {
-            return Err(SymbolicError::InvalidOperation(
-                format!("Matrix dimensions incompatible for multiplication: {}x{} × {}x{}",
-                    self.rows, self.cols, other.rows, other.cols)
-            ));
+            return Err(SymbolicError::InvalidOperation(format!(
+                "Matrix dimensions incompatible for multiplication: {}x{} × {}x{}",
+                self.rows, self.cols, other.rows, other.cols
+            )));
         }
 
         let mut result = vec![vec![Expr::num(0); other.cols]; self.rows];
@@ -130,10 +141,7 @@ impl SymbolicMatrix {
             for j in 0..other.cols {
                 let mut sum = Expr::num(0);
                 for k in 0..self.cols {
-                    let term = Expr::mul(
-                        self.data[i][k].clone(),
-                        other.data[k][j].clone()
-                    );
+                    let term = Expr::mul(self.data[i][k].clone(), other.data[k][j].clone());
                     sum = Expr::add(sum, term);
                 }
                 result[i][j] = sum;
@@ -166,7 +174,7 @@ impl SymbolicMatrix {
     pub fn determinant(&self) -> SymbolicResult<Expr> {
         if self.rows != self.cols {
             return Err(SymbolicError::InvalidOperation(
-                "Determinant only defined for square matrices".to_string()
+                "Determinant only defined for square matrices".to_string(),
             ));
         }
 
@@ -211,7 +219,7 @@ impl SymbolicMatrix {
                     let sign = if j % 2 == 0 { 1 } else { -1 };
                     let term = Expr::mul(
                         Expr::num(sign),
-                        Expr::mul(self.data[0][j].clone(), cofactor)
+                        Expr::mul(self.data[0][j].clone(), cofactor),
                     );
                     det = Expr::add(det, term);
                 }
@@ -224,7 +232,7 @@ impl SymbolicMatrix {
     pub fn trace(&self) -> SymbolicResult<Expr> {
         if self.rows != self.cols {
             return Err(SymbolicError::InvalidOperation(
-                "Trace only defined for square matrices".to_string()
+                "Trace only defined for square matrices".to_string(),
             ));
         }
 
@@ -288,12 +296,14 @@ mod tests {
         let a = SymbolicMatrix::new(vec![
             vec![Expr::num(1), Expr::num(2)],
             vec![Expr::num(3), Expr::num(4)],
-        ]).unwrap();
+        ])
+        .unwrap();
 
         let b = SymbolicMatrix::new(vec![
             vec![Expr::num(5), Expr::num(6)],
             vec![Expr::num(7), Expr::num(8)],
-        ]).unwrap();
+        ])
+        .unwrap();
 
         let c = a.mul(&b).unwrap();
         assert_eq!(c.rows(), 2);
@@ -305,7 +315,8 @@ mod tests {
         let mat = SymbolicMatrix::new(vec![
             vec![Expr::num(1), Expr::num(2)],
             vec![Expr::num(3), Expr::num(4)],
-        ]).unwrap();
+        ])
+        .unwrap();
 
         let det = mat.determinant().unwrap();
         // det = 1*4 - 2*3 = -2
@@ -317,7 +328,8 @@ mod tests {
         let mat = SymbolicMatrix::new(vec![
             vec![Expr::sym("a"), Expr::sym("b")],
             vec![Expr::sym("c"), Expr::sym("d")],
-        ]).unwrap();
+        ])
+        .unwrap();
 
         let det = mat.determinant().unwrap();
         // det = a*d - b*c

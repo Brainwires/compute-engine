@@ -11,7 +11,9 @@ pub fn simplify(expr: &Expr) -> Expr {
 
     // Apply simplification rules repeatedly until no changes
     for _ in 0..10 {
-        if !changed { break; }
+        if !changed {
+            break;
+        }
         let new_expr = simplify_once(&current);
         changed = new_expr != current;
         current = new_expr;

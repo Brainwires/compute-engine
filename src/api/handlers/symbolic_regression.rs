@@ -12,33 +12,41 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
             let x_data: Vec<f64> = match request.parameters.get("x") {
                 Some(v) => match serde_json::from_value(v.clone()) {
                     Ok(data) => data,
-                    Err(e) => return ComputationResponse::error(
+                    Err(e) => {
+                        return ComputationResponse::error(
+                            request.module.clone(),
+                            request.operation.clone(),
+                            format!("Invalid x data: {}", e),
+                        );
+                    }
+                },
+                None => {
+                    return ComputationResponse::error(
                         request.module.clone(),
                         request.operation.clone(),
-                        format!("Invalid x data: {}", e)
-                    ),
-                },
-                None => return ComputationResponse::error(
-                    request.module.clone(),
-                    request.operation.clone(),
-                    "Missing x parameter".to_string()
-                ),
+                        "Missing x parameter".to_string(),
+                    );
+                }
             };
 
             let y_data: Vec<f64> = match request.parameters.get("y") {
                 Some(v) => match serde_json::from_value(v.clone()) {
                     Ok(data) => data,
-                    Err(e) => return ComputationResponse::error(
+                    Err(e) => {
+                        return ComputationResponse::error(
+                            request.module.clone(),
+                            request.operation.clone(),
+                            format!("Invalid y data: {}", e),
+                        );
+                    }
+                },
+                None => {
+                    return ComputationResponse::error(
                         request.module.clone(),
                         request.operation.clone(),
-                        format!("Invalid y data: {}", e)
-                    ),
-                },
-                None => return ComputationResponse::error(
-                    request.module.clone(),
-                    request.operation.clone(),
-                    "Missing y parameter".to_string()
-                ),
+                        "Missing y parameter".to_string(),
+                    );
+                }
             };
 
             // Convert to InputData format (single variable)
@@ -49,28 +57,34 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
                 target_values: y_data,
             };
 
-            let max_complexity = request.parameters.get("max_complexity")
+            let max_complexity = request
+                .parameters
+                .get("max_complexity")
                 .and_then(|v| v.as_u64())
                 .unwrap_or(5) as u32;
 
-            let domain = request.parameters.get("domain")
+            let domain = request
+                .parameters
+                .get("domain")
                 .and_then(|v| v.as_str())
                 .unwrap_or("general")
                 .to_string();
 
-            let units: Option<HashMap<String, String>> = request.parameters.get("units")
+            let units: Option<HashMap<String, String>> = request
+                .parameters
+                .get("units")
                 .and_then(|v| serde_json::from_value(v.clone()).ok());
 
             match discover_equations(input_data, domain, max_complexity, units) {
                 Ok(result) => Ok(json!(result)),
                 Err(e) => Err(e.to_string()),
             }
-        },
+        }
         _ => {
             return ComputationResponse::error(
                 request.module.clone(),
                 request.operation.clone(),
-                format!("Unknown operation: {}", request.operation)
+                format!("Unknown operation: {}", request.operation),
             );
         }
     };
@@ -79,12 +93,10 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
         Ok(result_value) => ComputationResponse::success(
             request.module.clone(),
             request.operation.clone(),
-            result_value
+            result_value,
         ),
-        Err(error_msg) => ComputationResponse::error(
-            request.module.clone(),
-            request.operation.clone(),
-            error_msg
-        ),
+        Err(error_msg) => {
+            ComputationResponse::error(request.module.clone(), request.operation.clone(), error_msg)
+        }
     }
 }

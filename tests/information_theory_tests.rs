@@ -8,7 +8,8 @@ fn test_shannon_entropy() {
         base: Some(2.0),
         entropy_type: Some("shannon".to_string()),
         alpha: None,
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.entropy > 0.0);
     assert!(result.normalized_entropy <= 1.0);
@@ -24,7 +25,8 @@ fn test_shannon_entropy_uniform() {
         base: Some(2.0),
         entropy_type: Some("shannon".to_string()),
         alpha: None,
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.entropy > 0.0);
     assert!(result.normalized_entropy > 0.8); // Should be close to 1
@@ -39,7 +41,8 @@ fn test_shannon_entropy_concentrated() {
         base: Some(2.0),
         entropy_type: Some("shannon".to_string()),
         alpha: None,
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.entropy >= 0.0);
     assert!(result.normalized_entropy < 1.0);
@@ -53,7 +56,8 @@ fn test_renyi_entropy() {
         base: Some(2.0),
         entropy_type: Some("renyi".to_string()),
         alpha: Some(2.0),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.entropy > 0.0);
     assert_eq!(result.entropy_type, "renyi");
@@ -68,14 +72,16 @@ fn test_renyi_entropy_alpha_values() {
         base: Some(2.0),
         entropy_type: Some("renyi".to_string()),
         alpha: Some(0.5),
-    }).unwrap();
+    })
+    .unwrap();
 
     let result_alpha_2 = shannon_entropy(EntropyRequest {
         data,
         base: Some(2.0),
         entropy_type: Some("renyi".to_string()),
         alpha: Some(2.0),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result_alpha_05.entropy > 0.0);
     assert!(result_alpha_2.entropy > 0.0);
@@ -89,7 +95,8 @@ fn test_differential_entropy() {
         base: Some(2.0),
         entropy_type: Some("differential".to_string()),
         alpha: None,
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.entropy > 0.0);
     assert_eq!(result.entropy_type, "differential");
@@ -104,7 +111,8 @@ fn test_mutual_information() {
         x,
         y,
         bins: Some(3),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.mutual_information > 0.0);
 }
@@ -118,7 +126,8 @@ fn test_mutual_information_independent() {
         x,
         y,
         bins: Some(3),
-    }).unwrap();
+    })
+    .unwrap();
 
     // Independent variables should have low MI
     assert!(result.mutual_information < 2.0);
@@ -133,7 +142,8 @@ fn test_mutual_information_identical() {
         x,
         y,
         bins: Some(3),
-    }).unwrap();
+    })
+    .unwrap();
 
     // Identical variables should have high MI
     assert!(result.mutual_information > 0.0);
@@ -142,15 +152,13 @@ fn test_mutual_information_identical() {
 #[test]
 fn test_channel_capacity() {
     // Binary symmetric channel
-    let transition_matrix = vec![
-        vec![0.9, 0.1],
-        vec![0.1, 0.9],
-    ];
+    let transition_matrix = vec![vec![0.9, 0.1], vec![0.1, 0.9]];
 
     let result = channel_capacity(ChannelCapacityRequest {
         transition_matrix,
         input_distribution: None,
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.capacity > 0.0);
     assert!(result.capacity <= 1.0); // Capacity of binary channel is at most 1 bit
@@ -160,43 +168,45 @@ fn test_channel_capacity() {
 #[test]
 fn test_channel_capacity_noiseless() {
     // Noiseless channel (perfect transmission)
-    let transition_matrix = vec![
-        vec![1.0, 0.0],
-        vec![0.0, 1.0],
-    ];
+    let transition_matrix = vec![vec![1.0, 0.0], vec![0.0, 1.0]];
 
     let result = channel_capacity(ChannelCapacityRequest {
         transition_matrix,
         input_distribution: None,
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!((result.capacity - 1.0).abs() < 0.1); // Should be 1 bit for binary
 }
 
 #[test]
 fn test_channel_capacity_custom_input() {
-    let transition_matrix = vec![
-        vec![0.8, 0.2],
-        vec![0.3, 0.7],
-    ];
+    let transition_matrix = vec![vec![0.8, 0.2], vec![0.3, 0.7]];
 
     let result = channel_capacity(ChannelCapacityRequest {
         transition_matrix,
         input_distribution: Some(vec![0.6, 0.4]),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.capacity > 0.0);
 }
 
 #[test]
 fn test_huffman_coding() {
-    let symbols = vec!["A".to_string(), "B".to_string(), "C".to_string(), "D".to_string()];
+    let symbols = vec![
+        "A".to_string(),
+        "B".to_string(),
+        "C".to_string(),
+        "D".to_string(),
+    ];
     let frequencies = vec![0.4, 0.3, 0.2, 0.1];
 
     let result = huffman_coding(HuffmanRequest {
         symbols,
         frequencies,
-    }).unwrap();
+    })
+    .unwrap();
 
     assert_eq!(result.codes.len(), 4);
     assert!(result.average_length > 0.0);
@@ -205,13 +215,19 @@ fn test_huffman_coding() {
 
 #[test]
 fn test_huffman_coding_equal_frequencies() {
-    let symbols = vec!["A".to_string(), "B".to_string(), "C".to_string(), "D".to_string()];
+    let symbols = vec![
+        "A".to_string(),
+        "B".to_string(),
+        "C".to_string(),
+        "D".to_string(),
+    ];
     let frequencies = vec![0.25, 0.25, 0.25, 0.25];
 
     let result = huffman_coding(HuffmanRequest {
         symbols,
         frequencies,
-    }).unwrap();
+    })
+    .unwrap();
 
     assert_eq!(result.codes.len(), 4);
     // For equal frequencies, all codes should have similar length
@@ -226,7 +242,8 @@ fn test_huffman_coding_skewed() {
     let result = huffman_coding(HuffmanRequest {
         symbols,
         frequencies,
-    }).unwrap();
+    })
+    .unwrap();
 
     assert_eq!(result.codes.len(), 2);
     assert!(result.average_length < 2.0); // Should be efficient for skewed distribution
@@ -239,7 +256,8 @@ fn test_kolmogorov_complexity() {
     let result = kolmogorov_complexity(KolmogorovRequest {
         data,
         compressor: Some("lz77".to_string()),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.complexity_estimate > 0.0);
     assert!(result.compressed_size > 0);
@@ -255,7 +273,8 @@ fn test_kolmogorov_complexity_repetitive() {
     let result = kolmogorov_complexity(KolmogorovRequest {
         data,
         compressor: Some("lz77".to_string()),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.compression_ratio >= 1.0);
 }
@@ -268,7 +287,8 @@ fn test_kolmogorov_complexity_random() {
     let result = kolmogorov_complexity(KolmogorovRequest {
         data,
         compressor: Some("lz77".to_string()),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.compressed_size <= result.original_size);
 }
@@ -282,7 +302,8 @@ fn test_conditional_entropy() {
         x,
         y,
         bins: Some(3),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.conditional_entropy >= 0.0);
     assert!(result.normalized >= 0.0 && result.normalized <= 1.0);
@@ -298,7 +319,8 @@ fn test_conditional_entropy_deterministic() {
         x,
         y,
         bins: Some(3),
-    }).unwrap();
+    })
+    .unwrap();
 
     // Should be low since Y is determined by X
     assert!(result.conditional_entropy < 2.0);
@@ -314,7 +336,8 @@ fn test_conditional_entropy_independent() {
         x,
         y,
         bins: Some(3),
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.conditional_entropy >= 0.0);
 }
@@ -346,7 +369,11 @@ fn test_relative_entropy_symmetric() {
     let p = vec![0.7, 0.2, 0.1];
     let q = vec![0.3, 0.4, 0.3];
 
-    let result1 = relative_entropy(RelativeEntropyRequest { p: p.clone(), q: q.clone() }).unwrap();
+    let result1 = relative_entropy(RelativeEntropyRequest {
+        p: p.clone(),
+        q: q.clone(),
+    })
+    .unwrap();
     let result2 = relative_entropy(RelativeEntropyRequest { p: q, q: p }).unwrap();
 
     // KL divergence is not symmetric
@@ -364,14 +391,16 @@ fn test_entropy_different_bases() {
         base: Some(2.0),
         entropy_type: Some("shannon".to_string()),
         alpha: None,
-    }).unwrap();
+    })
+    .unwrap();
 
     let result_base_e = shannon_entropy(EntropyRequest {
         data,
         base: Some(std::f64::consts::E),
         entropy_type: Some("shannon".to_string()),
         alpha: None,
-    }).unwrap();
+    })
+    .unwrap();
 
     // Different bases should give different entropy values
     assert!((result_base2.entropy - result_base_e.entropy).abs() > 0.1);
@@ -385,7 +414,8 @@ fn test_huffman_compression_ratio() {
     let result = huffman_coding(HuffmanRequest {
         symbols,
         frequencies,
-    }).unwrap();
+    })
+    .unwrap();
 
     // Compression ratio should be reasonable
     assert!(result.compression_ratio >= 1.0);
@@ -403,7 +433,8 @@ fn test_channel_capacity_three_inputs() {
     let result = channel_capacity(ChannelCapacityRequest {
         transition_matrix,
         input_distribution: None,
-    }).unwrap();
+    })
+    .unwrap();
 
     assert!(result.capacity > 0.0);
     assert_eq!(result.optimal_input_distribution.len(), 3);
@@ -418,13 +449,15 @@ fn test_mutual_information_different_bins() {
         x: x.clone(),
         y: y.clone(),
         bins: Some(2),
-    }).unwrap();
+    })
+    .unwrap();
 
     let result_many_bins = mutual_information(MutualInfoRequest {
         x,
         y,
         bins: Some(4),
-    }).unwrap();
+    })
+    .unwrap();
 
     // Both should be positive
     assert!(result_few_bins.mutual_information > 0.0);

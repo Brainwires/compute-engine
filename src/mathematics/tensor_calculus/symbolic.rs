@@ -1,7 +1,7 @@
+use crate::TensorError;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use regex::Regex;
-use crate::TensorError;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum SymbolicExpr {
@@ -37,10 +37,15 @@ impl fmt::Display for SymbolicExpr {
                 if args.is_empty() {
                     write!(f, "{}()", name)
                 } else {
-                    write!(f, "{}({})", name, args.iter()
-                        .map(|arg| arg.to_string())
-                        .collect::<Vec<_>>()
-                        .join(", "))
+                    write!(
+                        f,
+                        "{}({})",
+                        name,
+                        args.iter()
+                            .map(|arg| arg.to_string())
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    )
                 }
             }
             SymbolicExpr::Zero => write!(f, "0"),
@@ -52,50 +57,57 @@ impl fmt::Display for SymbolicExpr {
 impl SymbolicExpr {
     pub fn parse(input: &str) -> Result<Self, TensorError> {
         let input = input.trim();
-        
+
         if input.is_empty() {
             return Ok(SymbolicExpr::Zero);
         }
-        
+
         // Handle special cases first
         match input {
             "0" => return Ok(SymbolicExpr::Zero),
             "1" => return Ok(SymbolicExpr::One),
             _ => {}
         }
-        
+
         // Handle constants
         if let Ok(val) = input.parse::<f64>() {
             return Ok(SymbolicExpr::Constant(val));
         }
-        
+
         // Handle simple variables
         if input.chars().all(|c| c.is_alphanumeric() || c == '_') {
             return Ok(SymbolicExpr::Variable(input.to_string()));
         }
-        
+
         // Handle powers (r^2, etc.)
-        if let Some(captures) = Regex::new(r"^([a-zA-Z_][a-zA-Z0-9_]*)\^(\d+)$").unwrap().captures(input) {
+        if let Some(captures) = Regex::new(r"^([a-zA-Z_][a-zA-Z0-9_]*)\^(\d+)$")
+            .unwrap()
+            .captures(input)
+        {
             let base = SymbolicExpr::Variable(captures.get(1).unwrap().as_str().to_string());
-            let exp = SymbolicExpr::Constant(captures.get(2).unwrap().as_str().parse::<f64>().unwrap());
+            let exp =
+                SymbolicExpr::Constant(captures.get(2).unwrap().as_str().parse::<f64>().unwrap());
             return Ok(SymbolicExpr::Power(Box::new(base), Box::new(exp)));
         }
-        
+
         // Handle functions like sin(x), cos(theta), etc.
-        if let Some(captures) = Regex::new(r"^([a-zA-Z_][a-zA-Z0-9_]*)\(([^)]*)\)$").unwrap().captures(input) {
+        if let Some(captures) = Regex::new(r"^([a-zA-Z_][a-zA-Z0-9_]*)\(([^)]*)\)$")
+            .unwrap()
+            .captures(input)
+        {
             let func_name = captures.get(1).unwrap().as_str().to_string();
             let args_str = captures.get(2).unwrap().as_str();
-            
+
             let mut args = Vec::new();
             if !args_str.is_empty() {
                 for arg in args_str.split(',') {
                     args.push(Self::parse(arg.trim())?);
                 }
             }
-            
+
             return Ok(SymbolicExpr::Function(func_name, args));
         }
-        
+
         // For now, treat complex expressions as variables
         // In a more complete implementation, we'd parse arithmetic expressions
         Ok(SymbolicExpr::Variable(input.to_string()))
@@ -106,7 +118,7 @@ impl SymbolicExpr {
             SymbolicExpr::Add(left, right) => {
                 let left = left.simplify();
                 let right = right.simplify();
-                
+
                 match (&left, &right) {
                     (SymbolicExpr::Zero, expr) | (expr, SymbolicExpr::Zero) => expr.clone(),
                     (SymbolicExpr::Constant(a), SymbolicExpr::Constant(b)) => {
@@ -118,7 +130,7 @@ impl SymbolicExpr {
             SymbolicExpr::Subtract(left, right) => {
                 let left = left.simplify();
                 let right = right.simplify();
-                
+
                 match (&left, &right) {
                     (expr, SymbolicExpr::Zero) => expr.clone(),
                     (SymbolicExpr::Zero, expr) => {
@@ -133,7 +145,7 @@ impl SymbolicExpr {
             SymbolicExpr::Multiply(left, right) => {
                 let left = left.simplify();
                 let right = right.simplify();
-                
+
                 match (&left, &right) {
                     (SymbolicExpr::Zero, _) | (_, SymbolicExpr::Zero) => SymbolicExpr::Zero,
                     (SymbolicExpr::One, expr) | (expr, SymbolicExpr::One) => expr.clone(),
@@ -146,7 +158,7 @@ impl SymbolicExpr {
             SymbolicExpr::Divide(left, right) => {
                 let left = left.simplify();
                 let right = right.simplify();
-                
+
                 match (&left, &right) {
                     (SymbolicExpr::Zero, _) => SymbolicExpr::Zero,
                     (expr, SymbolicExpr::One) => expr.clone(),
@@ -159,7 +171,7 @@ impl SymbolicExpr {
             SymbolicExpr::Power(base, exp) => {
                 let base = base.simplify();
                 let exp = exp.simplify();
-                
+
                 match (&base, &exp) {
                     (_, SymbolicExpr::Zero) => SymbolicExpr::One,
                     (expr, SymbolicExpr::One) => expr.clone(),
@@ -185,18 +197,14 @@ impl SymbolicExpr {
                 }
             }
             SymbolicExpr::Constant(_) => SymbolicExpr::Zero,
-            SymbolicExpr::Add(left, right) => {
-                SymbolicExpr::Add(
-                    Box::new(left.derivative(var)),
-                    Box::new(right.derivative(var)),
-                )
-            }
-            SymbolicExpr::Subtract(left, right) => {
-                SymbolicExpr::Subtract(
-                    Box::new(left.derivative(var)),
-                    Box::new(right.derivative(var)),
-                )
-            }
+            SymbolicExpr::Add(left, right) => SymbolicExpr::Add(
+                Box::new(left.derivative(var)),
+                Box::new(right.derivative(var)),
+            ),
+            SymbolicExpr::Subtract(left, right) => SymbolicExpr::Subtract(
+                Box::new(left.derivative(var)),
+                Box::new(right.derivative(var)),
+            ),
             SymbolicExpr::Multiply(left, right) => {
                 // Product rule: (fg)' = f'g + fg'
                 SymbolicExpr::Add(
@@ -232,18 +240,16 @@ impl SymbolicExpr {
             SymbolicExpr::Power(base, exp) => {
                 match (&**exp, &**base) {
                     // Constant exponent: (f^n)' = n*f^(n-1)*f'
-                    (SymbolicExpr::Constant(n), _) => {
-                        SymbolicExpr::Multiply(
-                            Box::new(SymbolicExpr::Multiply(
-                                Box::new(SymbolicExpr::Constant(*n)),
-                                Box::new(SymbolicExpr::Power(
-                                    Box::new((**base).clone()),
-                                    Box::new(SymbolicExpr::Constant(n - 1.0)),
-                                )),
+                    (SymbolicExpr::Constant(n), _) => SymbolicExpr::Multiply(
+                        Box::new(SymbolicExpr::Multiply(
+                            Box::new(SymbolicExpr::Constant(*n)),
+                            Box::new(SymbolicExpr::Power(
+                                Box::new((**base).clone()),
+                                Box::new(SymbolicExpr::Constant(n - 1.0)),
                             )),
-                            Box::new(base.derivative(var)),
-                        )
-                    }
+                        )),
+                        Box::new(base.derivative(var)),
+                    ),
                     // For more complex cases, we'd need logarithmic differentiation
                     _ => SymbolicExpr::Zero, // Simplified for now
                 }
@@ -251,21 +257,17 @@ impl SymbolicExpr {
             SymbolicExpr::Function(name, args) => {
                 // Basic derivatives for common functions
                 match name.as_str() {
-                    "sin" if args.len() == 1 => {
-                        SymbolicExpr::Multiply(
-                            Box::new(SymbolicExpr::Function("cos".to_string(), args.clone())),
-                            Box::new(args[0].derivative(var)),
-                        )
-                    }
-                    "cos" if args.len() == 1 => {
-                        SymbolicExpr::Multiply(
-                            Box::new(SymbolicExpr::Subtract(
-                                Box::new(SymbolicExpr::Zero),
-                                Box::new(SymbolicExpr::Function("sin".to_string(), args.clone())),
-                            )),
-                            Box::new(args[0].derivative(var)),
-                        )
-                    }
+                    "sin" if args.len() == 1 => SymbolicExpr::Multiply(
+                        Box::new(SymbolicExpr::Function("cos".to_string(), args.clone())),
+                        Box::new(args[0].derivative(var)),
+                    ),
+                    "cos" if args.len() == 1 => SymbolicExpr::Multiply(
+                        Box::new(SymbolicExpr::Subtract(
+                            Box::new(SymbolicExpr::Zero),
+                            Box::new(SymbolicExpr::Function("sin".to_string(), args.clone())),
+                        )),
+                        Box::new(args[0].derivative(var)),
+                    ),
                     _ => SymbolicExpr::Zero, // Unknown function, assume constant for now
                 }
             }
@@ -275,8 +277,8 @@ impl SymbolicExpr {
     }
 
     pub fn is_zero(&self) -> bool {
-        matches!(self, SymbolicExpr::Zero) || 
-        matches!(self, SymbolicExpr::Constant(val) if *val == 0.0)
+        matches!(self, SymbolicExpr::Zero)
+            || matches!(self, SymbolicExpr::Constant(val) if *val == 0.0)
     }
 }
 
@@ -286,8 +288,14 @@ mod tests {
 
     #[test]
     fn test_parse_simple() {
-        assert_eq!(SymbolicExpr::parse("x").unwrap(), SymbolicExpr::Variable("x".to_string()));
-        assert_eq!(SymbolicExpr::parse("42").unwrap(), SymbolicExpr::Constant(42.0));
+        assert_eq!(
+            SymbolicExpr::parse("x").unwrap(),
+            SymbolicExpr::Variable("x".to_string())
+        );
+        assert_eq!(
+            SymbolicExpr::parse("42").unwrap(),
+            SymbolicExpr::Constant(42.0)
+        );
         assert_eq!(SymbolicExpr::parse("0").unwrap(), SymbolicExpr::Zero);
         assert_eq!(SymbolicExpr::parse("1").unwrap(), SymbolicExpr::One);
     }

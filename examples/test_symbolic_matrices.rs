@@ -1,5 +1,5 @@
 use computational_engine::mathematics::symbolic_cas::{
-    Expr, SymbolicMatrix, characteristic_polynomial, eigenvalues_2x2, matrix_inverse
+    Expr, SymbolicMatrix, characteristic_polynomial, eigenvalues_2x2, matrix_inverse,
 };
 
 fn main() {
@@ -10,7 +10,8 @@ fn main() {
     let mat = SymbolicMatrix::new(vec![
         vec![Expr::sym("a"), Expr::sym("b")],
         vec![Expr::sym("c"), Expr::sym("d")],
-    ]).unwrap();
+    ])
+    .unwrap();
     println!("Matrix A:");
     println!("{}\n", mat);
 
@@ -58,7 +59,8 @@ fn main() {
     let numeric_mat = SymbolicMatrix::new(vec![
         vec![Expr::num(3), Expr::num(1)],
         vec![Expr::num(1), Expr::num(3)],
-    ]).unwrap();
+    ])
+    .unwrap();
     println!("Matrix B:");
     println!("{}", numeric_mat);
 
@@ -72,7 +74,8 @@ fn main() {
     let mixed_mat = SymbolicMatrix::new(vec![
         vec![Expr::num(2), Expr::sym("x")],
         vec![Expr::sym("x"), Expr::num(2)],
-    ]).unwrap();
+    ])
+    .unwrap();
     println!("Matrix C:");
     println!("{}", mixed_mat);
 

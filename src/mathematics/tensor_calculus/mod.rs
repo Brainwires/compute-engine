@@ -7,16 +7,16 @@
 //! - General relativity calculations
 //! - Quantum tensor computations
 
-pub mod symbolic;
-pub mod tensor;
 pub mod einstein;
 pub mod quantum_tensors;
+pub mod symbolic;
+pub mod tensor;
 
 // Re-export commonly used types and functions
-pub use symbolic::*;
-pub use tensor::*;
 pub use einstein::*;
 pub use quantum_tensors::*;
+pub use symbolic::*;
+pub use tensor::*;
 
 use serde::{Deserialize, Serialize};
 use thiserror::Error;

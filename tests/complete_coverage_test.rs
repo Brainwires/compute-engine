@@ -1,9 +1,9 @@
 //! Complete test coverage for all 235 operations
 //! This file ensures every operation is tested
 
-use computational_engine::engine::*;
-use computational_engine::engine::equations::*;
 use computational_engine::create_default_dispatcher;
+use computational_engine::engine::equations::*;
+use computational_engine::engine::*;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -269,9 +269,10 @@ fn test_differentiate_all_vector_calc() {
             variables: vec!["x".into(), "y".into(), "z".into()],
             order: None,
             evaluate_at: None,
-            parameters: HashMap::from([
-                ("data".into(), serde_json::json!([[1.0, 2.0], [3.0, 4.0]])),
-            ]),
+            parameters: HashMap::from([(
+                "data".into(),
+                serde_json::json!([[1.0, 2.0], [3.0, 4.0]]),
+            )]),
         }));
 
         assert!(result.is_ok() || result.is_err());
@@ -524,7 +525,11 @@ fn test_analyze_all_operations() {
     }
 
     // Test field analysis variants
-    for field_type in vec![FieldAnalysisType::Vector, FieldAnalysisType::Scalar, FieldAnalysisType::Tensor] {
+    for field_type in vec![
+        FieldAnalysisType::Vector,
+        FieldAnalysisType::Scalar,
+        FieldAnalysisType::Tensor,
+    ] {
         let result = dispatcher.dispatch(ToolRequest::Analyze(AnalyzeInput {
             operation: AnalysisOp::FieldAnalysis(field_type.clone()),
             expression: "F(x,y,z)".into(),

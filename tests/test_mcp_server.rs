@@ -1,9 +1,5 @@
 use computational_engine::mcp_server::server::ComputationalEngine;
-use rmcp::{
-    ClientHandler, model::ClientInfo,
-    model::CallToolRequestParam,
-    service::ServiceExt,
-};
+use rmcp::{ClientHandler, model::CallToolRequestParam, model::ClientInfo, service::ServiceExt};
 
 #[derive(Debug, Clone, Default)]
 struct DummyClientHandler {}

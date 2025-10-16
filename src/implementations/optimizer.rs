@@ -12,10 +12,16 @@ impl UnifiedOptimizer {
     }
 
     /// Perform curve fitting
-    fn optimize_fit(&self, fit_method: &FitMethod, input: &OptimizeInput) -> ToolResult<OptimizeOutput> {
+    fn optimize_fit(
+        &self,
+        fit_method: &FitMethod,
+        input: &OptimizeInput,
+    ) -> ToolResult<OptimizeOutput> {
         use crate::specialized::optimization;
 
-        let (x_data, y_data) = input.data.as_ref()
+        let (x_data, y_data) = input
+            .data
+            .as_ref()
             .ok_or("data (x, y) required for curve fitting")?;
 
         let model = match fit_method {
@@ -27,7 +33,9 @@ impl UnifiedOptimizer {
             FitMethod::Trigonometric => "trigonometric",
             FitMethod::Custom => {
                 // Custom fitting with user-provided function form
-                let custom_form = input.parameters.get("function_form")
+                let custom_form = input
+                    .parameters
+                    .get("function_form")
                     .and_then(|v| v.as_str())
                     .unwrap_or("custom");
 
@@ -46,7 +54,7 @@ impl UnifiedOptimizer {
                         "note": "Simplified custom fitting - full implementation requires symbolic engine"
                     })),
                 });
-            },
+            }
         };
 
         let result = optimization::curve_fitting(optimization::CurveFitRequest {
@@ -60,38 +68,52 @@ impl UnifiedOptimizer {
         let function = match fit_method {
             FitMethod::Polynomial => {
                 if result.coefficients.len() == 2 {
-                    format!("y = {:.6} + {:.6}*x", result.coefficients[0], result.coefficients[1])
+                    format!(
+                        "y = {:.6} + {:.6}*x",
+                        result.coefficients[0], result.coefficients[1]
+                    )
                 } else if result.coefficients.len() == 3 {
-                    format!("y = {:.6} + {:.6}*x + {:.6}*x^2",
-                        result.coefficients[0], result.coefficients[1], result.coefficients[2])
+                    format!(
+                        "y = {:.6} + {:.6}*x + {:.6}*x^2",
+                        result.coefficients[0], result.coefficients[1], result.coefficients[2]
+                    )
                 } else {
                     "polynomial".to_string()
                 }
-            },
+            }
             FitMethod::Exponential => {
-                format!("y = {:.6} * exp({:.6}*x)",
+                format!(
+                    "y = {:.6} * exp({:.6}*x)",
                     result.coefficients.get(0).unwrap_or(&0.0),
-                    result.coefficients.get(1).unwrap_or(&0.0))
-            },
+                    result.coefficients.get(1).unwrap_or(&0.0)
+                )
+            }
             FitMethod::PowerLaw => {
-                format!("y = {:.6} * x^{:.6}",
+                format!(
+                    "y = {:.6} * x^{:.6}",
                     result.coefficients.get(0).unwrap_or(&0.0),
-                    result.coefficients.get(1).unwrap_or(&0.0))
-            },
+                    result.coefficients.get(1).unwrap_or(&0.0)
+                )
+            }
             FitMethod::Trigonometric => {
                 // Coefficients: [offset, amplitude, phase]
-                format!("y = {:.6} + {:.6}*sin(x + {:.6})",
+                format!(
+                    "y = {:.6} + {:.6}*sin(x + {:.6})",
                     result.coefficients.get(0).unwrap_or(&0.0),
                     result.coefficients.get(1).unwrap_or(&0.0),
-                    result.coefficients.get(2).unwrap_or(&0.0))
-            },
+                    result.coefficients.get(2).unwrap_or(&0.0)
+                )
+            }
             _ => model.to_string(),
         };
 
         Ok(OptimizeOutput {
             parameters: result.coefficients,
             function: Some(function),
-            error: Some(result.residuals.iter().map(|r| r * r).sum::<f64>().sqrt() / result.residuals.len() as f64),
+            error: Some(
+                result.residuals.iter().map(|r| r * r).sum::<f64>().sqrt()
+                    / result.residuals.len() as f64,
+            ),
             r_squared: Some(result.r_squared),
             aic: result.aic,
             bic: result.bic,
@@ -105,7 +127,11 @@ impl UnifiedOptimizer {
     }
 
     /// Perform minimization
-    fn optimize_minimize(&self, min_method: &MinimizationMethod, input: &OptimizeInput) -> ToolResult<OptimizeOutput> {
+    fn optimize_minimize(
+        &self,
+        min_method: &MinimizationMethod,
+        input: &OptimizeInput,
+    ) -> ToolResult<OptimizeOutput> {
         match min_method {
             MinimizationMethod::GradientDescent => {
                 Err("Gradient descent requires callable objective function - not yet supported via JSON API".to_string())
@@ -178,8 +204,14 @@ impl UnifiedOptimizer {
     }
 
     /// Perform interpolation
-    fn optimize_interpolate(&self, interp_method: &InterpolationMethod, input: &OptimizeInput) -> ToolResult<OptimizeOutput> {
-        let (x_data, y_data) = input.data.as_ref()
+    fn optimize_interpolate(
+        &self,
+        interp_method: &InterpolationMethod,
+        input: &OptimizeInput,
+    ) -> ToolResult<OptimizeOutput> {
+        let (x_data, y_data) = input
+            .data
+            .as_ref()
             .ok_or("data (x, y) required for interpolation")?;
 
         match interp_method {
@@ -203,15 +235,17 @@ impl UnifiedOptimizer {
                         "data_points": x_data.len()
                     })),
                 })
-            },
+            }
             InterpolationMethod::Polynomial => {
                 // Use curve fitting for polynomial interpolation
                 self.optimize_fit(&FitMethod::Polynomial, input)
-            },
+            }
             InterpolationMethod::Spline => {
                 // Cubic spline interpolation
                 if x_data.len() < 3 {
-                    return Err("At least 3 data points required for spline interpolation".to_string());
+                    return Err(
+                        "At least 3 data points required for spline interpolation".to_string()
+                    );
                 }
 
                 Ok(OptimizeOutput {
@@ -229,19 +263,21 @@ impl UnifiedOptimizer {
                         "continuity": "C2 continuous"
                     })),
                 })
-            },
+            }
             InterpolationMethod::Cubic => {
                 // Cubic interpolation (same as spline)
                 self.optimize_interpolate(&InterpolationMethod::Spline, input)
-            },
+            }
         }
     }
 
     /// Perform symbolic regression
     fn optimize_symbolic_regression(&self, input: &OptimizeInput) -> ToolResult<OptimizeOutput> {
-        use crate::mathematics::symbolic_regression::{discover_equations, InputData};
+        use crate::mathematics::symbolic_regression::{InputData, discover_equations};
 
-        let (x_data, y_data) = input.data.as_ref()
+        let (x_data, y_data) = input
+            .data
+            .as_ref()
             .ok_or("data (x, y) required for symbolic regression")?;
 
         // Convert to InputData format (single variable)
@@ -252,31 +288,39 @@ impl UnifiedOptimizer {
             target_values: y_data.clone(),
         };
 
-        let max_complexity = input.parameters.get("max_complexity")
+        let max_complexity = input
+            .parameters
+            .get("max_complexity")
             .and_then(|v| v.as_u64())
             .unwrap_or(10) as u32;
 
-        let domain = input.parameters.get("domain")
+        let domain = input
+            .parameters
+            .get("domain")
             .and_then(|v| v.as_str())
             .unwrap_or("general")
             .to_string();
 
-        let units: Option<std::collections::HashMap<String, String>> = input.parameters.get("units")
+        let units: Option<std::collections::HashMap<String, String>> = input
+            .parameters
+            .get("units")
             .and_then(|v| serde_json::from_value(v.clone()).ok());
 
         let result = discover_equations(input_data, domain.clone(), max_complexity, units)
             .map_err(|e| e.to_string())?;
 
         // Extract best candidate
-        let best = result.candidates.first()
+        let best = result
+            .candidates
+            .first()
             .ok_or("No valid equations discovered")?;
 
         Ok(OptimizeOutput {
-            parameters: vec![],  // Symbolic regression doesn't return numeric parameters
+            parameters: vec![], // Symbolic regression doesn't return numeric parameters
             function: Some(best.expression.clone()),
             error: Some(best.mse),
             r_squared: Some(best.r_squared),
-            aic: None,  // Could calculate from MSE and complexity if needed
+            aic: None, // Could calculate from MSE and complexity if needed
             bic: None,
             aicc: None,
             convergence: Some(serde_json::json!({
@@ -297,20 +341,30 @@ impl UnifiedOptimizer {
     }
 
     /// Perform dimensional analysis to find relationship
-    fn optimize_dimensional_analysis(&self, target_quantity: &str, input: &OptimizeInput) -> ToolResult<OptimizeOutput> {
+    fn optimize_dimensional_analysis(
+        &self,
+        target_quantity: &str,
+        input: &OptimizeInput,
+    ) -> ToolResult<OptimizeOutput> {
         use std::collections::HashMap;
 
         // Get variables and their dimensions from parameters
-        let variables = input.parameters.get("variables")
+        let variables = input
+            .parameters
+            .get("variables")
             .and_then(|v| serde_json::from_value::<Vec<String>>(v.clone()).ok())
             .ok_or("variables array required for dimensional analysis")?;
 
-        let dimensions = input.parameters.get("dimensions")
+        let dimensions = input
+            .parameters
+            .get("dimensions")
             .and_then(|v| serde_json::from_value::<HashMap<String, Vec<i32>>>(v.clone()).ok())
             .ok_or("dimensions map required (variable -> [M, L, T, I, Θ, N, J])")?;
 
-        let target_dims = dimensions.get(target_quantity)
-            .ok_or(format!("Target quantity '{}' not found in dimensions", target_quantity))?;
+        let target_dims = dimensions.get(target_quantity).ok_or(format!(
+            "Target quantity '{}' not found in dimensions",
+            target_quantity
+        ))?;
 
         // Use Buckingham Pi theorem to find dimensionless groups
         // For simplicity, try combinations of variables with integer powers
@@ -325,7 +379,8 @@ impl UnifiedOptimizer {
         // If we have data, use it to fit coefficients
         if let Some((x_data, y_data)) = &input.data {
             // Try different power combinations
-            for _ in 0..100 { // Simplified search
+            for _ in 0..100 {
+                // Simplified search
                 // For now, return a simple linear combination
                 let powers = vec![1; variables.len().min(3)];
 
@@ -369,7 +424,7 @@ impl UnifiedOptimizer {
             depth: usize,
             max_depth: usize,
             max_power: i32,
-            valid_combinations: &mut Vec<Vec<i32>>
+            valid_combinations: &mut Vec<Vec<i32>>,
         ) {
             if depth == max_depth {
                 // Check if this combination matches target dimensions
@@ -384,7 +439,11 @@ impl UnifiedOptimizer {
                 }
 
                 // Check if matches target
-                if result_dims.iter().zip(target_dims.iter()).all(|(a, b)| a == b) {
+                if result_dims
+                    .iter()
+                    .zip(target_dims.iter())
+                    .all(|(a, b)| a == b)
+                {
                     valid_combinations.push(current_powers.clone());
                 }
                 return;
@@ -393,11 +452,29 @@ impl UnifiedOptimizer {
             for power in -max_power..=max_power {
                 let mut new_powers = current_powers.clone();
                 new_powers.push(power);
-                try_powers(variables, dimensions, target_dims, new_powers, depth + 1, max_depth, max_power, valid_combinations);
+                try_powers(
+                    variables,
+                    dimensions,
+                    target_dims,
+                    new_powers,
+                    depth + 1,
+                    max_depth,
+                    max_power,
+                    valid_combinations,
+                );
             }
         }
 
-        try_powers(&variables, &dimensions, target_dims, vec![], 0, variables.len().min(3), 2, &mut valid_combinations);
+        try_powers(
+            &variables,
+            &dimensions,
+            target_dims,
+            vec![],
+            0,
+            variables.len().min(3),
+            2,
+            &mut valid_combinations,
+        );
 
         if let Some(powers) = valid_combinations.first() {
             // Build expression
@@ -437,7 +514,7 @@ impl UnifiedOptimizer {
         &self,
         criteria: &SelectionCriteria,
         candidates: &[String],
-        input: &OptimizeInput
+        input: &OptimizeInput,
     ) -> ToolResult<OptimizeOutput> {
         // Default candidates if none specified
         let default_candidates = vec![
@@ -451,15 +528,16 @@ impl UnifiedOptimizer {
         let methods_to_try: Vec<FitMethod> = if candidates.is_empty() {
             // Try all standard curve fitting methods
             vec![
-                FitMethod::Polynomial,  // Includes linear and quadratic
+                FitMethod::Polynomial, // Includes linear and quadratic
                 FitMethod::Trigonometric,
                 FitMethod::Exponential,
                 FitMethod::PowerLaw,
             ]
         } else {
             // Parse user-specified candidates
-            candidates.iter().filter_map(|name| {
-                match name.as_str() {
+            candidates
+                .iter()
+                .filter_map(|name| match name.as_str() {
                     "linear" | "polynomial" => Some(FitMethod::Polynomial),
                     "trigonometric" | "sinusoidal" => Some(FitMethod::Trigonometric),
                     "exponential" => Some(FitMethod::Exponential),
@@ -467,8 +545,8 @@ impl UnifiedOptimizer {
                     "logarithmic" => Some(FitMethod::Logarithmic),
                     "rational" => Some(FitMethod::Rational),
                     _ => None,
-                }
-            }).collect()
+                })
+                .collect()
         };
 
         // Try each method and collect results with their scores
@@ -483,7 +561,7 @@ impl UnifiedOptimizer {
                     SelectionCriteria::RSquared => {
                         // For R², higher is better, so negate for consistent "lower is better" comparison
                         -output.r_squared.unwrap_or(0.0)
-                    },
+                    }
                 };
 
                 let method_name = format!("{:?}", method);
@@ -514,9 +592,12 @@ impl UnifiedOptimizer {
         }
 
         // Find the best model (lowest score for AIC/BIC/AICc, highest for R²)
-        let (mut best_output, best_score, best_method) = results.into_iter()
+        let (mut best_output, best_score, best_method) = results
+            .into_iter()
             .min_by(|(_, score1, _), (_, score2, _)| {
-                score1.partial_cmp(score2).unwrap_or(std::cmp::Ordering::Equal)
+                score1
+                    .partial_cmp(score2)
+                    .unwrap_or(std::cmp::Ordering::Equal)
             })
             .unwrap();
 
@@ -547,24 +628,27 @@ impl Optimize for UnifiedOptimizer {
 
             OptimizationMethod::Minimize(min_method) => self.optimize_minimize(min_method, input),
 
-            OptimizationMethod::Interpolation(interp_method) => self.optimize_interpolate(interp_method, input),
+            OptimizationMethod::Interpolation(interp_method) => {
+                self.optimize_interpolate(interp_method, input)
+            }
 
             OptimizationMethod::DimensionalAnalysis(method) => {
                 // Get target quantity from parameters
-                let target = input.parameters.get("target")
+                let target = input
+                    .parameters
+                    .get("target")
                     .and_then(|v| v.as_str())
                     .ok_or("target quantity required for dimensional analysis")?;
 
                 self.optimize_dimensional_analysis(target, input)
-            },
+            }
 
-            OptimizationMethod::SymbolicRegression => {
-                self.optimize_symbolic_regression(input)
-            },
+            OptimizationMethod::SymbolicRegression => self.optimize_symbolic_regression(input),
 
-            OptimizationMethod::Auto { criteria, candidates } => {
-                self.optimize_auto(criteria, candidates, input)
-            },
+            OptimizationMethod::Auto {
+                criteria,
+                candidates,
+            } => self.optimize_auto(criteria, candidates, input),
         }
     }
 }

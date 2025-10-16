@@ -22,7 +22,7 @@ fn integrate_internal(expr: &Expr, var: &str) -> Expr {
                 // ∫ x dx = x^2/2
                 Expr::mul(
                     Expr::rational_unchecked(1, 2),
-                    Expr::pow(Expr::sym(var), Expr::num(2))
+                    Expr::pow(Expr::sym(var), Expr::num(2)),
                 )
             } else {
                 // ∫ y dx = y*x (constant with respect to x)
@@ -31,9 +31,7 @@ fn integrate_internal(expr: &Expr, var: &str) -> Expr {
         }
 
         // ∫ (a + b) dx = ∫ a dx + ∫ b dx
-        Expr::Add(a, b) => {
-            Expr::add(integrate_internal(a, var), integrate_internal(b, var))
-        }
+        Expr::Add(a, b) => Expr::add(integrate_internal(a, var), integrate_internal(b, var)),
 
         // ∫ a * b dx - try to factor out constants
         Expr::Mul(a, b) => {
@@ -58,8 +56,8 @@ fn integrate_internal(expr: &Expr, var: &str) -> Expr {
                     // ∫ x^n dx = x^(n+1)/(n+1)
                     let new_exp = Expr::add((**exp).clone(), Expr::num(1));
                     return Expr::mul(
-                        Expr::pow(new_exp.clone(), Expr::num(-1)),  // 1/(n+1)
-                        Expr::pow(Expr::sym(var), new_exp)  // x^(n+1)
+                        Expr::pow(new_exp.clone(), Expr::num(-1)), // 1/(n+1)
+                        Expr::pow(Expr::sym(var), new_exp),        // x^(n+1)
                     );
                 }
             }
@@ -81,10 +79,12 @@ fn integrate_internal(expr: &Expr, var: &str) -> Expr {
                 if s == var {
                     match name.as_str() {
                         // ∫ sin(x) dx = -cos(x)
-                        "sin" => return Expr::mul(
-                            Expr::num(-1),
-                            Expr::func("cos", vec![Expr::sym(var)])
-                        ),
+                        "sin" => {
+                            return Expr::mul(
+                                Expr::num(-1),
+                                Expr::func("cos", vec![Expr::sym(var)]),
+                            );
+                        }
 
                         // ∫ cos(x) dx = sin(x)
                         "cos" => return Expr::func("sin", vec![Expr::sym(var)]),
@@ -101,7 +101,7 @@ fn integrate_internal(expr: &Expr, var: &str) -> Expr {
             Expr::func(format!("∫{} d{}", name, var), args.clone())
         }
 
-        _ => Expr::func(format!("∫({}) d{}", expr, var), vec![])
+        _ => Expr::func(format!("∫({}) d{}", expr, var), vec![]),
     }
 }
 

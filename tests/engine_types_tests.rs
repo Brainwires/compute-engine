@@ -1,7 +1,7 @@
 //! Comprehensive tests for the 10-tool engine architecture
 
 use computational_engine::engine::*;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::collections::HashMap;
 
 // ============================================================================
@@ -681,12 +681,10 @@ fn test_json_api_format() {
     let request: ToolRequest = serde_json::from_str(json_str).unwrap();
 
     match request {
-        ToolRequest::Solve(input) => {
-            match input.equation_type {
-                EquationType::Einstein(EinsteinEquation::Vacuum) => (),
-                _ => panic!("Wrong equation type"),
-            }
-        }
+        ToolRequest::Solve(input) => match input.equation_type {
+            EquationType::Einstein(EinsteinEquation::Vacuum) => (),
+            _ => panic!("Wrong equation type"),
+        },
         _ => panic!("Wrong tool"),
     }
 }

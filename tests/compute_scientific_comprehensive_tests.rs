@@ -8,8 +8,8 @@
 //! - Geophysics (4 categories)
 //! - Engineering (4 disciplines)
 
-use computational_engine::engine::*;
 use computational_engine::create_default_dispatcher;
+use computational_engine::engine::*;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -55,7 +55,11 @@ fn test_buffer_capacity() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate buffer capacity: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate buffer capacity: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -74,7 +78,11 @@ fn test_arrhenius() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate Arrhenius rate constant: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate Arrhenius rate constant: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -93,7 +101,11 @@ fn test_nernst_equation() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate Nernst potential: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate Nernst potential: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -126,7 +138,10 @@ fn test_michaelis_menten() {
     let mut params = HashMap::new();
     params.insert("vmax".to_string(), serde_json::json!(100.0));
     params.insert("km".to_string(), serde_json::json!(5.0));
-    params.insert("substrate_concentration".to_string(), serde_json::json!(10.0));
+    params.insert(
+        "substrate_concentration".to_string(),
+        serde_json::json!(10.0),
+    );
 
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Biology(BiologyOp::MichaelisMenten),
@@ -135,7 +150,11 @@ fn test_michaelis_menten() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate enzyme velocity: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate enzyme velocity: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Compute(output)) = result {
         let value = output.result.get("value").and_then(|v| v.as_f64()).unwrap();
@@ -157,7 +176,11 @@ fn test_hardy_weinberg() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate genotype frequencies: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate genotype frequencies: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -166,9 +189,18 @@ fn test_goldman_equation() {
 
     let mut params = HashMap::new();
     params.insert("temperature".to_string(), serde_json::json!(310.0)); // K (37°C)
-    params.insert("ion_concentrations_inside".to_string(), serde_json::json!([140.0, 12.0, 4.0])); // K+, Na+, Cl- (mM)
-    params.insert("ion_concentrations_outside".to_string(), serde_json::json!([5.0, 145.0, 110.0])); // K+, Na+, Cl- (mM)
-    params.insert("permeabilities".to_string(), serde_json::json!([1.0, 0.04, 0.45])); // Relative permeabilities
+    params.insert(
+        "ion_concentrations_inside".to_string(),
+        serde_json::json!([140.0, 12.0, 4.0]),
+    ); // K+, Na+, Cl- (mM)
+    params.insert(
+        "ion_concentrations_outside".to_string(),
+        serde_json::json!([5.0, 145.0, 110.0]),
+    ); // K+, Na+, Cl- (mM)
+    params.insert(
+        "permeabilities".to_string(),
+        serde_json::json!([1.0, 0.04, 0.45]),
+    ); // Relative permeabilities
 
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Biology(BiologyOp::GoldmanEquation),
@@ -177,7 +209,11 @@ fn test_goldman_equation() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate membrane potential: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate membrane potential: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -195,7 +231,11 @@ fn test_allometric_scaling() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate metabolic rate: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate metabolic rate: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -220,7 +260,11 @@ fn test_conduction() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate conductive heat transfer: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate conductive heat transfer: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -228,7 +272,10 @@ fn test_convection() {
     let dispatcher = create_default_dispatcher();
 
     let mut params = HashMap::new();
-    params.insert("heat_transfer_coefficient".to_string(), serde_json::json!(25.0)); // W/(m²·K)
+    params.insert(
+        "heat_transfer_coefficient".to_string(),
+        serde_json::json!(25.0),
+    ); // W/(m²·K)
     params.insert("area".to_string(), serde_json::json!(5.0)); // m²
     params.insert("surface_temp".to_string(), serde_json::json!(100.0)); // °C
     params.insert("fluid_temp".to_string(), serde_json::json!(20.0)); // °C
@@ -240,7 +287,11 @@ fn test_convection() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate convective heat transfer: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate convective heat transfer: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -260,7 +311,11 @@ fn test_radiation() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate radiative heat transfer: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate radiative heat transfer: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -280,7 +335,11 @@ fn test_thermal_resistance() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate thermal resistance: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate thermal resistance: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -298,7 +357,11 @@ fn test_entropy() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate entropy change: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate entropy change: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -320,7 +383,11 @@ fn test_thin_lens() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate image distance: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate image distance: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -339,7 +406,11 @@ fn test_snells_law() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate refraction angle: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate refraction angle: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -358,7 +429,11 @@ fn test_diffraction_grating() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate diffraction angle: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate diffraction angle: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -377,7 +452,11 @@ fn test_fresnel_equations() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate reflectance/transmittance: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate reflectance/transmittance: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -398,7 +477,11 @@ fn test_seismology() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate earthquake magnitude: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate earthquake magnitude: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -417,7 +500,11 @@ fn test_atmosphere() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate atmospheric properties: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate atmospheric properties: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -454,7 +541,11 @@ fn test_planetary_science() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate planetary parameters: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate planetary parameters: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -496,7 +587,11 @@ fn test_doppler_effect() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should calculate Doppler shifted frequency: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should calculate Doppler shifted frequency: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -536,7 +631,11 @@ fn test_bernoulli() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should apply Bernoulli's equation: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should apply Bernoulli's equation: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -563,7 +662,10 @@ fn test_michaelis_menten_requires_vmax() {
 
     let mut params = HashMap::new();
     params.insert("km".to_string(), serde_json::json!(5.0));
-    params.insert("substrate_concentration".to_string(), serde_json::json!(10.0));
+    params.insert(
+        "substrate_concentration".to_string(),
+        serde_json::json!(10.0),
+    );
 
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Biology(BiologyOp::MichaelisMenten),
@@ -590,5 +692,8 @@ fn test_thin_lens_requires_parameters() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err() || result.is_ok(), "Thin lens may solve for missing parameter or error");
+    assert!(
+        result.is_err() || result.is_ok(),
+        "Thin lens may solve for missing parameter or error"
+    );
 }

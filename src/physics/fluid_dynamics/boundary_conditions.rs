@@ -20,8 +20,18 @@ pub struct BoundaryConditions {
 }
 
 impl BoundaryConditions {
-    pub fn new(left: BoundaryType, right: BoundaryType, bottom: BoundaryType, top: BoundaryType) -> Self {
-        Self { left, right, bottom, top }
+    pub fn new(
+        left: BoundaryType,
+        right: BoundaryType,
+        bottom: BoundaryType,
+        top: BoundaryType,
+    ) -> Self {
+        Self {
+            left,
+            right,
+            bottom,
+            top,
+        }
     }
 
     pub fn all_no_slip() -> Self {
@@ -38,20 +48,30 @@ impl BoundaryConditions {
             left: BoundaryType::NoSlip,
             right: BoundaryType::NoSlip,
             bottom: BoundaryType::NoSlip,
-            top: BoundaryType::Wall { u: lid_velocity, v: 0.0 },
+            top: BoundaryType::Wall {
+                u: lid_velocity,
+                v: 0.0,
+            },
         }
     }
 
     pub fn channel_flow(inlet_velocity: f64) -> Self {
         Self {
-            left: BoundaryType::VelocityInlet { u: inlet_velocity, v: 0.0 },
+            left: BoundaryType::VelocityInlet {
+                u: inlet_velocity,
+                v: 0.0,
+            },
             right: BoundaryType::PressureOutlet { pressure: 0.0 },
             bottom: BoundaryType::NoSlip,
             top: BoundaryType::NoSlip,
         }
     }
 
-    pub fn apply_velocity_boundary(&self, u: &mut ndarray::Array2<f64>, v: &mut ndarray::Array2<f64>) {
+    pub fn apply_velocity_boundary(
+        &self,
+        u: &mut ndarray::Array2<f64>,
+        v: &mut ndarray::Array2<f64>,
+    ) {
         let (nx, ny) = u.dim();
 
         // Left boundary (i = 0)
@@ -65,11 +85,17 @@ impl BoundaryConditions {
                     u[[0, j]] = 0.0; // Normal velocity = 0
                     // v[[0, j]] remains unchanged (free slip in tangential direction)
                 }
-                BoundaryType::VelocityInlet { u: u_inlet, v: v_inlet } => {
+                BoundaryType::VelocityInlet {
+                    u: u_inlet,
+                    v: v_inlet,
+                } => {
                     u[[0, j]] = *u_inlet;
                     v[[0, j]] = *v_inlet;
                 }
-                BoundaryType::Wall { u: u_wall, v: v_wall } => {
+                BoundaryType::Wall {
+                    u: u_wall,
+                    v: v_wall,
+                } => {
                     u[[0, j]] = *u_wall;
                     v[[0, j]] = *v_wall;
                 }
@@ -85,20 +111,23 @@ impl BoundaryConditions {
         for j in 0..ny {
             match &self.right {
                 BoundaryType::NoSlip => {
-                    u[[nx-1, j]] = 0.0;
-                    v[[nx-1, j]] = 0.0;
+                    u[[nx - 1, j]] = 0.0;
+                    v[[nx - 1, j]] = 0.0;
                 }
                 BoundaryType::FreeSlip => {
-                    u[[nx-1, j]] = 0.0;
+                    u[[nx - 1, j]] = 0.0;
                 }
-                BoundaryType::Wall { u: u_wall, v: v_wall } => {
-                    u[[nx-1, j]] = *u_wall;
-                    v[[nx-1, j]] = *v_wall;
+                BoundaryType::Wall {
+                    u: u_wall,
+                    v: v_wall,
+                } => {
+                    u[[nx - 1, j]] = *u_wall;
+                    v[[nx - 1, j]] = *v_wall;
                 }
                 BoundaryType::PressureOutlet { .. } => {
                     // Zero gradient condition (handled in solver)
-                    u[[nx-1, j]] = u[[nx-2, j]];
-                    v[[nx-1, j]] = v[[nx-2, j]];
+                    u[[nx - 1, j]] = u[[nx - 2, j]];
+                    v[[nx - 1, j]] = v[[nx - 2, j]];
                 }
                 _ => {}
             }
@@ -114,7 +143,10 @@ impl BoundaryConditions {
                 BoundaryType::FreeSlip => {
                     v[[i, 0]] = 0.0;
                 }
-                BoundaryType::Wall { u: u_wall, v: v_wall } => {
+                BoundaryType::Wall {
+                    u: u_wall,
+                    v: v_wall,
+                } => {
                     u[[i, 0]] = *u_wall;
                     v[[i, 0]] = *v_wall;
                 }
@@ -129,18 +161,21 @@ impl BoundaryConditions {
         for i in 0..nx {
             match &self.top {
                 BoundaryType::NoSlip => {
-                    u[[i, ny-1]] = 0.0;
-                    v[[i, ny-1]] = 0.0;
+                    u[[i, ny - 1]] = 0.0;
+                    v[[i, ny - 1]] = 0.0;
                 }
                 BoundaryType::FreeSlip => {
-                    v[[i, ny-1]] = 0.0;
+                    v[[i, ny - 1]] = 0.0;
                 }
-                BoundaryType::Wall { u: u_wall, v: v_wall } => {
-                    u[[i, ny-1]] = *u_wall;
-                    v[[i, ny-1]] = *v_wall;
+                BoundaryType::Wall {
+                    u: u_wall,
+                    v: v_wall,
+                } => {
+                    u[[i, ny - 1]] = *u_wall;
+                    v[[i, ny - 1]] = *v_wall;
                 }
                 BoundaryType::Symmetry => {
-                    v[[i, ny-1]] = 0.0;
+                    v[[i, ny - 1]] = 0.0;
                 }
                 _ => {}
             }
@@ -156,7 +191,10 @@ impl BoundaryConditions {
                 BoundaryType::PressureOutlet { pressure } => {
                     p[[0, j]] = *pressure;
                 }
-                BoundaryType::VelocityInlet { .. } | BoundaryType::NoSlip | BoundaryType::FreeSlip | BoundaryType::Wall { .. } => {
+                BoundaryType::VelocityInlet { .. }
+                | BoundaryType::NoSlip
+                | BoundaryType::FreeSlip
+                | BoundaryType::Wall { .. } => {
                     // Neumann condition (zero gradient)
                     p[[0, j]] = p[[1, j]];
                 }
@@ -168,11 +206,11 @@ impl BoundaryConditions {
         for j in 0..ny {
             match &self.right {
                 BoundaryType::PressureOutlet { pressure } => {
-                    p[[nx-1, j]] = *pressure;
+                    p[[nx - 1, j]] = *pressure;
                 }
                 _ => {
                     // Neumann condition (zero gradient)
-                    p[[nx-1, j]] = p[[nx-2, j]];
+                    p[[nx - 1, j]] = p[[nx - 2, j]];
                 }
             }
         }
@@ -194,11 +232,11 @@ impl BoundaryConditions {
         for i in 0..nx {
             match &self.top {
                 BoundaryType::PressureOutlet { pressure } => {
-                    p[[i, ny-1]] = *pressure;
+                    p[[i, ny - 1]] = *pressure;
                 }
                 _ => {
                     // Neumann condition (zero gradient)
-                    p[[i, ny-1]] = p[[i, ny-2]];
+                    p[[i, ny - 1]] = p[[i, ny - 2]];
                 }
             }
         }
@@ -221,15 +259,15 @@ mod tests {
         let bc = BoundaryConditions::lid_driven_cavity(1.0);
         let mut u = Array2::<f64>::zeros((5, 5));
         let mut v = Array2::<f64>::zeros((5, 5));
-        
+
         bc.apply_velocity_boundary(&mut u, &mut v);
-        
+
         // Check top boundary has lid velocity
         for i in 0..5 {
             assert_eq!(u[[i, 4]], 1.0);
             assert_eq!(v[[i, 4]], 0.0);
         }
-        
+
         // Check other boundaries are no-slip
         for i in 0..5 {
             assert_eq!(u[[i, 0]], 0.0);

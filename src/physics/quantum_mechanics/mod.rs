@@ -27,14 +27,14 @@ const A_0: f64 = 5.29177210903e-11; // Bohr radius (m)
 #[derive(Debug, Deserialize)]
 pub struct SchrodingerRequest {
     pub potential: String, // "infinite_well", "harmonic", "step", "barrier"
-    pub energy: f64, // Energy eigenvalue (J)
-    pub position: f64, // Position to evaluate (m)
+    pub energy: f64,       // Energy eigenvalue (J)
+    pub position: f64,     // Position to evaluate (m)
     pub parameters: std::collections::HashMap<String, f64>,
 }
 
 #[derive(Debug, Serialize)]
 pub struct SchrodingerResult {
-    pub wavefunction: f64, // ψ(x)
+    pub wavefunction: f64,        // ψ(x)
     pub probability_density: f64, // |ψ(x)|²
     pub energy_eigenvalue: f64,
     pub normalization_constant: f64,
@@ -47,7 +47,10 @@ pub fn schrodinger_equation(request: SchrodingerRequest) -> Result<SchrodingerRe
 
     match request.potential.as_str() {
         "infinite_well" => {
-            let l = request.parameters.get("width").ok_or("Width required for infinite well")?;
+            let l = request
+                .parameters
+                .get("width")
+                .ok_or("Width required for infinite well")?;
             let n = *request.parameters.get("quantum_number").unwrap_or(&1.0) as usize;
 
             // ψ_n(x) = √(2/L) sin(nπx/L)
@@ -63,16 +66,19 @@ pub fn schrodinger_equation(request: SchrodingerRequest) -> Result<SchrodingerRe
                 energy_eigenvalue: e_n,
                 normalization_constant: (2.0 / l).sqrt(),
             })
-        },
+        }
 
         "harmonic" => {
             // Ground state harmonic oscillator
-            let omega = request.parameters.get("omega").ok_or("Angular frequency required")?;
+            let omega = request
+                .parameters
+                .get("omega")
+                .ok_or("Angular frequency required")?;
             let m = request.parameters.get("mass").unwrap_or(&M_E);
 
             // ψ_0(x) = (mω/πℏ)^(1/4) exp(-mωx²/2ℏ)
             let norm = (m * omega / (PI * H_BAR)).powf(0.25);
-            let psi = norm * (- m * omega * x * x / (2.0 * H_BAR)).exp();
+            let psi = norm * (-m * omega * x * x / (2.0 * H_BAR)).exp();
             let prob_density = psi * psi;
 
             // E_0 = ℏω/2
@@ -84,10 +90,13 @@ pub fn schrodinger_equation(request: SchrodingerRequest) -> Result<SchrodingerRe
                 energy_eigenvalue: e_0,
                 normalization_constant: norm,
             })
-        },
+        }
 
         "step" => {
-            let v0 = request.parameters.get("barrier_height").ok_or("Barrier height required")?;
+            let v0 = request
+                .parameters
+                .get("barrier_height")
+                .ok_or("Barrier height required")?;
             let k = (2.0 * M_E * e / (H_BAR * H_BAR)).sqrt();
 
             let psi = if e > *v0 {
@@ -106,7 +115,7 @@ pub fn schrodinger_equation(request: SchrodingerRequest) -> Result<SchrodingerRe
                 energy_eigenvalue: e,
                 normalization_constant: 1.0,
             })
-        },
+        }
 
         _ => Err(format!("Unknown potential type: {}", request.potential)),
     }
@@ -119,21 +128,23 @@ pub fn schrodinger_equation(request: SchrodingerRequest) -> Result<SchrodingerRe
 #[derive(Debug, Deserialize)]
 pub struct HarmonicOscillatorRequest {
     pub quantum_number: usize, // n = 0, 1, 2, ...
-    pub omega: f64, // Angular frequency (rad/s)
-    pub mass: f64, // Particle mass (kg)
+    pub omega: f64,            // Angular frequency (rad/s)
+    pub mass: f64,             // Particle mass (kg)
     pub position: Option<f64>, // Position to evaluate wavefunction (m)
 }
 
 #[derive(Debug, Serialize)]
 pub struct HarmonicOscillatorResult {
-    pub energy: f64, // E_n = ℏω(n + 1/2)
-    pub zero_point_energy: f64, // E_0 = ℏω/2
-    pub wavefunction: Option<f64>, // ψ_n(x)
+    pub energy: f64,                          // E_n = ℏω(n + 1/2)
+    pub zero_point_energy: f64,               // E_0 = ℏω/2
+    pub wavefunction: Option<f64>,            // ψ_n(x)
     pub classical_turning_points: (f64, f64), // ±x_max
 }
 
 /// Quantum harmonic oscillator solutions
-pub fn harmonic_oscillator(request: HarmonicOscillatorRequest) -> Result<HarmonicOscillatorResult, String> {
+pub fn harmonic_oscillator(
+    request: HarmonicOscillatorRequest,
+) -> Result<HarmonicOscillatorResult, String> {
     let n = request.quantum_number;
     let omega = request.omega;
     let m = request.mass;
@@ -158,18 +169,23 @@ pub fn harmonic_oscillator(request: HarmonicOscillatorRequest) -> Result<Harmoni
                 // H_3(ξ) = 8ξ³ - 12ξ
                 let h3 = 8.0 * xi.powi(3) - 12.0 * xi;
                 norm * h3 / (48.0_f64.sqrt()) * (-xi * xi / 2.0).exp()
-            },
+            }
             4 => {
                 // H_4(ξ) = 16ξ⁴ - 48ξ² + 12
                 let h4 = 16.0 * xi.powi(4) - 48.0 * xi * xi + 12.0;
                 norm * h4 / (384.0_f64.sqrt()) * (-xi * xi / 2.0).exp()
-            },
+            }
             5 => {
                 // H_5(ξ) = 32ξ⁵ - 160ξ³ + 120ξ
                 let h5 = 32.0 * xi.powi(5) - 160.0 * xi.powi(3) + 120.0 * xi;
                 norm * h5 / (3840.0_f64.sqrt()) * (-xi * xi / 2.0).exp()
-            },
-            _ => return Err(format!("Quantum number n={} not implemented (only n=0-5)", n)),
+            }
+            _ => {
+                return Err(format!(
+                    "Quantum number n={} not implemented (only n=0-5)",
+                    n
+                ));
+            }
         };
 
         Some(psi)
@@ -191,18 +207,18 @@ pub fn harmonic_oscillator(request: HarmonicOscillatorRequest) -> Result<Harmoni
 
 #[derive(Debug, Deserialize)]
 pub struct HydrogenAtomRequest {
-    pub n: usize, // Principal quantum number
-    pub l: usize, // Orbital angular momentum quantum number
-    pub m: i32, // Magnetic quantum number
+    pub n: usize,       // Principal quantum number
+    pub l: usize,       // Orbital angular momentum quantum number
+    pub m: i32,         // Magnetic quantum number
     pub r: Option<f64>, // Radial distance (m)
 }
 
 #[derive(Debug, Serialize)]
 pub struct HydrogenAtomResult {
-    pub energy: f64, // E_n = -13.6 eV / n²
-    pub bohr_radius: f64, // a₀
+    pub energy: f64,                      // E_n = -13.6 eV / n²
+    pub bohr_radius: f64,                 // a₀
     pub radial_wavefunction: Option<f64>, // R_nl(r)
-    pub orbital_angular_momentum: f64, // L = √(l(l+1))ℏ
+    pub orbital_angular_momentum: f64,    // L = √(l(l+1))ℏ
 }
 
 /// Hydrogen atom wavefunctions and energies
@@ -216,14 +232,21 @@ pub fn hydrogen_atom(request: HydrogenAtomRequest) -> Result<HydrogenAtomResult,
         return Err("Principal quantum number n must be >= 1".to_string());
     }
     if l >= n {
-        return Err(format!("Orbital quantum number l must be < n (got l={}, n={})", l, n));
+        return Err(format!(
+            "Orbital quantum number l must be < n (got l={}, n={})",
+            l, n
+        ));
     }
     if m.abs() as usize > l {
-        return Err(format!("Magnetic quantum number |m| must be <= l (got m={}, l={})", m, l));
+        return Err(format!(
+            "Magnetic quantum number |m| must be <= l (got m={}, l={})",
+            m, l
+        ));
     }
 
     // Energy: E_n = -m_e e⁴/(2(4πε₀)²ℏ²n²) = -13.6 eV / n²
-    let rydberg_energy = M_E * E_CHARGE.powi(4) / (2.0 * (4.0 * PI * 8.854187817e-12).powi(2) * H_BAR.powi(2));
+    let rydberg_energy =
+        M_E * E_CHARGE.powi(4) / (2.0 * (4.0 * PI * 8.854187817e-12).powi(2) * H_BAR.powi(2));
     let energy = -rydberg_energy / (n * n) as f64;
 
     // Angular momentum: L = √(l(l+1))ℏ
@@ -237,7 +260,12 @@ pub fn hydrogen_atom(request: HydrogenAtomRequest) -> Result<HydrogenAtomResult,
             (1, 0) => 2.0 / A_0.powf(1.5) * (-rho / 2.0).exp(), // 1s
             (2, 0) => 1.0 / (2.0 * A_0).powf(1.5) * (2.0 - rho) * (-rho / 2.0).exp(), // 2s
             (2, 1) => 1.0 / (24.0_f64.sqrt() * A_0.powf(1.5)) * rho * (-rho / 2.0).exp(), // 2p
-            _ => return Err(format!("Radial function not implemented for n={}, l={}", n, l)),
+            _ => {
+                return Err(format!(
+                    "Radial function not implemented for n={}, l={}",
+                    n, l
+                ));
+            }
         };
 
         Some(r_nl)
@@ -259,17 +287,17 @@ pub fn hydrogen_atom(request: HydrogenAtomRequest) -> Result<HydrogenAtomResult,
 
 #[derive(Debug, Deserialize)]
 pub struct AngularMomentumRequest {
-    pub l: usize, // Orbital angular momentum quantum number
-    pub m: i32, // Magnetic quantum number
+    pub l: usize,          // Orbital angular momentum quantum number
+    pub m: i32,            // Magnetic quantum number
     pub operation: String, // "eigenvalue", "ladder", "commutator"
 }
 
 #[derive(Debug, Serialize)]
 pub struct AngularMomentumResult {
     pub total_angular_momentum: f64, // √(l(l+1))ℏ
-    pub z_component: f64, // mℏ
-    pub ladder_result: Option<f64>, // L±|l,m⟩
-    pub commutator: Option<String>, // [L_i, L_j] result
+    pub z_component: f64,            // mℏ
+    pub ladder_result: Option<f64>,  // L±|l,m⟩
+    pub commutator: Option<String>,  // [L_i, L_j] result
 }
 
 /// Angular momentum operators and eigenvalues
@@ -295,7 +323,7 @@ pub fn angular_momentum(request: AngularMomentumRequest) -> Result<AngularMoment
                 let coeff = H_BAR * ((l * (l + 1)) as f64 - (m * (m + 1)) as f64).sqrt();
                 (Some(coeff), None)
             }
-        },
+        }
 
         "ladder_down" => {
             // L-|l,m⟩ = ℏ√(l(l+1) - m(m-1))|l,m-1⟩
@@ -305,13 +333,13 @@ pub fn angular_momentum(request: AngularMomentumRequest) -> Result<AngularMoment
                 let coeff = H_BAR * ((l * (l + 1)) as f64 - (m * (m - 1)) as f64).sqrt();
                 (Some(coeff), None)
             }
-        },
+        }
 
         "commutator" => {
             // [L_i, L_j] = iℏε_ijk L_k
             let comm = "[Lx,Ly] = iℏLz, [Ly,Lz] = iℏLx, [Lz,Lx] = iℏLy".to_string();
             (None, Some(comm))
-        },
+        }
 
         _ => return Err(format!("Unknown operation: {}", request.operation)),
     };
@@ -330,15 +358,15 @@ pub fn angular_momentum(request: AngularMomentumRequest) -> Result<AngularMoment
 
 #[derive(Debug, Deserialize)]
 pub struct SpinRequest {
-    pub spin: f64, // Spin quantum number (1/2, 1, 3/2, etc.)
-    pub component: String, // "x", "y", "z", "plus", "minus"
+    pub spin: f64,               // Spin quantum number (1/2, 1, 3/2, etc.)
+    pub component: String,       // "x", "y", "z", "plus", "minus"
     pub state: Option<Vec<f64>>, // Input state vector [alpha, beta]
 }
 
 #[derive(Debug, Serialize)]
 pub struct SpinResult {
-    pub eigenvalues: Vec<f64>, // Possible measurement outcomes
-    pub state_after: Option<Vec<f64>>, // State after operator application
+    pub eigenvalues: Vec<f64>,          // Possible measurement outcomes
+    pub state_after: Option<Vec<f64>>,  // State after operator application
     pub expectation_value: Option<f64>, // ⟨S⟩ for given state
 }
 
@@ -358,10 +386,10 @@ pub fn spin_operators(request: SpinRequest) -> Result<SpinResult, String> {
             // Apply Pauli matrices (scaled by ℏ/2)
             let result_state = match request.component.as_str() {
                 "z" => vec![state[0], -state[1]], // σ_z|ψ⟩
-                "x" => vec![state[1], state[0]], // σ_x|ψ⟩
+                "x" => vec![state[1], state[0]],  // σ_x|ψ⟩
                 "y" => vec![-state[1], state[0]], // σ_y|ψ⟩ (imaginary parts omitted)
-                "plus" => vec![0.0, state[0]], // σ+|ψ⟩
-                "minus" => vec![state[1], 0.0], // σ-|ψ⟩
+                "plus" => vec![0.0, state[0]],    // σ+|ψ⟩
+                "minus" => vec![state[1], 0.0],   // σ-|ψ⟩
                 _ => return Err(format!("Unknown component: {}", request.component)),
             };
 
@@ -407,9 +435,9 @@ pub fn spin_operators(request: SpinRequest) -> Result<SpinResult, String> {
 
 #[derive(Debug, Deserialize)]
 pub struct PerturbationRequest {
-    pub order: usize, // 1 or 2 (first-order or second-order)
-    pub unperturbed_energy: f64, // E_n^(0)
-    pub perturbation_matrix_element: f64, // ⟨n|H'|n⟩
+    pub order: usize,                         // 1 or 2 (first-order or second-order)
+    pub unperturbed_energy: f64,              // E_n^(0)
+    pub perturbation_matrix_element: f64,     // ⟨n|H'|n⟩
     pub energy_differences: Option<Vec<f64>>, // E_n^(0) - E_k^(0) for second order
     pub coupling_matrix_elements: Option<Vec<f64>>, // ⟨n|H'|k⟩ for second order
 }
@@ -417,7 +445,7 @@ pub struct PerturbationRequest {
 #[derive(Debug, Serialize)]
 pub struct PerturbationResult {
     pub energy_correction: f64, // ΔE
-    pub total_energy: f64, // E_n^(0) + ΔE
+    pub total_energy: f64,      // E_n^(0) + ΔE
     pub correction_order: usize,
 }
 
@@ -430,12 +458,16 @@ pub fn perturbation_theory(request: PerturbationRequest) -> Result<PerturbationR
         1 => {
             // E_n^(1) = ⟨n|H'|n⟩
             request.perturbation_matrix_element
-        },
+        }
 
         2 => {
             // E_n^(2) = Σ |⟨n|H'|k⟩|²/(E_n^(0) - E_k^(0))
-            let energy_diffs = request.energy_differences.ok_or("Energy differences required for 2nd order")?;
-            let couplings = request.coupling_matrix_elements.ok_or("Coupling matrix elements required")?;
+            let energy_diffs = request
+                .energy_differences
+                .ok_or("Energy differences required for 2nd order")?;
+            let couplings = request
+                .coupling_matrix_elements
+                .ok_or("Coupling matrix elements required")?;
 
             if energy_diffs.len() != couplings.len() {
                 return Err("Mismatched array lengths".to_string());
@@ -448,9 +480,14 @@ pub fn perturbation_theory(request: PerturbationRequest) -> Result<PerturbationR
                 }
             }
             e2
-        },
+        }
 
-        _ => return Err(format!("Perturbation order {} not supported (use 1 or 2)", order)),
+        _ => {
+            return Err(format!(
+                "Perturbation order {} not supported (use 1 or 2)",
+                order
+            ));
+        }
     };
 
     Ok(PerturbationResult {
@@ -466,18 +503,18 @@ pub fn perturbation_theory(request: PerturbationRequest) -> Result<PerturbationR
 
 #[derive(Debug, Deserialize)]
 pub struct TunnelingRequest {
-    pub barrier_height: f64, // V₀ (J)
-    pub barrier_width: f64, // a (m)
+    pub barrier_height: f64,  // V₀ (J)
+    pub barrier_width: f64,   // a (m)
     pub particle_energy: f64, // E (J)
-    pub particle_mass: f64, // m (kg)
+    pub particle_mass: f64,   // m (kg)
 }
 
 #[derive(Debug, Serialize)]
 pub struct TunnelingResult {
     pub transmission_coefficient: f64, // T
-    pub reflection_coefficient: f64, // R = 1 - T
-    pub tunneling_probability: f64, // Same as T
-    pub decay_constant: f64, // κ
+    pub reflection_coefficient: f64,   // R = 1 - T
+    pub tunneling_probability: f64,    // Same as T
+    pub decay_constant: f64,           // κ
 }
 
 /// Quantum tunneling through a rectangular barrier
@@ -523,24 +560,26 @@ pub fn tunneling_probability(request: TunnelingRequest) -> Result<TunnelingResul
 
 #[derive(Debug, Deserialize)]
 pub struct DensityMatrixRequest {
-    pub state_type: String, // "pure", "mixed"
-    pub state_vector: Option<Vec<f64>>, // |ψ⟩ for pure states
+    pub state_type: String,                    // "pure", "mixed"
+    pub state_vector: Option<Vec<f64>>,        // |ψ⟩ for pure states
     pub density_matrix: Option<Vec<Vec<f64>>>, // ρ for mixed states
 }
 
 #[derive(Debug, Serialize)]
 pub struct DensityMatrixResult {
     pub density_matrix: Vec<Vec<f64>>, // ρ
-    pub trace: f64, // Tr(ρ) = 1
-    pub purity: f64, // Tr(ρ²)
-    pub is_pure: bool, // Tr(ρ²) = 1
-    pub von_neumann_entropy: f64, // S = -Tr(ρ ln ρ)
+    pub trace: f64,                    // Tr(ρ) = 1
+    pub purity: f64,                   // Tr(ρ²)
+    pub is_pure: bool,                 // Tr(ρ²) = 1
+    pub von_neumann_entropy: f64,      // S = -Tr(ρ ln ρ)
 }
 
 /// Density matrix formalism for quantum states
 pub fn density_matrix(request: DensityMatrixRequest) -> Result<DensityMatrixResult, String> {
     let rho = if request.state_type == "pure" {
-        let psi = request.state_vector.ok_or("State vector required for pure state")?;
+        let psi = request
+            .state_vector
+            .ok_or("State vector required for pure state")?;
         let n = psi.len();
 
         // ρ = |ψ⟩⟨ψ|
@@ -552,7 +591,9 @@ pub fn density_matrix(request: DensityMatrixRequest) -> Result<DensityMatrixResu
         }
         rho_mat
     } else {
-        request.density_matrix.ok_or("Density matrix required for mixed state")?
+        request
+            .density_matrix
+            .ok_or("Density matrix required for mixed state")?
     };
 
     let n = rho.len();
@@ -598,7 +639,7 @@ pub fn density_matrix(request: DensityMatrixRequest) -> Result<DensityMatrixResu
 #[derive(Debug, Deserialize)]
 pub struct EntanglementRequest {
     pub state_vector: Vec<f64>, // Two-qubit state (4 components)
-    pub measure: String, // "concurrence", "entanglement_entropy", "negativity"
+    pub measure: String,        // "concurrence", "entanglement_entropy", "negativity"
 }
 
 #[derive(Debug, Serialize)]
@@ -621,7 +662,7 @@ pub fn entanglement_measure(request: EntanglementRequest) -> Result<Entanglement
             // C = 2|ψ₀₀ψ₁₁ - ψ₀₁ψ₁₀|
             let c = 2.0 * (psi[0] * psi[3] - psi[1] * psi[2]).abs();
             c.min(1.0) // Clamp to [0, 1]
-        },
+        }
 
         "entanglement_entropy" => {
             // Simplified: S = -Tr(ρ_A ln ρ_A) for reduced density matrix
@@ -637,14 +678,14 @@ pub fn entanglement_measure(request: EntanglementRequest) -> Result<Entanglement
                 s -= rho_a_11 * rho_a_11.ln();
             }
             s
-        },
+        }
 
         "negativity" => {
             // Simplified negativity measure
             // N = (||ρ^T_A|| - 1)/2
             let cross_term = (psi[0] * psi[3] - psi[1] * psi[2]).abs();
             cross_term
-        },
+        }
 
         _ => return Err(format!("Unknown measure: {}", request.measure)),
     };
@@ -666,7 +707,7 @@ pub fn entanglement_measure(request: EntanglementRequest) -> Result<Entanglement
 pub struct QuantumEntropyRequest {
     pub density_matrix: Vec<Vec<f64>>,
     pub entropy_type: String, // "von_neumann", "renyi", "tsallis"
-    pub alpha: Option<f64>, // Parameter for Rényi/Tsallis entropy
+    pub alpha: Option<f64>,   // Parameter for Rényi/Tsallis entropy
 }
 
 #[derive(Debug, Serialize)]
@@ -694,11 +735,13 @@ pub fn quantum_entropy(request: QuantumEntropyRequest) -> Result<QuantumEntropyR
                 }
             }
             s
-        },
+        }
 
         "renyi" => {
             // S_α = 1/(1-α) ln(Tr(ρ^α))
-            let alpha = request.alpha.ok_or("Alpha parameter required for Rényi entropy")?;
+            let alpha = request
+                .alpha
+                .ok_or("Alpha parameter required for Rényi entropy")?;
             if (alpha - 1.0).abs() < 1e-10 {
                 return Err("Alpha cannot be 1 for Rényi entropy (use von Neumann)".to_string());
             }
@@ -711,11 +754,13 @@ pub fn quantum_entropy(request: QuantumEntropyRequest) -> Result<QuantumEntropyR
             }
 
             sum.ln() / (1.0 - alpha)
-        },
+        }
 
         "tsallis" => {
             // S_q = (1 - Tr(ρ^q))/(q-1)
-            let q = request.alpha.ok_or("q parameter required for Tsallis entropy")?;
+            let q = request
+                .alpha
+                .ok_or("q parameter required for Tsallis entropy")?;
             if (q - 1.0).abs() < 1e-10 {
                 return Err("q cannot be 1 for Tsallis entropy".to_string());
             }
@@ -728,7 +773,7 @@ pub fn quantum_entropy(request: QuantumEntropyRequest) -> Result<QuantumEntropyR
             }
 
             (1.0 - sum) / (q - 1.0)
-        },
+        }
 
         _ => return Err(format!("Unknown entropy type: {}", request.entropy_type)),
     };
@@ -801,15 +846,15 @@ pub fn quantum_coherence(request: CoherenceRequest) -> Result<CoherenceResult, S
 
 #[derive(Debug, Deserialize)]
 pub struct BellInequalityRequest {
-    pub state_vector: Vec<f64>, // Two-qubit state
+    pub state_vector: Vec<f64>,       // Two-qubit state
     pub measurement_angles: Vec<f64>, // [θ_a, θ_a', θ_b, θ_b'] for CHSH
 }
 
 #[derive(Debug, Serialize)]
 pub struct BellInequalityResult {
-    pub chsh_value: f64, // S = |E(a,b) + E(a,b') + E(a',b) - E(a',b')|
+    pub chsh_value: f64,      // S = |E(a,b) + E(a,b') + E(a',b) - E(a',b')|
     pub classical_bound: f64, // 2 for CHSH
-    pub quantum_bound: f64, // 2√2 for CHSH
+    pub quantum_bound: f64,   // 2√2 for CHSH
     pub violates_inequality: bool,
 }
 
@@ -852,19 +897,21 @@ pub fn bell_inequality(request: BellInequalityRequest) -> Result<BellInequalityR
 
 #[derive(Debug, Deserialize)]
 pub struct QuantumTomographyRequest {
-    pub measurements: Vec<Vec<f64>>, // Measurement outcomes
+    pub measurements: Vec<Vec<f64>>,    // Measurement outcomes
     pub measurement_bases: Vec<String>, // Pauli bases: X, Y, Z
 }
 
 #[derive(Debug, Serialize)]
 pub struct QuantumTomographyResult {
     pub reconstructed_state: Vec<Vec<f64>>, // Density matrix
-    pub fidelity: f64, // How well-determined
+    pub fidelity: f64,                      // How well-determined
     pub rank: usize,
 }
 
 /// Quantum state tomography
-pub fn quantum_tomography(request: QuantumTomographyRequest) -> Result<QuantumTomographyResult, String> {
+pub fn quantum_tomography(
+    request: QuantumTomographyRequest,
+) -> Result<QuantumTomographyResult, String> {
     let n_measurements = request.measurements.len();
 
     if n_measurements < 3 {
@@ -891,12 +938,12 @@ pub fn quantum_tomography(request: QuantumTomographyRequest) -> Result<QuantumTo
                 "Z" => {
                     rho[0][0] = meas[0];
                     rho[1][1] = meas[1];
-                },
+                }
                 "X" => {
                     rho[0][1] = (meas[0] - meas[1]) / 2.0;
                     rho[1][0] = rho[0][1];
-                },
-                _ => {},
+                }
+                _ => {}
             }
         }
     }
@@ -956,7 +1003,7 @@ pub fn quantum_gate(request: QuantumGateRequest) -> Result<QuantumGateResult, St
                 h[1][0] * state[0] + h[1][1] * state[1],
             ];
             (h, out)
-        },
+        }
 
         "pauli_x" => {
             if state.len() != 2 {
@@ -965,7 +1012,7 @@ pub fn quantum_gate(request: QuantumGateRequest) -> Result<QuantumGateResult, St
             let x = vec![vec![0.0, 1.0], vec![1.0, 0.0]];
             let out = vec![state[1], state[0]];
             (x, out)
-        },
+        }
 
         "pauli_z" => {
             if state.len() != 2 {
@@ -974,7 +1021,7 @@ pub fn quantum_gate(request: QuantumGateRequest) -> Result<QuantumGateResult, St
             let z = vec![vec![1.0, 0.0], vec![0.0, -1.0]];
             let out = vec![state[0], -state[1]];
             (z, out)
-        },
+        }
 
         "phase" => {
             if state.len() != 2 {
@@ -987,7 +1034,7 @@ pub fn quantum_gate(request: QuantumGateRequest) -> Result<QuantumGateResult, St
             ];
             let out = vec![state[0], theta.cos() * state[1]];
             (p, out)
-        },
+        }
 
         "cnot" => {
             if state.len() != 4 {
@@ -1001,7 +1048,7 @@ pub fn quantum_gate(request: QuantumGateRequest) -> Result<QuantumGateResult, St
             ];
             let out = vec![state[0], state[1], state[3], state[2]];
             (cnot, out)
-        },
+        }
 
         _ => return Err(format!("Unknown gate type: {}", request.gate_type)),
     };
@@ -1038,8 +1085,12 @@ pub fn quantum_circuit(request: QuantumCircuitRequest) -> Result<QuantumCircuitR
     let dim = 2_usize.pow(n_qubits as u32);
 
     if state.len() != dim {
-        return Err(format!("Initial state dimension {} doesn't match {} qubits (need {})",
-            state.len(), n_qubits, dim));
+        return Err(format!(
+            "Initial state dimension {} doesn't match {} qubits (need {})",
+            state.len(),
+            n_qubits,
+            dim
+        ));
     }
 
     let num_gates = request.gates.len();
@@ -1082,7 +1133,8 @@ mod tests {
             energy: 0.0,
             position: 0.5e-9,
             parameters: params,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.wavefunction.abs() > 0.0);
         assert!(result.energy_eigenvalue > 0.0);
@@ -1095,7 +1147,8 @@ mod tests {
             omega: 1.0e15,
             mass: M_E,
             position: Some(0.0),
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(result.energy, H_BAR * 1.0e15 / 2.0);
         assert!(result.wavefunction.unwrap() > 0.0);
@@ -1108,7 +1161,8 @@ mod tests {
             l: 0,
             m: 0,
             r: Some(A_0),
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.energy < 0.0); // Bound state
         assert_eq!(result.bohr_radius, A_0);

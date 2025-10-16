@@ -1,7 +1,7 @@
 //! Tests for the new 10-tool unified API
 
-use computational_engine::engine::*;
 use computational_engine::create_default_dispatcher;
+use computational_engine::engine::*;
 
 #[test]
 fn test_dispatcher_creation() {
@@ -19,7 +19,12 @@ fn test_solve_einstein_vacuum() {
     let request = ToolRequest::Solve(SolveInput {
         equation_type: EquationType::Einstein(EinsteinEquation::Vacuum),
         equations: vec![],
-        variables: Some(vec!["t".to_string(), "r".to_string(), "theta".to_string(), "phi".to_string()]),
+        variables: Some(vec![
+            "t".to_string(),
+            "r".to_string(),
+            "theta".to_string(),
+            "phi".to_string(),
+        ]),
         initial_guess: None,
         boundary_conditions: None,
         domain: None,
@@ -64,16 +69,19 @@ fn test_all_10_tools_registered() {
 
     // Test that all 10 tools can be called (even if stubbed)
     let tools = vec![
-        ("solve", ToolRequest::Solve(SolveInput {
-            equation_type: EquationType::RootFinding,
-            equations: vec![],
-            variables: None,
-            initial_guess: None,
-            boundary_conditions: None,
-            domain: None,
-            method: None,
-            parameters: std::collections::HashMap::new(),
-        })),
+        (
+            "solve",
+            ToolRequest::Solve(SolveInput {
+                equation_type: EquationType::RootFinding,
+                equations: vec![],
+                variables: None,
+                initial_guess: None,
+                boundary_conditions: None,
+                domain: None,
+                method: None,
+                parameters: std::collections::HashMap::new(),
+            }),
+        ),
         // Add more as we implement them
     ];
 

@@ -10,19 +10,16 @@
 //! - Fourier series
 //! - Wavelet transform
 
-mod lib;
 mod additional;
+mod lib;
 
 pub use lib::{
-    FFTRequest, FFTResult, compute_fft,
-    FilterRequest, FilterResult, apply_filter,
-    SpectrogramRequest, SpectrogramResult, compute_spectrogram,
-    PSDRequest, PSDResult, compute_psd,
+    FFTRequest, FFTResult, FilterRequest, FilterResult, PSDRequest, PSDResult, SpectrogramRequest,
+    SpectrogramResult, apply_filter, compute_fft, compute_psd, compute_spectrogram,
 };
 
 pub use additional::{
-    PeakDetectionRequest, PeakDetectionResult, detect_peaks,
-    FourierSeriesRequest, FourierSeriesResult, compute_fourier_series,
-    WaveletTransformRequest, WaveletTransformResult, wavelet_transform,
-    WindowFunctionRequest, WindowFunctionResult, windowing_functions,
+    FourierSeriesRequest, FourierSeriesResult, PeakDetectionRequest, PeakDetectionResult,
+    WaveletTransformRequest, WaveletTransformResult, WindowFunctionRequest, WindowFunctionResult,
+    compute_fourier_series, detect_peaks, wavelet_transform, windowing_functions,
 };

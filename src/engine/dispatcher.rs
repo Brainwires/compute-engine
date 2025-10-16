@@ -84,33 +84,29 @@ impl ToolDispatcher {
     /// Process a tool request and return the appropriate response
     pub fn dispatch(&self, request: ToolRequest) -> ToolResult<ToolResponse> {
         match request {
-            ToolRequest::Solve(input) => {
-                self.solver.solve(&input).map(ToolResponse::Solve)
-            }
-            ToolRequest::Differentiate(input) => {
-                self.differentiator.differentiate(&input).map(ToolResponse::Differentiate)
-            }
-            ToolRequest::Integrate(input) => {
-                self.integrator.integrate(&input).map(ToolResponse::Integrate)
-            }
-            ToolRequest::Analyze(input) => {
-                self.analyzer.analyze(&input).map(ToolResponse::Analyze)
-            }
+            ToolRequest::Solve(input) => self.solver.solve(&input).map(ToolResponse::Solve),
+            ToolRequest::Differentiate(input) => self
+                .differentiator
+                .differentiate(&input)
+                .map(ToolResponse::Differentiate),
+            ToolRequest::Integrate(input) => self
+                .integrator
+                .integrate(&input)
+                .map(ToolResponse::Integrate),
+            ToolRequest::Analyze(input) => self.analyzer.analyze(&input).map(ToolResponse::Analyze),
             ToolRequest::Simulate(input) => {
                 self.simulator.simulate(&input).map(ToolResponse::Simulate)
             }
-            ToolRequest::Compute(input) => {
-                self.computer.compute(&input).map(ToolResponse::Compute)
-            }
-            ToolRequest::Transform(input) => {
-                self.transformer.transform(&input).map(ToolResponse::Transform)
-            }
-            ToolRequest::FieldTheory(input) => {
-                self.field_theory.field_theory(&input).map(ToolResponse::FieldTheory)
-            }
-            ToolRequest::Sample(input) => {
-                self.sampler.sample(&input).map(ToolResponse::Sample)
-            }
+            ToolRequest::Compute(input) => self.computer.compute(&input).map(ToolResponse::Compute),
+            ToolRequest::Transform(input) => self
+                .transformer
+                .transform(&input)
+                .map(ToolResponse::Transform),
+            ToolRequest::FieldTheory(input) => self
+                .field_theory
+                .field_theory(&input)
+                .map(ToolResponse::FieldTheory),
+            ToolRequest::Sample(input) => self.sampler.sample(&input).map(ToolResponse::Sample),
             ToolRequest::Optimize(input) => {
                 self.optimizer.optimize(&input).map(ToolResponse::Optimize)
             }
@@ -126,7 +122,7 @@ impl ToolDispatcher {
                     "success": false,
                     "error": format!("Invalid JSON request: {}", e)
                 })
-                .to_string()
+                .to_string();
             }
         };
 

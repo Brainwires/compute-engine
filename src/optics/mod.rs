@@ -7,7 +7,6 @@
  * - Diffraction grating
  * - Fresnel equations (reflection/transmission)
  */
-
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -28,24 +27,24 @@ pub enum OpticsOperation {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OpticsParams {
     // Thin lens
-    pub focal_length: Option<f64>,      // f (m)
-    pub object_distance: Option<f64>,    // do (m)
-    pub image_distance: Option<f64>,     // di (m)
+    pub focal_length: Option<f64>,    // f (m)
+    pub object_distance: Option<f64>, // do (m)
+    pub image_distance: Option<f64>,  // di (m)
 
     // Snell's law
-    pub n1: Option<f64>,                 // refractive index 1
-    pub n2: Option<f64>,                 // refractive index 2
-    pub theta1: Option<f64>,             // incident angle (degrees)
-    pub theta2: Option<f64>,             // refracted angle (degrees)
+    pub n1: Option<f64>,     // refractive index 1
+    pub n2: Option<f64>,     // refractive index 2
+    pub theta1: Option<f64>, // incident angle (degrees)
+    pub theta2: Option<f64>, // refracted angle (degrees)
 
     // Diffraction
-    pub grating_spacing: Option<f64>,    // d (m)
-    pub wavelength: Option<f64>,         // λ (m)
-    pub order: Option<i32>,              // m
-    pub angle: Option<f64>,              // θ (degrees)
+    pub grating_spacing: Option<f64>, // d (m)
+    pub wavelength: Option<f64>,      // λ (m)
+    pub order: Option<i32>,           // m
+    pub angle: Option<f64>,           // θ (degrees)
 
     // Fresnel
-    pub polarization: Option<String>,    // "s" or "p"
+    pub polarization: Option<String>, // "s" or "p"
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -73,9 +72,14 @@ fn calculate_thin_lens(params: &OpticsParams) -> Result<OpticsResult, String> {
     let d_i = params.image_distance;
 
     // Need at least 2 of the 3 values
-    let count = [f.is_some(), d_o.is_some(), d_i.is_some()].iter().filter(|&&x| x).count();
+    let count = [f.is_some(), d_o.is_some(), d_i.is_some()]
+        .iter()
+        .filter(|&&x| x)
+        .count();
     if count < 2 {
-        return Err("Need at least 2 values: focal_length, object_distance, or image_distance".to_string());
+        return Err(
+            "Need at least 2 values: focal_length, object_distance, or image_distance".to_string(),
+        );
     }
 
     let mut secondary = std::collections::HashMap::new();
@@ -93,17 +97,37 @@ fn calculate_thin_lens(params: &OpticsParams) -> Result<OpticsResult, String> {
             secondary.insert("magnification".to_string(), magnification);
 
             let img_type = if di > 0.0 { "real" } else { "virtual" };
-            let orientation = if magnification > 0.0 { "upright" } else { "inverted" };
+            let orientation = if magnification > 0.0 {
+                "upright"
+            } else {
+                "inverted"
+            };
 
-            (di.abs(), "m".to_string(),
-             format!("{} {} image, {}, magnification: {:.2}x",
-                     img_type, orientation, if magnification.abs() > 1.0 { "enlarged" } else { "reduced" }, magnification.abs()))
+            (
+                di.abs(),
+                "m".to_string(),
+                format!(
+                    "{} {} image, {}, magnification: {:.2}x",
+                    img_type,
+                    orientation,
+                    if magnification.abs() > 1.0 {
+                        "enlarged"
+                    } else {
+                        "reduced"
+                    },
+                    magnification.abs()
+                ),
+            )
         } else {
             // d_i is provided, calculate d_o
             let di_val = d_i.unwrap();
             let do_calc = 1.0 / (1.0 / f_val - 1.0 / di_val);
             secondary.insert("object_distance".to_string(), do_calc);
-            (do_calc.abs(), "m".to_string(), format!("Object distance: {:.3} m", do_calc))
+            (
+                do_calc.abs(),
+                "m".to_string(),
+                format!("Object distance: {:.3} m", do_calc),
+            )
         }
     } else {
         // Both do and di provided, calculate f
@@ -111,7 +135,11 @@ fn calculate_thin_lens(params: &OpticsParams) -> Result<OpticsResult, String> {
         let di_val = d_i.unwrap();
         let f_calc = 1.0 / (1.0 / do_val + 1.0 / di_val);
 
-        let lens_type = if f_calc > 0.0 { "converging" } else { "diverging" };
+        let lens_type = if f_calc > 0.0 {
+            "converging"
+        } else {
+            "diverging"
+        };
         secondary.insert("focal_length".to_string(), f_calc);
 
         (f_calc.abs(), "m".to_string(), format!("{} lens", lens_type))
@@ -151,7 +179,10 @@ fn calculate_snells_law(params: &OpticsParams) -> Result<OpticsResult, String> {
                 unit: "degrees".to_string(),
                 formula_used: "Snell's law: n1·sin(θ1) = n2·sin(θ2)".to_string(),
                 secondary_values: Some(secondary),
-                interpretation: format!("Total internal reflection! Critical angle: {:.2}°", critical_angle),
+                interpretation: format!(
+                    "Total internal reflection! Critical angle: {:.2}°",
+                    critical_angle
+                ),
             });
         }
 
@@ -188,7 +219,10 @@ fn calculate_snells_law(params: &OpticsParams) -> Result<OpticsResult, String> {
         unit: "degrees".to_string(),
         formula_used: "Snell's law: n1·sin(θ1) = n2·sin(θ2)".to_string(),
         secondary_values: Some(secondary),
-        interpretation: format!("{} angle: {:.2}° (light bends {} normal)", angle_type, angle_result, bending),
+        interpretation: format!(
+            "{} angle: {:.2}° (light bends {} normal)",
+            angle_type, angle_result, bending
+        ),
     })
 }
 
@@ -223,7 +257,10 @@ fn calculate_diffraction(params: &OpticsParams) -> Result<OpticsResult, String> 
         unit: "degrees".to_string(),
         formula_used: "Grating: d·sin(θ) = m·λ".to_string(),
         secondary_values: Some(secondary),
-        interpretation: format!("Order {} diffraction at {:.2}° (max order: {})", m, theta, m_max),
+        interpretation: format!(
+            "Order {} diffraction at {:.2}° (max order: {})",
+            m, theta, m_max
+        ),
     })
 }
 
@@ -232,7 +269,9 @@ fn calculate_fresnel(params: &OpticsParams) -> Result<OpticsResult, String> {
     let n1 = params.n1.ok_or("Refractive index n1 required")?;
     let n2 = params.n2.ok_or("Refractive index n2 required")?;
     let theta1_deg = params.theta1.ok_or("Incident angle required")?;
-    let polarization = params.polarization.as_ref()
+    let polarization = params
+        .polarization
+        .as_ref()
         .map(|s| s.as_str())
         .unwrap_or("s");
 
@@ -250,18 +289,16 @@ fn calculate_fresnel(params: &OpticsParams) -> Result<OpticsResult, String> {
     let (r, t) = match polarization {
         "s" => {
             // s-polarization (perpendicular to plane of incidence)
-            let r_s = (n1 * theta1.cos() - n2 * theta2.cos()) /
-                      (n1 * theta1.cos() + n2 * theta2.cos());
-            let t_s = (2.0 * n1 * theta1.cos()) /
-                      (n1 * theta1.cos() + n2 * theta2.cos());
+            let r_s =
+                (n1 * theta1.cos() - n2 * theta2.cos()) / (n1 * theta1.cos() + n2 * theta2.cos());
+            let t_s = (2.0 * n1 * theta1.cos()) / (n1 * theta1.cos() + n2 * theta2.cos());
             (r_s, t_s)
         }
         "p" => {
             // p-polarization (parallel to plane of incidence)
-            let r_p = (n2 * theta1.cos() - n1 * theta2.cos()) /
-                      (n2 * theta1.cos() + n1 * theta2.cos());
-            let t_p = (2.0 * n1 * theta1.cos()) /
-                      (n2 * theta1.cos() + n1 * theta2.cos());
+            let r_p =
+                (n2 * theta1.cos() - n1 * theta2.cos()) / (n2 * theta1.cos() + n1 * theta2.cos());
+            let t_p = (2.0 * n1 * theta1.cos()) / (n2 * theta1.cos() + n1 * theta2.cos());
             (r_p, t_p)
         }
         _ => return Err("Polarization must be 's' or 'p'".to_string()),
@@ -285,8 +322,11 @@ fn calculate_fresnel(params: &OpticsParams) -> Result<OpticsResult, String> {
         unit: "% reflected".to_string(),
         formula_used: format!("Fresnel equations ({}-polarization)", polarization),
         secondary_values: Some(secondary),
-        interpretation: format!("{:.1}% reflected, {:.1}% transmitted",
-                               reflectance * 100.0, transmittance * 100.0),
+        interpretation: format!(
+            "{:.1}% reflected, {:.1}% transmitted",
+            reflectance * 100.0,
+            transmittance * 100.0
+        ),
     })
 }
 
@@ -298,7 +338,7 @@ mod tests {
     #[test]
     fn test_thin_lens_converging() {
         let params = OpticsParams {
-            focal_length: Some(0.1), // 10 cm converging lens
+            focal_length: Some(0.1),    // 10 cm converging lens
             object_distance: Some(0.2), // 20 cm
             ..Default::default()
         };
@@ -313,7 +353,7 @@ mod tests {
     #[test]
     fn test_thin_lens_diverging() {
         let params = OpticsParams {
-            focal_length: Some(-0.15), // 15 cm diverging lens
+            focal_length: Some(-0.15),  // 15 cm diverging lens
             object_distance: Some(0.3), // 30 cm
             ..Default::default()
         };
@@ -328,7 +368,7 @@ mod tests {
     #[test]
     fn test_thin_lens_magnification() {
         let params = OpticsParams {
-            focal_length: Some(0.05), // 5 cm
+            focal_length: Some(0.05),   // 5 cm
             object_distance: Some(0.1), // 10 cm (2f)
             ..Default::default()
         };
@@ -343,7 +383,7 @@ mod tests {
     #[test]
     fn test_thin_lens_virtual_image() {
         let params = OpticsParams {
-            focal_length: Some(0.2), // 20 cm
+            focal_length: Some(0.2),    // 20 cm
             object_distance: Some(0.1), // 10 cm (inside focal length)
             ..Default::default()
         };
@@ -360,8 +400,8 @@ mod tests {
     #[test]
     fn test_snells_law_air_to_glass() {
         let params = OpticsParams {
-            n1: Some(1.0),   // air
-            n2: Some(1.5),   // glass
+            n1: Some(1.0), // air
+            n2: Some(1.5), // glass
             theta1: Some(30.0),
             ..Default::default()
         };
@@ -376,8 +416,8 @@ mod tests {
     #[test]
     fn test_snells_law_total_internal_reflection() {
         let params = OpticsParams {
-            n1: Some(1.5),  // glass
-            n2: Some(1.0),  // air
+            n1: Some(1.5),      // glass
+            n2: Some(1.0),      // air
             theta1: Some(50.0), // Greater than critical angle
             ..Default::default()
         };
@@ -393,7 +433,7 @@ mod tests {
     fn test_snells_law_reverse_calculation() {
         let params = OpticsParams {
             n1: Some(1.0),
-            n2: Some(1.33), // water
+            n2: Some(1.33),     // water
             theta2: Some(22.0), // Refracted angle given
             ..Default::default()
         };
@@ -473,8 +513,8 @@ mod tests {
     #[test]
     fn test_fresnel_s_polarization() {
         let params = OpticsParams {
-            n1: Some(1.0),   // air
-            n2: Some(1.5),   // glass
+            n1: Some(1.0), // air
+            n2: Some(1.5), // glass
             theta1: Some(45.0),
             polarization: Some("s".to_string()),
             ..Default::default()

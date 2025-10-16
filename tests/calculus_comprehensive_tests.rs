@@ -32,7 +32,11 @@ fn test_fractional_derivative_grunwald_letnikov_constant() {
     // Just verify it computes without errors and is finite
     assert!(result.len() == 100);
     for i in 10..100 {
-        assert!(result[i].is_finite(), "Expected finite fractional derivative, got {}", result[i]);
+        assert!(
+            result[i].is_finite(),
+            "Expected finite fractional derivative, got {}",
+            result[i]
+        );
     }
 }
 
@@ -57,10 +61,12 @@ fn test_fractional_derivative_grunwald_letnikov_linear() {
 fn test_fractional_derivative_grunwald_letnikov_quadratic() {
     let num_points = 100;
     let dx = 0.01;
-    let function_values: Vec<f64> = (0..num_points).map(|i| {
-        let x = i as f64 * dx;
-        x * x
-    }).collect();
+    let function_values: Vec<f64> = (0..num_points)
+        .map(|i| {
+            let x = i as f64 * dx;
+            x * x
+        })
+        .collect();
     let order = 0.5;
 
     let result = fractional_derivative_grunwald_letnikov(&function_values, order, dx);
@@ -113,7 +119,7 @@ fn test_fractional_integral_riemann_liouville_constant() {
     assert!(result.len() == 100);
     // Fractional integral should increase
     for i in 1..100 {
-        assert!(result[i] >= result[i-1]);
+        assert!(result[i] >= result[i - 1]);
     }
 }
 
@@ -129,7 +135,7 @@ fn test_fractional_integral_riemann_liouville_linear() {
     assert!(result.len() == num_points);
     // Integral should be monotonically increasing for x
     for i in 1..num_points {
-        assert!(result[i] >= result[i-1]);
+        assert!(result[i] >= result[i - 1]);
         assert!(result[i].is_finite());
     }
 }
@@ -227,14 +233,22 @@ fn test_riemann_zeta_known_values() {
     let zeta_2 = riemann_zeta(2.0);
     let expected = std::f64::consts::PI.powi(2) / 6.0;
     // Use relaxed tolerance for approximate numerical computation
-    assert!((zeta_2 - expected).abs() < 0.001,
-            "ζ(2) = {}, expected {}", zeta_2, expected);
+    assert!(
+        (zeta_2 - expected).abs() < 0.001,
+        "ζ(2) = {}, expected {}",
+        zeta_2,
+        expected
+    );
 
     // ζ(4) = π⁴/90 ≈ 1.0823232337
     let zeta_4 = riemann_zeta(4.0);
     let expected_4 = std::f64::consts::PI.powi(4) / 90.0;
-    assert!((zeta_4 - expected_4).abs() < 0.001,
-            "ζ(4) = {}, expected {}", zeta_4, expected_4);
+    assert!(
+        (zeta_4 - expected_4).abs() < 0.001,
+        "ζ(4) = {}, expected {}",
+        zeta_4,
+        expected_4
+    );
 }
 
 #[test]
@@ -258,8 +272,12 @@ fn test_elliptic_integral_first_kind_zero() {
     // K(0) = π/2
     let k0 = elliptic_integral_first_kind(0.0);
     let expected = std::f64::consts::PI / 2.0;
-    assert!((k0 - expected).abs() < LOOSE_EPSILON,
-            "K(0) = {}, expected {}", k0, expected);
+    assert!(
+        (k0 - expected).abs() < LOOSE_EPSILON,
+        "K(0) = {}, expected {}",
+        k0,
+        expected
+    );
 }
 
 #[test]
@@ -278,8 +296,12 @@ fn test_elliptic_integral_second_kind_zero() {
     // E(0) = π/2
     let e0 = elliptic_integral_second_kind(0.0);
     let expected = std::f64::consts::PI / 2.0;
-    assert!((e0 - expected).abs() < LOOSE_EPSILON,
-            "E(0) = {}, expected {}", e0, expected);
+    assert!(
+        (e0 - expected).abs() < LOOSE_EPSILON,
+        "E(0) = {}, expected {}",
+        e0,
+        expected
+    );
 }
 
 #[test]
@@ -542,8 +564,12 @@ fn test_handle_legendre_polynomial() {
 #[test]
 fn test_handle_special_functions_dispatcher() {
     let functions = vec![
-        "riemann_zeta", "elliptic_integral", "hypergeometric",
-        "jacobi_theta", "bessel", "legendre"
+        "riemann_zeta",
+        "elliptic_integral",
+        "hypergeometric",
+        "jacobi_theta",
+        "bessel",
+        "legendre",
     ];
 
     for func_type in functions {
@@ -856,7 +882,7 @@ fn test_handle_definite_integral_x_squared() {
     let res = result.result.unwrap();
     let numerical = res["numerical_value"].as_f64().unwrap();
     // ∫₀¹ x² dx = 1/3
-    assert!((numerical - 1.0/3.0).abs() < LOOSE_EPSILON);
+    assert!((numerical - 1.0 / 3.0).abs() < LOOSE_EPSILON);
 }
 
 #[test]

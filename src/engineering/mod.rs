@@ -7,7 +7,6 @@
  * - Fluid Mechanics Advanced (Bernoulli, Poiseuille, drag)
  * - Control Theory (PID tuning basics)
  */
-
 use serde::{Deserialize, Serialize};
 use std::f64::consts::PI;
 
@@ -29,7 +28,7 @@ pub enum EngineeringDiscipline {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EngineeringParams {
     // Acoustics
-    pub pressure_rms: Option<f64>,          // Pa
+    pub pressure_rms: Option<f64>,           // Pa
     pub reference_pressure: Option<f64>,     // Pa (default 20 μPa)
     pub velocity_source: Option<f64>,        // m/s
     pub velocity_observer: Option<f64>,      // m/s
@@ -39,34 +38,34 @@ pub struct EngineeringParams {
     pub absorption_coefficient: Option<f64>, // 0-1
 
     // Materials
-    pub stress: Option<f64>,                 // Pa
-    pub strain: Option<f64>,                 // dimensionless
-    pub youngs_modulus: Option<f64>,         // Pa
-    pub yield_strength: Option<f64>,         // Pa
-    pub crack_length: Option<f64>,           // m
-    pub geometry_factor: Option<f64>,        // Y (dimensionless)
+    pub stress: Option<f64>,          // Pa
+    pub strain: Option<f64>,          // dimensionless
+    pub youngs_modulus: Option<f64>,  // Pa
+    pub yield_strength: Option<f64>,  // Pa
+    pub crack_length: Option<f64>,    // m
+    pub geometry_factor: Option<f64>, // Y (dimensionless)
 
     // Fluid mechanics
-    pub velocity: Option<f64>,               // m/s
-    pub pressure_1: Option<f64>,             // Pa
-    pub pressure_2: Option<f64>,             // Pa
-    pub height_1: Option<f64>,               // m
-    pub height_2: Option<f64>,               // m
-    pub density: Option<f64>,                // kg/m³
-    pub viscosity: Option<f64>,              // Pa·s
-    pub radius: Option<f64>,                 // m
-    pub length: Option<f64>,                 // m
-    pub flow_rate: Option<f64>,              // m³/s
-    pub drag_coefficient: Option<f64>,       // Cd
-    pub cross_sectional_area: Option<f64>,   // m²
+    pub velocity: Option<f64>,             // m/s
+    pub pressure_1: Option<f64>,           // Pa
+    pub pressure_2: Option<f64>,           // Pa
+    pub height_1: Option<f64>,             // m
+    pub height_2: Option<f64>,             // m
+    pub density: Option<f64>,              // kg/m³
+    pub viscosity: Option<f64>,            // Pa·s
+    pub radius: Option<f64>,               // m
+    pub length: Option<f64>,               // m
+    pub flow_rate: Option<f64>,            // m³/s
+    pub drag_coefficient: Option<f64>,     // Cd
+    pub cross_sectional_area: Option<f64>, // m²
 
     // Control theory
-    pub kp: Option<f64>,                     // Proportional gain
-    pub ki: Option<f64>,                     // Integral gain
-    pub kd: Option<f64>,                     // Derivative gain
+    pub kp: Option<f64>, // Proportional gain
+    pub ki: Option<f64>, // Integral gain
+    pub kd: Option<f64>, // Derivative gain
     pub setpoint: Option<f64>,
     pub process_variable: Option<f64>,
-    pub time_constant: Option<f64>,          // τ
+    pub time_constant: Option<f64>, // τ
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -97,7 +96,9 @@ fn calculate_acoustics(params: &EngineeringParams) -> Result<EngineeringResult, 
 
     // SPL calculation: SPL = 20·log₁₀(P/P₀)
     if let Some(p_rms) = params.pressure_rms {
-        let p_ref = params.reference_pressure.unwrap_or(REFERENCE_PRESSURE_ACOUSTICS);
+        let p_ref = params
+            .reference_pressure
+            .unwrap_or(REFERENCE_PRESSURE_ACOUSTICS);
         let spl = 20.0 * (p_rms / p_ref).log10();
 
         additional.insert("pressure_pa".to_string(), p_rms);
@@ -148,7 +149,7 @@ fn calculate_acoustics(params: &EngineeringParams) -> Result<EngineeringResult, 
     // Sabine reverberation time: RT₆₀ = 0.161·V/A
     if let (Some(volume), Some(alpha)) = (params.room_volume, params.absorption_coefficient) {
         // Approximate total absorption assuming uniform coefficient
-        let total_absorption = alpha * volume.powf(2.0/3.0) * 6.0; // Rough estimate of surface area
+        let total_absorption = alpha * volume.powf(2.0 / 3.0) * 6.0; // Rough estimate of surface area
 
         let rt60 = 0.161 * volume / total_absorption;
 
@@ -227,8 +228,8 @@ fn calculate_materials(params: &EngineeringParams) -> Result<EngineeringResult, 
 
     // Fracture mechanics: K = Y·σ·√(π·a)
     if let (Some(stress), Some(crack_len), Some(y)) =
-        (params.stress, params.crack_length, params.geometry_factor) {
-
+        (params.stress, params.crack_length, params.geometry_factor)
+    {
         let k_factor = y * stress * (PI * crack_len).sqrt();
 
         // Typical fracture toughness values (MPa·√m)
@@ -264,9 +265,12 @@ fn calculate_fluid_mechanics(params: &EngineeringParams) -> Result<EngineeringRe
     let mut additional = std::collections::HashMap::new();
 
     // Bernoulli's equation: P₁ + ½ρv₁² + ρgh₁ = P₂ + ½ρv₂² + ρgh₂
-    if let (Some(rho), Some(p1), Some(v1), Some(h1)) =
-        (params.density, params.pressure_1, params.velocity, params.height_1) {
-
+    if let (Some(rho), Some(p1), Some(v1), Some(h1)) = (
+        params.density,
+        params.pressure_1,
+        params.velocity,
+        params.height_1,
+    ) {
         let h2 = params.height_2.unwrap_or(h1);
         let total_pressure_1 = p1 + 0.5 * rho * v1 * v1 + rho * G_ACCEL * h1;
 
@@ -290,9 +294,12 @@ fn calculate_fluid_mechanics(params: &EngineeringParams) -> Result<EngineeringRe
     }
 
     // Poiseuille's law: Q = (π·ΔP·r⁴)/(8·η·L)
-    if let (Some(delta_p), Some(r), Some(length), Some(eta)) =
-        (params.pressure_1, params.radius, params.length, params.viscosity) {
-
+    if let (Some(delta_p), Some(r), Some(length), Some(eta)) = (
+        params.pressure_1,
+        params.radius,
+        params.length,
+        params.viscosity,
+    ) {
         let flow_rate = (PI * delta_p * r.powi(4)) / (8.0 * eta * length);
 
         // Calculate Reynolds number
@@ -320,9 +327,12 @@ fn calculate_fluid_mechanics(params: &EngineeringParams) -> Result<EngineeringRe
     }
 
     // Drag force: F_D = ½·ρ·v²·C_D·A
-    if let (Some(rho), Some(v), Some(cd), Some(area)) =
-        (params.density, params.velocity, params.drag_coefficient, params.cross_sectional_area) {
-
+    if let (Some(rho), Some(v), Some(cd), Some(area)) = (
+        params.density,
+        params.velocity,
+        params.drag_coefficient,
+        params.cross_sectional_area,
+    ) {
         let drag_force = 0.5 * rho * v * v * cd * area;
 
         // Calculate terminal velocity if needed
@@ -462,8 +472,8 @@ mod tests {
     #[test]
     fn test_acoustics_doppler_approaching() {
         let params = EngineeringParams {
-            frequency: Some(1000.0), // 1 kHz
-            sound_speed: Some(343.0), // Speed of sound in air
+            frequency: Some(1000.0),     // 1 kHz
+            sound_speed: Some(343.0),    // Speed of sound in air
             velocity_source: Some(20.0), // Source moving toward observer (positive)
             ..Default::default()
         };
@@ -488,7 +498,7 @@ mod tests {
     #[test]
     fn test_acoustics_reverberation_dry() {
         let params = EngineeringParams {
-            room_volume: Some(100.0), // 100 m³ room
+            room_volume: Some(100.0),          // 100 m³ room
             absorption_coefficient: Some(0.8), // High absorption (carpet, curtains)
             ..Default::default()
         };
@@ -501,7 +511,7 @@ mod tests {
     #[test]
     fn test_acoustics_reverberation_reverberant() {
         let params = EngineeringParams {
-            room_volume: Some(10000.0), // Large cathedral
+            room_volume: Some(10000.0),        // Large cathedral
             absorption_coefficient: Some(0.1), // Low absorption (stone walls)
             ..Default::default()
         };
@@ -515,7 +525,7 @@ mod tests {
     fn test_materials_hookes_law_elastic() {
         let params = EngineeringParams {
             youngs_modulus: Some(200e9), // Steel: 200 GPa
-            strain: Some(0.0005), // 0.05% strain (lower to stay in safe zone)
+            strain: Some(0.0005),        // 0.05% strain (lower to stay in safe zone)
             ..Default::default()
         };
         let result = calculate_materials(&params).unwrap();
@@ -528,7 +538,7 @@ mod tests {
     fn test_materials_hookes_law_strain_from_stress() {
         let params = EngineeringParams {
             youngs_modulus: Some(70e9), // Aluminum: 70 GPa
-            stress: Some(140e6), // 140 MPa
+            stress: Some(140e6),        // 140 MPa
             ..Default::default()
         };
         let result = calculate_materials(&params).unwrap();
@@ -539,7 +549,7 @@ mod tests {
     #[test]
     fn test_materials_fracture_mechanics_safe() {
         let params = EngineeringParams {
-            stress: Some(100e6), // 100 MPa
+            stress: Some(100e6),       // 100 MPa
             crack_length: Some(0.001), // 1 mm crack
             geometry_factor: Some(1.0),
             ..Default::default()
@@ -553,8 +563,8 @@ mod tests {
     #[test]
     fn test_materials_fracture_mechanics_critical() {
         let params = EngineeringParams {
-            stress: Some(500e6), // 500 MPa (very high)
-            crack_length: Some(0.01), // 10 mm crack
+            stress: Some(500e6),         // 500 MPa (very high)
+            crack_length: Some(0.01),    // 10 mm crack
             geometry_factor: Some(1.12), // Edge crack
             ..Default::default()
         };
@@ -567,7 +577,7 @@ mod tests {
     fn test_materials_yield_strength_check() {
         let params = EngineeringParams {
             youngs_modulus: Some(200e9),
-            strain: Some(0.0025), // 0.25% strain
+            strain: Some(0.0025),        // 0.25% strain
             yield_strength: Some(250e6), // 250 MPa yield
             ..Default::default()
         };
@@ -581,10 +591,10 @@ mod tests {
     #[test]
     fn test_fluid_bernoulli_exit_velocity() {
         let params = EngineeringParams {
-            density: Some(1000.0), // Water
+            density: Some(1000.0),      // Water
             pressure_1: Some(200000.0), // 200 kPa
             pressure_2: Some(101325.0), // Atmospheric
-            velocity: Some(1.0), // 1 m/s inlet
+            velocity: Some(1.0),        // 1 m/s inlet
             height_1: Some(0.0),
             height_2: Some(0.0), // Same height
             ..Default::default()
@@ -601,9 +611,9 @@ mod tests {
     fn test_fluid_poiseuille_laminar() {
         let params = EngineeringParams {
             pressure_1: Some(1000.0), // 1 kPa pressure drop
-            radius: Some(0.001), // 1 mm radius pipe (smaller for laminar flow)
-            length: Some(1.0), // 1 meter long
-            viscosity: Some(0.001), // Water viscosity
+            radius: Some(0.001),      // 1 mm radius pipe (smaller for laminar flow)
+            length: Some(1.0),        // 1 meter long
+            viscosity: Some(0.001),   // Water viscosity
             density: Some(1000.0),
             ..Default::default()
         };
@@ -616,9 +626,9 @@ mod tests {
     #[test]
     fn test_fluid_drag_force() {
         let params = EngineeringParams {
-            density: Some(1.225), // Air at sea level
-            velocity: Some(30.0), // 30 m/s ≈ 108 km/h
-            drag_coefficient: Some(0.3), // Streamlined car
+            density: Some(1.225),            // Air at sea level
+            velocity: Some(30.0),            // 30 m/s ≈ 108 km/h
+            drag_coefficient: Some(0.3),     // Streamlined car
             cross_sectional_area: Some(2.0), // 2 m² frontal area
             ..Default::default()
         };
@@ -631,7 +641,7 @@ mod tests {
     fn test_fluid_drag_high_speed() {
         let params = EngineeringParams {
             density: Some(1.225),
-            velocity: Some(100.0), // 100 m/s ≈ 360 km/h
+            velocity: Some(100.0),       // 100 m/s ≈ 360 km/h
             drag_coefficient: Some(0.5), // Less streamlined
             cross_sectional_area: Some(1.5),
             ..Default::default()
@@ -691,7 +701,7 @@ mod tests {
         let params = EngineeringParams {
             setpoint: Some(100.0),
             process_variable: Some(100.0), // At setpoint
-            time_constant: Some(10.0), // τ = 10 seconds
+            time_constant: Some(10.0),     // τ = 10 seconds
             ..Default::default()
         };
         let result = calculate_control(&params).unwrap();

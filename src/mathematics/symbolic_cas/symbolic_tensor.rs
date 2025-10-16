@@ -33,20 +33,28 @@ pub struct SymbolicTensor {
 
 impl SymbolicTensor {
     /// Create a new tensor from data and index types
-    pub fn new(dimensions: Vec<usize>, index_types: Vec<IndexType>, data: Vec<Expr>) -> SymbolicResult<Self> {
+    pub fn new(
+        dimensions: Vec<usize>,
+        index_types: Vec<IndexType>,
+        data: Vec<Expr>,
+    ) -> SymbolicResult<Self> {
         let rank = dimensions.len();
 
         if rank != index_types.len() {
-            return Err(SymbolicError::InvalidOperation(
-                format!("Rank mismatch: {} dimensions but {} index types", rank, index_types.len())
-            ));
+            return Err(SymbolicError::InvalidOperation(format!(
+                "Rank mismatch: {} dimensions but {} index types",
+                rank,
+                index_types.len()
+            )));
         }
 
         let expected_size: usize = dimensions.iter().product();
         if data.len() != expected_size {
-            return Err(SymbolicError::InvalidOperation(
-                format!("Data size mismatch: expected {}, got {}", expected_size, data.len())
-            ));
+            return Err(SymbolicError::InvalidOperation(format!(
+                "Data size mismatch: expected {}, got {}",
+                expected_size,
+                data.len()
+            )));
         }
 
         Ok(SymbolicTensor {
@@ -101,9 +109,10 @@ impl SymbolicTensor {
     /// Convert rank-2 tensor to matrix (if possible)
     pub fn to_matrix(&self) -> SymbolicResult<SymbolicMatrix> {
         if self.rank != 2 {
-            return Err(SymbolicError::InvalidOperation(
-                format!("Cannot convert rank-{} tensor to matrix", self.rank)
-            ));
+            return Err(SymbolicError::InvalidOperation(format!(
+                "Cannot convert rank-{} tensor to matrix",
+                self.rank
+            )));
         }
 
         let rows = self.dimensions[0];
@@ -143,16 +152,19 @@ impl SymbolicTensor {
     /// Get component by multi-index
     pub fn get(&self, indices: &[usize]) -> SymbolicResult<&Expr> {
         if indices.len() != self.rank {
-            return Err(SymbolicError::InvalidOperation(
-                format!("Expected {} indices, got {}", self.rank, indices.len())
-            ));
+            return Err(SymbolicError::InvalidOperation(format!(
+                "Expected {} indices, got {}",
+                self.rank,
+                indices.len()
+            )));
         }
 
         for (i, &idx) in indices.iter().enumerate() {
             if idx >= self.dimensions[i] {
-                return Err(SymbolicError::InvalidOperation(
-                    format!("Index {} out of bounds for dimension {}", idx, i)
-                ));
+                return Err(SymbolicError::InvalidOperation(format!(
+                    "Index {} out of bounds for dimension {}",
+                    idx, i
+                )));
             }
         }
 
@@ -163,16 +175,19 @@ impl SymbolicTensor {
     /// Set component by multi-index
     pub fn set(&mut self, indices: &[usize], value: Expr) -> SymbolicResult<()> {
         if indices.len() != self.rank {
-            return Err(SymbolicError::InvalidOperation(
-                format!("Expected {} indices, got {}", self.rank, indices.len())
-            ));
+            return Err(SymbolicError::InvalidOperation(format!(
+                "Expected {} indices, got {}",
+                self.rank,
+                indices.len()
+            )));
         }
 
         for (i, &idx) in indices.iter().enumerate() {
             if idx >= self.dimensions[i] {
-                return Err(SymbolicError::InvalidOperation(
-                    format!("Index {} out of bounds for dimension {}", idx, i)
-                ));
+                return Err(SymbolicError::InvalidOperation(format!(
+                    "Index {} out of bounds for dimension {}",
+                    idx, i
+                )));
             }
         }
 
@@ -199,23 +214,27 @@ impl SymbolicTensor {
     /// For higher ranks, this reduces the rank by 2
     pub fn contract(&self, index1: usize, index2: usize) -> SymbolicResult<Self> {
         if index1 >= self.rank || index2 >= self.rank {
-            return Err(SymbolicError::InvalidOperation("Index out of bounds".to_string()));
+            return Err(SymbolicError::InvalidOperation(
+                "Index out of bounds".to_string(),
+            ));
         }
 
         if index1 == index2 {
-            return Err(SymbolicError::InvalidOperation("Cannot contract the same index".to_string()));
+            return Err(SymbolicError::InvalidOperation(
+                "Cannot contract the same index".to_string(),
+            ));
         }
 
         if self.dimensions[index1] != self.dimensions[index2] {
             return Err(SymbolicError::InvalidOperation(
-                "Contracted indices must have the same dimension".to_string()
+                "Contracted indices must have the same dimension".to_string(),
             ));
         }
 
         // Check that one is contravariant and one is covariant
         if self.index_types[index1] == self.index_types[index2] {
             return Err(SymbolicError::InvalidOperation(
-                "Contracted indices must be of opposite types (one upper, one lower)".to_string()
+                "Contracted indices must be of opposite types (one upper, one lower)".to_string(),
             ));
         }
 
@@ -369,20 +388,20 @@ impl SymbolicTensor {
     pub fn raise_index(&self, metric: &SymbolicMatrix, index: usize) -> SymbolicResult<Self> {
         if self.rank != 1 {
             return Err(SymbolicError::InvalidOperation(
-                "Index raising only implemented for vectors".to_string()
+                "Index raising only implemented for vectors".to_string(),
             ));
         }
 
         if self.index_types[index] != IndexType::Covariant {
             return Err(SymbolicError::InvalidOperation(
-                "Can only raise covariant indices".to_string()
+                "Can only raise covariant indices".to_string(),
             ));
         }
 
         let n = self.dimensions[0];
         if metric.rows() != n || metric.cols() != n {
             return Err(SymbolicError::InvalidOperation(
-                "Metric dimension mismatch".to_string()
+                "Metric dimension mismatch".to_string(),
             ));
         }
 
@@ -405,20 +424,20 @@ impl SymbolicTensor {
     pub fn lower_index(&self, metric: &SymbolicMatrix, index: usize) -> SymbolicResult<Self> {
         if self.rank != 1 {
             return Err(SymbolicError::InvalidOperation(
-                "Index lowering only implemented for vectors".to_string()
+                "Index lowering only implemented for vectors".to_string(),
             ));
         }
 
         if self.index_types[index] != IndexType::Contravariant {
             return Err(SymbolicError::InvalidOperation(
-                "Can only lower contravariant indices".to_string()
+                "Can only lower contravariant indices".to_string(),
             ));
         }
 
         let n = self.dimensions[0];
         if metric.rows() != n || metric.cols() != n {
             return Err(SymbolicError::InvalidOperation(
-                "Metric dimension mismatch".to_string()
+                "Metric dimension mismatch".to_string(),
             ));
         }
 
@@ -503,8 +522,9 @@ mod tests {
     fn test_vector_tensor() {
         let vector = SymbolicTensor::vector(
             vec![Expr::sym("x"), Expr::sym("y"), Expr::sym("z")],
-            IndexType::Contravariant
-        ).unwrap();
+            IndexType::Contravariant,
+        )
+        .unwrap();
 
         assert_eq!(vector.rank(), 1);
         assert_eq!(vector.get(&[0]).unwrap(), &Expr::sym("x"));
@@ -516,9 +536,11 @@ mod tests {
         let mat = SymbolicMatrix::new(vec![
             vec![Expr::num(1), Expr::num(2)],
             vec![Expr::num(3), Expr::num(4)],
-        ]).unwrap();
+        ])
+        .unwrap();
 
-        let tensor = SymbolicTensor::from_matrix(&mat, [IndexType::Contravariant, IndexType::Covariant]);
+        let tensor =
+            SymbolicTensor::from_matrix(&mat, [IndexType::Contravariant, IndexType::Covariant]);
         assert_eq!(tensor.rank(), 2);
         assert_eq!(tensor.get(&[0, 1]).unwrap(), &Expr::num(2));
     }
@@ -528,9 +550,11 @@ mod tests {
         let mat = SymbolicMatrix::new(vec![
             vec![Expr::sym("a"), Expr::sym("b")],
             vec![Expr::sym("c"), Expr::sym("d")],
-        ]).unwrap();
+        ])
+        .unwrap();
 
-        let tensor = SymbolicTensor::from_matrix(&mat, [IndexType::Contravariant, IndexType::Covariant]);
+        let tensor =
+            SymbolicTensor::from_matrix(&mat, [IndexType::Contravariant, IndexType::Covariant]);
         let trace = tensor.contract(0, 1).unwrap();
 
         assert_eq!(trace.rank(), 0);
@@ -541,13 +565,12 @@ mod tests {
     fn test_outer_product() {
         let v1 = SymbolicTensor::vector(
             vec![Expr::sym("a"), Expr::sym("b")],
-            IndexType::Contravariant
-        ).unwrap();
+            IndexType::Contravariant,
+        )
+        .unwrap();
 
-        let v2 = SymbolicTensor::vector(
-            vec![Expr::sym("c"), Expr::sym("d")],
-            IndexType::Covariant
-        ).unwrap();
+        let v2 = SymbolicTensor::vector(vec![Expr::sym("c"), Expr::sym("d")], IndexType::Covariant)
+            .unwrap();
 
         let tensor = v1.outer_product(&v2).unwrap();
         assert_eq!(tensor.rank(), 2);
@@ -560,12 +583,14 @@ mod tests {
         let metric = SymbolicMatrix::new(vec![
             vec![Expr::num(1), Expr::num(0)],
             vec![Expr::num(0), Expr::num(-1)],
-        ]).unwrap();
+        ])
+        .unwrap();
 
         let covariant_vector = SymbolicTensor::vector(
             vec![Expr::sym("v_0"), Expr::sym("v_1")],
-            IndexType::Covariant
-        ).unwrap();
+            IndexType::Covariant,
+        )
+        .unwrap();
 
         let contravariant = covariant_vector.raise_index(&metric, 0).unwrap();
         println!("Raised vector:\n{}", contravariant);

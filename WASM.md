@@ -6,7 +6,7 @@ This document describes how to build and use the computational engine as a WebAs
 
 The computational engine provides two interfaces:
 
-1. **MCP Server Interface** (binary: `computational-engine`)
+1. **MCP Server Interface** (binary: `brainwires-compute-engine`)
    - CLI tool for tool-calling/MCP integration
    - Runs as a standalone server process
    - JSON-based request/response over stdin/stdout
@@ -119,7 +119,7 @@ console.log(result);
 ### Bundlers (Webpack, Vite, etc.)
 
 ```javascript
-import init, { ComputationalEngine } from '@brainwires/computational-engine';
+import init, { ComputationalEngine } from '@brainwires/brainwires-compute-engine';
 
 await init();
 const engine = new ComputationalEngine();
@@ -249,7 +249,7 @@ console.log(ops);
 The package includes automatically generated TypeScript definitions.
 
 ```typescript
-import init, { ComputationalEngine } from '@brainwires/computational-engine';
+import init, { ComputationalEngine } from '@brainwires/brainwires-compute-engine';
 
 await init();
 
@@ -310,7 +310,7 @@ Use code splitting to load only when needed:
 // Lazy load the engine
 async function loadEngine() {
     const { default: init, ComputationalEngine } = await import(
-        '@brainwires/computational-engine'
+        '@brainwires/brainwires-compute-engine'
     );
     await init();
     return new ComputationalEngine();
@@ -338,7 +338,7 @@ For production builds, ensure:
 This usually indicates a panic in Rust code. Set up the panic hook:
 
 ```javascript
-import init, { ComputationalEngine } from '@brainwires/computational-engine';
+import init, { ComputationalEngine } from '@brainwires/brainwires-compute-engine';
 
 await init();
 // Panic messages will now appear in the browser console

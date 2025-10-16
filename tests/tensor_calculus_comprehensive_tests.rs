@@ -12,18 +12,18 @@
 //! 9. Symbolic tensor expressions
 //! 10. Quantum tensor operations
 
-use computational_engine::mathematics::tensor_calculus::symbolic::SymbolicExpr;
-use computational_engine::mathematics::tensor_calculus::tensor::{
-    self, MetricTensor, ChristoffelResult, RiemannResult, TensorComponent,
-    parse_metric_tensor, calculate_christoffel_symbols, calculate_riemann_tensor,
-    calculate_ricci_tensor, calculate_ricci_scalar, calculate_einstein_tensor
-};
 use computational_engine::mathematics::tensor_calculus::einstein::{
-    StressEnergyTensor, BoundaryCondition, EinsteinSolution, EinsteinEquationSystem,
-    construct_einstein_field_equations, solve_vacuum_einstein_equations,
-    verify_einstein_solution, solve_einstein_constraint_equations
+    BoundaryCondition, EinsteinEquationSystem, EinsteinSolution, StressEnergyTensor,
+    construct_einstein_field_equations, solve_einstein_constraint_equations,
+    solve_vacuum_einstein_equations, verify_einstein_solution,
 };
 use computational_engine::mathematics::tensor_calculus::quantum_tensors;
+use computational_engine::mathematics::tensor_calculus::symbolic::SymbolicExpr;
+use computational_engine::mathematics::tensor_calculus::tensor::{
+    self, ChristoffelResult, MetricTensor, RiemannResult, TensorComponent,
+    calculate_christoffel_symbols, calculate_einstein_tensor, calculate_ricci_scalar,
+    calculate_ricci_tensor, calculate_riemann_tensor, parse_metric_tensor,
+};
 use std::collections::HashMap;
 
 // ============================================================================
@@ -242,12 +242,37 @@ fn test_parse_flat_metric_2d() {
 #[test]
 fn test_parse_minkowski_metric_4d() {
     let metric_strings = vec![
-        vec!["-1".to_string(), "0".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "1".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "1".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "0".to_string(), "1".to_string()],
+        vec![
+            "-1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+        ],
     ];
-    let coords = vec!["t".to_string(), "x".to_string(), "y".to_string(), "z".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "x".to_string(),
+        "y".to_string(),
+        "z".to_string(),
+    ];
 
     let metric = parse_metric_tensor(metric_strings, &coords).unwrap();
     assert_eq!(metric.len(), 4);
@@ -328,12 +353,37 @@ fn test_christoffel_polar() {
 #[test]
 fn test_christoffel_minkowski() {
     let metric_strings = vec![
-        vec!["-1".to_string(), "0".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "1".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "1".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "0".to_string(), "1".to_string()],
+        vec![
+            "-1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+        ],
     ];
-    let coords = vec!["t".to_string(), "x".to_string(), "y".to_string(), "z".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "x".to_string(),
+        "y".to_string(),
+        "z".to_string(),
+    ];
     let metric = parse_metric_tensor(metric_strings, &coords).unwrap();
 
     let result = calculate_christoffel_symbols(&metric, &coords).unwrap();
@@ -376,12 +426,37 @@ fn test_riemann_polar() {
 #[test]
 fn test_riemann_minkowski() {
     let metric_strings = vec![
-        vec!["-1".to_string(), "0".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "1".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "1".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "0".to_string(), "1".to_string()],
+        vec![
+            "-1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+        ],
     ];
-    let coords = vec!["t".to_string(), "x".to_string(), "y".to_string(), "z".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "x".to_string(),
+        "y".to_string(),
+        "z".to_string(),
+    ];
     let metric = parse_metric_tensor(metric_strings, &coords).unwrap();
 
     let result = calculate_riemann_tensor(&metric, &coords).unwrap();
@@ -409,12 +484,37 @@ fn test_ricci_flat_2d() {
 #[test]
 fn test_ricci_minkowski() {
     let metric_strings = vec![
-        vec!["-1".to_string(), "0".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "1".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "1".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "0".to_string(), "1".to_string()],
+        vec![
+            "-1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+        ],
     ];
-    let coords = vec!["t".to_string(), "x".to_string(), "y".to_string(), "z".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "x".to_string(),
+        "y".to_string(),
+        "z".to_string(),
+    ];
     let metric = parse_metric_tensor(metric_strings, &coords).unwrap();
 
     let result = calculate_ricci_tensor(&metric, &coords).unwrap();
@@ -442,12 +542,37 @@ fn test_ricci_scalar_flat_2d() {
 #[test]
 fn test_ricci_scalar_minkowski() {
     let metric_strings = vec![
-        vec!["-1".to_string(), "0".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "1".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "1".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "0".to_string(), "1".to_string()],
+        vec![
+            "-1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+        ],
     ];
-    let coords = vec!["t".to_string(), "x".to_string(), "y".to_string(), "z".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "x".to_string(),
+        "y".to_string(),
+        "z".to_string(),
+    ];
     let metric = parse_metric_tensor(metric_strings, &coords).unwrap();
 
     let result = calculate_ricci_scalar(&metric, &coords).unwrap();
@@ -474,12 +599,37 @@ fn test_einstein_tensor_flat_2d() {
 #[test]
 fn test_einstein_tensor_minkowski() {
     let metric_strings = vec![
-        vec!["-1".to_string(), "0".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "1".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "1".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "0".to_string(), "1".to_string()],
+        vec![
+            "-1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+        ],
     ];
-    let coords = vec!["t".to_string(), "x".to_string(), "y".to_string(), "z".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "x".to_string(),
+        "y".to_string(),
+        "z".to_string(),
+    ];
     let metric = parse_metric_tensor(metric_strings, &coords).unwrap();
 
     let result = calculate_einstein_tensor(&metric, &coords).unwrap();
@@ -498,7 +648,12 @@ fn test_construct_einstein_field_equations_vacuum() {
         tensor_type: "vacuum".to_string(),
         parameters: HashMap::new(),
     };
-    let coords = vec!["t".to_string(), "r".to_string(), "theta".to_string(), "phi".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "r".to_string(),
+        "theta".to_string(),
+        "phi".to_string(),
+    ];
 
     let result = construct_einstein_field_equations(&stress_energy, &coords, None).unwrap();
     assert_eq!(result.field_equations.len(), 16); // 4x4 = 16 components
@@ -512,7 +667,12 @@ fn test_construct_einstein_field_equations_with_cosmological_constant() {
         tensor_type: "vacuum".to_string(),
         parameters: HashMap::new(),
     };
-    let coords = vec!["t".to_string(), "r".to_string(), "theta".to_string(), "phi".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "r".to_string(),
+        "theta".to_string(),
+        "phi".to_string(),
+    ];
     let lambda = SymbolicExpr::Constant(0.1);
 
     let result = construct_einstein_field_equations(&stress_energy, &coords, Some(lambda)).unwrap();
@@ -521,10 +681,16 @@ fn test_construct_einstein_field_equations_with_cosmological_constant() {
 
 #[test]
 fn test_solve_spherically_symmetric_vacuum() {
-    let coords = vec!["t".to_string(), "r".to_string(), "theta".to_string(), "phi".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "r".to_string(),
+        "theta".to_string(),
+        "phi".to_string(),
+    ];
     let boundary_conditions = vec![];
 
-    let solutions = solve_vacuum_einstein_equations(&coords, "spherical", &boundary_conditions).unwrap();
+    let solutions =
+        solve_vacuum_einstein_equations(&coords, "spherical", &boundary_conditions).unwrap();
     assert!(!solutions.is_empty());
     assert_eq!(solutions[0].solution_type, "exact");
     assert_eq!(solutions[0].coordinates, coords);
@@ -532,10 +698,16 @@ fn test_solve_spherically_symmetric_vacuum() {
 
 #[test]
 fn test_schwarzschild_solution() {
-    let coords = vec!["t".to_string(), "r".to_string(), "theta".to_string(), "phi".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "r".to_string(),
+        "theta".to_string(),
+        "phi".to_string(),
+    ];
     let boundary_conditions = vec![];
 
-    let solutions = solve_vacuum_einstein_equations(&coords, "spherical", &boundary_conditions).unwrap();
+    let solutions =
+        solve_vacuum_einstein_equations(&coords, "spherical", &boundary_conditions).unwrap();
 
     // Should contain Schwarzschild solution
     let schwarzschild = &solutions[0];
@@ -546,10 +718,16 @@ fn test_schwarzschild_solution() {
 
 #[test]
 fn test_reissner_nordstrom_solution() {
-    let coords = vec!["t".to_string(), "r".to_string(), "theta".to_string(), "phi".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "r".to_string(),
+        "theta".to_string(),
+        "phi".to_string(),
+    ];
     let boundary_conditions = vec![];
 
-    let solutions = solve_vacuum_einstein_equations(&coords, "spherical", &boundary_conditions).unwrap();
+    let solutions =
+        solve_vacuum_einstein_equations(&coords, "spherical", &boundary_conditions).unwrap();
 
     // Should contain Reissner-Nordström solution (charged black hole)
     assert!(solutions.len() >= 2);
@@ -561,10 +739,16 @@ fn test_reissner_nordstrom_solution() {
 
 #[test]
 fn test_flrw_cosmological_solution() {
-    let coords = vec!["t".to_string(), "r".to_string(), "theta".to_string(), "phi".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "r".to_string(),
+        "theta".to_string(),
+        "phi".to_string(),
+    ];
     let boundary_conditions = vec![];
 
-    let solutions = solve_vacuum_einstein_equations(&coords, "cosmological", &boundary_conditions).unwrap();
+    let solutions =
+        solve_vacuum_einstein_equations(&coords, "cosmological", &boundary_conditions).unwrap();
     assert!(!solutions.is_empty());
 
     // Should contain FLRW solution
@@ -575,10 +759,16 @@ fn test_flrw_cosmological_solution() {
 
 #[test]
 fn test_de_sitter_solution() {
-    let coords = vec!["t".to_string(), "r".to_string(), "theta".to_string(), "phi".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "r".to_string(),
+        "theta".to_string(),
+        "phi".to_string(),
+    ];
     let boundary_conditions = vec![];
 
-    let solutions = solve_vacuum_einstein_equations(&coords, "cosmological", &boundary_conditions).unwrap();
+    let solutions =
+        solve_vacuum_einstein_equations(&coords, "cosmological", &boundary_conditions).unwrap();
 
     // Should contain de Sitter solution
     assert!(solutions.len() >= 2);
@@ -590,10 +780,16 @@ fn test_de_sitter_solution() {
 
 #[test]
 fn test_kerr_axisymmetric_solution() {
-    let coords = vec!["t".to_string(), "r".to_string(), "theta".to_string(), "phi".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "r".to_string(),
+        "theta".to_string(),
+        "phi".to_string(),
+    ];
     let boundary_conditions = vec![];
 
-    let solutions = solve_vacuum_einstein_equations(&coords, "axisymmetric", &boundary_conditions).unwrap();
+    let solutions =
+        solve_vacuum_einstein_equations(&coords, "axisymmetric", &boundary_conditions).unwrap();
 
     // Should contain Kerr solution (rotating black hole)
     assert!(!solutions.is_empty());
@@ -605,10 +801,16 @@ fn test_kerr_axisymmetric_solution() {
 
 #[test]
 fn test_verify_einstein_solution() {
-    let coords = vec!["t".to_string(), "r".to_string(), "theta".to_string(), "phi".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "r".to_string(),
+        "theta".to_string(),
+        "phi".to_string(),
+    ];
     let boundary_conditions = vec![];
 
-    let solutions = solve_vacuum_einstein_equations(&coords, "spherical", &boundary_conditions).unwrap();
+    let solutions =
+        solve_vacuum_einstein_equations(&coords, "spherical", &boundary_conditions).unwrap();
     let schwarzschild = &solutions[0];
 
     // Verify the solution satisfies Einstein equations
@@ -619,12 +821,37 @@ fn test_verify_einstein_solution() {
 #[test]
 fn test_einstein_constraint_equations() {
     let metric_strings = vec![
-        vec!["-1".to_string(), "0".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "1".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "1".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "0".to_string(), "1".to_string()],
+        vec![
+            "-1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+        ],
     ];
-    let coords = vec!["t".to_string(), "x".to_string(), "y".to_string(), "z".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "x".to_string(),
+        "y".to_string(),
+        "z".to_string(),
+    ];
     let metric = parse_metric_tensor(metric_strings, &coords).unwrap();
 
     let constraints = solve_einstein_constraint_equations(&metric, &coords).unwrap();
@@ -692,10 +919,30 @@ fn test_einstein_tensor_quantum() {
 #[test]
 fn test_christoffel_4d_quantum() {
     let metric = vec![
-        vec!["-1".to_string(), "0".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "1".to_string(), "0".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "1".to_string(), "0".to_string()],
-        vec!["0".to_string(), "0".to_string(), "0".to_string(), "1".to_string()],
+        vec![
+            "-1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+            "0".to_string(),
+        ],
+        vec![
+            "0".to_string(),
+            "0".to_string(),
+            "0".to_string(),
+            "1".to_string(),
+        ],
     ];
 
     let result = quantum_tensors::calculate_christoffel_symbols(metric, 4).unwrap();
@@ -710,7 +957,13 @@ fn test_tensor_properties_symmetries() {
     ];
 
     let result = quantum_tensors::calculate_christoffel_symbols(metric, 2).unwrap();
-    assert!(result.properties.symmetries.iter().any(|s| s.contains("symmetric")));
+    assert!(
+        result
+            .properties
+            .symmetries
+            .iter()
+            .any(|s| s.contains("symmetric"))
+    );
 }
 
 // ============================================================================
@@ -719,7 +972,12 @@ fn test_tensor_properties_symmetries() {
 
 #[test]
 fn test_invalid_symmetry_ansatz() {
-    let coords = vec!["t".to_string(), "r".to_string(), "theta".to_string(), "phi".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "r".to_string(),
+        "theta".to_string(),
+        "phi".to_string(),
+    ];
     let boundary_conditions = vec![];
 
     let result = solve_vacuum_einstein_equations(&coords, "invalid_symmetry", &boundary_conditions);
@@ -767,12 +1025,10 @@ fn test_tensor_component_indices() {
 #[test]
 fn test_christoffel_result_structure() {
     let result = ChristoffelResult {
-        symbols: vec![
-            TensorComponent {
-                indices: vec![0, 0, 1],
-                expression: "r".to_string(),
-            }
-        ],
+        symbols: vec![TensorComponent {
+            indices: vec![0, 0, 1],
+            expression: "r".to_string(),
+        }],
         dimension: 2,
     };
     assert_eq!(result.dimension, 2);
@@ -782,12 +1038,10 @@ fn test_christoffel_result_structure() {
 #[test]
 fn test_riemann_result_structure() {
     let result = RiemannResult {
-        components: vec![
-            TensorComponent {
-                indices: vec![0, 1, 2, 3],
-                expression: "test".to_string(),
-            }
-        ],
+        components: vec![TensorComponent {
+            indices: vec![0, 1, 2, 3],
+            expression: "test".to_string(),
+        }],
         dimension: 4,
     };
     assert_eq!(result.dimension, 4);
@@ -888,11 +1142,17 @@ fn test_full_tensor_workflow() {
 
 #[test]
 fn test_schwarzschild_full_analysis() {
-    let coords = vec!["t".to_string(), "r".to_string(), "theta".to_string(), "phi".to_string()];
+    let coords = vec![
+        "t".to_string(),
+        "r".to_string(),
+        "theta".to_string(),
+        "phi".to_string(),
+    ];
     let boundary_conditions = vec![];
 
     // Get Schwarzschild solution
-    let solutions = solve_vacuum_einstein_equations(&coords, "spherical", &boundary_conditions).unwrap();
+    let solutions =
+        solve_vacuum_einstein_equations(&coords, "spherical", &boundary_conditions).unwrap();
     let schwarzschild = &solutions[0];
 
     // Verify it's correct

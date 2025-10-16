@@ -12,12 +12,18 @@ impl UnifiedTransformer {
     }
 
     /// Apply FFT transform
-    fn transform_fft(&self, fft_type: &FFTType, input: &TransformInput) -> ToolResult<TransformOutput> {
+    fn transform_fft(
+        &self,
+        fft_type: &FFTType,
+        input: &TransformInput,
+    ) -> ToolResult<TransformOutput> {
         use crate::tools::signal_processing;
 
         if matches!(fft_type, FFTType::Inverse) {
             // Inverse FFT
-            let data: Vec<f64> = input.parameters.get("frequency_data")
+            let data: Vec<f64> = input
+                .parameters
+                .get("frequency_data")
                 .and_then(|v| serde_json::from_value(v.clone()).ok())
                 .ok_or("frequency_data required for inverse FFT")?;
 
@@ -37,8 +43,12 @@ impl UnifiedTransformer {
             });
         }
 
-        let sample_rate = input.sampling_rate.ok_or("sampling_rate required for FFT")?;
-        let window_type = input.parameters.get("window_type")
+        let sample_rate = input
+            .sampling_rate
+            .ok_or("sampling_rate required for FFT")?;
+        let window_type = input
+            .parameters
+            .get("window_type")
             .and_then(|v| v.as_str())
             .unwrap_or("hanning");
 
@@ -62,7 +72,11 @@ impl UnifiedTransformer {
     }
 
     /// Apply filter transform
-    fn transform_filter(&self, filter_type: &FilterType, input: &TransformInput) -> ToolResult<TransformOutput> {
+    fn transform_filter(
+        &self,
+        filter_type: &FilterType,
+        input: &TransformInput,
+    ) -> ToolResult<TransformOutput> {
         use crate::tools::signal_processing;
 
         let filter_type_str = match filter_type {
@@ -72,13 +86,19 @@ impl UnifiedTransformer {
             FilterType::BandStop => "bandstop",
         };
 
-        let cutoff = input.parameters.get("cutoff")
+        let cutoff = input
+            .parameters
+            .get("cutoff")
             .and_then(|v| v.as_f64())
             .ok_or("cutoff frequency required for filter")?;
 
-        let sample_rate = input.sampling_rate.ok_or("sampling_rate required for filter")?;
+        let sample_rate = input
+            .sampling_rate
+            .ok_or("sampling_rate required for filter")?;
 
-        let order = input.parameters.get("order")
+        let order = input
+            .parameters
+            .get("order")
             .and_then(|v| v.as_u64())
             .unwrap_or(4) as usize;
 
@@ -106,7 +126,11 @@ impl UnifiedTransformer {
     }
 
     /// Apply wavelet transform
-    fn transform_wavelet(&self, wavelet_type: &WaveletType, input: &TransformInput) -> ToolResult<TransformOutput> {
+    fn transform_wavelet(
+        &self,
+        wavelet_type: &WaveletType,
+        input: &TransformInput,
+    ) -> ToolResult<TransformOutput> {
         use crate::tools::signal_processing;
 
         let wavelet_str = match wavelet_type {
@@ -119,18 +143,21 @@ impl UnifiedTransformer {
         let sample_rate = input.sampling_rate.unwrap_or(1.0);
 
         // Extract scales parameter
-        let scales = input.parameters.get("scales")
+        let scales = input
+            .parameters
+            .get("scales")
             .and_then(|v| v.as_array())
             .map(|arr| arr.iter().filter_map(|v| v.as_f64()).collect())
             .unwrap_or_else(|| vec![1.0, 2.0, 4.0, 8.0, 16.0]);
 
-        let result = signal_processing::wavelet_transform(signal_processing::WaveletTransformRequest {
-            signal: input.data.clone(),
-            wavelet_type: wavelet_str.to_string(),
-            scales: scales.clone(),
-            sample_rate,
-        })
-        .map_err(|e| e.to_string())?;
+        let result =
+            signal_processing::wavelet_transform(signal_processing::WaveletTransformRequest {
+                signal: input.data.clone(),
+                wavelet_type: wavelet_str.to_string(),
+                scales: scales.clone(),
+                sample_rate,
+            })
+            .map_err(|e| e.to_string())?;
 
         Ok(TransformOutput {
             result: result.coefficients.first().cloned().unwrap_or_default(),
@@ -147,7 +174,11 @@ impl UnifiedTransformer {
     }
 
     /// Apply window function
-    fn transform_window(&self, window_type: &WindowType, input: &TransformInput) -> ToolResult<TransformOutput> {
+    fn transform_window(
+        &self,
+        window_type: &WindowType,
+        input: &TransformInput,
+    ) -> ToolResult<TransformOutput> {
         use crate::tools::signal_processing;
 
         let window_str = match window_type {
@@ -157,14 +188,17 @@ impl UnifiedTransformer {
             WindowType::Kaiser => "kaiser",
         };
 
-        let result = signal_processing::windowing_functions(signal_processing::WindowFunctionRequest {
-            size: input.data.len(),
-            window_type: window_str.to_string(),
-        })
-        .map_err(|e| e.to_string())?;
+        let result =
+            signal_processing::windowing_functions(signal_processing::WindowFunctionRequest {
+                size: input.data.len(),
+                window_type: window_str.to_string(),
+            })
+            .map_err(|e| e.to_string())?;
 
         // Apply window to signal
-        let windowed_signal: Vec<f64> = input.data.iter()
+        let windowed_signal: Vec<f64> = input
+            .data
+            .iter()
             .zip(result.window.iter())
             .map(|(s, w)| s * w)
             .collect();
@@ -196,72 +230,66 @@ impl Transform for UnifiedTransformer {
             TransformType::Fourier(fourier_type) => {
                 // Symbolic/Continuous Fourier transform
                 match fourier_type {
-                    FourierTransform::Forward => {
-                        Ok(TransformOutput {
-                            result: vec![],
-                            frequencies: Some(vec![]),
-                            magnitude: None,
-                            phase: None,
-                            metadata: Some(serde_json::json!({
-                                "transform": "continuous_fourier",
-                                "direction": "forward",
-                                "formula": "F(ω) = ∫ f(t) e^(-iωt) dt"
-                            })),
-                        })
-                    },
-                    FourierTransform::Inverse => {
-                        Ok(TransformOutput {
-                            result: vec![],
-                            frequencies: None,
-                            magnitude: None,
-                            phase: None,
-                            metadata: Some(serde_json::json!({
-                                "transform": "inverse_fourier",
-                                "direction": "inverse",
-                                "formula": "f(t) = (1/2π) ∫ F(ω) e^(iωt) dω"
-                            })),
-                        })
-                    },
+                    FourierTransform::Forward => Ok(TransformOutput {
+                        result: vec![],
+                        frequencies: Some(vec![]),
+                        magnitude: None,
+                        phase: None,
+                        metadata: Some(serde_json::json!({
+                            "transform": "continuous_fourier",
+                            "direction": "forward",
+                            "formula": "F(ω) = ∫ f(t) e^(-iωt) dt"
+                        })),
+                    }),
+                    FourierTransform::Inverse => Ok(TransformOutput {
+                        result: vec![],
+                        frequencies: None,
+                        magnitude: None,
+                        phase: None,
+                        metadata: Some(serde_json::json!({
+                            "transform": "inverse_fourier",
+                            "direction": "inverse",
+                            "formula": "f(t) = (1/2π) ∫ F(ω) e^(iωt) dω"
+                        })),
+                    }),
                 }
-            },
+            }
 
             TransformType::Laplace(laplace_type) => {
                 // Laplace transform
                 match laplace_type {
-                    LaplaceTransform::Forward => {
-                        Ok(TransformOutput {
-                            result: vec![],
-                            frequencies: None,
-                            magnitude: None,
-                            phase: None,
-                            metadata: Some(serde_json::json!({
-                                "transform": "laplace",
-                                "direction": "forward",
-                                "domain": "s-domain",
-                                "formula": "F(s) = ∫₀^∞ f(t) e^(-st) dt"
-                            })),
-                        })
-                    },
-                    LaplaceTransform::Inverse => {
-                        Ok(TransformOutput {
-                            result: vec![],
-                            frequencies: None,
-                            magnitude: None,
-                            phase: None,
-                            metadata: Some(serde_json::json!({
-                                "transform": "inverse_laplace",
-                                "direction": "inverse",
-                                "domain": "time-domain",
-                                "formula": "f(t) = (1/2πi) ∫ F(s) e^(st) ds"
-                            })),
-                        })
-                    },
+                    LaplaceTransform::Forward => Ok(TransformOutput {
+                        result: vec![],
+                        frequencies: None,
+                        magnitude: None,
+                        phase: None,
+                        metadata: Some(serde_json::json!({
+                            "transform": "laplace",
+                            "direction": "forward",
+                            "domain": "s-domain",
+                            "formula": "F(s) = ∫₀^∞ f(t) e^(-st) dt"
+                        })),
+                    }),
+                    LaplaceTransform::Inverse => Ok(TransformOutput {
+                        result: vec![],
+                        frequencies: None,
+                        magnitude: None,
+                        phase: None,
+                        metadata: Some(serde_json::json!({
+                            "transform": "inverse_laplace",
+                            "direction": "inverse",
+                            "domain": "time-domain",
+                            "formula": "f(t) = (1/2πi) ∫ F(s) e^(st) ds"
+                        })),
+                    }),
                 }
-            },
+            }
 
             TransformType::Conformal => {
                 // Conformal mapping (complex analysis)
-                let mapping_type = input.parameters.get("mapping")
+                let mapping_type = input
+                    .parameters
+                    .get("mapping")
                     .and_then(|v| v.as_str())
                     .unwrap_or("mobius");
 
@@ -277,7 +305,7 @@ impl Transform for UnifiedTransformer {
                         "description": format!("Conformal mapping: {} applied", mapping_type)
                     })),
                 })
-            },
+            }
         }
     }
 }

@@ -12,7 +12,7 @@ use std::collections::HashMap;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct OptimizationRequest {
     pub method: String,
-    pub objective_function: Option<String>,  // For simple expressions
+    pub objective_function: Option<String>, // For simple expressions
     pub initial_point: Vec<f64>,
     pub gradient: Option<Vec<String>>,
     pub constraints: Option<Vec<Constraint>>,
@@ -23,7 +23,7 @@ pub struct OptimizationRequest {
 pub struct Constraint {
     pub coefficients: Vec<f64>,
     pub value: f64,
-    pub constraint_type: String,  // "le", "ge", "eq"
+    pub constraint_type: String, // "le", "ge", "eq"
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -38,9 +38,15 @@ pub struct OptimizationOptions {
     pub maximize: bool,
 }
 
-fn default_max_iterations() -> usize { 1000 }
-fn default_tolerance() -> f64 { 1e-6 }
-fn default_step_size() -> f64 { 0.01 }
+fn default_max_iterations() -> usize {
+    1000
+}
+fn default_tolerance() -> f64 {
+    1e-6
+}
+fn default_step_size() -> f64 {
+    0.01
+}
 
 impl Default for OptimizationOptions {
     fn default() -> Self {
@@ -123,10 +129,10 @@ pub fn nelder_mead(
     options: OptimizationOptions,
 ) -> Result<OptimizationResult, String> {
     let n = initial_point.len();
-    let alpha = 1.0;  // reflection
-    let gamma = 2.0;  // expansion
-    let beta = 0.5;   // contraction
-    let sigma = 0.5;  // shrink
+    let alpha = 1.0; // reflection
+    let gamma = 2.0; // expansion
+    let beta = 0.5; // contraction
+    let sigma = 0.5; // shrink
 
     // Create initial simplex
     let mut simplex: Vec<Vec<f64>> = Vec::new();
@@ -134,7 +140,11 @@ pub fn nelder_mead(
 
     for i in 0..n {
         let mut point = initial_point.clone();
-        point[i] += if point[i] != 0.0 { 0.05 * point[i] } else { 0.00025 };
+        point[i] += if point[i] != 0.0 {
+            0.05 * point[i]
+        } else {
+            0.00025
+        };
         simplex.push(point);
     }
 
@@ -144,9 +154,7 @@ pub fn nelder_mead(
         iterations = iter + 1;
 
         // Sort simplex by objective value
-        simplex.sort_by(|a, b| {
-            objective(a).partial_cmp(&objective(b)).unwrap()
-        });
+        simplex.sort_by(|a, b| objective(a).partial_cmp(&objective(b)).unwrap());
 
         let best = simplex[0].clone();
         let worst = simplex[n].clone();
@@ -170,7 +178,8 @@ pub fn nelder_mead(
         }
 
         // Reflection
-        let reflected: Vec<f64> = centroid.iter()
+        let reflected: Vec<f64> = centroid
+            .iter()
             .zip(worst.iter())
             .map(|(c, w)| c + alpha * (c - w))
             .collect();
@@ -183,7 +192,8 @@ pub fn nelder_mead(
 
         // Expansion
         if reflected_value < objective(&best) {
-            let expanded: Vec<f64> = centroid.iter()
+            let expanded: Vec<f64> = centroid
+                .iter()
                 .zip(reflected.iter())
                 .map(|(c, r)| c + gamma * (r - c))
                 .collect();
@@ -198,7 +208,8 @@ pub fn nelder_mead(
         }
 
         // Contraction
-        let contracted: Vec<f64> = centroid.iter()
+        let contracted: Vec<f64> = centroid
+            .iter()
             .zip(worst.iter())
             .map(|(c, w)| c + beta * (w - c))
             .collect();
@@ -238,7 +249,7 @@ pub fn nelder_mead(
 pub struct CurveFitRequest {
     pub x_data: Vec<f64>,
     pub y_data: Vec<f64>,
-    pub model: String,  // "linear", "quadratic", "exponential", "power"
+    pub model: String, // "linear", "quadratic", "exponential", "power"
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -258,7 +269,11 @@ pub struct CurveFitResult {
 /// * `residuals` - Model residuals (observed - predicted)
 /// * `n_params` - Number of parameters in the model
 /// * `n_samples` - Number of data points
-fn calculate_information_criteria(residuals: &[f64], n_params: usize, n_samples: usize) -> (f64, f64, f64) {
+fn calculate_information_criteria(
+    residuals: &[f64],
+    n_params: usize,
+    n_samples: usize,
+) -> (f64, f64, f64) {
     let n = n_samples as f64;
     let k = n_params as f64;
 
@@ -305,7 +320,9 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
             // y = a + bx
             let sum_x: f64 = request.x_data.iter().sum();
             let sum_y: f64 = request.y_data.iter().sum();
-            let sum_xy: f64 = request.x_data.iter()
+            let sum_xy: f64 = request
+                .x_data
+                .iter()
                 .zip(request.y_data.iter())
                 .map(|(x, y)| x * y)
                 .sum();
@@ -316,7 +333,9 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
             let a = (sum_y - b * sum_x) / n_f64;
 
             let fitted: Vec<f64> = request.x_data.iter().map(|x| a + b * x).collect();
-            let residuals: Vec<f64> = request.y_data.iter()
+            let residuals: Vec<f64> = request
+                .y_data
+                .iter()
                 .zip(fitted.iter())
                 .map(|(y, f)| y - f)
                 .collect();
@@ -339,7 +358,7 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
                 bic: Some(bic),
                 aicc: Some(aicc),
             })
-        },
+        }
         "quadratic" => {
             // y = a + bx + cx^2
             // Using matrix solution for least squares
@@ -373,20 +392,27 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
 
             let a = (sum_y * (sum_x2 * sum_x4 - sum_x3 * sum_x3)
                 - sum_x * (sum_xy * sum_x4 - sum_x3 * sum_x2y)
-                + sum_x2 * (sum_xy * sum_x3 - sum_x2 * sum_x2y)) / det;
+                + sum_x2 * (sum_xy * sum_x3 - sum_x2 * sum_x2y))
+                / det;
 
             let b = (n_f64 * (sum_xy * sum_x4 - sum_x3 * sum_x2y)
                 - sum_y * (sum_x * sum_x4 - sum_x3 * sum_x2)
-                + sum_x2 * (sum_x * sum_x2y - sum_xy * sum_x2)) / det;
+                + sum_x2 * (sum_x * sum_x2y - sum_xy * sum_x2))
+                / det;
 
             let c = (n_f64 * (sum_x2 * sum_x2y - sum_xy * sum_x3)
                 - sum_x * (sum_x * sum_x2y - sum_xy * sum_x2)
-                + sum_y * (sum_x * sum_x3 - sum_x2 * sum_x2)) / det;
+                + sum_y * (sum_x * sum_x3 - sum_x2 * sum_x2))
+                / det;
 
-            let fitted: Vec<f64> = request.x_data.iter()
+            let fitted: Vec<f64> = request
+                .x_data
+                .iter()
                 .map(|x| a + b * x + c * x * x)
                 .collect();
-            let residuals: Vec<f64> = request.y_data.iter()
+            let residuals: Vec<f64> = request
+                .y_data
+                .iter()
                 .zip(fitted.iter())
                 .map(|(y, f)| y - f)
                 .collect();
@@ -409,7 +435,7 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
                 bic: Some(bic),
                 aicc: Some(aicc),
             })
-        },
+        }
         "trigonometric" | "sinusoidal" => {
             // y = a + b*sin(c*x + d)
             // Simplified: y = a + b*sin(x) + c*cos(x)
@@ -420,10 +446,18 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
             let sum_sin: f64 = request.x_data.iter().map(|x| x.sin()).sum();
             let sum_cos: f64 = request.x_data.iter().map(|x| x.cos()).sum();
 
-            let sum_y_sin: f64 = request.x_data.iter().zip(request.y_data.iter())
-                .map(|(x, y)| y * x.sin()).sum();
-            let sum_y_cos: f64 = request.x_data.iter().zip(request.y_data.iter())
-                .map(|(x, y)| y * x.cos()).sum();
+            let sum_y_sin: f64 = request
+                .x_data
+                .iter()
+                .zip(request.y_data.iter())
+                .map(|(x, y)| y * x.sin())
+                .sum();
+            let sum_y_cos: f64 = request
+                .x_data
+                .iter()
+                .zip(request.y_data.iter())
+                .map(|(x, y)| y * x.cos())
+                .sum();
 
             let sum_sin2: f64 = request.x_data.iter().map(|x| x.sin().powi(2)).sum();
             let sum_cos2: f64 = request.x_data.iter().map(|x| x.cos().powi(2)).sum();
@@ -440,20 +474,27 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
 
             let a = (sum_y * (sum_sin2 * sum_cos2 - sum_sin_cos * sum_sin_cos)
                 - sum_sin * (sum_y_sin * sum_cos2 - sum_sin_cos * sum_y_cos)
-                + sum_cos * (sum_y_sin * sum_sin_cos - sum_sin2 * sum_y_cos)) / det;
+                + sum_cos * (sum_y_sin * sum_sin_cos - sum_sin2 * sum_y_cos))
+                / det;
 
             let b = (n_f64 * (sum_y_sin * sum_cos2 - sum_sin_cos * sum_y_cos)
                 - sum_y * (sum_sin * sum_cos2 - sum_sin_cos * sum_cos)
-                + sum_cos * (sum_sin * sum_y_cos - sum_y_sin * sum_cos)) / det;
+                + sum_cos * (sum_sin * sum_y_cos - sum_y_sin * sum_cos))
+                / det;
 
             let c = (n_f64 * (sum_sin2 * sum_y_cos - sum_y_sin * sum_sin_cos)
                 - sum_sin * (sum_sin * sum_y_cos - sum_y_sin * sum_cos)
-                + sum_y * (sum_sin * sum_sin_cos - sum_sin2 * sum_cos)) / det;
+                + sum_y * (sum_sin * sum_sin_cos - sum_sin2 * sum_cos))
+                / det;
 
-            let fitted: Vec<f64> = request.x_data.iter()
+            let fitted: Vec<f64> = request
+                .x_data
+                .iter()
                 .map(|x| a + b * x.sin() + c * x.cos())
                 .collect();
-            let residuals: Vec<f64> = request.y_data.iter()
+            let residuals: Vec<f64> = request
+                .y_data
+                .iter()
                 .zip(fitted.iter())
                 .map(|(y, f)| y - f)
                 .collect();
@@ -480,7 +521,7 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
                 bic: Some(bic),
                 aicc: Some(aicc),
             })
-        },
+        }
         "exponential" => {
             // y = a * e^(b*x)
             // Linearize: ln(y) = ln(a) + b*x
@@ -494,8 +535,12 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
 
             let sum_x: f64 = request.x_data.iter().sum();
             let sum_ln_y: f64 = ln_y.iter().sum();
-            let sum_x_ln_y: f64 = request.x_data.iter().zip(ln_y.iter())
-                .map(|(x, ln_y)| x * ln_y).sum();
+            let sum_x_ln_y: f64 = request
+                .x_data
+                .iter()
+                .zip(ln_y.iter())
+                .map(|(x, ln_y)| x * ln_y)
+                .sum();
             let sum_x2: f64 = request.x_data.iter().map(|x| x * x).sum();
 
             let n_f64 = n as f64;
@@ -504,7 +549,9 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
             let a = ln_a.exp();
 
             let fitted: Vec<f64> = request.x_data.iter().map(|x| a * (b * x).exp()).collect();
-            let residuals: Vec<f64> = request.y_data.iter()
+            let residuals: Vec<f64> = request
+                .y_data
+                .iter()
                 .zip(fitted.iter())
                 .map(|(y, f)| y - f)
                 .collect();
@@ -526,7 +573,7 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
                 bic: Some(bic),
                 aicc: Some(aicc),
             })
-        },
+        }
         "logarithmic" => {
             // y = a + b*ln(x)
 
@@ -539,16 +586,22 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
 
             let sum_ln_x: f64 = ln_x.iter().sum();
             let sum_y: f64 = request.y_data.iter().sum();
-            let sum_ln_x_y: f64 = ln_x.iter().zip(request.y_data.iter())
-                .map(|(ln_x, y)| ln_x * y).sum();
+            let sum_ln_x_y: f64 = ln_x
+                .iter()
+                .zip(request.y_data.iter())
+                .map(|(ln_x, y)| ln_x * y)
+                .sum();
             let sum_ln_x2: f64 = ln_x.iter().map(|ln_x| ln_x * ln_x).sum();
 
             let n_f64 = n as f64;
-            let b = (n_f64 * sum_ln_x_y - sum_ln_x * sum_y) / (n_f64 * sum_ln_x2 - sum_ln_x * sum_ln_x);
+            let b =
+                (n_f64 * sum_ln_x_y - sum_ln_x * sum_y) / (n_f64 * sum_ln_x2 - sum_ln_x * sum_ln_x);
             let a = (sum_y - b * sum_ln_x) / n_f64;
 
             let fitted: Vec<f64> = request.x_data.iter().map(|x| a + b * x.ln()).collect();
-            let residuals: Vec<f64> = request.y_data.iter()
+            let residuals: Vec<f64> = request
+                .y_data
+                .iter()
                 .zip(fitted.iter())
                 .map(|(y, f)| y - f)
                 .collect();
@@ -570,7 +623,7 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
                 bic: Some(bic),
                 aicc: Some(aicc),
             })
-        },
+        }
         "power" => {
             // y = a * x^b
             // Linearize: ln(y) = ln(a) + b*ln(x)
@@ -588,17 +641,23 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
 
             let sum_ln_x: f64 = ln_x.iter().sum();
             let sum_ln_y: f64 = ln_y.iter().sum();
-            let sum_ln_x_ln_y: f64 = ln_x.iter().zip(ln_y.iter())
-                .map(|(ln_x, ln_y)| ln_x * ln_y).sum();
+            let sum_ln_x_ln_y: f64 = ln_x
+                .iter()
+                .zip(ln_y.iter())
+                .map(|(ln_x, ln_y)| ln_x * ln_y)
+                .sum();
             let sum_ln_x2: f64 = ln_x.iter().map(|ln_x| ln_x * ln_x).sum();
 
             let n_f64 = n as f64;
-            let b = (n_f64 * sum_ln_x_ln_y - sum_ln_x * sum_ln_y) / (n_f64 * sum_ln_x2 - sum_ln_x * sum_ln_x);
+            let b = (n_f64 * sum_ln_x_ln_y - sum_ln_x * sum_ln_y)
+                / (n_f64 * sum_ln_x2 - sum_ln_x * sum_ln_x);
             let ln_a = (sum_ln_y - b * sum_ln_x) / n_f64;
             let a = ln_a.exp();
 
             let fitted: Vec<f64> = request.x_data.iter().map(|x| a * x.powf(b)).collect();
-            let residuals: Vec<f64> = request.y_data.iter()
+            let residuals: Vec<f64> = request
+                .y_data
+                .iter()
                 .zip(fitted.iter())
                 .map(|(y, f)| y - f)
                 .collect();
@@ -620,7 +679,7 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
                 bic: Some(bic),
                 aicc: Some(aicc),
             })
-        },
+        }
         "rational" => {
             // y = (a + b*x) / (1 + c*x)
             // Simplified rational function fit
@@ -633,15 +692,22 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
 
             for _ in 0..max_iterations {
                 // Adjusted y values
-                let y_adjusted: Vec<f64> = request.y_data.iter().zip(request.x_data.iter())
+                let y_adjusted: Vec<f64> = request
+                    .y_data
+                    .iter()
+                    .zip(request.x_data.iter())
                     .map(|(y, x)| y * (1.0 + c * x))
                     .collect();
 
                 // Fit linear model: y_adjusted = a + b*x
                 let sum_x: f64 = request.x_data.iter().sum();
                 let sum_y_adj: f64 = y_adjusted.iter().sum();
-                let sum_xy_adj: f64 = request.x_data.iter().zip(y_adjusted.iter())
-                    .map(|(x, y_adj)| x * y_adj).sum();
+                let sum_xy_adj: f64 = request
+                    .x_data
+                    .iter()
+                    .zip(y_adjusted.iter())
+                    .map(|(x, y_adj)| x * y_adj)
+                    .sum();
                 let sum_x2: f64 = request.x_data.iter().map(|x| x * x).sum();
 
                 let n_f64 = n as f64;
@@ -649,7 +715,10 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
                 let a = (sum_y_adj - b * sum_x) / n_f64;
 
                 // Estimate new c from residuals
-                let residuals: Vec<f64> = request.y_data.iter().zip(request.x_data.iter())
+                let residuals: Vec<f64> = request
+                    .y_data
+                    .iter()
+                    .zip(request.x_data.iter())
                     .map(|(y, x)| {
                         let predicted = (a + b * x) / (1.0 + c * x);
                         y - predicted
@@ -657,37 +726,52 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
                     .collect();
 
                 // Simple update to c based on residuals
-                let c_update: f64 = residuals.iter().zip(request.x_data.iter())
+                let c_update: f64 = residuals
+                    .iter()
+                    .zip(request.x_data.iter())
                     .zip(request.y_data.iter())
                     .map(|((r, x), y)| r * x * y)
-                    .sum::<f64>() / n_f64;
+                    .sum::<f64>()
+                    / n_f64;
 
                 c += 0.1 * c_update; // Damped update
             }
 
             // Final coefficients
-            let fitted: Vec<f64> = request.x_data.iter()
+            let fitted: Vec<f64> = request
+                .x_data
+                .iter()
                 .map(|x| {
                     // Recompute a and b with final c
-                    let y_adjusted: Vec<f64> = request.y_data.iter().zip(request.x_data.iter())
+                    let y_adjusted: Vec<f64> = request
+                        .y_data
+                        .iter()
+                        .zip(request.x_data.iter())
                         .map(|(y, x_i)| y * (1.0 + c * x_i))
                         .collect();
 
                     let sum_x: f64 = request.x_data.iter().sum();
                     let sum_y_adj: f64 = y_adjusted.iter().sum();
-                    let sum_xy_adj: f64 = request.x_data.iter().zip(y_adjusted.iter())
-                        .map(|(x_i, y_adj)| x_i * y_adj).sum();
+                    let sum_xy_adj: f64 = request
+                        .x_data
+                        .iter()
+                        .zip(y_adjusted.iter())
+                        .map(|(x_i, y_adj)| x_i * y_adj)
+                        .sum();
                     let sum_x2: f64 = request.x_data.iter().map(|x_i| x_i * x_i).sum();
 
                     let n_f64 = n as f64;
-                    let b = (n_f64 * sum_xy_adj - sum_x * sum_y_adj) / (n_f64 * sum_x2 - sum_x * sum_x);
+                    let b =
+                        (n_f64 * sum_xy_adj - sum_x * sum_y_adj) / (n_f64 * sum_x2 - sum_x * sum_x);
                     let a = (sum_y_adj - b * sum_x) / n_f64;
 
                     (a + b * x) / (1.0 + c * x)
                 })
                 .collect();
 
-            let residuals: Vec<f64> = request.y_data.iter()
+            let residuals: Vec<f64> = request
+                .y_data
+                .iter()
                 .zip(fitted.iter())
                 .map(|(y, f)| y - f)
                 .collect();
@@ -698,14 +782,21 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
             let r_squared = 1.0 - (ss_res / ss_tot);
 
             // Get final a, b coefficients
-            let y_adjusted: Vec<f64> = request.y_data.iter().zip(request.x_data.iter())
+            let y_adjusted: Vec<f64> = request
+                .y_data
+                .iter()
+                .zip(request.x_data.iter())
                 .map(|(y, x)| y * (1.0 + c * x))
                 .collect();
 
             let sum_x: f64 = request.x_data.iter().sum();
             let sum_y_adj: f64 = y_adjusted.iter().sum();
-            let sum_xy_adj: f64 = request.x_data.iter().zip(y_adjusted.iter())
-                .map(|(x, y_adj)| x * y_adj).sum();
+            let sum_xy_adj: f64 = request
+                .x_data
+                .iter()
+                .zip(y_adjusted.iter())
+                .map(|(x, y_adj)| x * y_adj)
+                .sum();
             let sum_x2: f64 = request.x_data.iter().map(|x| x * x).sum();
 
             let n_f64 = n as f64;
@@ -724,7 +815,7 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
                 bic: Some(bic),
                 aicc: Some(aicc),
             })
-        },
+        }
         _ => Err(format!("Unsupported model: {}", request.model)),
     }
 }

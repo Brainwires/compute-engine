@@ -8,67 +8,63 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use thiserror::Error;
 
-pub mod expr;
-pub mod parser;
-pub mod simplify;
-pub mod differentiate;
-pub mod integrate;
-pub mod symbolic_matrix;
-pub mod symbolic_eigenvalues;
-pub mod symbolic_tensor;
-pub mod metric_tensors;
 pub mod christoffel;
+pub mod differentiate;
+pub mod expr;
+pub mod fluid_dynamics;
+pub mod integrate;
+pub mod metric_tensors;
+pub mod parser;
 pub mod quantum;
 pub mod quantum_advanced;
-pub mod fluid_dynamics;
+pub mod simplify;
 pub mod statistical_mechanics;
+pub mod symbolic_eigenvalues;
+pub mod symbolic_matrix;
+pub mod symbolic_tensor;
 
-pub use expr::{Expr, Rational};
-pub use parser::parse;
-pub use symbolic_matrix::SymbolicMatrix;
-pub use symbolic_eigenvalues::{characteristic_polynomial, eigenvalues_2x2, matrix_inverse};
-pub use symbolic_tensor::{IndexType, SymbolicTensor};
-pub use metric_tensors::*;
 pub use christoffel::{
-    christoffel_symbols, christoffel_first_kind, geodesic_coefficients,
-    riemann_tensor, ricci_tensor, ricci_scalar, einstein_tensor
+    christoffel_first_kind, christoffel_symbols, einstein_tensor, geodesic_coefficients,
+    ricci_scalar, ricci_tensor, riemann_tensor,
 };
+pub use expr::{Expr, Rational};
+pub use fluid_dynamics::{
+    bernoulli_equation, continuity_equation_incompressible, drag_coefficient,
+    euler_equation_symbolic, navier_stokes_momentum_symbolic, poiseuille_flow_velocity,
+    reynolds_number, stokes_drag_force, stokes_flow_equation, stream_function_velocity,
+    vorticity_2d,
+};
+pub use metric_tensors::*;
+pub use parser::parse;
 pub use quantum::{
-    commutator, anticommutator,
-    pauli_x, pauli_y, pauli_z, pauli_matrices,
-    dirac_gamma_0, dirac_gamma_1, dirac_gamma_2, dirac_gamma_3, dirac_gamma_matrices,
-    angular_momentum_x, angular_momentum_y, angular_momentum_z,
-    creation_operator_symbolic, annihilation_operator_symbolic,
-    time_evolution_operator, expectation_value, uncertainty_commutator,
-    verify_pauli_properties
+    angular_momentum_x, angular_momentum_y, angular_momentum_z, annihilation_operator_symbolic,
+    anticommutator, commutator, creation_operator_symbolic, dirac_gamma_0, dirac_gamma_1,
+    dirac_gamma_2, dirac_gamma_3, dirac_gamma_matrices, expectation_value, pauli_matrices, pauli_x,
+    pauli_y, pauli_z, time_evolution_operator, uncertainty_commutator, verify_pauli_properties,
 };
 pub use quantum_advanced::{
-    density_matrix_pure_state, density_matrix_mixed, density_matrix_trace,
-    von_neumann_entropy_symbolic, maximally_mixed_state, partial_trace_qubit,
-    is_potentially_entangled, hadamard_gate, pauli_x_gate, pauli_y_gate, pauli_z_gate,
-    phase_gate, t_gate, rotation_x_gate, rotation_y_gate, rotation_z_gate,
-    cnot_gate, swap_gate, toffoli_gate,
-    bell_state_phi_plus, bell_state_phi_minus, bell_state_psi_plus, bell_state_psi_minus,
-    state_fidelity
-};
-pub use fluid_dynamics::{
-    continuity_equation_incompressible, vorticity_2d, stream_function_velocity,
-    bernoulli_equation, reynolds_number, navier_stokes_momentum_symbolic,
-    stokes_flow_equation, euler_equation_symbolic, poiseuille_flow_velocity,
-    stokes_drag_force, drag_coefficient
+    bell_state_phi_minus, bell_state_phi_plus, bell_state_psi_minus, bell_state_psi_plus,
+    cnot_gate, density_matrix_mixed, density_matrix_pure_state, density_matrix_trace,
+    hadamard_gate, is_potentially_entangled, maximally_mixed_state, partial_trace_qubit,
+    pauli_x_gate, pauli_y_gate, pauli_z_gate, phase_gate, rotation_x_gate, rotation_y_gate,
+    rotation_z_gate, state_fidelity, swap_gate, t_gate, toffoli_gate, von_neumann_entropy_symbolic,
 };
 pub use statistical_mechanics::{
-    boltzmann_distribution, partition_function_discrete, partition_function_ideal_gas,
-    helmholtz_free_energy, gibbs_free_energy, entropy_from_partition_function,
-    maxwell_boltzmann_speed_distribution, fermi_dirac_distribution, bose_einstein_distribution,
-    planck_distribution, stefan_boltzmann_law, ideal_gas_law, van_der_waals_equation,
-    heat_capacity_constant_volume, heat_capacity_constant_pressure, carnot_efficiency
+    boltzmann_distribution, bose_einstein_distribution, carnot_efficiency,
+    entropy_from_partition_function, fermi_dirac_distribution, gibbs_free_energy,
+    heat_capacity_constant_pressure, heat_capacity_constant_volume, helmholtz_free_energy,
+    ideal_gas_law, maxwell_boltzmann_speed_distribution, partition_function_discrete,
+    partition_function_ideal_gas, planck_distribution, stefan_boltzmann_law,
+    van_der_waals_equation,
 };
+pub use symbolic_eigenvalues::{characteristic_polynomial, eigenvalues_2x2, matrix_inverse};
+pub use symbolic_matrix::SymbolicMatrix;
+pub use symbolic_tensor::{IndexType, SymbolicTensor};
 
 // Re-export main functions
-pub use simplify::{expand as expand_expr, simplify as simplify_expr};
 pub use differentiate::differentiate as diff;
 pub use integrate::integrate as integrate_expr;
+pub use simplify::{expand as expand_expr, simplify as simplify_expr};
 
 /// Error types for symbolic operations
 #[derive(Error, Debug)]
@@ -169,7 +165,11 @@ pub fn expand(expr_str: &str) -> SymbolicResult<SymbolicOutput> {
 }
 
 /// Compute symbolic derivative
-pub fn differentiate(expr_str: &str, var: &str, order: Option<usize>) -> SymbolicResult<SymbolicOutput> {
+pub fn differentiate(
+    expr_str: &str,
+    var: &str,
+    order: Option<usize>,
+) -> SymbolicResult<SymbolicOutput> {
     let expr = parse(expr_str)?;
     let order = order.unwrap_or(1);
 
@@ -192,7 +192,10 @@ pub fn differentiate(expr_str: &str, var: &str, order: Option<usize>) -> Symboli
 }
 
 /// Substitute variables in an expression
-pub fn substitute(expr_str: &str, rules: &HashMap<String, String>) -> SymbolicResult<SymbolicOutput> {
+pub fn substitute(
+    expr_str: &str,
+    rules: &HashMap<String, String>,
+) -> SymbolicResult<SymbolicOutput> {
     let expr = parse(expr_str)?;
     let mut result = expr;
 
@@ -219,18 +222,19 @@ fn substitute_internal(expr: &Expr, var: &str, replacement: &Expr) -> Expr {
         Expr::Symbol(s) if s == var => replacement.clone(),
         Expr::Add(a, b) => Expr::add(
             substitute_internal(a, var, replacement),
-            substitute_internal(b, var, replacement)
+            substitute_internal(b, var, replacement),
         ),
         Expr::Mul(a, b) => Expr::mul(
             substitute_internal(a, var, replacement),
-            substitute_internal(b, var, replacement)
+            substitute_internal(b, var, replacement),
         ),
         Expr::Pow(base, exp) => Expr::pow(
             substitute_internal(base, var, replacement),
-            substitute_internal(exp, var, replacement)
+            substitute_internal(exp, var, replacement),
         ),
         Expr::Function(name, args) => {
-            let new_args: Vec<Expr> = args.iter()
+            let new_args: Vec<Expr> = args
+                .iter()
                 .map(|arg| substitute_internal(arg, var, replacement))
                 .collect();
             Expr::func(name.clone(), new_args)
@@ -305,7 +309,10 @@ pub fn lcm_poly(poly1_str: &str, poly2_str: &str) -> SymbolicResult<SymbolicOutp
     let product = Expr::mul(expr1, expr2);
 
     let result_str = format!("{}", product);
-    let latex = format!("$\\text{{lcm}}({}, {}) = {}$", poly1_str, poly2_str, result_str);
+    let latex = format!(
+        "$\\text{{lcm}}({}, {}) = {}$",
+        poly1_str, poly2_str, result_str
+    );
 
     Ok(SymbolicOutput::new(result_str)
         .with_latex(latex)
@@ -374,7 +381,8 @@ pub fn series_expansion(
                 // Convert f^(n)(point) to rational and divide by n!
                 // For now, approximate with higher precision
                 let numerator = (coeff * 1_000_000.0).round() as i64;
-                let term_coeff_rational = Expr::rational_unchecked(numerator, 1_000_000 * factorial);
+                let term_coeff_rational =
+                    Expr::rational_unchecked(numerator, 1_000_000 * factorial);
 
                 // Create term: coeff * (x - point)^n
                 let term = if n == 0 {
@@ -382,15 +390,15 @@ pub fn series_expansion(
                 } else if point == 0.0 {
                     Expr::mul(
                         term_coeff_rational,
-                        Expr::pow(Expr::sym(var), Expr::num(n as i64))
+                        Expr::pow(Expr::sym(var), Expr::num(n as i64)),
                     )
                 } else {
                     Expr::mul(
                         term_coeff_rational,
                         Expr::pow(
                             Expr::add(Expr::sym(var), Expr::num(-(point as i64))),
-                            Expr::num(n as i64)
-                        )
+                            Expr::num(n as i64),
+                        ),
                     )
                 };
                 terms.push(term);
@@ -401,7 +409,8 @@ pub fn series_expansion(
         current = diff(&current, var);
     }
 
-    let result = terms.into_iter()
+    let result = terms
+        .into_iter()
         .reduce(|acc, term| Expr::add(acc, term))
         .unwrap_or(Expr::num(0));
 
@@ -435,7 +444,8 @@ pub fn limit(
         compute_limit_at_infinity(&expr, var, false)
     } else {
         // Numeric point
-        let point_value = point.parse::<f64>()
+        let point_value = point
+            .parse::<f64>()
             .map_err(|_| SymbolicError::ParseError(format!("Invalid point: {}", point)))?;
         compute_limit_at_point(&expr, var, point_value, direction)
     };
@@ -448,8 +458,13 @@ pub fn limit(
         LimitValue::DNE => "does not exist".to_string(),
     };
 
-    let latex = format!("$\\lim_{{{}\\to{}}} {} = {}$",
-        var, point, expr_str.replace("*", " \\cdot "), result_str);
+    let latex = format!(
+        "$\\lim_{{{}\\to{}}} {} = {}$",
+        var,
+        point,
+        expr_str.replace("*", " \\cdot "),
+        result_str
+    );
 
     Ok(SymbolicOutput::new(result_str.clone())
         .with_latex(latex)
@@ -473,7 +488,12 @@ enum LimitValue {
 }
 
 /// Compute limit at a specific point
-fn compute_limit_at_point(expr: &Expr, var: &str, point: f64, direction: Option<&str>) -> LimitValue {
+fn compute_limit_at_point(
+    expr: &Expr,
+    var: &str,
+    point: f64,
+    direction: Option<&str>,
+) -> LimitValue {
     // First try direct substitution
     let mut values = HashMap::new();
     values.insert(var.to_string(), point);
@@ -527,8 +547,16 @@ fn compute_limit_at_point(expr: &Expr, var: &str, point: f64, direction: Option<
                 (Some(l), Some(r)) if (l - r).abs() < 1e-4 && l.is_finite() => {
                     return LimitValue::Finite(format_float(l));
                 }
-                (Some(l), Some(r)) if l.is_infinite() && r.is_infinite() && l.is_sign_positive() == r.is_sign_positive() => {
-                    return if l.is_sign_positive() { LimitValue::Infinity } else { LimitValue::NegativeInfinity };
+                (Some(l), Some(r))
+                    if l.is_infinite()
+                        && r.is_infinite()
+                        && l.is_sign_positive() == r.is_sign_positive() =>
+                {
+                    return if l.is_sign_positive() {
+                        LimitValue::Infinity
+                    } else {
+                        LimitValue::NegativeInfinity
+                    };
                 }
                 _ => return LimitValue::DNE,
             }
@@ -627,7 +655,10 @@ fn format_float(val: f64) -> String {
     } else if val.fract().abs() < 1e-10 {
         format!("{}", val.round() as i64)
     } else {
-        format!("{:.6}", val).trim_end_matches('0').trim_end_matches('.').to_string()
+        format!("{:.6}", val)
+            .trim_end_matches('0')
+            .trim_end_matches('.')
+            .to_string()
     }
 }
 

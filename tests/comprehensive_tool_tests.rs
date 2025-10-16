@@ -7,9 +7,9 @@
 //! - Error handling
 //! - Edge cases
 
-use computational_engine::engine::*;
-use computational_engine::engine::equations::*;
 use computational_engine::create_default_dispatcher;
+use computational_engine::engine::equations::*;
+use computational_engine::engine::*;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -99,7 +99,11 @@ mod solve_tests {
         }"#;
 
         let response = dispatcher.dispatch_json(json);
-        assert!(!response.contains("error"), "JSON API should work: {}", response);
+        assert!(
+            !response.contains("error"),
+            "JSON API should work: {}",
+            response
+        );
     }
 }
 
@@ -194,9 +198,15 @@ mod differentiate_tests {
             order: Some(vec![1]),
             evaluate_at: None,
             parameters: HashMap::from([
-                ("x_values".to_string(), serde_json::json!([0.0, 1.0, 2.0, 3.0])),
-                ("y_values".to_string(), serde_json::json!([0.0, 1.0, 4.0, 9.0])),
-                ("method".to_string(), serde_json::json!("central"))
+                (
+                    "x_values".to_string(),
+                    serde_json::json!([0.0, 1.0, 2.0, 3.0]),
+                ),
+                (
+                    "y_values".to_string(),
+                    serde_json::json!([0.0, 1.0, 4.0, 9.0]),
+                ),
+                ("method".to_string(), serde_json::json!("central")),
             ]),
         });
 
@@ -277,9 +287,7 @@ mod integrate_tests {
             limits: Some(vec![[0.0, 1.0]]),
             path: None,
             method: None,
-            parameters: HashMap::from([
-                ("num_samples".to_string(), serde_json::json!(10000))
-            ]),
+            parameters: HashMap::from([("num_samples".to_string(), serde_json::json!(10000))]),
         });
 
         let result = dispatcher.dispatch(request);
@@ -299,8 +307,11 @@ mod integrate_tests {
             method: None,
             parameters: HashMap::from([
                 ("function_type".to_string(), serde_json::json!("polynomial")),
-                ("coefficients".to_string(), serde_json::json!([0.0, 0.0, 1.0])),
-                ("num_points".to_string(), serde_json::json!(100))
+                (
+                    "coefficients".to_string(),
+                    serde_json::json!([0.0, 0.0, 1.0]),
+                ),
+                ("num_points".to_string(), serde_json::json!(100)),
             ]),
         });
 
@@ -373,12 +384,16 @@ mod analyze_tests {
                 options: HashMap::from([
                     ("order".to_string(), serde_json::json!(order)),
                     ("variable".to_string(), serde_json::json!("x")),
-                    ("point".to_string(), serde_json::json!(0.0))
+                    ("point".to_string(), serde_json::json!(0.0)),
                 ]),
             });
 
             let result = dispatcher.dispatch(request);
-            assert!(result.is_ok(), "Series expansion order {} should work", order);
+            assert!(
+                result.is_ok(),
+                "Series expansion order {} should work",
+                order
+            );
         }
     }
 
@@ -398,8 +413,12 @@ mod analyze_tests {
             assert!(result.is_ok(), "{} should be recognized as prime", p);
 
             if let Ok(ToolResponse::Analyze(output)) = result {
-                assert_eq!(output.result, serde_json::json!(true),
-                          "{} should be prime", p);
+                assert_eq!(
+                    output.result,
+                    serde_json::json!(true),
+                    "{} should be prime",
+                    p
+                );
             }
         }
     }
@@ -627,7 +646,7 @@ mod transform_tests {
             sampling_rate: Some(1000.0),
             parameters: HashMap::from([
                 ("cutoff".to_string(), serde_json::json!(50.0)),
-                ("order".to_string(), serde_json::json!(4))
+                ("order".to_string(), serde_json::json!(4)),
             ]),
         });
 
@@ -672,7 +691,7 @@ mod sample_tests {
                 ("t_max".to_string(), serde_json::json!(1.0)),
                 ("initial_value".to_string(), serde_json::json!(0.0)),
                 ("drift".to_string(), serde_json::json!(0.05)),
-                ("volatility".to_string(), serde_json::json!(0.2))
+                ("volatility".to_string(), serde_json::json!(0.2)),
             ]),
         });
 

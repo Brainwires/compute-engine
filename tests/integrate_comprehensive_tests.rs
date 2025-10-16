@@ -7,9 +7,9 @@
 //! - Integral theorems (Green's, Stokes, Divergence, Cauchy)
 //! - Complex analysis integrals (residue, Cauchy formula)
 
-use computational_engine::engine::*;
-use computational_engine::engine::equations::*;
 use computational_engine::create_default_dispatcher;
+use computational_engine::engine::equations::*;
+use computational_engine::engine::*;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -53,7 +53,11 @@ fn test_symbolic_trigonometric() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should integrate trigonometric function: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should integrate trigonometric function: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -65,7 +69,10 @@ fn test_numeric_trapezoidal() {
     let dispatcher = create_default_dispatcher();
 
     let mut params = HashMap::new();
-    params.insert("coefficients".to_string(), serde_json::json!([1.0, 0.0, 1.0]));
+    params.insert(
+        "coefficients".to_string(),
+        serde_json::json!([1.0, 0.0, 1.0]),
+    );
     params.insert("function_type".to_string(), serde_json::json!("polynomial"));
 
     let request = ToolRequest::Integrate(IntegrateInput {
@@ -79,7 +86,11 @@ fn test_numeric_trapezoidal() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform trapezoidal integration: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform trapezoidal integration: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -87,7 +98,10 @@ fn test_numeric_simpson() {
     let dispatcher = create_default_dispatcher();
 
     let mut params = HashMap::new();
-    params.insert("coefficients".to_string(), serde_json::json!([1.0, 0.0, 1.0]));
+    params.insert(
+        "coefficients".to_string(),
+        serde_json::json!([1.0, 0.0, 1.0]),
+    );
     params.insert("function_type".to_string(), serde_json::json!("polynomial"));
 
     let request = ToolRequest::Integrate(IntegrateInput {
@@ -101,7 +115,11 @@ fn test_numeric_simpson() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform Simpson integration: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform Simpson integration: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -144,7 +162,11 @@ fn test_line_integral_parametric() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute parametric line integral: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute parametric line integral: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -162,7 +184,11 @@ fn test_surface_integral() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute surface integral: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute surface integral: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -180,11 +206,18 @@ fn test_volume_integral() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute volume integral: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute volume integral: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Integrate(output)) = result {
         if let Some(val) = output.result.as_f64() {
-            assert!((val - 1.0).abs() < 0.1, "Volume should be approximately 1.0");
+            assert!(
+                (val - 1.0).abs() < 0.1,
+                "Volume should be approximately 1.0"
+            );
         }
     }
 }
@@ -208,7 +241,11 @@ fn test_contour_integral_circle() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute contour integral: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute contour integral: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -236,7 +273,10 @@ fn test_greens_theorem() {
     assert!(result.is_ok(), "Should apply Green's theorem: {:?}", result);
 
     if let Ok(ToolResponse::Integrate(output)) = result {
-        assert!(output.symbolic.is_some(), "Should have symbolic representation");
+        assert!(
+            output.symbolic.is_some(),
+            "Should have symbolic representation"
+        );
     }
 }
 
@@ -279,10 +319,17 @@ fn test_divergence_theorem() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should apply Divergence theorem: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should apply Divergence theorem: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Integrate(output)) = result {
-        assert!(output.symbolic.is_some(), "Should have symbolic representation");
+        assert!(
+            output.symbolic.is_some(),
+            "Should have symbolic representation"
+        );
     }
 }
 
@@ -304,12 +351,19 @@ fn test_cauchy_theorem_analytic() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should apply Cauchy's theorem: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should apply Cauchy's theorem: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Integrate(output)) = result {
         // Analytic function should have integral = 0
         if let Some(val) = output.result.as_f64() {
-            assert_eq!(val, 0.0, "Cauchy theorem: analytic function integral should be 0");
+            assert_eq!(
+                val, 0.0,
+                "Cauchy theorem: analytic function integral should be 0"
+            );
         }
     }
 }
@@ -336,10 +390,17 @@ fn test_residue_theorem() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute residue integral: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute residue integral: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Integrate(output)) = result {
-        assert!(output.symbolic.is_some(), "Should have symbolic representation");
+        assert!(
+            output.symbolic.is_some(),
+            "Should have symbolic representation"
+        );
     }
 }
 
@@ -383,10 +444,17 @@ fn test_monte_carlo_integration() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform Monte Carlo integration: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform Monte Carlo integration: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Integrate(output)) = result {
-        assert!(output.error_estimate.is_some(), "Should have error estimate");
+        assert!(
+            output.error_estimate.is_some(),
+            "Should have error estimate"
+        );
     }
 }
 
@@ -409,7 +477,10 @@ fn test_greens_requires_components() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Green's theorem should require components parameter");
+    assert!(
+        result.is_err(),
+        "Green's theorem should require components parameter"
+    );
 }
 
 #[test]
@@ -430,7 +501,10 @@ fn test_stokes_requires_3d() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Stokes' theorem should require 3D vector field");
+    assert!(
+        result.is_err(),
+        "Stokes' theorem should require 3D vector field"
+    );
 }
 
 #[test]
@@ -448,5 +522,8 @@ fn test_volume_requires_3_limits() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Volume integral should require three limits");
+    assert!(
+        result.is_err(),
+        "Volume integral should require three limits"
+    );
 }

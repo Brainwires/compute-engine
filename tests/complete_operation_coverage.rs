@@ -2,9 +2,9 @@
 //!
 //! Goal: Test every major operation in all 10 tools for maximum coverage
 
-use computational_engine::engine::*;
-use computational_engine::engine::equations::*;
 use computational_engine::create_default_dispatcher;
+use computational_engine::engine::equations::*;
+use computational_engine::engine::*;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -23,9 +23,7 @@ fn solve_einstein_vacuum() {
         boundary_conditions: None,
         domain: None,
         method: None,
-        parameters: HashMap::from([
-            ("symmetry".to_string(), serde_json::json!("spherical"))
-        ]),
+        parameters: HashMap::from([("symmetry".to_string(), serde_json::json!("spherical"))]),
     });
 
     let result = dispatcher.dispatch(request);
@@ -47,7 +45,7 @@ fn solve_fluid_cavity_flow() {
         method: None,
         parameters: HashMap::from([
             ("reynolds_number".to_string(), serde_json::json!(100.0)),
-            ("grid_size".to_string(), serde_json::json!(32))
+            ("grid_size".to_string(), serde_json::json!(32)),
         ]),
     });
 
@@ -108,13 +106,10 @@ fn differentiate_vector_calc_gradient() {
         variables: vec!["x".to_string(), "y".to_string(), "z".to_string()],
         order: None,
         evaluate_at: None,
-        parameters: HashMap::from([
-            ("data".to_string(), serde_json::json!([
-                [1.0, 2.0, 3.0],
-                [2.0, 3.0, 4.0],
-                [3.0, 4.0, 5.0]
-            ]))
-        ]),
+        parameters: HashMap::from([(
+            "data".to_string(),
+            serde_json::json!([[1.0, 2.0, 3.0], [2.0, 3.0, 4.0], [3.0, 4.0, 5.0]]),
+        )]),
     });
 
     let result = dispatcher.dispatch(request);
@@ -185,10 +180,7 @@ fn integrate_geometric_line() {
         expression: "F·dr".to_string(),
         variables: vec!["t".to_string()],
         limits: Some(vec![[0.0, 1.0]]),
-        path: Some(serde_json::json!([
-            [0.0, 0.0],
-            [1.0, 1.0],
-        ])),
+        path: Some(serde_json::json!([[0.0, 0.0], [1.0, 1.0],])),
         method: None,
         parameters: HashMap::new(),
     });
@@ -226,9 +218,10 @@ fn integrate_complex_residue() {
         limits: None,
         path: None,
         method: None,
-        parameters: HashMap::from([
-            ("poles".to_string(), serde_json::json!([{"location": 0.0, "order": 1}]))
-        ]),
+        parameters: HashMap::from([(
+            "poles".to_string(),
+            serde_json::json!([{"location": 0.0, "order": 1}]),
+        )]),
     });
 
     let result = dispatcher.dispatch(request);
@@ -248,8 +241,11 @@ fn integrate_numeric_trapezoidal() {
         method: None,
         parameters: HashMap::from([
             ("function_type".to_string(), serde_json::json!("polynomial")),
-            ("coefficients".to_string(), serde_json::json!([0.0, 0.0, 1.0])),
-            ("num_points".to_string(), serde_json::json!(100))
+            (
+                "coefficients".to_string(),
+                serde_json::json!([0.0, 0.0, 1.0]),
+            ),
+            ("num_points".to_string(), serde_json::json!(100)),
         ]),
     });
 
@@ -270,7 +266,7 @@ fn integrate_numeric_gauss_quadrature() {
         method: None,
         parameters: HashMap::from([
             ("function_type".to_string(), serde_json::json!("polynomial")),
-            ("coefficients".to_string(), serde_json::json!([1.0, 0.0]))
+            ("coefficients".to_string(), serde_json::json!([1.0, 0.0])),
         ]),
     });
 
@@ -361,7 +357,10 @@ fn analyze_graph_components() {
     let dispatcher = create_default_dispatcher();
 
     let mut options = HashMap::new();
-    options.insert("edges".to_string(), serde_json::json!([[0, 1], [1, 2], [3, 4]]));
+    options.insert(
+        "edges".to_string(),
+        serde_json::json!([[0, 1], [1, 2], [3, 4]]),
+    );
 
     let request = ToolRequest::Analyze(AnalyzeInput {
         operation: AnalysisOp::GraphComponents,
@@ -563,7 +562,7 @@ fn transform_filter_highpass() {
         sampling_rate: Some(1000.0),
         parameters: HashMap::from([
             ("cutoff".to_string(), serde_json::json!(50.0)),
-            ("order".to_string(), serde_json::json!(4))
+            ("order".to_string(), serde_json::json!(4)),
         ]),
     });
 
@@ -584,7 +583,7 @@ fn transform_filter_bandpass() {
         parameters: HashMap::from([
             ("low_cutoff".to_string(), serde_json::json!(30.0)),
             ("high_cutoff".to_string(), serde_json::json!(70.0)),
-            ("order".to_string(), serde_json::json!(4))
+            ("order".to_string(), serde_json::json!(4)),
         ]),
     });
 
@@ -621,7 +620,7 @@ fn optimize_gradient_descent() {
         constraints: None,
         parameters: HashMap::from([
             ("learning_rate".to_string(), serde_json::json!(0.1)),
-            ("max_iterations".to_string(), serde_json::json!(100))
+            ("max_iterations".to_string(), serde_json::json!(100)),
         ]),
     });
 
@@ -657,15 +656,42 @@ fn json_api_all_tools_basic() {
     let dispatcher = create_default_dispatcher();
 
     let test_cases = vec![
-        ("solve", r#"{"tool":"solve","input":{"equation_type":"root_finding","equations":["x^2-4=0"]}}"#),
-        ("differentiate", r#"{"tool":"differentiate","input":{"operation":"symbolic","expression":"x^2","variables":["x"],"order":[1]}}"#),
-        ("integrate", r#"{"tool":"integrate","input":{"integration_type":"symbolic","expression":"x","variables":["x"]}}"#),
-        ("analyze", r#"{"tool":"analyze","input":{"operation":"is_prime","expression":"17","options":{}}}"#),
-        ("simulate", r#"{"tool":"simulate","input":{"model":{"time_evolution":"euler"},"equations":["dy/dt=-y"],"variables":["y"],"parameters":{"initial_value":1.0},"range":[0,1],"steps":10}}"#),
-        ("compute", r#"{"tool":"compute","input":{"operation":{"matrix_decomp":"svd"},"data":{"matrix":[[1,2],[3,4]]},"parameters":{}}}"#),
-        ("transform", r#"{"tool":"transform","input":{"transform_type":{"fft":"forward"},"data":[0,1,0,1,0,1,0,1],"sampling_rate":100}}"#),
-        ("sample", r#"{"tool":"sample","input":{"method":"moments","data":[1,2,3,4,5],"parameters":{}}}"#),
-        ("optimize", r#"{"tool":"optimize","input":{"method":{"fit":"polynomial"},"data":[[0,1,2],[0,1,4]],"parameters":{}}}"#),
+        (
+            "solve",
+            r#"{"tool":"solve","input":{"equation_type":"root_finding","equations":["x^2-4=0"]}}"#,
+        ),
+        (
+            "differentiate",
+            r#"{"tool":"differentiate","input":{"operation":"symbolic","expression":"x^2","variables":["x"],"order":[1]}}"#,
+        ),
+        (
+            "integrate",
+            r#"{"tool":"integrate","input":{"integration_type":"symbolic","expression":"x","variables":["x"]}}"#,
+        ),
+        (
+            "analyze",
+            r#"{"tool":"analyze","input":{"operation":"is_prime","expression":"17","options":{}}}"#,
+        ),
+        (
+            "simulate",
+            r#"{"tool":"simulate","input":{"model":{"time_evolution":"euler"},"equations":["dy/dt=-y"],"variables":["y"],"parameters":{"initial_value":1.0},"range":[0,1],"steps":10}}"#,
+        ),
+        (
+            "compute",
+            r#"{"tool":"compute","input":{"operation":{"matrix_decomp":"svd"},"data":{"matrix":[[1,2],[3,4]]},"parameters":{}}}"#,
+        ),
+        (
+            "transform",
+            r#"{"tool":"transform","input":{"transform_type":{"fft":"forward"},"data":[0,1,0,1,0,1,0,1],"sampling_rate":100}}"#,
+        ),
+        (
+            "sample",
+            r#"{"tool":"sample","input":{"method":"moments","data":[1,2,3,4,5],"parameters":{}}}"#,
+        ),
+        (
+            "optimize",
+            r#"{"tool":"optimize","input":{"method":{"fit":"polynomial"},"data":[[0,1,2],[0,1,4]],"parameters":{}}}"#,
+        ),
     ];
 
     for (name, json) in test_cases {

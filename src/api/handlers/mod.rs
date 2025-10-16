@@ -6,41 +6,41 @@
 use super::types::{ComputationRequest, ComputationResponse};
 
 // Mathematics domain handlers
-pub mod tensor_calculus;
 pub mod advanced_calculus;
 pub mod linear_algebra;
 pub mod special_functions;
+pub mod tensor_calculus;
 
 // Physics domain handlers
+pub mod electromagnetism;
 pub mod fluid_dynamics;
 pub mod quantum_physics;
-pub mod electromagnetism;
 
 // Tools domain handlers
-pub mod signal_processing;
+pub mod computational_geometry;
 pub mod dimensional_analysis;
 pub mod equation_validation;
-pub mod computational_geometry;
-pub mod numerical_methods;
 pub mod function_approximator;
+pub mod numerical_methods;
+pub mod signal_processing;
 
 // Specialized domain handlers
-pub mod stochastic_processes;
+pub mod chemistry;
 pub mod cryptographic_mathematics;
-pub mod symbolic_regression;
-pub mod statistics;
-pub mod optimization;
 pub mod graph_theory;
 pub mod information_theory;
-pub mod chemistry;
+pub mod optimization;
+pub mod statistics;
+pub mod stochastic_processes;
+pub mod symbolic_regression;
 
 // Scientific formula modules (2025 expansion)
 pub mod biology;
-pub mod thermodynamics;
-pub mod optics;
-pub mod geophysics;
-pub mod engineering;
 pub mod datetime;
+pub mod engineering;
+pub mod geophysics;
+pub mod optics;
+pub mod thermodynamics;
 
 /// Route a request to the appropriate module handler
 pub fn route_request(request: &ComputationRequest) -> ComputationResponse {

@@ -1,5 +1,5 @@
 {
-  "name": "@brainwires/computational-engine",
+  "name": "@brainwires/brainwires-compute-engine",
   "version": "0.1.0",
   "description": "Unified computational engine for mathematics and physics - WebAssembly bindings",
   "main": "pkg/bundler/computational_engine.js",
@@ -40,7 +40,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nightness/thalora-compute-engine"
+    "url": "https://github.com/nightness/brainwires-compute-engine"
   },
   "keywords": [
     "mathematics",
@@ -50,7 +50,7 @@
     "calculus",
     "wasm",
     "webassembly",
-    "computational-engine",
+    "compute-engine",
     "scientific-computing"
   ],
   "author": "nightness",

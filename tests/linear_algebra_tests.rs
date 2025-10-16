@@ -35,15 +35,13 @@ fn test_matrix_rank() {
 
 #[test]
 fn test_matrix_norm() {
-    let matrix = vec![
-        vec![3.0, 0.0],
-        vec![0.0, 4.0],
-    ];
+    let matrix = vec![vec![3.0, 0.0], vec![0.0, 4.0]];
 
     let result = matrix_norm(MatrixNormRequest {
         matrix,
         norm_type: "frobenius".to_string(),
-    }).unwrap();
+    })
+    .unwrap();
 
     // Frobenius norm of diag(3,4) = sqrt(9+16) = 5
     assert!((result.norm - 5.0).abs() < 1e-10);
@@ -51,15 +49,9 @@ fn test_matrix_norm() {
 
 #[test]
 fn test_matrix_power() {
-    let matrix = vec![
-        vec![2.0, 0.0],
-        vec![0.0, 3.0],
-    ];
+    let matrix = vec![vec![2.0, 0.0], vec![0.0, 3.0]];
 
-    let result = matrix_power(MatrixPowerRequest {
-        matrix,
-        power: 2,
-    }).unwrap();
+    let result = matrix_power(MatrixPowerRequest { matrix, power: 2 }).unwrap();
 
     // [2,0; 0,3]^2 = [4,0; 0,9]
     assert_eq!(result.result[0][0], 4.0);

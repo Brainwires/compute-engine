@@ -20,13 +20,13 @@ const H_BAR: f64 = 1.054571817e-34; // Reduced Planck constant (J·s)
 
 #[derive(Debug, Deserialize)]
 pub struct PartitionFunctionRequest {
-    pub ensemble: String, // "canonical", "grand_canonical", "microcanonical"
-    pub temperature: f64, // Kelvin
+    pub ensemble: String,    // "canonical", "grand_canonical", "microcanonical"
+    pub temperature: f64,    // Kelvin
     pub volume: Option<f64>, // m³
     pub num_particles: Option<usize>,
-    pub energy_levels: Option<Vec<f64>>, // Energy levels (J)
+    pub energy_levels: Option<Vec<f64>>,  // Energy levels (J)
     pub degeneracies: Option<Vec<usize>>, // Degeneracy of each level
-    pub chemical_potential: Option<f64>, // For grand canonical (J)
+    pub chemical_potential: Option<f64>,  // For grand canonical (J)
 }
 
 #[derive(Debug, Serialize)]
@@ -34,9 +34,9 @@ pub struct PartitionFunctionResult {
     pub partition_function: f64,
     pub ensemble_type: String,
     pub helmholtz_free_energy: Option<f64>, // F = -kT ln(Z)
-    pub internal_energy: Option<f64>, // U = -∂ln(Z)/∂β
-    pub entropy: Option<f64>, // S = k ln(Z) + U/T
-    pub pressure: Option<f64>, // P = kT ∂ln(Z)/∂V
+    pub internal_energy: Option<f64>,       // U = -∂ln(Z)/∂β
+    pub entropy: Option<f64>,               // S = k ln(Z) + U/T
+    pub pressure: Option<f64>,              // P = kT ∂ln(Z)/∂V
 }
 
 #[derive(Debug, Deserialize)]
@@ -77,8 +77,8 @@ pub struct GrandCanonicalResult {
 
 #[derive(Debug, Deserialize)]
 pub struct MaxwellBoltzmannRequest {
-    pub temperature: f64, // Kelvin
-    pub mass: f64, // Particle mass (kg)
+    pub temperature: f64,      // Kelvin
+    pub mass: f64,             // Particle mass (kg)
     pub velocity: Option<f64>, // Speed (m/s) - if None, return average
 }
 
@@ -86,35 +86,35 @@ pub struct MaxwellBoltzmannRequest {
 pub struct MaxwellBoltzmannResult {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub probability_density: Option<f64>, // f(v) at given velocity
-    pub average_speed: f64, // <v> = √(8kT/πm)
-    pub rms_speed: f64, // v_rms = √(3kT/m)
+    pub average_speed: f64,       // <v> = √(8kT/πm)
+    pub rms_speed: f64,           // v_rms = √(3kT/m)
     pub most_probable_speed: f64, // v_p = √(2kT/m)
 }
 
 #[derive(Debug, Deserialize)]
 pub struct FermiDiracRequest {
-    pub energy: f64, // Energy level (J)
-    pub temperature: f64, // Kelvin
+    pub energy: f64,             // Energy level (J)
+    pub temperature: f64,        // Kelvin
     pub chemical_potential: f64, // Fermi energy (J)
 }
 
 #[derive(Debug, Serialize)]
 pub struct FermiDiracResult {
     pub occupation_probability: f64, // f(E) = 1/(exp((E-μ)/kT) + 1)
-    pub fermi_temperature: f64, // T_F = E_F/k
-    pub fermi_energy: f64, // Chemical potential
+    pub fermi_temperature: f64,      // T_F = E_F/k
+    pub fermi_energy: f64,           // Chemical potential
 }
 
 #[derive(Debug, Deserialize)]
 pub struct BoseEinsteinRequest {
-    pub energy: f64, // Energy level (J)
-    pub temperature: f64, // Kelvin
+    pub energy: f64,             // Energy level (J)
+    pub temperature: f64,        // Kelvin
     pub chemical_potential: f64, // Must be < energy (J)
 }
 
 #[derive(Debug, Serialize)]
 pub struct BoseEinsteinResult {
-    pub occupation_number: f64, // n(E) = 1/(exp((E-μ)/kT) - 1)
+    pub occupation_number: f64,              // n(E) = 1/(exp((E-μ)/kT) - 1)
     pub bose_condensation_temp: Option<f64>, // Critical temperature
 }
 
@@ -128,14 +128,14 @@ pub struct ChemicalPotentialRequest {
     pub pressure: f64,
     pub particle_density: f64, // particles/m³
     pub particle_type: String, // "fermion", "boson", "classical"
-    pub mass: f64, // Particle mass (kg)
+    pub mass: f64,             // Particle mass (kg)
 }
 
 #[derive(Debug, Serialize)]
 pub struct ChemicalPotentialResult {
     pub chemical_potential: f64, // μ (J)
     pub thermal_wavelength: f64, // λ = h/√(2πmkT)
-    pub fugacity: f64, // z = exp(μ/kT)
+    pub fugacity: f64,           // z = exp(μ/kT)
 }
 
 #[derive(Debug, Deserialize)]
@@ -147,7 +147,7 @@ pub struct FugacityRequest {
 
 #[derive(Debug, Serialize)]
 pub struct FugacityResult {
-    pub fugacity: f64, // z = exp(μ/kT)
+    pub fugacity: f64,             // z = exp(μ/kT)
     pub fugacity_coefficient: f64, // φ = f/P
     pub chemical_potential: f64,
 }
@@ -192,14 +192,20 @@ pub struct CriticalPhenomenaResult {
 // ============================================================================
 
 /// General partition function calculator
-pub fn partition_function(request: PartitionFunctionRequest) -> Result<PartitionFunctionResult, String> {
+pub fn partition_function(
+    request: PartitionFunctionRequest,
+) -> Result<PartitionFunctionResult, String> {
     let t = request.temperature;
     let beta = 1.0 / (K_B * t);
 
     match request.ensemble.as_str() {
         "canonical" => {
-            let energy_levels = request.energy_levels.ok_or("Energy levels required for canonical ensemble")?;
-            let degeneracies = request.degeneracies.unwrap_or_else(|| vec![1; energy_levels.len()]);
+            let energy_levels = request
+                .energy_levels
+                .ok_or("Energy levels required for canonical ensemble")?;
+            let degeneracies = request
+                .degeneracies
+                .unwrap_or_else(|| vec![1; energy_levels.len()]);
 
             let mut z = 0.0;
             let mut u = 0.0; // Internal energy
@@ -224,11 +230,11 @@ pub fn partition_function(request: PartitionFunctionRequest) -> Result<Partition
                 entropy: Some(s),
                 pressure: None,
             })
-        },
+        }
 
         "grand_canonical" => {
             Err("Use grand_canonical_partition for grand canonical ensemble".to_string())
-        },
+        }
 
         "microcanonical" => {
             let num_states = request.energy_levels.map(|e| e.len()).unwrap_or(1);
@@ -242,14 +248,16 @@ pub fn partition_function(request: PartitionFunctionRequest) -> Result<Partition
                 entropy: Some(s),
                 pressure: None,
             })
-        },
+        }
 
         _ => Err(format!("Unknown ensemble type: {}", request.ensemble)),
     }
 }
 
 /// Canonical partition function (detailed)
-pub fn canonical_partition(request: CanonicalPartitionRequest) -> Result<CanonicalPartitionResult, String> {
+pub fn canonical_partition(
+    request: CanonicalPartitionRequest,
+) -> Result<CanonicalPartitionResult, String> {
     let t = request.temperature;
     let beta = 1.0 / (K_B * t);
 
@@ -284,7 +292,9 @@ pub fn canonical_partition(request: CanonicalPartitionRequest) -> Result<Canonic
 }
 
 /// Grand canonical partition function
-pub fn grand_canonical_partition(request: GrandCanonicalRequest) -> Result<GrandCanonicalResult, String> {
+pub fn grand_canonical_partition(
+    request: GrandCanonicalRequest,
+) -> Result<GrandCanonicalResult, String> {
     let t = request.temperature;
     let v = request.volume;
     let mu = request.chemical_potential;
@@ -301,7 +311,7 @@ pub fn grand_canonical_partition(request: GrandCanonicalRequest) -> Result<Grand
             let n_avg = fugacity * v / (lambda.powi(3));
             let omega = -K_B * t * fugacity * v / (lambda.powi(3));
             let pressure = K_B * t * n_avg / v;
-            let entropy = n_avg * K_B * (5.0/2.0 + (v / (n_avg * lambda.powi(3))).ln());
+            let entropy = n_avg * K_B * (5.0 / 2.0 + (v / (n_avg * lambda.powi(3))).ln());
 
             Ok(GrandCanonicalResult {
                 grand_potential: omega,
@@ -309,14 +319,14 @@ pub fn grand_canonical_partition(request: GrandCanonicalRequest) -> Result<Grand
                 pressure,
                 entropy,
             })
-        },
+        }
 
         "fermion" | "boson" => {
             // Simplified quantum gas
             let fugacity = (beta * mu).exp();
             let n_avg = v / lambda.powi(3) * fugacity; // Approximate
             let pressure = K_B * t * n_avg / v;
-            let entropy = n_avg * K_B * 3.0/2.0;
+            let entropy = n_avg * K_B * 3.0 / 2.0;
 
             Ok(GrandCanonicalResult {
                 grand_potential: -pressure * v,
@@ -324,14 +334,16 @@ pub fn grand_canonical_partition(request: GrandCanonicalRequest) -> Result<Grand
                 pressure,
                 entropy,
             })
-        },
+        }
 
         _ => Err(format!("Unknown particle type: {}", request.particle_type)),
     }
 }
 
 /// Maxwell-Boltzmann velocity distribution
-pub fn maxwell_boltzmann(request: MaxwellBoltzmannRequest) -> Result<MaxwellBoltzmannResult, String> {
+pub fn maxwell_boltzmann(
+    request: MaxwellBoltzmannRequest,
+) -> Result<MaxwellBoltzmannResult, String> {
     let t = request.temperature;
     let m = request.mass;
 
@@ -343,7 +355,7 @@ pub fn maxwell_boltzmann(request: MaxwellBoltzmannRequest) -> Result<MaxwellBolt
     let probability_density = if let Some(v) = request.velocity {
         // f(v) = 4π(m/2πkT)^(3/2) v² exp(-mv²/2kT)
         let normalization = 4.0 * PI * (m / (2.0 * PI * K_B * t)).powf(1.5);
-        let prob = normalization * v * v * (- m * v * v / (2.0 * K_B * t)).exp();
+        let prob = normalization * v * v * (-m * v * v / (2.0 * K_B * t)).exp();
         Some(prob)
     } else {
         None
@@ -402,7 +414,9 @@ pub fn bose_einstein(request: BoseEinsteinRequest) -> Result<BoseEinsteinResult,
 }
 
 /// Chemical potential calculation
-pub fn chemical_potential(request: ChemicalPotentialRequest) -> Result<ChemicalPotentialResult, String> {
+pub fn chemical_potential(
+    request: ChemicalPotentialRequest,
+) -> Result<ChemicalPotentialResult, String> {
     let t = request.temperature;
     let n = request.particle_density;
     let m = request.mass;
@@ -421,11 +435,11 @@ pub fn chemical_potential(request: ChemicalPotentialRequest) -> Result<ChemicalP
                 thermal_wavelength: lambda,
                 fugacity,
             })
-        },
+        }
 
         "fermion" => {
             // Approximate Fermi energy for degenerate gas
-            let e_f = (H_BAR * H_BAR / (2.0 * m)) * (3.0 * PI * PI * n).powf(2.0/3.0);
+            let e_f = (H_BAR * H_BAR / (2.0 * m)) * (3.0 * PI * PI * n).powf(2.0 / 3.0);
             let fugacity = (e_f / (K_B * t)).exp();
 
             Ok(ChemicalPotentialResult {
@@ -433,7 +447,7 @@ pub fn chemical_potential(request: ChemicalPotentialRequest) -> Result<ChemicalP
                 thermal_wavelength: lambda,
                 fugacity,
             })
-        },
+        }
 
         "boson" => {
             // For bosons, μ < 0 typically
@@ -445,7 +459,7 @@ pub fn chemical_potential(request: ChemicalPotentialRequest) -> Result<ChemicalP
                 thermal_wavelength: lambda,
                 fugacity,
             })
-        },
+        }
 
         _ => Err(format!("Unknown particle type: {}", request.particle_type)),
     }
@@ -504,7 +518,8 @@ pub fn phase_transition(request: PhaseTransitionRequest) -> Result<PhaseTransiti
                 "critical"
             } else {
                 "disordered"
-            }.to_string();
+            }
+            .to_string();
 
             Ok(PhaseTransitionResult {
                 order_parameter: order_param,
@@ -512,11 +527,14 @@ pub fn phase_transition(request: PhaseTransitionRequest) -> Result<PhaseTransiti
                 susceptibility,
                 phase,
             })
-        },
+        }
 
         "van_der_waals" => {
             // Van der Waals gas phase transition
-            let pressure = request.parameters.get("pressure").ok_or("pressure required")?;
+            let pressure = request
+                .parameters
+                .get("pressure")
+                .ok_or("pressure required")?;
             let a = request.parameters.get("a").unwrap_or(&0.1); // Attraction parameter
             let b = request.parameters.get("b").unwrap_or(&0.01); // Excluded volume
 
@@ -526,11 +544,7 @@ pub fn phase_transition(request: PhaseTransitionRequest) -> Result<PhaseTransiti
             let v_c = 3.0 * b; // Critical volume
 
             // Order parameter: density difference between liquid and gas
-            let order_param = if t < t_c {
-                (1.0 - t_r).powf(0.5)
-            } else {
-                0.0
-            };
+            let order_param = if t < t_c { (1.0 - t_r).powf(0.5) } else { 0.0 };
 
             let correlation_length = if (t - t_c).abs() > 1e-10 {
                 1.0 / ((t - t_c) / t_c).abs().powf(0.5)
@@ -550,7 +564,8 @@ pub fn phase_transition(request: PhaseTransitionRequest) -> Result<PhaseTransiti
                 "liquid"
             } else {
                 "gas"
-            }.to_string();
+            }
+            .to_string();
 
             Ok(PhaseTransitionResult {
                 order_parameter: order_param,
@@ -558,7 +573,7 @@ pub fn phase_transition(request: PhaseTransitionRequest) -> Result<PhaseTransiti
                 susceptibility,
                 phase,
             })
-        },
+        }
 
         "potts" => {
             // Potts model (generalization of Ising)
@@ -589,7 +604,8 @@ pub fn phase_transition(request: PhaseTransitionRequest) -> Result<PhaseTransiti
                 "critical"
             } else {
                 "disordered"
-            }.to_string();
+            }
+            .to_string();
 
             Ok(PhaseTransitionResult {
                 order_parameter: order_param,
@@ -597,7 +613,7 @@ pub fn phase_transition(request: PhaseTransitionRequest) -> Result<PhaseTransiti
                 susceptibility,
                 phase,
             })
-        },
+        }
 
         "xy" => {
             // XY model (continuous spins in 2D)
@@ -631,7 +647,8 @@ pub fn phase_transition(request: PhaseTransitionRequest) -> Result<PhaseTransiti
                 "kt_transition"
             } else {
                 "disordered"
-            }.to_string();
+            }
+            .to_string();
 
             Ok(PhaseTransitionResult {
                 order_parameter: order_param,
@@ -639,7 +656,7 @@ pub fn phase_transition(request: PhaseTransitionRequest) -> Result<PhaseTransiti
                 susceptibility,
                 phase,
             })
-        },
+        }
 
         "heisenberg" => {
             // Heisenberg model (3D continuous spins)
@@ -672,7 +689,8 @@ pub fn phase_transition(request: PhaseTransitionRequest) -> Result<PhaseTransiti
                 "critical"
             } else {
                 "paramagnetic"
-            }.to_string();
+            }
+            .to_string();
 
             Ok(PhaseTransitionResult {
                 order_parameter: order_param,
@@ -680,14 +698,19 @@ pub fn phase_transition(request: PhaseTransitionRequest) -> Result<PhaseTransiti
                 susceptibility,
                 phase,
             })
-        },
+        }
 
-        _ => Err(format!("Phase transition model {} not implemented", request.model)),
+        _ => Err(format!(
+            "Phase transition model {} not implemented",
+            request.model
+        )),
     }
 }
 
 /// Critical phenomena and exponents
-pub fn critical_phenomena(request: CriticalPhenomenaRequest) -> Result<CriticalPhenomenaResult, String> {
+pub fn critical_phenomena(
+    request: CriticalPhenomenaRequest,
+) -> Result<CriticalPhenomenaResult, String> {
     let t = request.temperature;
     let t_c = request.critical_temperature;
     let reduced_t = (t - t_c) / t_c;
@@ -698,12 +721,12 @@ pub fn critical_phenomena(request: CriticalPhenomenaRequest) -> Result<CriticalP
         "ising_2d" => {
             // Exact Onsager solution exponents
             exponents.insert("alpha".to_string(), 0.0); // Specific heat
-            exponents.insert("beta".to_string(), 1.0/8.0); // Order parameter
-            exponents.insert("gamma".to_string(), 7.0/4.0); // Susceptibility
+            exponents.insert("beta".to_string(), 1.0 / 8.0); // Order parameter
+            exponents.insert("gamma".to_string(), 7.0 / 4.0); // Susceptibility
             exponents.insert("delta".to_string(), 15.0); // Critical isotherm
             exponents.insert("nu".to_string(), 1.0); // Correlation length
-            exponents.insert("eta".to_string(), 1.0/4.0); // Correlation function
-        },
+            exponents.insert("eta".to_string(), 1.0 / 4.0); // Correlation function
+        }
 
         "ising_3d" => {
             // Approximate 3D Ising exponents
@@ -713,7 +736,7 @@ pub fn critical_phenomena(request: CriticalPhenomenaRequest) -> Result<CriticalP
             exponents.insert("delta".to_string(), 4.789);
             exponents.insert("nu".to_string(), 0.630);
             exponents.insert("eta".to_string(), 0.036);
-        },
+        }
 
         "mean_field" => {
             // Classical mean field exponents
@@ -723,7 +746,7 @@ pub fn critical_phenomena(request: CriticalPhenomenaRequest) -> Result<CriticalP
             exponents.insert("delta".to_string(), 3.0);
             exponents.insert("nu".to_string(), 0.5);
             exponents.insert("eta".to_string(), 0.0);
-        },
+        }
 
         _ => return Err(format!("Unknown critical model: {}", request.model)),
     }
@@ -761,7 +784,8 @@ mod tests {
             temperature: 300.0,
             mass: 4.65e-26, // Nitrogen molecule
             velocity: Some(500.0),
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.probability_density.is_some());
         assert!(result.average_speed > 0.0);
@@ -774,7 +798,8 @@ mod tests {
             energy: 1.0e-19, // 1 eV in Joules
             temperature: 300.0,
             chemical_potential: 0.8e-19,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.occupation_probability > 0.0 && result.occupation_probability < 1.0);
     }
@@ -785,7 +810,8 @@ mod tests {
             temperature: 300.0,
             energy_levels: vec![0.0, 1.0e-20, 2.0e-20],
             degeneracies: vec![1, 2, 1],
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.partition_function > 0.0);
         assert!(result.internal_energy >= 0.0);

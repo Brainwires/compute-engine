@@ -7,9 +7,9 @@
 //! - Simplification and parsing
 //! - Limit computation
 
-use computational_engine::engine::*;
-use computational_engine::engine::equations::*;
 use computational_engine::create_default_dispatcher;
+use computational_engine::engine::equations::*;
+use computational_engine::engine::*;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -71,7 +71,10 @@ fn test_tensor_field_analysis() {
 
     let mut options = HashMap::new();
     options.insert("dimension".to_string(), serde_json::json!(4));
-    options.insert("variables".to_string(), serde_json::json!(["t", "x", "y", "z"]));
+    options.insert(
+        "variables".to_string(),
+        serde_json::json!(["t", "x", "y", "z"]),
+    );
 
     let request = ToolRequest::Analyze(AnalyzeInput {
         operation: AnalysisOp::FieldAnalysis(FieldAnalysisType::Tensor),
@@ -95,7 +98,10 @@ fn test_tensor_field_with_metric() {
     let mut options = HashMap::new();
     options.insert("dimension".to_string(), serde_json::json!(2));
     options.insert("variables".to_string(), serde_json::json!(["x", "y"]));
-    options.insert("metric".to_string(), serde_json::json!([[1.0, 0.0], [0.0, 1.0]]));
+    options.insert(
+        "metric".to_string(),
+        serde_json::json!([[1.0, 0.0], [0.0, 1.0]]),
+    );
 
     let request = ToolRequest::Analyze(AnalyzeInput {
         operation: AnalysisOp::FieldAnalysis(FieldAnalysisType::Tensor),
@@ -104,7 +110,11 @@ fn test_tensor_field_with_metric() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should analyze tensor with metric: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should analyze tensor with metric: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -150,7 +160,11 @@ fn test_series_expansion_trigonometric() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should expand trigonometric series: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should expand trigonometric series: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -169,12 +183,22 @@ fn test_laurent_series() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute Laurent series: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute Laurent series: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Analyze(output)) = result {
         let res = output.result.as_object().unwrap();
-        assert!(res.contains_key("analytic_part"), "Should have analytic part");
-        assert!(res.contains_key("has_singularity_at_point"), "Should detect singularity");
+        assert!(
+            res.contains_key("analytic_part"),
+            "Should have analytic part"
+        );
+        assert!(
+            res.contains_key("has_singularity_at_point"),
+            "Should detect singularity"
+        );
     }
 }
 
@@ -192,12 +216,19 @@ fn test_partial_fraction() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute partial fractions: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute partial fractions: {:?}",
+        result
+    );
 
     if let Ok(ToolResponse::Analyze(output)) = result {
         let res = output.result.as_object().unwrap();
         assert!(res.contains_key("factored"), "Should have factored form");
-        assert!(res.contains_key("simplified"), "Should have simplified form");
+        assert!(
+            res.contains_key("simplified"),
+            "Should have simplified form"
+        );
     }
 }
 
@@ -223,7 +254,13 @@ fn test_limit_computation() {
     assert!(result.is_ok(), "Should compute limit: {:?}", result);
 
     if let Ok(ToolResponse::Analyze(output)) = result {
-        assert!(output.result.as_object().unwrap().contains_key("limit_value"));
+        assert!(
+            output
+                .result
+                .as_object()
+                .unwrap()
+                .contains_key("limit_value")
+        );
     }
 }
 
@@ -242,7 +279,11 @@ fn test_limit_infinity() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should compute limit to infinity: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should compute limit to infinity: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -274,7 +315,11 @@ fn test_simplify_complex() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should simplify complex expression: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should simplify complex expression: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -348,7 +393,10 @@ fn test_check_dimensions() {
     let mut units = HashMap::new();
     units.insert("x".to_string(), "m".to_string());
     units.insert("v".to_string(), "m/s".to_string());
-    options.insert("variable_units".to_string(), serde_json::to_value(units).unwrap());
+    options.insert(
+        "variable_units".to_string(),
+        serde_json::to_value(units).unwrap(),
+    );
 
     let request = ToolRequest::Analyze(AnalyzeInput {
         operation: AnalysisOp::CheckDimensions,
@@ -371,7 +419,11 @@ fn test_check_physics() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should check physics validity: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should check physics validity: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -379,7 +431,10 @@ fn test_check_conservation_laws() {
     let dispatcher = create_default_dispatcher();
 
     let mut options = HashMap::new();
-    options.insert("laws".to_string(), serde_json::json!(["energy", "momentum"]));
+    options.insert(
+        "laws".to_string(),
+        serde_json::json!(["energy", "momentum"]),
+    );
 
     let request = ToolRequest::Analyze(AnalyzeInput {
         operation: AnalysisOp::CheckConservation,
@@ -388,7 +443,11 @@ fn test_check_conservation_laws() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should check conservation laws: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should check conservation laws: {:?}",
+        result
+    );
 }
 
 #[test]
@@ -396,7 +455,10 @@ fn test_check_symmetries() {
     let dispatcher = create_default_dispatcher();
 
     let mut options = HashMap::new();
-    options.insert("symmetries".to_string(), serde_json::json!(["translation", "rotation"]));
+    options.insert(
+        "symmetries".to_string(),
+        serde_json::json!(["translation", "rotation"]),
+    );
 
     let request = ToolRequest::Analyze(AnalyzeInput {
         operation: AnalysisOp::CheckSymmetries,
@@ -440,7 +502,11 @@ fn test_scale_analysis() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_ok(), "Should perform scale analysis: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Should perform scale analysis: {:?}",
+        result
+    );
 }
 
 // ============================================================================
@@ -498,7 +564,10 @@ fn test_vector_field_requires_components() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Vector field analysis should require components");
+    assert!(
+        result.is_err(),
+        "Vector field analysis should require components"
+    );
 }
 
 #[test]
@@ -512,5 +581,8 @@ fn test_invalid_prime_number() {
     });
 
     let result = dispatcher.dispatch(request);
-    assert!(result.is_err(), "Should reject non-numeric input for primality test");
+    assert!(
+        result.is_err(),
+        "Should reject non-numeric input for primality test"
+    );
 }

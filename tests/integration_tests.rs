@@ -31,7 +31,7 @@ fn test_api_chemistry() {
 
     let response = process_json_request(&request.to_string());
     let parsed: serde_json::Value = serde_json::from_str(&response).unwrap();
-    
+
     assert!(parsed["success"].as_bool().unwrap_or(false));
     if let Some(result) = parsed.get("result") {
         let molar_mass = result["molar_mass"].as_f64().unwrap();
@@ -57,7 +57,7 @@ fn test_api_numerical_methods() {
 
     let response = process_json_request(&request.to_string());
     let parsed: serde_json::Value = serde_json::from_str(&response).unwrap();
-    
+
     assert!(parsed["success"].as_bool().unwrap_or(false));
 }
 
@@ -74,7 +74,7 @@ fn test_api_electromagnetism() {
 
     let response = process_json_request(&request.to_string());
     let parsed: serde_json::Value = serde_json::from_str(&response).unwrap();
-    
+
     assert!(parsed["success"].as_bool().unwrap_or(false));
     if let Some(result) = parsed.get("result") {
         let wavelength = result["wavelength"].as_f64().unwrap();
@@ -95,7 +95,7 @@ fn test_api_special_functions() {
 
     let response = process_json_request(&request.to_string());
     let parsed: serde_json::Value = serde_json::from_str(&response).unwrap();
-    
+
     assert!(parsed["success"].as_bool().unwrap_or(false));
     if let Some(result) = parsed.get("result") {
         let value = result["value"].as_f64().unwrap();
@@ -114,7 +114,7 @@ fn test_api_unknown_module() {
 
     let response = process_json_request(&request.to_string());
     let parsed: serde_json::Value = serde_json::from_str(&response).unwrap();
-    
+
     assert!(!parsed["success"].as_bool().unwrap_or(true));
     assert!(parsed.get("error").is_some());
 }
@@ -800,7 +800,7 @@ fn debug_failing_tests() {
     });
     let response = process_json_request(&request.to_string());
     eprintln!("Gamma: {}", response);
-    
+
     // Test kinetics
     let request2 = json!({
         "module": "chemistry",
@@ -833,7 +833,7 @@ fn debug_remaining_failures() {
             "t_end": 1.0, "step_size": 0.1, "function_type": "exponential",
             "function_coefficients": [-1.0]}}),
     ];
-    
+
     for (i, test) in tests.iter().enumerate() {
         let response = process_json_request(&test.to_string());
         let parsed: serde_json::Value = serde_json::from_str(&response).unwrap();
@@ -1393,9 +1393,21 @@ fn test_api_function_approximator() {
 #[test]
 fn debug_check_errors() {
     let tests = vec![
-        ("statistics", "descriptive", json!({"data": [1.0, 2.0, 3.0]})),
-        ("signal_processing", "fft", json!({"signal": [1.0, 2.0, 3.0, 4.0]})),
-        ("optimization", "minimize", json!({"initial_guess": [0.0, 0.0]})),
+        (
+            "statistics",
+            "descriptive",
+            json!({"data": [1.0, 2.0, 3.0]}),
+        ),
+        (
+            "signal_processing",
+            "fft",
+            json!({"signal": [1.0, 2.0, 3.0, 4.0]}),
+        ),
+        (
+            "optimization",
+            "minimize",
+            json!({"initial_guess": [0.0, 0.0]}),
+        ),
     ];
 
     for (module, op, params) in tests {

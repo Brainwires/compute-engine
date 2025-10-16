@@ -30,7 +30,7 @@ pub struct BalanceEquationResult {
 #[derive(Debug, Deserialize)]
 pub struct ThermodynamicsRequest {
     pub temperature: f64, // Kelvin
-    pub pressure: f64, // atm
+    pub pressure: f64,    // atm
     pub compounds: Vec<CompoundData>,
 }
 
@@ -39,7 +39,7 @@ pub struct CompoundData {
     pub formula: String,
     pub moles: f64,
     pub enthalpy_formation: Option<f64>, // kJ/mol
-    pub entropy: Option<f64>, // J/(mol·K)
+    pub entropy: Option<f64>,            // J/(mol·K)
 }
 
 #[derive(Debug, Serialize)]
@@ -54,7 +54,7 @@ pub struct ThermodynamicsResult {
 #[derive(Debug, Deserialize)]
 pub struct ElectrochemistryRequest {
     pub half_reactions: Vec<HalfReaction>,
-    pub temperature: f64, // Kelvin
+    pub temperature: f64,                             // Kelvin
     pub concentrations: Option<HashMap<String, f64>>, // mol/L
 }
 
@@ -68,9 +68,9 @@ pub struct HalfReaction {
 
 #[derive(Debug, Serialize)]
 pub struct ElectrochemistryResult {
-    pub cell_potential: f64, // V
+    pub cell_potential: f64,          // V
     pub standard_cell_potential: f64, // V
-    pub delta_g: f64, // kJ/mol
+    pub delta_g: f64,                 // kJ/mol
     pub spontaneous: bool,
     pub balanced_equation: String,
 }
@@ -78,23 +78,23 @@ pub struct ElectrochemistryResult {
 #[derive(Debug, Deserialize)]
 pub struct KineticsRequest {
     pub rate_constant: f64,
-    pub temperature: f64, // Kelvin
-    pub activation_energy: f64, // kJ/mol
+    pub temperature: f64,         // Kelvin
+    pub activation_energy: f64,   // kJ/mol
     pub concentrations: Vec<f64>, // mol/L
-    pub orders: Vec<i32>, // reaction order for each reactant
+    pub orders: Vec<i32>,         // reaction order for each reactant
 }
 
 #[derive(Debug, Serialize)]
 pub struct KineticsResult {
-    pub rate: f64, // mol/(L·s)
+    pub rate: f64,              // mol/(L·s)
     pub half_life: Option<f64>, // seconds
     pub rate_constant_at_temp: f64,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct GasLawRequest {
-    pub pressure: Option<f64>, // atm
-    pub volume: Option<f64>, // L
+    pub pressure: Option<f64>,    // atm
+    pub volume: Option<f64>,      // L
     pub temperature: Option<f64>, // K
     pub moles: Option<f64>,
     pub gas_type: Option<String>, // for real gas calculations
@@ -102,8 +102,8 @@ pub struct GasLawRequest {
 
 #[derive(Debug, Serialize)]
 pub struct GasLawResult {
-    pub pressure: f64, // atm
-    pub volume: f64, // L
+    pub pressure: f64,    // atm
+    pub volume: f64,      // L
     pub temperature: f64, // K
     pub moles: f64,
     pub density: f64, // g/L
@@ -113,7 +113,7 @@ pub struct GasLawResult {
 pub struct AcidBaseRequest {
     pub acid_ka: Option<f64>,
     pub base_kb: Option<f64>,
-    pub concentration: f64, // mol/L
+    pub concentration: f64,  // mol/L
     pub volume: Option<f64>, // L
 }
 
@@ -121,7 +121,7 @@ pub struct AcidBaseRequest {
 pub struct AcidBaseResult {
     pub ph: f64,
     pub poh: f64,
-    pub h_concentration: f64, // mol/L
+    pub h_concentration: f64,  // mol/L
     pub oh_concentration: f64, // mol/L
 }
 
@@ -132,7 +132,7 @@ pub struct MolarMassRequest {
 
 #[derive(Debug, Serialize)]
 pub struct MolarMassResult {
-    pub molar_mass: f64, // g/mol
+    pub molar_mass: f64,                   // g/mol
     pub composition: HashMap<String, f64>, // element -> mass percentage
 }
 
@@ -240,7 +240,9 @@ fn parse_molecule(formula: &str) -> HashMap<String, i32> {
                 i += 1;
             }
 
-            let count = if count_str.is_empty() { 1 } else {
+            let count = if count_str.is_empty() {
+                1
+            } else {
                 count_str.parse::<i32>().unwrap_or(1)
             };
 
@@ -258,12 +260,16 @@ pub fn thermodynamics(request: ThermodynamicsRequest) -> Result<ThermodynamicsRe
     let t = request.temperature;
 
     // Calculate ΔH (sum of products - sum of reactants)
-    let delta_h: f64 = request.compounds.iter()
+    let delta_h: f64 = request
+        .compounds
+        .iter()
         .map(|c| c.moles * c.enthalpy_formation.unwrap_or(0.0))
         .sum();
 
     // Calculate ΔS
-    let delta_s: f64 = request.compounds.iter()
+    let delta_s: f64 = request
+        .compounds
+        .iter()
         .map(|c| c.moles * c.entropy.unwrap_or(0.0))
         .sum();
 
@@ -283,7 +289,9 @@ pub fn thermodynamics(request: ThermodynamicsRequest) -> Result<ThermodynamicsRe
 }
 
 /// Calculate electrochemical cell potential
-pub fn electrochemistry(request: ElectrochemistryRequest) -> Result<ElectrochemistryResult, String> {
+pub fn electrochemistry(
+    request: ElectrochemistryRequest,
+) -> Result<ElectrochemistryResult, String> {
     if request.half_reactions.len() != 2 {
         return Err("Need exactly 2 half-reactions".to_string());
     }
@@ -357,23 +365,28 @@ pub fn gas_law(request: GasLawRequest) -> Result<GasLawResult, String> {
     // PV = nRT
     let r = GAS_CONSTANT_ATM;
 
-    let (p, v, t, n) = match (request.pressure, request.volume, request.temperature, request.moles) {
+    let (p, v, t, n) = match (
+        request.pressure,
+        request.volume,
+        request.temperature,
+        request.moles,
+    ) {
         (Some(p), Some(v), Some(t), None) => {
             let n = (p * v) / (r * t);
             (p, v, t, n)
-        },
+        }
         (Some(p), Some(v), None, Some(n)) => {
             let t = (p * v) / (r * n);
             (p, v, t, n)
-        },
+        }
         (Some(p), None, Some(t), Some(n)) => {
             let v = (n * r * t) / p;
             (p, v, t, n)
-        },
+        }
         (None, Some(v), Some(t), Some(n)) => {
             let p = (n * r * t) / v;
             (p, v, t, n)
-        },
+        }
         _ => return Err("Need exactly 3 of 4 parameters (P, V, T, n)".to_string()),
     };
 
@@ -448,7 +461,9 @@ pub fn molar_mass(request: MolarMassRequest) -> Result<MolarMassResult, String> 
                 i += 1;
             }
 
-            let count = if count_str.is_empty() { 1 } else {
+            let count = if count_str.is_empty() {
+                1
+            } else {
                 count_str.parse::<i32>().unwrap_or(1)
             };
 
@@ -497,7 +512,8 @@ mod tests {
     fn test_molar_mass() {
         let result = molar_mass(MolarMassRequest {
             formula: "H2O".to_string(),
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!((result.molar_mass - 18.015).abs() < 0.1);
     }
@@ -510,7 +526,8 @@ mod tests {
             temperature: Some(273.15),
             moles: None,
             gas_type: None,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!((result.moles - 1.0).abs() < 0.01);
     }

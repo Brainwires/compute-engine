@@ -55,37 +55,42 @@ pub fn detect_peaks(request: PeakDetectionRequest) -> Result<PeakDetectionResult
     }
 
     // Calculate prominence
-    let prominences: Vec<f64> = peaks.iter().map(|&peak_idx| {
-        let peak_value = request.signal[peak_idx];
-        let mut left_min = peak_value;
-        let mut right_min = peak_value;
+    let prominences: Vec<f64> = peaks
+        .iter()
+        .map(|&peak_idx| {
+            let peak_value = request.signal[peak_idx];
+            let mut left_min = peak_value;
+            let mut right_min = peak_value;
 
-        // Find minimum to the left
-        for i in (0..peak_idx).rev() {
-            left_min = left_min.min(request.signal[i]);
-        }
+            // Find minimum to the left
+            for i in (0..peak_idx).rev() {
+                left_min = left_min.min(request.signal[i]);
+            }
 
-        // Find minimum to the right
-        for i in (peak_idx + 1)..request.signal.len() {
-            right_min = right_min.min(request.signal[i]);
-        }
+            // Find minimum to the right
+            for i in (peak_idx + 1)..request.signal.len() {
+                right_min = right_min.min(request.signal[i]);
+            }
 
-        peak_value - left_min.max(right_min)
-    }).collect();
+            peak_value - left_min.max(right_min)
+        })
+        .collect();
 
     // Filter by prominence if specified
     if let Some(min_prominence) = request.prominence {
-        let filtered: Vec<_> = peaks.iter()
+        let filtered: Vec<_> = peaks
+            .iter()
             .zip(peak_heights.iter())
             .zip(prominences.iter())
             .filter(|((_idx, _height), prom)| **prom >= min_prominence)
             .map(|((idx, height), prom)| (*idx, *height, *prom))
             .collect();
 
-        let (filtered_peaks, (filtered_heights, filtered_prominences)): (Vec<_>, (Vec<_>, Vec<_>)) = filtered
-            .into_iter()
-            .map(|(idx, height, prom)| (idx, (height, prom)))
-            .unzip();
+        let (filtered_peaks, (filtered_heights, filtered_prominences)): (Vec<_>, (Vec<_>, Vec<_>)) =
+            filtered
+                .into_iter()
+                .map(|(idx, height, prom)| (idx, (height, prom)))
+                .unzip();
 
         Ok(PeakDetectionResult {
             total_peaks_found: filtered_peaks.len(),
@@ -119,7 +124,9 @@ pub struct FourierSeriesResult {
     pub bn: Vec<f64>,
 }
 
-pub fn compute_fourier_series(request: FourierSeriesRequest) -> Result<FourierSeriesResult, String> {
+pub fn compute_fourier_series(
+    request: FourierSeriesRequest,
+) -> Result<FourierSeriesResult, String> {
     // Generate time points
     let time: Vec<f64> = (0..request.samples)
         .map(|i| i as f64 * request.period / request.samples as f64)
@@ -143,15 +150,18 @@ pub fn compute_fourier_series(request: FourierSeriesRequest) -> Result<FourierSe
     }
 
     // Reconstruct signal from coefficients
-    let signal: Vec<f64> = time.iter().map(|&t| {
-        let mut value = a0;
-        for n in 1..=request.coefficients {
-            let omega = 2.0 * PI * n as f64 / request.period;
-            value += an[n - 1] * (omega * t).cos();
-            value += bn[n - 1] * (omega * t).sin();
-        }
-        value
-    }).collect();
+    let signal: Vec<f64> = time
+        .iter()
+        .map(|&t| {
+            let mut value = a0;
+            for n in 1..=request.coefficients {
+                let omega = 2.0 * PI * n as f64 / request.period;
+                value += an[n - 1] * (omega * t).cos();
+                value += bn[n - 1] * (omega * t).sin();
+            }
+            value
+        })
+        .collect();
 
     Ok(FourierSeriesResult {
         time,
@@ -222,19 +232,19 @@ fn mexican_hat_wavelet(t: f64, scale: f64) -> f64 {
     let scaled_t = t / scale;
     let sigma2: f64 = 1.0;
     let norm = 2.0 / ((3.0_f64 * sigma2).sqrt() * PI.powf(0.25));
-    let gaussian = (- scaled_t * scaled_t / (2.0 * sigma2)).exp();
+    let gaussian = (-scaled_t * scaled_t / (2.0 * sigma2)).exp();
     norm * (1.0 - scaled_t * scaled_t / sigma2) * gaussian / scale.sqrt()
 }
 
-pub fn wavelet_transform(request: WaveletTransformRequest) -> Result<WaveletTransformResult, String> {
+pub fn wavelet_transform(
+    request: WaveletTransformRequest,
+) -> Result<WaveletTransformResult, String> {
     if request.signal.is_empty() {
         return Err("Signal cannot be empty".to_string());
     }
 
     let n = request.signal.len();
-    let time: Vec<f64> = (0..n)
-        .map(|i| i as f64 / request.sample_rate)
-        .collect();
+    let time: Vec<f64> = (0..n).map(|i| i as f64 / request.sample_rate).collect();
 
     let mut coefficients = Vec::new();
 
@@ -252,7 +262,12 @@ pub fn wavelet_transform(request: WaveletTransformRequest) -> Result<WaveletTran
                     "haar" => haar_wavelet(t, scale),
                     "daubechies" => daubechies_wavelet(t, scale),
                     "mexican_hat" => mexican_hat_wavelet(t, scale),
-                    _ => return Err(format!("Unsupported wavelet type: {}", request.wavelet_type)),
+                    _ => {
+                        return Err(format!(
+                            "Unsupported wavelet type: {}",
+                            request.wavelet_type
+                        ));
+                    }
                 };
 
                 coeff += request.signal[i] * wavelet_val;
@@ -288,15 +303,21 @@ fn bessel_i0(x: f64) -> f64 {
     let ax = x.abs();
     if ax < 3.75 {
         let y = (x / 3.75) * (x / 3.75);
-        1.0 + y * (3.5156229 + y * (3.0899424 + y * (1.2067492
-            + y * (0.2659732 + y * (0.360768e-1 + y * 0.45813e-2)))))
+        1.0 + y
+            * (3.5156229
+                + y * (3.0899424
+                    + y * (1.2067492 + y * (0.2659732 + y * (0.360768e-1 + y * 0.45813e-2)))))
     } else {
         let y = 3.75 / ax;
         (ax.exp() / ax.sqrt())
-            * (0.39894228 + y * (0.1328592e-1
-                + y * (0.225319e-2 + y * (-0.157565e-2 + y * (0.916281e-2
-                    + y * (-0.2057706e-1 + y * (0.2635537e-1 + y * (-0.1647633e-1
-                        + y * 0.392377e-2))))))))
+            * (0.39894228
+                + y * (0.1328592e-1
+                    + y * (0.225319e-2
+                        + y * (-0.157565e-2
+                            + y * (0.916281e-2
+                                + y * (-0.2057706e-1
+                                    + y * (0.2635537e-1
+                                        + y * (-0.1647633e-1 + y * 0.392377e-2))))))))
     }
 }
 
@@ -312,9 +333,8 @@ pub fn windowing_functions(request: WindowFunctionRequest) -> Result<WindowFunct
             .collect(),
         "blackman" => (0..n)
             .map(|i| {
-                0.42
-                - 0.5 * (2.0 * PI * i as f64 / (n - 1) as f64).cos()
-                + 0.08 * (4.0 * PI * i as f64 / (n - 1) as f64).cos()
+                0.42 - 0.5 * (2.0 * PI * i as f64 / (n - 1) as f64).cos()
+                    + 0.08 * (4.0 * PI * i as f64 / (n - 1) as f64).cos()
             })
             .collect(),
         "kaiser" => {
@@ -328,7 +348,7 @@ pub fn windowing_functions(request: WindowFunctionRequest) -> Result<WindowFunct
                     bessel_i0(arg) / bessel_i0(beta)
                 })
                 .collect()
-        },
+        }
         "bartlett" => (0..n)
             .map(|i| {
                 let mid = (n - 1) as f64 / 2.0;

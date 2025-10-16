@@ -118,7 +118,8 @@ pub fn convex_hull(request: ConvexHullRequest) -> Result<ConvexHullResult, Strin
     }
 
     // Find lowest point (break ties by x-coordinate)
-    let start_idx = points.iter()
+    let start_idx = points
+        .iter()
         .enumerate()
         .min_by(|(_, a), (_, b)| {
             a.y.partial_cmp(&b.y)
@@ -135,7 +136,11 @@ pub fn convex_hull(request: ConvexHullRequest) -> Result<ConvexHullResult, Strin
         polar_angle(a, &start)
             .partial_cmp(&polar_angle(b, &start))
             .unwrap()
-            .then_with(|| distance(a, &start).partial_cmp(&distance(b, &start)).unwrap())
+            .then_with(|| {
+                distance(a, &start)
+                    .partial_cmp(&distance(b, &start))
+                    .unwrap()
+            })
     });
 
     let mut hull = vec![start.clone()];
@@ -197,9 +202,18 @@ pub fn delaunay_triangulation(request: DelaunayRequest) -> Result<DelaunayResult
     let mid_y = (min_y + max_y) / 2.0;
 
     // Create super-triangle
-    let p1 = Point2D { x: mid_x - 20.0 * delta_max, y: mid_y - delta_max };
-    let p2 = Point2D { x: mid_x, y: mid_y + 20.0 * delta_max };
-    let p3 = Point2D { x: mid_x + 20.0 * delta_max, y: mid_y - delta_max };
+    let p1 = Point2D {
+        x: mid_x - 20.0 * delta_max,
+        y: mid_y - delta_max,
+    };
+    let p2 = Point2D {
+        x: mid_x,
+        y: mid_y + 20.0 * delta_max,
+    };
+    let p3 = Point2D {
+        x: mid_x + 20.0 * delta_max,
+        y: mid_y - delta_max,
+    };
 
     let mut triangles = vec![Triangle { p1, p2, p3 }];
 
@@ -232,8 +246,12 @@ pub fn delaunay_triangulation(request: DelaunayRequest) -> Result<DelaunayResult
         for (i, edge) in polygon.iter().enumerate() {
             let mut is_duplicate = false;
             for (j, other) in polygon.iter().enumerate() {
-                if i != j && edge.0.x == other.1.x && edge.0.y == other.1.y &&
-                   edge.1.x == other.0.x && edge.1.y == other.0.y {
+                if i != j
+                    && edge.0.x == other.1.x
+                    && edge.0.y == other.1.y
+                    && edge.1.x == other.0.x
+                    && edge.1.y == other.0.y
+                {
                     is_duplicate = true;
                     break;
                 }
@@ -255,17 +273,26 @@ pub fn delaunay_triangulation(request: DelaunayRequest) -> Result<DelaunayResult
 
     // Remove triangles that share vertices with super-triangle
     let super_points = vec![
-        Point2D { x: mid_x - 20.0 * delta_max, y: mid_y - delta_max },
-        Point2D { x: mid_x, y: mid_y + 20.0 * delta_max },
-        Point2D { x: mid_x + 20.0 * delta_max, y: mid_y - delta_max },
+        Point2D {
+            x: mid_x - 20.0 * delta_max,
+            y: mid_y - delta_max,
+        },
+        Point2D {
+            x: mid_x,
+            y: mid_y + 20.0 * delta_max,
+        },
+        Point2D {
+            x: mid_x + 20.0 * delta_max,
+            y: mid_y - delta_max,
+        },
     ];
 
     triangles.retain(|tri| {
-        !super_points.iter().any(|sp|
-            (sp.x == tri.p1.x && sp.y == tri.p1.y) ||
-            (sp.x == tri.p2.x && sp.y == tri.p2.y) ||
-            (sp.x == tri.p3.x && sp.y == tri.p3.y)
-        )
+        !super_points.iter().any(|sp| {
+            (sp.x == tri.p1.x && sp.y == tri.p1.y)
+                || (sp.x == tri.p2.x && sp.y == tri.p2.y)
+                || (sp.x == tri.p3.x && sp.y == tri.p3.y)
+        })
     });
 
     Ok(DelaunayResult {
@@ -282,9 +309,8 @@ fn point_in_circumcircle(point: &Point2D, triangle: &Triangle) -> bool {
     let cx = triangle.p3.x - point.x;
     let cy = triangle.p3.y - point.y;
 
-    let det = (ax * ax + ay * ay) * (bx * cy - cx * by) -
-              (bx * bx + by * by) * (ax * cy - cx * ay) +
-              (cx * cx + cy * cy) * (ax * by - bx * ay);
+    let det = (ax * ax + ay * ay) * (bx * cy - cx * by) - (bx * bx + by * by) * (ax * cy - cx * ay)
+        + (cx * cx + cy * cy) * (ax * by - bx * ay);
 
     det > 0.0
 }
@@ -298,13 +324,18 @@ pub fn voronoi_diagram(request: VoronoiRequest) -> Result<VoronoiResult, String>
     }
 
     // First compute Delaunay triangulation
-    let delaunay = delaunay_triangulation(DelaunayRequest { points: points.clone() })?;
+    let delaunay = delaunay_triangulation(DelaunayRequest {
+        points: points.clone(),
+    })?;
 
     // Compute circumcenters of triangles (these become Voronoi vertices)
-    let mut cells: Vec<VoronoiCell> = points.iter().map(|p| VoronoiCell {
-        site: p.clone(),
-        vertices: Vec::new(),
-    }).collect();
+    let mut cells: Vec<VoronoiCell> = points
+        .iter()
+        .map(|p| VoronoiCell {
+            site: p.clone(),
+            vertices: Vec::new(),
+        })
+        .collect();
 
     for triangle in &delaunay.triangles {
         let circumcenter = compute_circumcenter(triangle)?;
@@ -312,9 +343,10 @@ pub fn voronoi_diagram(request: VoronoiRequest) -> Result<VoronoiResult, String>
         // Add circumcenter to cells of triangle vertices
         // (Simplified - in real implementation, need proper edge tracking)
         for (i, site) in points.iter().enumerate() {
-            if points_equal(site, &triangle.p1) ||
-               points_equal(site, &triangle.p2) ||
-               points_equal(site, &triangle.p3) {
+            if points_equal(site, &triangle.p1)
+                || points_equal(site, &triangle.p2)
+                || points_equal(site, &triangle.p3)
+            {
                 cells[i].vertices.push(circumcenter.clone());
             }
         }
@@ -340,13 +372,15 @@ fn compute_circumcenter(triangle: &Triangle) -> Result<Point2D, String> {
         return Err("Degenerate triangle".to_string());
     }
 
-    let ux = ((ax * ax + ay * ay) * (by - cy) +
-              (bx * bx + by * by) * (cy - ay) +
-              (cx * cx + cy * cy) * (ay - by)) / d;
+    let ux = ((ax * ax + ay * ay) * (by - cy)
+        + (bx * bx + by * by) * (cy - ay)
+        + (cx * cx + cy * cy) * (ay - by))
+        / d;
 
-    let uy = ((ax * ax + ay * ay) * (cx - bx) +
-              (bx * bx + by * by) * (ax - cx) +
-              (cx * cx + cy * cy) * (bx - ax)) / d;
+    let uy = ((ax * ax + ay * ay) * (cx - bx)
+        + (bx * bx + by * by) * (ax - cx)
+        + (cx * cx + cy * cy) * (bx - ax))
+        / d;
 
     Ok(Point2D { x: ux, y: uy })
 }
@@ -433,8 +467,8 @@ pub fn point_in_polygon(request: PointInPolygonRequest) -> Result<PointInPolygon
         let xj = polygon[j].x;
         let yj = polygon[j].y;
 
-        let intersect = ((yi > point.y) != (yj > point.y)) &&
-            (point.x < (xj - xi) * (point.y - yi) / (yj - yi) + xi);
+        let intersect = ((yi > point.y) != (yj > point.y))
+            && (point.x < (xj - xi) * (point.y - yi) / (yj - yi) + xi);
 
         if intersect {
             inside = !inside;
@@ -510,14 +544,16 @@ mod tests {
         let result = point_in_polygon(PointInPolygonRequest {
             point: inside_point,
             polygon: polygon.clone(),
-        }).unwrap();
+        })
+        .unwrap();
         assert!(result.inside);
 
         let outside_point = Point2D { x: 5.0, y: 5.0 };
         let result = point_in_polygon(PointInPolygonRequest {
             point: outside_point,
             polygon,
-        }).unwrap();
+        })
+        .unwrap();
         assert!(!result.inside);
     }
 
@@ -564,10 +600,7 @@ mod tests {
 
     #[test]
     fn test_convex_hull_too_few_points() {
-        let points = vec![
-            Point2D { x: 0.0, y: 0.0 },
-            Point2D { x: 1.0, y: 1.0 },
-        ];
+        let points = vec![Point2D { x: 0.0, y: 0.0 }, Point2D { x: 1.0, y: 1.0 }];
 
         let result = convex_hull(ConvexHullRequest { points });
         assert!(result.is_err());
@@ -602,10 +635,7 @@ mod tests {
 
     #[test]
     fn test_delaunay_too_few_points() {
-        let points = vec![
-            Point2D { x: 0.0, y: 0.0 },
-            Point2D { x: 1.0, y: 1.0 },
-        ];
+        let points = vec![Point2D { x: 0.0, y: 0.0 }, Point2D { x: 1.0, y: 1.0 }];
 
         let result = delaunay_triangulation(DelaunayRequest { points });
         assert!(result.is_err());
@@ -622,7 +652,8 @@ mod tests {
         let result = voronoi_diagram(VoronoiRequest {
             points,
             bounds: None,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(result.num_cells, 3);
         assert_eq!(result.cells.len(), 3);
@@ -630,10 +661,7 @@ mod tests {
 
     #[test]
     fn test_voronoi_too_few_points() {
-        let points = vec![
-            Point2D { x: 0.0, y: 0.0 },
-            Point2D { x: 1.0, y: 1.0 },
-        ];
+        let points = vec![Point2D { x: 0.0, y: 0.0 }, Point2D { x: 1.0, y: 1.0 }];
 
         let result = voronoi_diagram(VoronoiRequest {
             points,
@@ -672,10 +700,7 @@ mod tests {
 
     #[test]
     fn test_polygon_area_too_few_vertices() {
-        let vertices = vec![
-            Point2D { x: 0.0, y: 0.0 },
-            Point2D { x: 1.0, y: 1.0 },
-        ];
+        let vertices = vec![Point2D { x: 0.0, y: 0.0 }, Point2D { x: 1.0, y: 1.0 }];
 
         let result = polygon_area(PolygonAreaRequest { vertices });
         assert!(result.is_err());
@@ -694,7 +719,8 @@ mod tests {
         let result = point_in_polygon(PointInPolygonRequest {
             point: edge_point,
             polygon,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.distance_to_boundary < 1e-6);
     }
@@ -711,16 +737,14 @@ mod tests {
         let result = point_in_polygon(PointInPolygonRequest {
             point: inside_point,
             polygon,
-        }).unwrap();
+        })
+        .unwrap();
         assert!(result.inside);
     }
 
     #[test]
     fn test_point_in_polygon_too_few_vertices() {
-        let polygon = vec![
-            Point2D { x: 0.0, y: 0.0 },
-            Point2D { x: 1.0, y: 1.0 },
-        ];
+        let polygon = vec![Point2D { x: 0.0, y: 0.0 }, Point2D { x: 1.0, y: 1.0 }];
 
         let result = point_in_polygon(PointInPolygonRequest {
             point: Point2D { x: 0.5, y: 0.5 },

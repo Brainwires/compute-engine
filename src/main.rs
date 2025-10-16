@@ -3,7 +3,7 @@ use computational_engine::*;
 use serde_json::json;
 
 #[derive(Parser)]
-#[command(name = "computational-engine")]
+#[command(name = "brainwires-compute-engine")]
 #[command(about = "Unified computational engine for mathematics and physics", long_about = None)]
 #[command(version)]
 struct Cli {
@@ -38,7 +38,7 @@ enum Commands {
         #[command(subcommand)]
         operation: StochasticOps,
     },
-    
+
     /// Quantum physics simulations
     Quantum {
         #[command(subcommand)]
@@ -101,7 +101,6 @@ enum StochasticOps {
     List,
 }
 
-
 #[derive(Subcommand)]
 enum QuantumOps {
     /// List available quantum operations
@@ -123,10 +122,13 @@ async fn run_command(command: Commands) {
                 std::process::exit(1);
             }
             return;
-        },
+        }
         Commands::Tensor { operation } => match operation {
             TensorOps::EinsteinSolve { system } => {
-                eprintln!("Solving vacuum Einstein equations in {} coordinates...", system);
+                eprintln!(
+                    "Solving vacuum Einstein equations in {} coordinates...",
+                    system
+                );
                 let coords = vec![
                     "t".to_string(),
                     "r".to_string(),
@@ -181,7 +183,7 @@ async fn run_command(command: Commands) {
                 eprintln!("  - Stochastic differential equations");
             }
         },
-        
+
         Commands::Quantum { operation } => match operation {
             QuantumOps::List => {
                 eprintln!("Available quantum operations:");
@@ -267,7 +269,9 @@ async fn run_command(command: Commands) {
             // Read JSON from stdin (for MCP integration)
             use std::io::{self, Read};
             let mut buffer = String::new();
-            io::stdin().read_to_string(&mut buffer).expect("Failed to read stdin");
+            io::stdin()
+                .read_to_string(&mut buffer)
+                .expect("Failed to read stdin");
 
             // Try new unified API first
             match serde_json::from_str::<ToolRequest>(&buffer) {
@@ -299,4 +303,3 @@ async fn run_command(command: Commands) {
         }
     }
 }
-

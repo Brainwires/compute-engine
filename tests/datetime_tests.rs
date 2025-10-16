@@ -1,7 +1,6 @@
 /**
  * Date/Time Mathematics Tests
  */
-
 use computational_engine::datetime::*;
 
 #[test]

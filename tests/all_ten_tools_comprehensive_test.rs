@@ -6,9 +6,9 @@
 //! 3. Error handling is correct
 //! 4. JSON API works for all tools
 
-use computational_engine::engine::*;
-use computational_engine::engine::equations::*;
 use computational_engine::create_default_dispatcher;
+use computational_engine::engine::equations::*;
+use computational_engine::engine::*;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -42,14 +42,17 @@ fn test_solve_einstein_vacuum() {
     let request = ToolRequest::Solve(SolveInput {
         equation_type: EquationType::Einstein(EinsteinEquation::Vacuum),
         equations: vec![],
-        variables: Some(vec!["t".to_string(), "r".to_string(), "theta".to_string(), "phi".to_string()]),
+        variables: Some(vec![
+            "t".to_string(),
+            "r".to_string(),
+            "theta".to_string(),
+            "phi".to_string(),
+        ]),
         initial_guess: None,
         boundary_conditions: None,
         domain: None,
         method: None,
-        parameters: HashMap::from([
-            ("symmetry".to_string(), serde_json::json!("spherical"))
-        ]),
+        parameters: HashMap::from([("symmetry".to_string(), serde_json::json!("spherical"))]),
     });
 
     let result = dispatcher.dispatch(request);
@@ -71,7 +74,7 @@ fn test_solve_fluid_cavity_flow() {
         method: None,
         parameters: HashMap::from([
             ("reynolds_number".to_string(), serde_json::json!(100.0)),
-            ("grid_size".to_string(), serde_json::json!(32))
+            ("grid_size".to_string(), serde_json::json!(32)),
         ]),
     });
 
@@ -95,9 +98,15 @@ fn test_differentiate_numeric() {
         order: Some(vec![1]),
         evaluate_at: None,
         parameters: HashMap::from([
-            ("x_values".to_string(), serde_json::json!([0.0, 1.0, 2.0, 3.0, 4.0])),
-            ("y_values".to_string(), serde_json::json!([0.0, 1.0, 4.0, 9.0, 16.0])),
-            ("method".to_string(), serde_json::json!("central"))
+            (
+                "x_values".to_string(),
+                serde_json::json!([0.0, 1.0, 2.0, 3.0, 4.0]),
+            ),
+            (
+                "y_values".to_string(),
+                serde_json::json!([0.0, 1.0, 4.0, 9.0, 16.0]),
+            ),
+            ("method".to_string(), serde_json::json!("central")),
         ]),
     });
 
@@ -116,13 +125,10 @@ fn test_differentiate_vector_calc_gradient() {
         variables: vec!["x".to_string(), "y".to_string(), "z".to_string()],
         order: None,
         evaluate_at: None,
-        parameters: HashMap::from([
-            ("data".to_string(), serde_json::json!([
-                [1.0, 2.0, 3.0],
-                [2.0, 3.0, 4.0],
-                [3.0, 4.0, 5.0]
-            ]))
-        ]),
+        parameters: HashMap::from([(
+            "data".to_string(),
+            serde_json::json!([[1.0, 2.0, 3.0], [2.0, 3.0, 4.0], [3.0, 4.0, 5.0]]),
+        )]),
     });
 
     let result = dispatcher.dispatch(request);
@@ -148,8 +154,11 @@ fn test_integrate_numeric_simpson() {
         method: None,
         parameters: HashMap::from([
             ("function_type".to_string(), serde_json::json!("polynomial")),
-            ("coefficients".to_string(), serde_json::json!([0.0, 0.0, 1.0])),
-            ("num_points".to_string(), serde_json::json!(100))
+            (
+                "coefficients".to_string(),
+                serde_json::json!([0.0, 0.0, 1.0]),
+            ),
+            ("num_points".to_string(), serde_json::json!(100)),
         ]),
     });
 
@@ -172,7 +181,7 @@ fn test_integrate_numeric_trapezoidal() {
         parameters: HashMap::from([
             ("function_type".to_string(), serde_json::json!("polynomial")),
             ("coefficients".to_string(), serde_json::json!([1.0, 0.0])),
-            ("num_points".to_string(), serde_json::json!(200))
+            ("num_points".to_string(), serde_json::json!(200)),
         ]),
     });
 
@@ -297,7 +306,7 @@ fn test_simulate_brownian_motion() {
         parameters: HashMap::from([
             ("initial_value".to_string(), 0.0),
             ("drift".to_string(), 0.05),
-            ("volatility".to_string(), 0.2)
+            ("volatility".to_string(), 0.2),
         ]),
     });
 
@@ -364,9 +373,7 @@ fn test_transform_fft() {
         transform_type: TransformType::FFT(FFTType::Forward),
         data: signal,
         sampling_rate: Some(100.0),
-        parameters: HashMap::from([
-            ("window_type".to_string(), serde_json::json!("hanning"))
-        ]),
+        parameters: HashMap::from([("window_type".to_string(), serde_json::json!("hanning"))]),
     });
 
     let result = dispatcher.dispatch(request);
@@ -386,7 +393,7 @@ fn test_transform_filter_lowpass() {
         sampling_rate: Some(1000.0),
         parameters: HashMap::from([
             ("cutoff".to_string(), serde_json::json!(50.0)),
-            ("order".to_string(), serde_json::json!(4))
+            ("order".to_string(), serde_json::json!(4)),
         ]),
     });
 
@@ -432,7 +439,7 @@ fn test_sample_brownian_path() {
             ("t_max".to_string(), serde_json::json!(1.0)),
             ("initial_value".to_string(), serde_json::json!(0.0)),
             ("drift".to_string(), serde_json::json!(0.05)),
-            ("volatility".to_string(), serde_json::json!(0.2))
+            ("volatility".to_string(), serde_json::json!(0.2)),
         ]),
     });
 
@@ -517,26 +524,30 @@ fn test_json_api_all_tools() {
     let test_cases = vec![
         (
             "Solve",
-            r#"{"tool":"solve","input":{"equation_type":"root_finding","equations":["x^2-4"],"parameters":{}}}"#
+            r#"{"tool":"solve","input":{"equation_type":"root_finding","equations":["x^2-4"],"parameters":{}}}"#,
         ),
         (
             "Differentiate",
-            r#"{"tool":"differentiate","input":{"operation":"numeric","expression":"f(x)","variables":["x"],"parameters":{"x_values":[0,1,2],"y_values":[0,1,4]}}}"#
+            r#"{"tool":"differentiate","input":{"operation":"numeric","expression":"f(x)","variables":["x"],"parameters":{"x_values":[0,1,2],"y_values":[0,1,4]}}}"#,
         ),
         (
             "Integrate",
-            r#"{"tool":"integrate","input":{"integration_type":{"numeric":"simpson"},"expression":"x^2","variables":["x"],"limits":[[0,2]],"parameters":{"function_type":"polynomial","coefficients":[0,0,1]}}}"#
+            r#"{"tool":"integrate","input":{"integration_type":{"numeric":"simpson"},"expression":"x^2","variables":["x"],"limits":[[0,2]],"parameters":{"function_type":"polynomial","coefficients":[0,0,1]}}}"#,
         ),
         (
             "Analyze",
-            r#"{"tool":"analyze","input":{"operation":"is_prime","expression":"17","options":{}}}"#
+            r#"{"tool":"analyze","input":{"operation":"is_prime","expression":"17","options":{}}}"#,
         ),
     ];
 
     for (name, json_request) in test_cases {
         let response = dispatcher.dispatch_json(json_request);
         println!("{} JSON response: {}", name, response);
-        assert!(response.contains("success") || response.contains("error") || response.contains("result"));
+        assert!(
+            response.contains("success")
+                || response.contains("error")
+                || response.contains("result")
+        );
     }
 }
 
@@ -557,7 +568,7 @@ fn test_error_handling_invalid_input() {
         evaluate_at: None,
         parameters: HashMap::from([
             ("x_values".to_string(), serde_json::json!([])),
-            ("y_values".to_string(), serde_json::json!([]))
+            ("y_values".to_string(), serde_json::json!([])),
         ]),
     });
 
@@ -615,9 +626,7 @@ fn test_full_workflow_physics_problem() {
     let validate_request = ToolRequest::Analyze(AnalyzeInput {
         operation: AnalysisOp::Validate,
         expression: "F = m*a".to_string(),
-        options: HashMap::from([
-            ("domain".to_string(), serde_json::json!("physics"))
-        ]),
+        options: HashMap::from([("domain".to_string(), serde_json::json!("physics"))]),
     });
 
     let validate_result = dispatcher.dispatch(validate_request);

@@ -26,18 +26,13 @@ fn diff_internal(expr: &Expr, var: &str) -> Expr {
         }
 
         // d/dx(a + b) = da/dx + db/dx
-        Expr::Add(a, b) => {
-            Expr::add(diff_internal(a, var), diff_internal(b, var))
-        }
+        Expr::Add(a, b) => Expr::add(diff_internal(a, var), diff_internal(b, var)),
 
         // Product rule: d/dx(a * b) = a * db/dx + da/dx * b
         Expr::Mul(a, b) => {
             let da = diff_internal(a, var);
             let db = diff_internal(b, var);
-            Expr::add(
-                Expr::mul((**a).clone(), db),
-                Expr::mul(da, (**b).clone())
-            )
+            Expr::add(Expr::mul((**a).clone(), db), Expr::mul(da, (**b).clone()))
         }
 
         // Power rule: d/dx(x^n) = n * x^(n-1)
@@ -49,12 +44,9 @@ fn diff_internal(expr: &Expr, var: &str) -> Expr {
             Expr::mul(
                 (**exp).clone(),
                 Expr::mul(
-                    Expr::pow(
-                        (**base).clone(),
-                        Expr::add((**exp).clone(), Expr::num(-1))
-                    ),
-                    df
-                )
+                    Expr::pow((**base).clone(), Expr::add((**exp).clone(), Expr::num(-1))),
+                    df,
+                ),
             )
         }
 
@@ -70,42 +62,27 @@ fn diff_internal(expr: &Expr, var: &str) -> Expr {
 
             match name.as_str() {
                 // d/dx(sin(f)) = cos(f) * df/dx
-                "sin" => Expr::mul(
-                    Expr::func("cos", vec![arg.clone()]),
-                    darg
-                ),
+                "sin" => Expr::mul(Expr::func("cos", vec![arg.clone()]), darg),
 
                 // d/dx(cos(f)) = -sin(f) * df/dx
                 "cos" => Expr::mul(
                     Expr::num(-1),
-                    Expr::mul(
-                        Expr::func("sin", vec![arg.clone()]),
-                        darg
-                    )
+                    Expr::mul(Expr::func("sin", vec![arg.clone()]), darg),
                 ),
 
                 // d/dx(exp(f)) = exp(f) * df/dx
-                "exp" => Expr::mul(
-                    Expr::func("exp", vec![arg.clone()]),
-                    darg
-                ),
+                "exp" => Expr::mul(Expr::func("exp", vec![arg.clone()]), darg),
 
                 // d/dx(ln(f)) = df/dx / f
-                "ln" => Expr::mul(
-                    darg,
-                    Expr::pow(arg.clone(), Expr::num(-1))
-                ),
+                "ln" => Expr::mul(darg, Expr::pow(arg.clone(), Expr::num(-1))),
 
                 // d/dx(sqrt(f)) = df/dx / (2*sqrt(f))
                 "sqrt" => Expr::mul(
                     darg,
                     Expr::pow(
-                        Expr::mul(
-                            Expr::num(2),
-                            Expr::func("sqrt", vec![arg.clone()])
-                        ),
-                        Expr::num(-1)
-                    )
+                        Expr::mul(Expr::num(2), Expr::func("sqrt", vec![arg.clone()])),
+                        Expr::num(-1),
+                    ),
                 ),
 
                 _ => Expr::func(format!("d/d{}({})", var, name), vec![arg.clone()]),

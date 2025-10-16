@@ -9,7 +9,7 @@ use super::{Expr, SymbolicError, SymbolicMatrix, SymbolicResult};
 pub fn characteristic_polynomial(matrix: &SymbolicMatrix) -> SymbolicResult<Expr> {
     if matrix.rows() != matrix.cols() {
         return Err(SymbolicError::InvalidOperation(
-            "Characteristic polynomial only defined for square matrices".to_string()
+            "Characteristic polynomial only defined for square matrices".to_string(),
         ));
     }
 
@@ -19,10 +19,7 @@ pub fn characteristic_polynomial(matrix: &SymbolicMatrix) -> SymbolicResult<Expr
     let mut a_minus_lambda_i = matrix.clone();
     for i in 0..n {
         let diagonal_elem = a_minus_lambda_i.get(i, i).unwrap().clone();
-        let new_elem = Expr::add(
-            diagonal_elem,
-            Expr::mul(Expr::num(-1), Expr::sym("λ"))
-        );
+        let new_elem = Expr::add(diagonal_elem, Expr::mul(Expr::num(-1), Expr::sym("λ")));
         a_minus_lambda_i.set(i, i, new_elem)?;
     }
 
@@ -35,7 +32,7 @@ pub fn characteristic_polynomial(matrix: &SymbolicMatrix) -> SymbolicResult<Expr
 pub fn eigenvalues_2x2(matrix: &SymbolicMatrix) -> SymbolicResult<Vec<Expr>> {
     if matrix.rows() != 2 || matrix.cols() != 2 {
         return Err(SymbolicError::InvalidOperation(
-            "This function only works for 2x2 matrices".to_string()
+            "This function only works for 2x2 matrices".to_string(),
         ));
     }
 
@@ -54,16 +51,13 @@ pub fn eigenvalues_2x2(matrix: &SymbolicMatrix) -> SymbolicResult<Vec<Expr>> {
     // Determinant: ad - bc
     let det = Expr::add(
         Expr::mul(a.clone(), d.clone()),
-        Expr::mul(Expr::num(-1), Expr::mul(b.clone(), c.clone()))
+        Expr::mul(Expr::num(-1), Expr::mul(b.clone(), c.clone())),
     );
 
     // Discriminant: (a+d)² - 4(ad-bc) = trace² - 4*det
     let discriminant = Expr::add(
         Expr::pow(trace.clone(), Expr::num(2)),
-        Expr::mul(
-            Expr::num(-4),
-            det
-        )
+        Expr::mul(Expr::num(-4), det),
     );
 
     // λ₁ = (trace + √discriminant) / 2
@@ -71,8 +65,8 @@ pub fn eigenvalues_2x2(matrix: &SymbolicMatrix) -> SymbolicResult<Vec<Expr>> {
         Expr::rational_unchecked(1, 2),
         Expr::add(
             trace.clone(),
-            Expr::func("sqrt", vec![discriminant.clone()])
-        )
+            Expr::func("sqrt", vec![discriminant.clone()]),
+        ),
     );
 
     // λ₂ = (trace - √discriminant) / 2
@@ -80,11 +74,8 @@ pub fn eigenvalues_2x2(matrix: &SymbolicMatrix) -> SymbolicResult<Vec<Expr>> {
         Expr::rational_unchecked(1, 2),
         Expr::add(
             trace,
-            Expr::mul(
-                Expr::num(-1),
-                Expr::func("sqrt", vec![discriminant])
-            )
-        )
+            Expr::mul(Expr::num(-1), Expr::func("sqrt", vec![discriminant])),
+        ),
     );
 
     Ok(vec![lambda1, lambda2])
@@ -95,7 +86,7 @@ pub fn eigenvalues_2x2(matrix: &SymbolicMatrix) -> SymbolicResult<Vec<Expr>> {
 pub fn adjugate(matrix: &SymbolicMatrix) -> SymbolicResult<SymbolicMatrix> {
     if matrix.rows() != matrix.cols() {
         return Err(SymbolicError::InvalidOperation(
-            "Adjugate only defined for square matrices".to_string()
+            "Adjugate only defined for square matrices".to_string(),
         ));
     }
 
@@ -124,7 +115,7 @@ pub fn adjugate(matrix: &SymbolicMatrix) -> SymbolicResult<SymbolicMatrix> {
 pub fn matrix_inverse(matrix: &SymbolicMatrix) -> SymbolicResult<SymbolicMatrix> {
     if matrix.rows() != matrix.cols() {
         return Err(SymbolicError::InvalidOperation(
-            "Inverse only defined for square matrices".to_string()
+            "Inverse only defined for square matrices".to_string(),
         ));
     }
 
@@ -133,7 +124,7 @@ pub fn matrix_inverse(matrix: &SymbolicMatrix) -> SymbolicResult<SymbolicMatrix>
     // Check if determinant is symbolically zero
     if det.is_zero() {
         return Err(SymbolicError::InvalidOperation(
-            "Matrix is singular (determinant is zero)".to_string()
+            "Matrix is singular (determinant is zero)".to_string(),
         ));
     }
 
@@ -149,7 +140,7 @@ impl SymbolicMatrix {
     pub(crate) fn minor(&self, row: usize, col: usize) -> SymbolicResult<Self> {
         if self.rows() != self.cols() {
             return Err(SymbolicError::InvalidOperation(
-                "Minor only defined for square matrices".to_string()
+                "Minor only defined for square matrices".to_string(),
             ));
         }
 
@@ -185,7 +176,8 @@ mod tests {
         let mat = SymbolicMatrix::new(vec![
             vec![Expr::num(1), Expr::num(2)],
             vec![Expr::num(3), Expr::num(4)],
-        ]).unwrap();
+        ])
+        .unwrap();
 
         let char_poly = characteristic_polynomial(&mat).unwrap();
         println!("Characteristic polynomial: {}", char_poly);
@@ -196,7 +188,8 @@ mod tests {
         let mat = SymbolicMatrix::new(vec![
             vec![Expr::num(3), Expr::num(1)],
             vec![Expr::num(1), Expr::num(3)],
-        ]).unwrap();
+        ])
+        .unwrap();
 
         let eigenvalues = eigenvalues_2x2(&mat).unwrap();
         assert_eq!(eigenvalues.len(), 2);
@@ -209,7 +202,8 @@ mod tests {
         let mat = SymbolicMatrix::new(vec![
             vec![Expr::sym("a"), Expr::sym("b")],
             vec![Expr::sym("b"), Expr::sym("a")],
-        ]).unwrap();
+        ])
+        .unwrap();
 
         let eigenvalues = eigenvalues_2x2(&mat).unwrap();
         println!("Symbolic eigenvalue 1: {}", eigenvalues[0]);
@@ -221,7 +215,8 @@ mod tests {
         let mat = SymbolicMatrix::new(vec![
             vec![Expr::num(1), Expr::num(2)],
             vec![Expr::num(3), Expr::num(4)],
-        ]).unwrap();
+        ])
+        .unwrap();
 
         let inv = matrix_inverse(&mat).unwrap();
         println!("Inverse matrix:\n{}", inv);
@@ -232,7 +227,8 @@ mod tests {
         let mat = SymbolicMatrix::new(vec![
             vec![Expr::sym("a"), Expr::sym("b")],
             vec![Expr::sym("c"), Expr::sym("d")],
-        ]).unwrap();
+        ])
+        .unwrap();
 
         let inv = matrix_inverse(&mat).unwrap();
         println!("Symbolic inverse:\n{}", inv);

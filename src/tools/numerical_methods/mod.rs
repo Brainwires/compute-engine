@@ -38,7 +38,7 @@ pub struct RootFindingRequest {
     pub interval: Option<(f64, f64)>, // For bisection/brent
     pub tolerance: f64,
     pub max_iterations: usize,
-    pub function_type: String, // "polynomial", "transcendental"
+    pub function_type: String,          // "polynomial", "transcendental"
     pub coefficients: Option<Vec<f64>>, // For polynomial
 }
 
@@ -147,36 +147,44 @@ pub fn solve_ode(request: ODESolverRequest) -> Result<ODESolverResult, String> {
                 t_values.push(t);
                 y_values.push(y);
             }
-        },
+        }
         "rk4" => {
             // Fourth-order Runge-Kutta
             while t < request.t_end {
                 let k1 = h * derivative(t, y);
-                let k2 = h * derivative(t + h/2.0, y + k1/2.0);
-                let k3 = h * derivative(t + h/2.0, y + k2/2.0);
+                let k2 = h * derivative(t + h / 2.0, y + k1 / 2.0);
+                let k3 = h * derivative(t + h / 2.0, y + k2 / 2.0);
                 let k4 = h * derivative(t + h, y + k3);
 
-                y += (k1 + 2.0*k2 + 2.0*k3 + k4) / 6.0;
+                y += (k1 + 2.0 * k2 + 2.0 * k3 + k4) / 6.0;
                 t += h;
                 t_values.push(t);
                 y_values.push(y);
             }
-        },
+        }
         "rk45" | "adaptive_rk45" => {
             // Adaptive RK45 (simplified)
             let h_adaptive = h;
             while t < request.t_end {
                 let k1 = h_adaptive * derivative(t, y);
-                let k2 = h_adaptive * derivative(t + h_adaptive/4.0, y + k1/4.0);
-                let k3 = h_adaptive * derivative(t + 3.0*h_adaptive/8.0, y + 3.0*k1/32.0 + 9.0*k2/32.0);
-                let k4 = h_adaptive * derivative(t + 12.0*h_adaptive/13.0, y + 1932.0*k1/2197.0 - 7200.0*k2/2197.0 + 7296.0*k3/2197.0);
+                let k2 = h_adaptive * derivative(t + h_adaptive / 4.0, y + k1 / 4.0);
+                let k3 = h_adaptive
+                    * derivative(
+                        t + 3.0 * h_adaptive / 8.0,
+                        y + 3.0 * k1 / 32.0 + 9.0 * k2 / 32.0,
+                    );
+                let k4 = h_adaptive
+                    * derivative(
+                        t + 12.0 * h_adaptive / 13.0,
+                        y + 1932.0 * k1 / 2197.0 - 7200.0 * k2 / 2197.0 + 7296.0 * k3 / 2197.0,
+                    );
 
-                y += (k1 + 3.0*k2 + 4.0*k3 + k4) / 10.0;
+                y += (k1 + 3.0 * k2 + 4.0 * k3 + k4) / 10.0;
                 t += h_adaptive;
                 t_values.push(t);
                 y_values.push(y);
             }
-        },
+        }
         _ => return Err(format!("Unknown ODE method: {}", request.method)),
     }
 
@@ -234,7 +242,7 @@ pub fn find_root(request: RootFindingRequest) -> Result<RootFindingResult, Strin
                 error_estimate: tol,
                 converged: false,
             })
-        },
+        }
         "bisection" => {
             let (mut a, mut b) = request.interval.ok_or("Bisection requires interval")?;
             let mut iterations = 0;
@@ -274,7 +282,7 @@ pub fn find_root(request: RootFindingRequest) -> Result<RootFindingResult, Strin
                 error_estimate: (b - a).abs() / 2.0,
                 converged: (b - a).abs() < tol,
             })
-        },
+        }
         "secant" => {
             let mut x0 = request.initial_guess;
             let mut x1 = x0 + 0.1; // Small perturbation
@@ -310,7 +318,7 @@ pub fn find_root(request: RootFindingRequest) -> Result<RootFindingResult, Strin
                 error_estimate: tol,
                 converged: false,
             })
-        },
+        }
         _ => Err(format!("Unknown root finding method: {}", request.method)),
     }
 }
@@ -318,7 +326,9 @@ pub fn find_root(request: RootFindingRequest) -> Result<RootFindingResult, Strin
 fn evaluate_function(x: f64, request: &RootFindingRequest) -> f64 {
     // Simple polynomial evaluation
     if let Some(coeffs) = &request.coefficients {
-        coeffs.iter().enumerate()
+        coeffs
+            .iter()
+            .enumerate()
             .map(|(i, &c)| c * x.powi(i as i32))
             .sum()
     } else {
@@ -330,7 +340,10 @@ fn evaluate_function(x: f64, request: &RootFindingRequest) -> f64 {
 fn evaluate_derivative(x: f64, request: &RootFindingRequest) -> f64 {
     // Polynomial derivative
     if let Some(coeffs) = &request.coefficients {
-        coeffs.iter().enumerate().skip(1)
+        coeffs
+            .iter()
+            .enumerate()
+            .skip(1)
             .map(|(i, &c)| c * (i as f64) * x.powi((i - 1) as i32))
             .sum()
     } else {
@@ -356,7 +369,7 @@ pub fn integrate(request: IntegrationRequest) -> Result<IntegrationResult, Strin
             }
 
             sum * h
-        },
+        }
         "simpson" | "simpsons" => {
             if n % 2 != 0 {
                 return Err("Simpson's rule requires even number of intervals".to_string());
@@ -372,7 +385,7 @@ pub fn integrate(request: IntegrationRequest) -> Result<IntegrationResult, Strin
             }
 
             sum * h / 3.0
-        },
+        }
         "gauss" | "gauss_legendre" => {
             // 2-point Gauss-Legendre quadrature
             let mid = (a + b) / 2.0;
@@ -382,7 +395,7 @@ pub fn integrate(request: IntegrationRequest) -> Result<IntegrationResult, Strin
             let x2 = mid + half / 3.0_f64.sqrt();
 
             half * (function_at(x1, &request) + function_at(x2, &request))
-        },
+        }
         _ => return Err(format!("Unknown integration method: {}", request.method)),
     };
 
@@ -395,7 +408,9 @@ pub fn integrate(request: IntegrationRequest) -> Result<IntegrationResult, Strin
 
 fn function_at(x: f64, request: &IntegrationRequest) -> f64 {
     if let Some(coeffs) = &request.coefficients {
-        coeffs.iter().enumerate()
+        coeffs
+            .iter()
+            .enumerate()
             .map(|(i, &c)| c * x.powi(i as i32))
             .sum()
     } else {
@@ -411,22 +426,26 @@ pub fn interpolate(request: InterpolationRequest) -> Result<InterpolationResult,
     }
 
     let interpolated = match request.method.as_str() {
-        "linear" => {
-            request.interpolate_at.iter().map(|&x| {
-                linear_interpolate(x, &request.x_values, &request.y_values)
-            }).collect()
-        },
-        "lagrange" => {
-            request.interpolate_at.iter().map(|&x| {
-                lagrange_interpolate(x, &request.x_values, &request.y_values)
-            }).collect()
-        },
+        "linear" => request
+            .interpolate_at
+            .iter()
+            .map(|&x| linear_interpolate(x, &request.x_values, &request.y_values))
+            .collect(),
+        "lagrange" => request
+            .interpolate_at
+            .iter()
+            .map(|&x| lagrange_interpolate(x, &request.x_values, &request.y_values))
+            .collect(),
         "cubic_spline" => {
             // Simplified cubic spline
-            request.interpolate_at.iter().map(|&x| {
-                linear_interpolate(x, &request.x_values, &request.y_values) // Placeholder
-            }).collect()
-        },
+            request
+                .interpolate_at
+                .iter()
+                .map(|&x| {
+                    linear_interpolate(x, &request.x_values, &request.y_values) // Placeholder
+                })
+                .collect()
+        }
         _ => return Err(format!("Unknown interpolation method: {}", request.method)),
     };
 
@@ -438,10 +457,10 @@ pub fn interpolate(request: InterpolationRequest) -> Result<InterpolationResult,
 
 fn linear_interpolate(x: f64, xs: &[f64], ys: &[f64]) -> f64 {
     // Find surrounding points
-    for i in 0..xs.len()-1 {
-        if x >= xs[i] && x <= xs[i+1] {
-            let t = (x - xs[i]) / (xs[i+1] - xs[i]);
-            return ys[i] * (1.0 - t) + ys[i+1] * t;
+    for i in 0..xs.len() - 1 {
+        if x >= xs[i] && x <= xs[i + 1] {
+            let t = (x - xs[i]) / (xs[i + 1] - xs[i]);
+            return ys[i] * (1.0 - t) + ys[i + 1] * t;
         }
     }
     ys[0] // Extrapolate
@@ -473,17 +492,14 @@ pub fn solve_linear_system(request: LinearSystemRequest) -> Result<LinearSystemR
     }
 
     match request.method.as_str() {
-        "gauss" | "gaussian_elimination" => {
-            gauss_elimination(&request.matrix, &request.rhs)
-        },
-        "lu" | "lu_decomposition" => {
-            lu_solve(&request.matrix, &request.rhs)
-        },
-        "jacobi" => {
-            jacobi_iteration(&request.matrix, &request.rhs,
-                request.tolerance.unwrap_or(1e-6),
-                request.max_iterations.unwrap_or(100))
-        },
+        "gauss" | "gaussian_elimination" => gauss_elimination(&request.matrix, &request.rhs),
+        "lu" | "lu_decomposition" => lu_solve(&request.matrix, &request.rhs),
+        "jacobi" => jacobi_iteration(
+            &request.matrix,
+            &request.rhs,
+            request.tolerance.unwrap_or(1e-6),
+            request.max_iterations.unwrap_or(100),
+        ),
         _ => Err(format!("Unknown linear system method: {}", request.method)),
     }
 }
@@ -494,8 +510,8 @@ fn gauss_elimination(matrix: &[Vec<f64>], rhs: &[f64]) -> Result<LinearSystemRes
     let mut b = rhs.to_vec();
 
     // Forward elimination
-    for k in 0..n-1 {
-        for i in k+1..n {
+    for k in 0..n - 1 {
+        for i in k + 1..n {
             let factor = a[i][k] / a[k][k];
             for j in k..n {
                 a[i][j] -= factor * a[k][j];
@@ -508,7 +524,7 @@ fn gauss_elimination(matrix: &[Vec<f64>], rhs: &[f64]) -> Result<LinearSystemRes
     let mut x = vec![0.0; n];
     for i in (0..n).rev() {
         let mut sum = 0.0;
-        for j in i+1..n {
+        for j in i + 1..n {
             sum += a[i][j] * x[j];
         }
         x[i] = (b[i] - sum) / a[i][i];
@@ -529,7 +545,12 @@ fn lu_solve(matrix: &[Vec<f64>], rhs: &[f64]) -> Result<LinearSystemResult, Stri
     gauss_elimination(matrix, rhs) // Placeholder
 }
 
-fn jacobi_iteration(matrix: &[Vec<f64>], rhs: &[f64], tol: f64, max_iter: usize) -> Result<LinearSystemResult, String> {
+fn jacobi_iteration(
+    matrix: &[Vec<f64>],
+    rhs: &[f64],
+    tol: f64,
+    max_iter: usize,
+) -> Result<LinearSystemResult, String> {
     let n = matrix.len();
     let mut x = vec![0.0; n];
     let mut x_new = vec![0.0; n];
@@ -546,9 +567,7 @@ fn jacobi_iteration(matrix: &[Vec<f64>], rhs: &[f64], tol: f64, max_iter: usize)
         }
 
         // Check convergence
-        let diff: f64 = x.iter().zip(x_new.iter())
-            .map(|(a, b)| (a - b).abs())
-            .sum();
+        let diff: f64 = x.iter().zip(x_new.iter()).map(|(a, b)| (a - b).abs()).sum();
 
         if diff < tol {
             let residual = calculate_residual(matrix, &x_new, rhs);
@@ -590,38 +609,43 @@ pub fn differentiate(request: DifferentiationRequest) -> Result<DifferentiationR
     let derivatives = match request.method.as_str() {
         "forward" => {
             let mut result = Vec::with_capacity(n);
-            for i in 0..n-1 {
-                let h = request.x_values[i+1] - request.x_values[i];
-                let deriv = (request.y_values[i+1] - request.y_values[i]) / h;
+            for i in 0..n - 1 {
+                let h = request.x_values[i + 1] - request.x_values[i];
+                let deriv = (request.y_values[i + 1] - request.y_values[i]) / h;
                 result.push(deriv);
             }
-            result.push(result[n-2]); // Repeat last value
+            result.push(result[n - 2]); // Repeat last value
             result
-        },
+        }
         "backward" => {
             let mut result = vec![0.0]; // First value placeholder
             for i in 1..n {
-                let h = request.x_values[i] - request.x_values[i-1];
-                let deriv = (request.y_values[i] - request.y_values[i-1]) / h;
+                let h = request.x_values[i] - request.x_values[i - 1];
+                let deriv = (request.y_values[i] - request.y_values[i - 1]) / h;
                 result.push(deriv);
             }
             result[0] = result[1]; // Copy second value to first
             result
-        },
+        }
         "central" => {
             let mut result = vec![0.0]; // First value
-            for i in 1..n-1 {
-                let h = request.x_values[i+1] - request.x_values[i-1];
-                let deriv = (request.y_values[i+1] - request.y_values[i-1]) / h;
+            for i in 1..n - 1 {
+                let h = request.x_values[i + 1] - request.x_values[i - 1];
+                let deriv = (request.y_values[i + 1] - request.y_values[i - 1]) / h;
                 result.push(deriv);
             }
             result.push(0.0); // Last value
             // Fill endpoints
             result[0] = result[1];
-            result[n-1] = result[n-2];
+            result[n - 1] = result[n - 2];
             result
-        },
-        _ => return Err(format!("Unknown differentiation method: {}", request.method)),
+        }
+        _ => {
+            return Err(format!(
+                "Unknown differentiation method: {}",
+                request.method
+            ));
+        }
     };
 
     Ok(DifferentiationResult {
@@ -654,21 +678,21 @@ pub fn solve_pde(request: PDESolverRequest) -> Result<PDESolverResult, String> {
             let alpha = 0.01; // Thermal diffusivity
             let r = alpha * dt / (dx * dx);
 
-            for t in 0..nt-1 {
-                for i in 1..nx-1 {
-                    u[t+1][i] = u[t][i] + r * (u[t][i+1] - 2.0*u[t][i] + u[t][i-1]);
+            for t in 0..nt - 1 {
+                for i in 1..nx - 1 {
+                    u[t + 1][i] = u[t][i] + r * (u[t][i + 1] - 2.0 * u[t][i] + u[t][i - 1]);
                 }
                 // Boundary conditions
-                u[t+1][0] = request.boundary_conditions.get(0).copied().unwrap_or(0.0);
-                u[t+1][nx-1] = request.boundary_conditions.get(1).copied().unwrap_or(0.0);
+                u[t + 1][0] = request.boundary_conditions.get(0).copied().unwrap_or(0.0);
+                u[t + 1][nx - 1] = request.boundary_conditions.get(1).copied().unwrap_or(0.0);
             }
-        },
+        }
         _ => return Err(format!("Unknown PDE method: {}", request.method)),
     }
 
     Ok(PDESolverResult {
         solution: u.clone(),
-        final_state: u[nt-1].clone(),
+        final_state: u[nt - 1].clone(),
     })
 }
 
@@ -686,7 +710,8 @@ mod tests {
             max_iterations: 100,
             function_type: "polynomial".to_string(),
             coefficients: Some(vec![-2.0, 0.0, 1.0]), // x^2 - 2 = 0
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!((result.root - 1.41421356).abs() < 1e-5);
     }
@@ -700,7 +725,8 @@ mod tests {
             num_points: 100,
             function_type: "polynomial".to_string(),
             coefficients: Some(vec![0.0, 0.0, 1.0]), // x^2
-        }).unwrap();
+        })
+        .unwrap();
 
         // Integral of x^2 from 0 to 1 is 1/3
         assert!((result.integral - 0.333333).abs() < 0.01);
@@ -716,7 +742,8 @@ mod tests {
             max_iterations: 100,
             function_type: "polynomial".to_string(),
             coefficients: Some(vec![-2.0, 0.0, 1.0]), // x^2 - 2 = 0
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!((result.root - 1.41421356).abs() < 1e-5);
         assert!(result.converged);
@@ -732,7 +759,8 @@ mod tests {
             max_iterations: 100,
             function_type: "polynomial".to_string(),
             coefficients: Some(vec![-2.0, 0.0, 1.0]),
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!((result.root - 1.41421356).abs() < 1e-3);
     }
@@ -746,7 +774,8 @@ mod tests {
             num_points: 100,
             function_type: "polynomial".to_string(),
             coefficients: Some(vec![0.0, 0.0, 1.0]), // x^2
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!((result.integral - 0.333333).abs() < 0.001);
     }
@@ -760,7 +789,8 @@ mod tests {
             num_points: 2,
             function_type: "polynomial".to_string(),
             coefficients: Some(vec![0.0, 0.0, 1.0]),
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!((result.integral - 0.333333).abs() < 0.1);
     }
@@ -786,7 +816,8 @@ mod tests {
             x_values: vec![0.0, 1.0, 2.0],
             y_values: vec![0.0, 1.0, 4.0],
             interpolate_at: vec![0.5, 1.5],
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!((result.interpolated_values[0] - 0.5).abs() < 1e-6);
         assert!((result.interpolated_values[1] - 2.5).abs() < 1e-6);
@@ -799,7 +830,8 @@ mod tests {
             x_values: vec![0.0, 1.0, 2.0],
             y_values: vec![0.0, 1.0, 4.0],
             interpolate_at: vec![0.5],
-        }).unwrap();
+        })
+        .unwrap();
 
         // Should match polynomial x^2
         assert!((result.interpolated_values[0] - 0.25).abs() < 1e-6);
@@ -821,14 +853,12 @@ mod tests {
     fn test_gauss_elimination() {
         let result = solve_linear_system(LinearSystemRequest {
             method: "gauss".to_string(),
-            matrix: vec![
-                vec![2.0, 1.0],
-                vec![1.0, 3.0],
-            ],
+            matrix: vec![vec![2.0, 1.0], vec![1.0, 3.0]],
             rhs: vec![5.0, 6.0],
             tolerance: None,
             max_iterations: None,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!((result.solution[0] - 1.8).abs() < 1e-6);
         assert!((result.solution[1] - 1.4).abs() < 1e-6);
@@ -838,14 +868,12 @@ mod tests {
     fn test_jacobi_iteration() {
         let result = solve_linear_system(LinearSystemRequest {
             method: "jacobi".to_string(),
-            matrix: vec![
-                vec![4.0, 1.0],
-                vec![1.0, 3.0],
-            ],
+            matrix: vec![vec![4.0, 1.0], vec![1.0, 3.0]],
             rhs: vec![1.0, 2.0],
             tolerance: Some(1e-6),
             max_iterations: Some(100),
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.solution.len() == 2);
         assert!(result.iterations.is_some());
@@ -871,7 +899,8 @@ mod tests {
             x_values: vec![0.0, 1.0, 2.0, 3.0],
             y_values: vec![0.0, 1.0, 4.0, 9.0], // x^2
             order: 1,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.derivatives.len() == 4);
         assert!((result.derivatives[0] - 1.0).abs() < 0.5);
@@ -884,7 +913,8 @@ mod tests {
             x_values: vec![0.0, 1.0, 2.0, 3.0],
             y_values: vec![0.0, 1.0, 4.0, 9.0],
             order: 1,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.derivatives.len() == 4);
     }
@@ -896,7 +926,8 @@ mod tests {
             x_values: vec![0.0, 1.0, 2.0, 3.0],
             y_values: vec![0.0, 1.0, 4.0, 9.0],
             order: 1,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.derivatives.len() == 4);
         assert!((result.derivatives[1] - 2.0).abs() < 0.5);
@@ -923,7 +954,8 @@ mod tests {
             t_end: 1.0,
             step_size: 0.1,
             derivative_expression: None,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.t_values.len() > 0);
         assert_eq!(result.t_values.len(), result.y_values.len());
@@ -939,7 +971,8 @@ mod tests {
             t_end: 1.0,
             step_size: 0.1,
             derivative_expression: None,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.method_used == "rk4");
         assert!(result.y_values.len() > 0);
@@ -954,7 +987,8 @@ mod tests {
             t_end: 1.0,
             step_size: 0.1,
             derivative_expression: None,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(result.y_values.len() > 0);
     }
@@ -969,7 +1003,8 @@ mod tests {
             time_steps: 10,
             dx: 0.1,
             dt: 0.01,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(result.solution.len(), 10);
         assert_eq!(result.final_state.len(), 5);
@@ -1000,7 +1035,8 @@ mod tests {
             max_iterations: 5,
             function_type: "polynomial".to_string(),
             coefficients: Some(vec![-2.0, 0.0, 1.0]),
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!(!result.converged || result.iterations <= 5);
     }
@@ -1014,7 +1050,8 @@ mod tests {
             num_points: 10,
             function_type: "polynomial".to_string(),
             coefficients: Some(vec![1.0]), // f(x) = 1
-        }).unwrap();
+        })
+        .unwrap();
 
         assert!((result.integral - 1.0).abs() < 1e-6);
     }
@@ -1028,7 +1065,8 @@ mod tests {
             t_end: 0.0,
             step_size: 0.1,
             derivative_expression: None,
-        }).unwrap();
+        })
+        .unwrap();
 
         assert_eq!(result.t_values.len(), 1);
     }

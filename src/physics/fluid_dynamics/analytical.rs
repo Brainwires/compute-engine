@@ -1,4 +1,4 @@
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use std::error::Error;
 use std::f64::consts::PI;
 
@@ -22,9 +22,11 @@ impl AnalyticalSolutions {
     }
 
     fn couette_flow(&self, params: Value) -> Result<Value, Box<dyn Error>> {
-        let plate_velocity = params["plate_velocity"].as_f64()
+        let plate_velocity = params["plate_velocity"]
+            .as_f64()
             .ok_or("Missing plate_velocity parameter")?;
-        let plate_separation = params["plate_separation"].as_f64()
+        let plate_separation = params["plate_separation"]
+            .as_f64()
             .ok_or("Missing plate_separation parameter")?;
         let num_points = params["num_points"].as_u64().unwrap_or(100) as usize;
 
@@ -40,7 +42,7 @@ impl AnalyticalSolutions {
             let y = (i as f64 / (num_points - 1) as f64) * plate_separation;
             let u = (plate_velocity / plate_separation) * y;
             let tau = viscosity * shear_rate; // constant shear stress
-            
+
             y_coords.push(y);
             velocities.push(u);
             shear_stress.push(tau);
@@ -69,11 +71,14 @@ impl AnalyticalSolutions {
     }
 
     fn poiseuille_flow(&self, params: Value) -> Result<Value, Box<dyn Error>> {
-        let pressure_gradient = params["pressure_gradient"].as_f64()
+        let pressure_gradient = params["pressure_gradient"]
+            .as_f64()
             .ok_or("Missing pressure_gradient parameter")?;
-        let channel_height = params["channel_height"].as_f64()
+        let channel_height = params["channel_height"]
+            .as_f64()
             .ok_or("Missing channel_height parameter")?;
-        let viscosity = params["viscosity"].as_f64()
+        let viscosity = params["viscosity"]
+            .as_f64()
             .ok_or("Missing viscosity parameter")?;
         let num_points = params["num_points"].as_u64().unwrap_or(100) as usize;
 
@@ -91,7 +96,7 @@ impl AnalyticalSolutions {
             let y = (i as f64 / (num_points - 1) as f64) * channel_height;
             let u = (-pressure_gradient / (2.0 * viscosity)) * y * (channel_height - y);
             let tau = -pressure_gradient * (channel_height / 2.0 - y);
-            
+
             y_coords.push(y);
             velocities.push(u);
             shear_stress.push(tau);
@@ -124,7 +129,8 @@ impl AnalyticalSolutions {
     }
 
     fn stagnation_point_flow(&self, params: Value) -> Result<Value, Box<dyn Error>> {
-        let strain_rate = params["strain_rate"].as_f64()
+        let strain_rate = params["strain_rate"]
+            .as_f64()
             .ok_or("Missing strain_rate parameter")?;
         let domain_size = params["domain_size"].as_f64().unwrap_or(2.0);
         let num_points = params["num_points"].as_u64().unwrap_or(50) as usize;
@@ -137,37 +143,37 @@ impl AnalyticalSolutions {
         let mut pressure_field = Vec::new();
 
         let density = params["density"].as_f64().unwrap_or(1.0);
-        
+
         for i in 0..num_points {
             let mut u_row = Vec::new();
             let mut v_row = Vec::new();
             let mut p_row = Vec::new();
-            
+
             let y = (i as f64 / (num_points - 1) as f64 - 0.5) * domain_size;
             y_coords.push(y);
-            
+
             if i == 0 {
                 for j in 0..num_points {
                     let x = (j as f64 / (num_points - 1) as f64 - 0.5) * domain_size;
                     x_coords.push(x);
                 }
             }
-            
+
             for j in 0..num_points {
                 let x = x_coords[j];
-                
+
                 // Stagnation point flow: u = ax, v = -ay
                 let u = strain_rate * x;
                 let v = -strain_rate * y;
-                
+
                 // Pressure field: p = p0 - (ρa²/2)(x² + y²)
                 let p = -0.5 * density * strain_rate.powi(2) * (x.powi(2) + y.powi(2));
-                
+
                 u_row.push(u);
                 v_row.push(v);
                 p_row.push(p);
             }
-            
+
             u_field.push(u_row);
             v_field.push(v_row);
             pressure_field.push(p_row);
@@ -202,7 +208,8 @@ impl AnalyticalSolutions {
     }
 
     fn rotating_flow(&self, params: Value) -> Result<Value, Box<dyn Error>> {
-        let angular_velocity = params["angular_velocity"].as_f64()
+        let angular_velocity = params["angular_velocity"]
+            .as_f64()
             .ok_or("Missing angular_velocity parameter")?;
         let radius_max = params["radius_max"].as_f64().unwrap_or(1.0);
         let num_points = params["num_points"].as_u64().unwrap_or(50) as usize;
@@ -211,7 +218,7 @@ impl AnalyticalSolutions {
         let mut r_coords = Vec::new();
         let mut theta_coords = Vec::new();
         let mut velocity_theta = Vec::new();
-        
+
         // Cartesian field for visualization
         let mut x_coords = Vec::new();
         let mut y_coords = Vec::new();
@@ -222,7 +229,7 @@ impl AnalyticalSolutions {
         for i in 0..num_points {
             let r = (i as f64 / (num_points - 1) as f64) * radius_max;
             let v_theta = angular_velocity * r; // solid body rotation
-            
+
             r_coords.push(r);
             velocity_theta.push(v_theta);
         }
@@ -231,34 +238,34 @@ impl AnalyticalSolutions {
         for i in 0..num_points {
             let mut u_row = Vec::new();
             let mut v_row = Vec::new();
-            
+
             let y = (i as f64 / (num_points - 1) as f64 - 0.5) * 2.0 * radius_max;
             y_coords.push(y);
-            
+
             if i == 0 {
                 for j in 0..num_points {
                     let x = (j as f64 / (num_points - 1) as f64 - 0.5) * 2.0 * radius_max;
                     x_coords.push(x);
                 }
             }
-            
+
             for j in 0..num_points {
                 let x = x_coords[j];
-                
+
                 // Convert to cylindrical and back for rotating flow
                 let r = (x.powi(2) + y.powi(2)).sqrt();
-                
+
                 if r > 0.0 {
                     // Solid body rotation: v_θ = ωr
                     let v_theta = angular_velocity * r;
-                    
+
                     // Convert to Cartesian: u = -v_θ sin(θ), v = v_θ cos(θ)
                     let sin_theta = y / r;
                     let cos_theta = x / r;
-                    
+
                     let u = -v_theta * sin_theta;
                     let v = v_theta * cos_theta;
-                    
+
                     u_row.push(u);
                     v_row.push(v);
                 } else {
@@ -266,13 +273,14 @@ impl AnalyticalSolutions {
                     v_row.push(0.0);
                 }
             }
-            
+
             u_field.push(u_row);
             v_field.push(v_row);
         }
 
         // Generate angular data
-        for i in 0..36 { // 10-degree increments
+        for i in 0..36 {
+            // 10-degree increments
             let theta = (i as f64 * 10.0) * PI / 180.0;
             theta_coords.push(theta);
         }
@@ -309,7 +317,8 @@ impl AnalyticalSolutions {
     }
 
     fn potential_vortex(&self, params: Value) -> Result<Value, Box<dyn Error>> {
-        let circulation = params["circulation"].as_f64()
+        let circulation = params["circulation"]
+            .as_f64()
             .ok_or("Missing circulation parameter")?;
         let core_radius = params["core_radius"].as_f64().unwrap_or(0.1);
         let radius_max = params["radius_max"].as_f64().unwrap_or(2.0);
@@ -319,10 +328,11 @@ impl AnalyticalSolutions {
         let mut r_coords = Vec::new();
         let mut velocity_theta = Vec::new();
 
-        for i in 1..num_points { // Start from i=1 to avoid r=0
+        for i in 1..num_points {
+            // Start from i=1 to avoid r=0
             let r = core_radius + (i as f64 / (num_points - 1) as f64) * (radius_max - core_radius);
             let v_theta = circulation / (2.0 * PI * r);
-            
+
             r_coords.push(r);
             velocity_theta.push(v_theta);
         }
@@ -353,9 +363,11 @@ impl AnalyticalSolutions {
     }
 
     fn rankine_vortex(&self, params: Value) -> Result<Value, Box<dyn Error>> {
-        let circulation = params["circulation"].as_f64()
+        let circulation = params["circulation"]
+            .as_f64()
             .ok_or("Missing circulation parameter")?;
-        let core_radius = params["core_radius"].as_f64()
+        let core_radius = params["core_radius"]
+            .as_f64()
             .ok_or("Missing core_radius parameter")?;
         let radius_max = params["radius_max"].as_f64().unwrap_or(3.0);
         let num_points = params["num_points"].as_u64().unwrap_or(100) as usize;
@@ -369,7 +381,7 @@ impl AnalyticalSolutions {
 
         for i in 0..num_points {
             let r = (i as f64 / (num_points - 1) as f64) * radius_max;
-            
+
             let (v_theta, omega) = if r <= core_radius {
                 // Inside core: solid body rotation
                 let v_theta = omega_core * r / 2.0;
@@ -379,7 +391,7 @@ impl AnalyticalSolutions {
                 let v_theta = circulation / (2.0 * PI * r);
                 (v_theta, 0.0)
             };
-            
+
             r_coords.push(r);
             velocity_theta.push(v_theta);
             vorticity.push(omega);

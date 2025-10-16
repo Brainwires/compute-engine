@@ -9,7 +9,6 @@
  * - Time zone conversions
  * - Calendar-aware operations
  */
-
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -22,27 +21,27 @@ pub struct DateTimeInput {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum DateTimeOperation {
-    AddInterval,           // Add days/months/years to a date
-    SubtractInterval,      // Subtract days/months/years from a date
-    DateDifference,        // Calculate difference between two dates
-    AgeCurrent,            // Calculate age from birthdate to now
-    AgeAtDate,             // Calculate age at a specific date
-    BusinessDays,          // Count business days between dates
-    IsLeapYear,            // Check if year is leap year
-    DaysInMonth,           // Get number of days in a month
-    WeekNumber,            // Get week number in year
-    DayOfWeek,             // Get day of week (0=Sunday, 6=Saturday)
-    AddBusinessDays,       // Add N business days to a date
+    AddInterval,      // Add days/months/years to a date
+    SubtractInterval, // Subtract days/months/years from a date
+    DateDifference,   // Calculate difference between two dates
+    AgeCurrent,       // Calculate age from birthdate to now
+    AgeAtDate,        // Calculate age at a specific date
+    BusinessDays,     // Count business days between dates
+    IsLeapYear,       // Check if year is leap year
+    DaysInMonth,      // Get number of days in a month
+    WeekNumber,       // Get week number in year
+    DayOfWeek,        // Get day of week (0=Sunday, 6=Saturday)
+    AddBusinessDays,  // Add N business days to a date
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DateTimeParams {
     // Date inputs (ISO 8601 format: YYYY-MM-DD)
-    pub date1: Option<String>,              // Primary date
-    pub date2: Option<String>,              // Secondary date (for differences)
+    pub date1: Option<String>, // Primary date
+    pub date2: Option<String>, // Secondary date (for differences)
     pub year: Option<i32>,
-    pub month: Option<u32>,                 // 1-12
-    pub day: Option<u32>,                   // 1-31
+    pub month: Option<u32>, // 1-12
+    pub day: Option<u32>,   // 1-31
 
     // Interval inputs
     pub days: Option<i64>,
@@ -51,15 +50,15 @@ pub struct DateTimeParams {
     pub years: Option<i64>,
 
     // Options
-    pub include_end_date: Option<bool>,     // For date ranges
-    pub exclude_weekends: Option<bool>,     // For business day calculations
+    pub include_end_date: Option<bool>,        // For date ranges
+    pub exclude_weekends: Option<bool>,        // For business day calculations
     pub exclude_holidays: Option<Vec<String>>, // List of holiday dates
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DateTimeResult {
-    pub value: String,                      // Result date or number as string
-    pub numeric_value: Option<f64>,         // Numeric result (days, years, etc.)
+    pub value: String,              // Result date or number as string
+    pub numeric_value: Option<f64>, // Numeric result (days, years, etc.)
     pub unit: String,
     pub operation_used: String,
     pub interpretation: String,
@@ -113,11 +112,14 @@ impl Date {
             return Err(format!("Invalid date format: {}. Use YYYY-MM-DD", s));
         }
 
-        let year = parts[0].parse::<i32>()
+        let year = parts[0]
+            .parse::<i32>()
             .map_err(|_| format!("Invalid year: {}", parts[0]))?;
-        let month = parts[1].parse::<u32>()
+        let month = parts[1]
+            .parse::<u32>()
             .map_err(|_| format!("Invalid month: {}", parts[1]))?;
-        let day = parts[2].parse::<u32>()
+        let day = parts[2]
+            .parse::<u32>()
             .map_err(|_| format!("Invalid day: {}", parts[2]))?;
 
         Self::new(year, month, day)
@@ -135,7 +137,13 @@ impl Date {
         match month {
             1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
             4 | 6 | 9 | 11 => 30,
-            2 => if Self::is_leap_year(year) { 29 } else { 28 },
+            2 => {
+                if Self::is_leap_year(year) {
+                    29
+                } else {
+                    28
+                }
+            }
             _ => 0,
         }
     }
@@ -258,7 +266,7 @@ impl Date {
 
     fn is_weekend(&self) -> bool {
         let dow = self.day_of_week();
-        dow == 0 || dow == 6  // Sunday or Saturday
+        dow == 0 || dow == 6 // Sunday or Saturday
     }
 
     fn week_number(&self) -> u32 {
@@ -358,7 +366,10 @@ fn date_difference(params: &DateTimeParams) -> Result<DateTimeResult, String> {
     info.insert("total_days".to_string(), days_diff.to_string());
     info.insert("weeks".to_string(), weeks.to_string());
     info.insert("remaining_days".to_string(), remaining_days.to_string());
-    info.insert("approx_years".to_string(), format!("{:.2}", approx_years as f64 / 1.0));
+    info.insert(
+        "approx_years".to_string(),
+        format!("{:.2}", approx_years as f64 / 1.0),
+    );
     info.insert("approx_months".to_string(), approx_months.to_string());
 
     let direction = if days_diff > 0 { "after" } else { "before" };
@@ -368,7 +379,13 @@ fn date_difference(params: &DateTimeParams) -> Result<DateTimeResult, String> {
         numeric_value: Some(days_diff as f64),
         unit: "days".to_string(),
         operation_used: "Date2 - Date1".to_string(),
-        interpretation: format!("{} is {} days {} {}", date2_str, days_diff.abs(), direction, date1_str),
+        interpretation: format!(
+            "{} is {} days {} {}",
+            date2_str,
+            days_diff.abs(),
+            direction,
+            date1_str
+        ),
         additional_info: Some(info),
     })
 }
@@ -401,7 +418,10 @@ fn age_current(params: &DateTimeParams) -> Result<DateTimeResult, String> {
 
 fn age_at_date(params: &DateTimeParams) -> Result<DateTimeResult, String> {
     let birthdate_str = params.date1.as_ref().ok_or("date1 (birthdate) required")?;
-    let target_date_str = params.date2.as_ref().ok_or("date2 (target date) required")?;
+    let target_date_str = params
+        .date2
+        .as_ref()
+        .ok_or("date2 (target date) required")?;
 
     let birthdate = Date::from_iso_string(birthdate_str)?;
     let target_date = Date::from_iso_string(target_date_str)?;
@@ -436,8 +456,14 @@ fn business_days(params: &DateTimeParams) -> Result<DateTimeResult, String> {
     let mut current = date1.min(date2);
     let end = date1.max(date2);
 
-    let holidays: Vec<Date> = params.exclude_holidays.as_ref()
-        .map(|h| h.iter().filter_map(|s| Date::from_iso_string(s).ok()).collect())
+    let holidays: Vec<Date> = params
+        .exclude_holidays
+        .as_ref()
+        .map(|h| {
+            h.iter()
+                .filter_map(|s| Date::from_iso_string(s).ok())
+                .collect()
+        })
         .unwrap_or_default();
 
     while current <= end {
@@ -449,7 +475,10 @@ fn business_days(params: &DateTimeParams) -> Result<DateTimeResult, String> {
 
     let mut info = HashMap::new();
     info.insert("total_days".to_string(), total_days.to_string());
-    info.insert("weekend_days".to_string(), (total_days - business_days).to_string());
+    info.insert(
+        "weekend_days".to_string(),
+        (total_days - business_days).to_string(),
+    );
 
     Ok(DateTimeResult {
         value: business_days.to_string(),
@@ -466,8 +495,14 @@ fn add_business_days(params: &DateTimeParams) -> Result<DateTimeResult, String> 
     let days_to_add = params.days.ok_or("days required")?.abs();
 
     let mut date = Date::from_iso_string(date_str)?;
-    let holidays: Vec<Date> = params.exclude_holidays.as_ref()
-        .map(|h| h.iter().filter_map(|s| Date::from_iso_string(s).ok()).collect())
+    let holidays: Vec<Date> = params
+        .exclude_holidays
+        .as_ref()
+        .map(|h| {
+            h.iter()
+                .filter_map(|s| Date::from_iso_string(s).ok())
+                .collect()
+        })
         .unwrap_or_default();
 
     let mut business_days_added = 0i64;
@@ -480,14 +515,21 @@ fn add_business_days(params: &DateTimeParams) -> Result<DateTimeResult, String> 
     }
 
     let mut info = HashMap::new();
-    info.insert("business_days_added".to_string(), business_days_added.to_string());
+    info.insert(
+        "business_days_added".to_string(),
+        business_days_added.to_string(),
+    );
 
     Ok(DateTimeResult {
         value: date.to_iso_string(),
         numeric_value: Some(business_days_added as f64),
         unit: "date".to_string(),
         operation_used: "Add business days".to_string(),
-        interpretation: format!("Date after {} business days: {}", business_days_added, date.to_iso_string()),
+        interpretation: format!(
+            "Date after {} business days: {}",
+            business_days_added,
+            date.to_iso_string()
+        ),
         additional_info: Some(info),
     })
 }
@@ -498,14 +540,21 @@ fn is_leap_year(params: &DateTimeParams) -> Result<DateTimeResult, String> {
 
     let mut info = HashMap::new();
     info.insert("year".to_string(), year.to_string());
-    info.insert("days_in_year".to_string(), if is_leap { "366" } else { "365" }.to_string());
+    info.insert(
+        "days_in_year".to_string(),
+        if is_leap { "366" } else { "365" }.to_string(),
+    );
 
     Ok(DateTimeResult {
         value: is_leap.to_string(),
         numeric_value: Some(if is_leap { 1.0 } else { 0.0 }),
         unit: "boolean".to_string(),
         operation_used: "Leap year check".to_string(),
-        interpretation: format!("{} is {} a leap year", year, if is_leap { "" } else { "not" }),
+        interpretation: format!(
+            "{} is {} a leap year",
+            year,
+            if is_leap { "" } else { "not" }
+        ),
         additional_info: Some(info),
     })
 }
@@ -520,8 +569,21 @@ fn days_in_month(params: &DateTimeParams) -> Result<DateTimeResult, String> {
 
     let days = Date::days_in_month_static(year, month);
 
-    let month_name = ["", "January", "February", "March", "April", "May", "June",
-                     "July", "August", "September", "October", "November", "December"][month as usize];
+    let month_name = [
+        "",
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ][month as usize];
 
     let mut info = HashMap::new();
     info.insert("year".to_string(), year.to_string());
@@ -563,7 +625,15 @@ fn day_of_week(params: &DateTimeParams) -> Result<DateTimeResult, String> {
     let date = Date::from_iso_string(date_str)?;
 
     let dow = date.day_of_week();
-    let day_names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    let day_names = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+    ];
     let day_name = day_names[dow as usize];
 
     let mut info = HashMap::new();

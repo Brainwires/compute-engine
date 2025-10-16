@@ -9,13 +9,13 @@
 
 pub mod fractional;
 pub mod special_functions;
-pub mod variational;
 pub mod stochastic;
 pub mod symbolic_integration;
+pub mod variational;
 
 // Re-export main functions for convenience
 pub use fractional::*;
 pub use special_functions::*;
-pub use variational::*;
 pub use stochastic::*;
 pub use symbolic_integration::*;
+pub use variational::*;

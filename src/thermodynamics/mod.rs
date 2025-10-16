@@ -7,7 +7,6 @@
  * - Entropy calculations
  * - (Future: enthalpy, cycles, phase transitions)
  */
-
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -29,35 +28,35 @@ pub enum ThermodynamicsOperation {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ThermodynamicsParams {
     // Heat Transfer - Conduction
-    pub thermal_conductivity: Option<f64>,  // k (W/(m·K))
-    pub area: Option<f64>,                  // A (m²)
-    pub temperature_gradient: Option<f64>,  // dT/dx (K/m)
-    pub thickness: Option<f64>,             // L (m)
+    pub thermal_conductivity: Option<f64>, // k (W/(m·K))
+    pub area: Option<f64>,                 // A (m²)
+    pub temperature_gradient: Option<f64>, // dT/dx (K/m)
+    pub thickness: Option<f64>,            // L (m)
     pub temp_hot: Option<f64>,             // T1 (K or °C)
     pub temp_cold: Option<f64>,            // T2 (K or °C)
 
     // Heat Transfer - Convection
     pub heat_transfer_coefficient: Option<f64>, // h (W/(m²·K))
-    pub surface_temp: Option<f64>,             // Ts (K or °C)
-    pub fluid_temp: Option<f64>,               // T∞ (K or °C)
+    pub surface_temp: Option<f64>,              // Ts (K or °C)
+    pub fluid_temp: Option<f64>,                // T∞ (K or °C)
 
     // Heat Transfer - Radiation
-    pub emissivity: Option<f64>,               // ε (0-1)
-    pub surface_temp_1: Option<f64>,           // T1 (K)
-    pub surface_temp_2: Option<f64>,           // T2 (K)
+    pub emissivity: Option<f64>,     // ε (0-1)
+    pub surface_temp_1: Option<f64>, // T1 (K)
+    pub surface_temp_2: Option<f64>, // T2 (K)
 
     // Thermal resistance
-    pub resistances: Option<Vec<f64>>,         // R values (K/W)
-    pub configuration: Option<String>,          // "series" or "parallel"
+    pub resistances: Option<Vec<f64>>, // R values (K/W)
+    pub configuration: Option<String>, // "series" or "parallel"
 
     // Entropy calculations
-    pub heat_transfer: Option<f64>,            // Q (J)
-    pub temperature: Option<f64>,              // T (K)
-    pub mass: Option<f64>,                     // m (kg)
-    pub specific_heat: Option<f64>,            // c (J/(kg·K))
-    pub initial_temp: Option<f64>,             // T1 (K)
-    pub final_temp: Option<f64>,               // T2 (K)
-    pub num_microstates: Option<f64>,          // Ω (for Boltzmann entropy)
+    pub heat_transfer: Option<f64>,   // Q (J)
+    pub temperature: Option<f64>,     // T (K)
+    pub mass: Option<f64>,            // m (kg)
+    pub specific_heat: Option<f64>,   // c (J/(kg·K))
+    pub initial_temp: Option<f64>,    // T1 (K)
+    pub final_temp: Option<f64>,      // T2 (K)
+    pub num_microstates: Option<f64>, // Ω (for Boltzmann entropy)
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -72,7 +71,9 @@ pub struct ThermodynamicsResult {
 const STEFAN_BOLTZMANN: f64 = 5.67e-8; // W/(m²·K⁴)
 const BOLTZMANN_CONSTANT: f64 = 1.380649e-23; // J/K
 
-pub fn calculate_thermodynamics(input: ThermodynamicsInput) -> Result<ThermodynamicsResult, String> {
+pub fn calculate_thermodynamics(
+    input: ThermodynamicsInput,
+) -> Result<ThermodynamicsResult, String> {
     match input.operation {
         ThermodynamicsOperation::Conduction => calculate_conduction(&input.parameters),
         ThermodynamicsOperation::Convection => calculate_convection(&input.parameters),
@@ -84,7 +85,9 @@ pub fn calculate_thermodynamics(input: ThermodynamicsInput) -> Result<Thermodyna
 
 /// Fourier's law: q = -k·A·(dT/dx)
 fn calculate_conduction(params: &ThermodynamicsParams) -> Result<ThermodynamicsResult, String> {
-    let k = params.thermal_conductivity.ok_or("Thermal conductivity required")?;
+    let k = params
+        .thermal_conductivity
+        .ok_or("Thermal conductivity required")?;
     let area = params.area.ok_or("Area required")?;
 
     let heat_rate = if let Some(grad) = params.temperature_gradient {
@@ -118,7 +121,9 @@ fn calculate_conduction(params: &ThermodynamicsParams) -> Result<ThermodynamicsR
 
 /// Newton's law of cooling: q = h·A·(Ts - T∞)
 fn calculate_convection(params: &ThermodynamicsParams) -> Result<ThermodynamicsResult, String> {
-    let h = params.heat_transfer_coefficient.ok_or("Heat transfer coefficient required")?;
+    let h = params
+        .heat_transfer_coefficient
+        .ok_or("Heat transfer coefficient required")?;
     let area = params.area.ok_or("Area required")?;
     let t_surface = params.surface_temp.ok_or("Surface temperature required")?;
     let t_fluid = params.fluid_temp.ok_or("Fluid temperature required")?;
@@ -149,7 +154,9 @@ fn calculate_convection(params: &ThermodynamicsParams) -> Result<ThermodynamicsR
 fn calculate_radiation(params: &ThermodynamicsParams) -> Result<ThermodynamicsResult, String> {
     let emissivity = params.emissivity.ok_or("Emissivity required")?;
     let area = params.area.ok_or("Area required")?;
-    let t1 = params.surface_temp_1.ok_or("Surface 1 temperature (K) required")?;
+    let t1 = params
+        .surface_temp_1
+        .ok_or("Surface 1 temperature (K) required")?;
     let t2 = params.surface_temp_2.unwrap_or(0.0); // Default to radiation to space
 
     if emissivity < 0.0 || emissivity > 1.0 {
@@ -184,7 +191,9 @@ fn calculate_radiation(params: &ThermodynamicsParams) -> Result<ThermodynamicsRe
 /// Thermal resistance networks
 fn calculate_resistance(params: &ThermodynamicsParams) -> Result<ThermodynamicsResult, String> {
     let resistances = params.resistances.as_ref().ok_or("Resistances required")?;
-    let config = params.configuration.as_ref()
+    let config = params
+        .configuration
+        .as_ref()
         .map(|s| s.as_str())
         .unwrap_or("series");
 
@@ -236,9 +245,15 @@ fn calculate_entropy(params: &ThermodynamicsParams) -> Result<ThermodynamicsResu
         let delta_s = q / t;
 
         let interpretation = if delta_s > 0.0 {
-            format!("Entropy increases by {:.4} J/K (heat added to system)", delta_s)
+            format!(
+                "Entropy increases by {:.4} J/K (heat added to system)",
+                delta_s
+            )
         } else if delta_s < 0.0 {
-            format!("Entropy decreases by {:.4} J/K (heat removed from system)", delta_s.abs())
+            format!(
+                "Entropy decreases by {:.4} J/K (heat removed from system)",
+                delta_s.abs()
+            )
         } else {
             "No entropy change (reversible process)".to_string()
         };
@@ -277,9 +292,12 @@ fn calculate_entropy(params: &ThermodynamicsParams) -> Result<ThermodynamicsResu
     }
 
     // Method 3: Thermal entropy change ΔS = m·c·ln(T₂/T₁)
-    if let (Some(m), Some(c), Some(t1), Some(t2)) =
-        (params.mass, params.specific_heat, params.initial_temp, params.final_temp) {
-
+    if let (Some(m), Some(c), Some(t1), Some(t2)) = (
+        params.mass,
+        params.specific_heat,
+        params.initial_temp,
+        params.final_temp,
+    ) {
         if t1 <= 0.0 || t2 <= 0.0 {
             return Err("Temperatures must be positive (use Kelvin)".to_string());
         }
@@ -287,9 +305,15 @@ fn calculate_entropy(params: &ThermodynamicsParams) -> Result<ThermodynamicsResu
         let delta_s = m * c * (t2 / t1).ln();
 
         let interpretation = if t2 > t1 {
-            format!("Heating: entropy increases by {:.4} J/K ({:.1}K → {:.1}K)", delta_s, t1, t2)
+            format!(
+                "Heating: entropy increases by {:.4} J/K ({:.1}K → {:.1}K)",
+                delta_s, t1, t2
+            )
         } else if t2 < t1 {
-            format!("Cooling: entropy changes by {:.4} J/K ({:.1}K → {:.1}K)", delta_s, t1, t2)
+            format!(
+                "Cooling: entropy changes by {:.4} J/K ({:.1}K → {:.1}K)",
+                delta_s, t1, t2
+            )
         } else {
             "No temperature change, no entropy change".to_string()
         };
@@ -309,10 +333,13 @@ fn calculate_entropy(params: &ThermodynamicsParams) -> Result<ThermodynamicsResu
         });
     }
 
-    Err("Insufficient parameters for entropy calculation. Provide either:\n\
+    Err(
+        "Insufficient parameters for entropy calculation. Provide either:\n\
          1. heat_transfer + temperature (Clausius)\n\
          2. num_microstates (Boltzmann)\n\
-         3. mass + specific_heat + initial_temp + final_temp (Thermal)".to_string())
+         3. mass + specific_heat + initial_temp + final_temp (Thermal)"
+            .to_string(),
+    )
 }
 
 #[cfg(test)]
@@ -342,7 +369,7 @@ mod tests {
     fn test_conduction_high_conductivity() {
         let params = ThermodynamicsParams {
             thermal_conductivity: Some(400.0), // W/(m·K) - copper
-            area: Some(0.01), // 10 cm²
+            area: Some(0.01),                  // 10 cm²
             temp_hot: Some(373.0),
             temp_cold: Some(293.0),
             thickness: Some(0.05), // 5 cm
@@ -440,7 +467,7 @@ mod tests {
             emissivity: Some(0.9),
             area: Some(1.0),
             surface_temp_1: Some(300.0), // Room temp
-            surface_temp_2: None, // Defaults to 0K (space)
+            surface_temp_2: None,        // Defaults to 0K (space)
             ..Default::default()
         };
 
@@ -550,10 +577,10 @@ mod tests {
     #[test]
     fn test_entropy_thermal_heating() {
         let params = ThermodynamicsParams {
-            mass: Some(1.0),          // 1 kg water
+            mass: Some(1.0),             // 1 kg water
             specific_heat: Some(4186.0), // J/(kg·K) for water
-            initial_temp: Some(293.0), // 20°C
-            final_temp: Some(373.0),   // 100°C
+            initial_temp: Some(293.0),   // 20°C
+            final_temp: Some(373.0),     // 100°C
             ..Default::default()
         };
 

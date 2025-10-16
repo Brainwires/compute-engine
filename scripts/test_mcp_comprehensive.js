@@ -4,7 +4,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 async function testMCP() {
-    const serverPath = path.join(__dirname, 'target/debug/computational-engine');
+    const serverPath = path.join(__dirname, 'target/debug/brainwires-compute-engine');
     console.log('=== Starting MCP Server Test ===\n');
 
     const server = spawn(serverPath, ['mcp-server'], {

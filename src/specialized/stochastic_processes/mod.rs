@@ -8,9 +8,7 @@
 
 mod lib;
 pub use lib::{
-    BrownianMotionParams, generate_brownian_motion,
-    MarkovChainParams, simulate_markov_chain,
-    StochasticIntegralParams, compute_stochastic_integral_monte_carlo,
-    generate_ornstein_uhlenbeck_process,
-    simulate_poisson_process,
+    BrownianMotionParams, MarkovChainParams, StochasticIntegralParams,
+    compute_stochastic_integral_monte_carlo, generate_brownian_motion,
+    generate_ornstein_uhlenbeck_process, simulate_markov_chain, simulate_poisson_process,
 };

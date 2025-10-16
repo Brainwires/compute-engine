@@ -3,10 +3,10 @@
 //! Provides symbolic computation of connection coefficients, curvature tensors,
 //! and other differential geometry operations for general relativity.
 
-use super::{Expr, SymbolicMatrix, SymbolicTensor, IndexType, SymbolicResult, SymbolicError};
 use super::differentiate::differentiate as diff;
-use super::symbolic_eigenvalues::matrix_inverse;
 use super::simplify::simplify;
+use super::symbolic_eigenvalues::matrix_inverse;
+use super::{Expr, IndexType, SymbolicError, SymbolicMatrix, SymbolicResult, SymbolicTensor};
 
 /// Compute Christoffel symbols of the second kind from a metric tensor
 ///
@@ -25,9 +25,11 @@ pub fn christoffel_symbols(
     let n = metric.rows();
 
     if coords.len() != n {
-        return Err(SymbolicError::InvalidOperation(
-            format!("Number of coordinates ({}) must match metric dimension ({})", coords.len(), n)
-        ));
+        return Err(SymbolicError::InvalidOperation(format!(
+            "Number of coordinates ({}) must match metric dimension ({})",
+            coords.len(),
+            n
+        )));
     }
 
     // Compute inverse metric g^μν
@@ -38,8 +40,9 @@ pub fn christoffel_symbols(
 
     for i in 0..n {
         for j in 0..n {
-            let g_ij = metric.get(i, j)
-                .ok_or_else(|| SymbolicError::InvalidOperation("Invalid metric indices".to_string()))?;
+            let g_ij = metric.get(i, j).ok_or_else(|| {
+                SymbolicError::InvalidOperation("Invalid metric indices".to_string())
+            })?;
 
             for k in 0..n {
                 // ∂_k g_ij
@@ -57,8 +60,11 @@ pub fn christoffel_symbols(
                 let mut sum = Expr::num(0);
 
                 for sigma in 0..n {
-                    let g_inv = inverse_metric.get(mu, sigma)
-                        .ok_or_else(|| SymbolicError::InvalidOperation("Invalid inverse metric indices".to_string()))?;
+                    let g_inv = inverse_metric.get(mu, sigma).ok_or_else(|| {
+                        SymbolicError::InvalidOperation(
+                            "Invalid inverse metric indices".to_string(),
+                        )
+                    })?;
 
                     // ∂_ν g_σλ
                     let term1 = metric_derivatives[nu][sigma][lambda].clone();
@@ -70,10 +76,8 @@ pub fn christoffel_symbols(
                     let term3 = metric_derivatives[sigma][nu][lambda].clone();
 
                     // (∂_ν g_σλ + ∂_λ g_σν - ∂_σ g_νλ)
-                    let bracket = Expr::add(
-                        Expr::add(term1, term2),
-                        Expr::mul(Expr::num(-1), term3)
-                    );
+                    let bracket =
+                        Expr::add(Expr::add(term1, term2), Expr::mul(Expr::num(-1), term3));
 
                     // g^μσ * bracket
                     let contribution = Expr::mul(g_inv.clone(), bracket);
@@ -91,7 +95,11 @@ pub fn christoffel_symbols(
     // Create rank-3 tensor: Γ^μ_νλ (contravariant, covariant, covariant)
     SymbolicTensor::new(
         vec![n, n, n],
-        vec![IndexType::Contravariant, IndexType::Covariant, IndexType::Covariant],
+        vec![
+            IndexType::Contravariant,
+            IndexType::Covariant,
+            IndexType::Covariant,
+        ],
         christoffel_data,
     )
 }
@@ -106,9 +114,11 @@ pub fn christoffel_first_kind(
     let n = metric.rows();
 
     if coords.len() != n {
-        return Err(SymbolicError::InvalidOperation(
-            format!("Number of coordinates ({}) must match metric dimension ({})", coords.len(), n)
-        ));
+        return Err(SymbolicError::InvalidOperation(format!(
+            "Number of coordinates ({}) must match metric dimension ({})",
+            coords.len(),
+            n
+        )));
     }
 
     // Compute partial derivatives of metric components
@@ -116,8 +126,9 @@ pub fn christoffel_first_kind(
 
     for i in 0..n {
         for j in 0..n {
-            let g_ij = metric.get(i, j)
-                .ok_or_else(|| SymbolicError::InvalidOperation("Invalid metric indices".to_string()))?;
+            let g_ij = metric.get(i, j).ok_or_else(|| {
+                SymbolicError::InvalidOperation("Invalid metric indices".to_string())
+            })?;
 
             for k in 0..n {
                 metric_derivatives[k][i][j] = diff(g_ij, coords[k]);
@@ -137,10 +148,7 @@ pub fn christoffel_first_kind(
 
                 let gamma = Expr::mul(
                     Expr::rational_unchecked(1, 2),
-                    Expr::add(
-                        Expr::add(term1, term2),
-                        Expr::mul(Expr::num(-1), term3)
-                    )
+                    Expr::add(Expr::add(term1, term2), Expr::mul(Expr::num(-1), term3)),
                 );
                 let gamma = simplify(&gamma);
 
@@ -152,7 +160,11 @@ pub fn christoffel_first_kind(
     // All indices are covariant
     SymbolicTensor::new(
         vec![n, n, n],
-        vec![IndexType::Covariant, IndexType::Covariant, IndexType::Covariant],
+        vec![
+            IndexType::Covariant,
+            IndexType::Covariant,
+            IndexType::Covariant,
+        ],
         christoffel_data,
     )
 }
@@ -179,10 +191,7 @@ pub fn geodesic_coefficients(
 ///
 /// # Returns
 /// A rank-4 tensor with index structure (contravariant, covariant, covariant, covariant)
-pub fn riemann_tensor(
-    metric: &SymbolicMatrix,
-    coords: &[&str],
-) -> SymbolicResult<SymbolicTensor> {
+pub fn riemann_tensor(metric: &SymbolicMatrix, coords: &[&str]) -> SymbolicResult<SymbolicTensor> {
     let n = metric.rows();
 
     // First compute Christoffel symbols
@@ -236,7 +245,7 @@ pub fn riemann_tensor(
                     // R^ρ_σμν = ∂_μ Γ^ρ_νσ - ∂_ν Γ^ρ_μσ + Γ^ρ_μλ Γ^λ_νσ - Γ^ρ_νλ Γ^λ_μσ
                     let riemann_component = Expr::add(
                         Expr::add(term1, Expr::mul(Expr::num(-1), term2)),
-                        Expr::add(term3, Expr::mul(Expr::num(-1), term4))
+                        Expr::add(term3, Expr::mul(Expr::num(-1), term4)),
                     );
 
                     let riemann_component = simplify(&riemann_component);
@@ -269,10 +278,7 @@ pub fn riemann_tensor(
 ///
 /// # Returns
 /// A rank-2 covariant tensor (Ricci tensor)
-pub fn ricci_tensor(
-    metric: &SymbolicMatrix,
-    coords: &[&str],
-) -> SymbolicResult<SymbolicMatrix> {
+pub fn ricci_tensor(metric: &SymbolicMatrix, coords: &[&str]) -> SymbolicResult<SymbolicMatrix> {
     let n = metric.rows();
 
     // Compute Riemann tensor
@@ -308,10 +314,7 @@ pub fn ricci_tensor(
 ///
 /// # Returns
 /// The Ricci scalar as a symbolic expression
-pub fn ricci_scalar(
-    metric: &SymbolicMatrix,
-    coords: &[&str],
-) -> SymbolicResult<Expr> {
+pub fn ricci_scalar(metric: &SymbolicMatrix, coords: &[&str]) -> SymbolicResult<Expr> {
     let n = metric.rows();
 
     // Compute Ricci tensor
@@ -325,10 +328,12 @@ pub fn ricci_scalar(
 
     for mu in 0..n {
         for nu in 0..n {
-            let g_inv = inv_metric.get(mu, nu)
-                .ok_or_else(|| SymbolicError::InvalidOperation("Invalid metric indices".to_string()))?;
-            let r_mn = ricci.get(mu, nu)
-                .ok_or_else(|| SymbolicError::InvalidOperation("Invalid Ricci indices".to_string()))?;
+            let g_inv = inv_metric.get(mu, nu).ok_or_else(|| {
+                SymbolicError::InvalidOperation("Invalid metric indices".to_string())
+            })?;
+            let r_mn = ricci.get(mu, nu).ok_or_else(|| {
+                SymbolicError::InvalidOperation("Invalid Ricci indices".to_string())
+            })?;
 
             scalar = Expr::add(scalar, Expr::mul(g_inv.clone(), r_mn.clone()));
         }
@@ -347,10 +352,7 @@ pub fn ricci_scalar(
 ///
 /// # Returns
 /// The Einstein tensor as a symbolic matrix
-pub fn einstein_tensor(
-    metric: &SymbolicMatrix,
-    coords: &[&str],
-) -> SymbolicResult<SymbolicMatrix> {
+pub fn einstein_tensor(metric: &SymbolicMatrix, coords: &[&str]) -> SymbolicResult<SymbolicMatrix> {
     let n = metric.rows();
 
     // Compute Ricci tensor and scalar
@@ -362,15 +364,17 @@ pub fn einstein_tensor(
 
     for mu in 0..n {
         for nu in 0..n {
-            let r_mn = ricci.get(mu, nu)
-                .ok_or_else(|| SymbolicError::InvalidOperation("Invalid Ricci indices".to_string()))?;
-            let g_mn = metric.get(mu, nu)
-                .ok_or_else(|| SymbolicError::InvalidOperation("Invalid metric indices".to_string()))?;
+            let r_mn = ricci.get(mu, nu).ok_or_else(|| {
+                SymbolicError::InvalidOperation("Invalid Ricci indices".to_string())
+            })?;
+            let g_mn = metric.get(mu, nu).ok_or_else(|| {
+                SymbolicError::InvalidOperation("Invalid metric indices".to_string())
+            })?;
 
             let term1 = r_mn.clone();
             let term2 = Expr::mul(
                 Expr::mul(Expr::rational_unchecked(1, 2), g_mn.clone()),
-                scalar.clone()
+                scalar.clone(),
             );
 
             einstein_data[mu][nu] = simplify(&Expr::add(term1, Expr::mul(Expr::num(-1), term2)));
@@ -383,7 +387,7 @@ pub fn einstein_tensor(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mathematics::symbolic_cas::{minkowski_2d, euclidean_metric};
+    use crate::mathematics::symbolic_cas::{euclidean_metric, minkowski_2d};
 
     #[test]
     fn test_flat_space_christoffel() {

@@ -1,5 +1,5 @@
-use computational_engine::engine::*;
 use computational_engine::create_default_dispatcher;
+use computational_engine::engine::*;
 use std::collections::HashMap;
 
 #[test]

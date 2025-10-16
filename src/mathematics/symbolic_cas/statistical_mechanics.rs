@@ -16,36 +16,35 @@ pub fn boltzmann_distribution(energy: &str, temperature: &str, k_b: Option<&str>
     // exp(-E/kT)
     let exponent = Expr::mul(
         Expr::num(-1),
-        Expr::mul(
-            e,
-            Expr::pow(Expr::mul(k, t), Expr::num(-1))
-        )
+        Expr::mul(e, Expr::pow(Expr::mul(k, t), Expr::num(-1))),
     );
 
     let numerator = Expr::func("exp", vec![exponent]);
 
     // Divide by partition function Z
-    simplify(&Expr::mul(numerator, Expr::pow(Expr::sym("Z"), Expr::num(-1))))
+    simplify(&Expr::mul(
+        numerator,
+        Expr::pow(Expr::sym("Z"), Expr::num(-1)),
+    ))
 }
 
 /// Partition function for discrete states: Z = Σ exp(-E_i/kT)
 ///
 /// Returns symbolic representation
 pub fn partition_function_discrete() -> Expr {
-    Expr::func("Σ", vec![
-        Expr::func("exp", vec![
-            Expr::mul(
+    Expr::func(
+        "Σ",
+        vec![Expr::func(
+            "exp",
+            vec![Expr::mul(
                 Expr::num(-1),
                 Expr::mul(
                     Expr::sym("E_i"),
-                    Expr::pow(
-                        Expr::mul(Expr::sym("k_B"), Expr::sym("T")),
-                        Expr::num(-1)
-                    )
-                )
-            )
-        ])
-    ])
+                    Expr::pow(Expr::mul(Expr::sym("k_B"), Expr::sym("T")), Expr::num(-1)),
+                ),
+            )],
+        )],
+    )
 }
 
 /// Canonical partition function for classical ideal gas
@@ -53,17 +52,14 @@ pub fn partition_function_discrete() -> Expr {
 /// Z = (V/λ³)^N / N!  where λ is thermal wavelength
 pub fn partition_function_ideal_gas() -> Expr {
     let v_over_lambda_cubed = Expr::pow(
-        Expr::mul(
-            Expr::sym("V"),
-            Expr::pow(Expr::sym("λ"), Expr::num(-3))
-        ),
-        Expr::sym("N")
+        Expr::mul(Expr::sym("V"), Expr::pow(Expr::sym("λ"), Expr::num(-3))),
+        Expr::sym("N"),
     );
 
     // Divide by N!
     Expr::mul(
         v_over_lambda_cubed,
-        Expr::pow(Expr::func("factorial", vec![Expr::sym("N")]), Expr::num(-1))
+        Expr::pow(Expr::func("factorial", vec![Expr::sym("N")]), Expr::num(-1)),
     )
 }
 
@@ -75,7 +71,7 @@ pub fn helmholtz_free_energy(temperature: &str, k_b: Option<&str>) -> Expr {
     // F = -kT ln(Z)
     simplify(&Expr::mul(
         Expr::mul(Expr::num(-1), Expr::mul(k, t)),
-        Expr::func("ln", vec![Expr::sym("Z")])
+        Expr::func("ln", vec![Expr::sym("Z")]),
     ))
 }
 
@@ -90,7 +86,7 @@ pub fn gibbs_free_energy() -> Expr {
     // G = U + PV - TS
     simplify(&Expr::add(
         Expr::add(u, Expr::mul(p, v)),
-        Expr::mul(Expr::num(-1), Expr::mul(t, s))
+        Expr::mul(Expr::num(-1), Expr::mul(t, s)),
     ))
 }
 
@@ -102,16 +98,10 @@ pub fn entropy_from_partition_function() -> Expr {
     let ln_z = Expr::func("ln", vec![Expr::sym("Z")]);
 
     // T ∂ln(Z)/∂T
-    let derivative_term = Expr::mul(
-        Expr::sym("T"),
-        Expr::func("∂/∂T", vec![ln_z.clone()])
-    );
+    let derivative_term = Expr::mul(Expr::sym("T"), Expr::func("∂/∂T", vec![ln_z.clone()]));
 
     // S = k(ln(Z) + T ∂ln(Z)/∂T)
-    simplify(&Expr::mul(
-        k,
-        Expr::add(ln_z, derivative_term)
-    ))
+    simplify(&Expr::mul(k, Expr::add(ln_z, derivative_term)))
 }
 
 /// Maxwell-Boltzmann speed distribution
@@ -132,13 +122,13 @@ pub fn maxwell_boltzmann_speed_distribution() -> Expr {
                 Expr::pow(
                     Expr::mul(
                         Expr::mul(Expr::num(2), Expr::sym("π")),
-                        Expr::mul(k.clone(), t.clone())
+                        Expr::mul(k.clone(), t.clone()),
                     ),
-                    Expr::num(-1)
-                )
+                    Expr::num(-1),
+                ),
             ),
-            Expr::rational_unchecked(3, 2)
-        )
+            Expr::rational_unchecked(3, 2),
+        ),
     );
 
     // v² term
@@ -149,11 +139,8 @@ pub fn maxwell_boltzmann_speed_distribution() -> Expr {
         Expr::num(-1),
         Expr::mul(
             Expr::mul(m, v_squared.clone()),
-            Expr::pow(
-                Expr::mul(Expr::mul(Expr::num(2), k), t),
-                Expr::num(-1)
-            )
-        )
+            Expr::pow(Expr::mul(Expr::mul(Expr::num(2), k), t), Expr::num(-1)),
+        ),
     );
 
     let exponential = Expr::func("exp", vec![exponent]);
@@ -174,14 +161,11 @@ pub fn fermi_dirac_distribution(energy: &str, chemical_potential: &str, temperat
     // (E - μ) / kT
     let exponent = Expr::mul(
         Expr::add(e, Expr::mul(Expr::num(-1), mu)),
-        Expr::pow(Expr::mul(k, t), Expr::num(-1))
+        Expr::pow(Expr::mul(k, t), Expr::num(-1)),
     );
 
     // exp((E-μ)/kT) + 1
-    let denominator = Expr::add(
-        Expr::func("exp", vec![exponent]),
-        Expr::num(1)
-    );
+    let denominator = Expr::add(Expr::func("exp", vec![exponent]), Expr::num(1));
 
     simplify(&Expr::pow(denominator, Expr::num(-1)))
 }
@@ -189,7 +173,11 @@ pub fn fermi_dirac_distribution(energy: &str, chemical_potential: &str, temperat
 /// Bose-Einstein distribution (bosons)
 ///
 /// f(E) = 1 / (exp((E-μ)/kT) - 1)
-pub fn bose_einstein_distribution(energy: &str, chemical_potential: &str, temperature: &str) -> Expr {
+pub fn bose_einstein_distribution(
+    energy: &str,
+    chemical_potential: &str,
+    temperature: &str,
+) -> Expr {
     let e = Expr::sym(energy);
     let mu = Expr::sym(chemical_potential);
     let k = Expr::sym("k_B");
@@ -198,14 +186,11 @@ pub fn bose_einstein_distribution(energy: &str, chemical_potential: &str, temper
     // (E - μ) / kT
     let exponent = Expr::mul(
         Expr::add(e, Expr::mul(Expr::num(-1), mu)),
-        Expr::pow(Expr::mul(k, t), Expr::num(-1))
+        Expr::pow(Expr::mul(k, t), Expr::num(-1)),
     );
 
     // exp((E-μ)/kT) - 1
-    let denominator = Expr::add(
-        Expr::func("exp", vec![exponent]),
-        Expr::num(-1)
-    );
+    let denominator = Expr::add(Expr::func("exp", vec![exponent]), Expr::num(-1));
 
     simplify(&Expr::pow(denominator, Expr::num(-1)))
 }
@@ -224,21 +209,15 @@ pub fn planck_distribution() -> Expr {
     let prefactor = Expr::mul(
         Expr::mul(
             Expr::mul(Expr::num(8), Expr::sym("π")),
-            Expr::mul(h.clone(), Expr::pow(nu.clone(), Expr::num(3)))
+            Expr::mul(h.clone(), Expr::pow(nu.clone(), Expr::num(3))),
         ),
-        Expr::pow(Expr::pow(c, Expr::num(3)), Expr::num(-1))
+        Expr::pow(Expr::pow(c, Expr::num(3)), Expr::num(-1)),
     );
 
     // exp(hν/kT) - 1
-    let exponent = Expr::mul(
-        Expr::mul(h, nu),
-        Expr::pow(Expr::mul(k, t), Expr::num(-1))
-    );
+    let exponent = Expr::mul(Expr::mul(h, nu), Expr::pow(Expr::mul(k, t), Expr::num(-1)));
 
-    let denominator = Expr::add(
-        Expr::func("exp", vec![exponent]),
-        Expr::num(-1)
-    );
+    let denominator = Expr::add(Expr::func("exp", vec![exponent]), Expr::num(-1));
 
     simplify(&Expr::mul(prefactor, Expr::pow(denominator, Expr::num(-1))))
 }
@@ -264,7 +243,7 @@ pub fn ideal_gas_law() -> Expr {
     // PV - NkT = 0
     simplify(&Expr::add(
         Expr::mul(p, v),
-        Expr::mul(Expr::num(-1), Expr::mul(Expr::mul(n, k), t))
+        Expr::mul(Expr::num(-1), Expr::mul(Expr::mul(n, k), t)),
     ))
 }
 
@@ -281,10 +260,7 @@ pub fn van_der_waals_equation() -> Expr {
     let t = Expr::sym("T");
 
     // (P + a/V²)
-    let pressure_term = Expr::add(
-        p,
-        Expr::mul(a, Expr::pow(v.clone(), Expr::num(-2)))
-    );
+    let pressure_term = Expr::add(p, Expr::mul(a, Expr::pow(v.clone(), Expr::num(-2))));
 
     // (V - b)
     let volume_term = Expr::add(v, Expr::mul(Expr::num(-1), b));
@@ -321,10 +297,7 @@ pub fn carnot_efficiency(cold_temp: &str, hot_temp: &str) -> Expr {
     // η = 1 - T_c/T_h
     simplify(&Expr::add(
         Expr::num(1),
-        Expr::mul(
-            Expr::num(-1),
-            Expr::mul(t_c, Expr::pow(t_h, Expr::num(-1)))
-        )
+        Expr::mul(Expr::num(-1), Expr::mul(t_c, Expr::pow(t_h, Expr::num(-1)))),
     ))
 }
 

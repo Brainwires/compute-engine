@@ -2,9 +2,9 @@
 //!
 //! Navier-Stokes equations, continuity equation, vorticity, and fluid flow analysis
 
-use super::{Expr, SymbolicResult, SymbolicError};
 use super::differentiate::differentiate as diff;
 use super::simplify::simplify;
+use super::{Expr, SymbolicError, SymbolicResult};
 
 /// Continuity equation for incompressible flow: ∇·v = 0
 ///
@@ -19,7 +19,7 @@ pub fn continuity_equation_incompressible(
 ) -> SymbolicResult<Expr> {
     if coords.len() != 3 {
         return Err(SymbolicError::InvalidOperation(
-            "Need 3 coordinates (x, y, z)".to_string()
+            "Need 3 coordinates (x, y, z)".to_string(),
         ));
     }
 
@@ -37,10 +37,7 @@ pub fn continuity_equation_incompressible(
     let dw_dz = diff(&w, coords[2]);
 
     // Sum
-    let divergence = Expr::add(
-        Expr::add(du_dx, dv_dy),
-        dw_dz
-    );
+    let divergence = Expr::add(Expr::add(du_dx, dv_dy), dw_dz);
 
     Ok(simplify(&divergence))
 }
@@ -49,10 +46,7 @@ pub fn continuity_equation_incompressible(
 ///
 /// For 2D flow (x-y plane):
 /// ω_z = ∂v/∂x - ∂u/∂y
-pub fn vorticity_2d(
-    velocity_x: &str,
-    velocity_y: &str,
-) -> Expr {
+pub fn vorticity_2d(velocity_x: &str, velocity_y: &str) -> Expr {
     let u = Expr::sym(velocity_x);
     let v = Expr::sym(velocity_y);
 
@@ -104,7 +98,7 @@ pub fn bernoulli_equation(
     // p + (1/2)ρv² + ρgh
     let kinetic_term = Expr::mul(
         Expr::mul(Expr::rational_unchecked(1, 2), rho.clone()),
-        Expr::pow(v, Expr::num(2))
+        Expr::pow(v, Expr::num(2)),
     );
 
     let potential_term = Expr::mul(Expr::mul(rho, g), h);
@@ -115,20 +109,13 @@ pub fn bernoulli_equation(
 /// Reynolds number: Re = ρvL/μ = vL/ν
 ///
 /// Characterizes flow regime (laminar vs turbulent)
-pub fn reynolds_number(
-    velocity: &str,
-    length_scale: &str,
-    kinematic_viscosity: &str,
-) -> Expr {
+pub fn reynolds_number(velocity: &str, length_scale: &str, kinematic_viscosity: &str) -> Expr {
     let v = Expr::sym(velocity);
     let l = Expr::sym(length_scale);
     let nu = Expr::sym(kinematic_viscosity);
 
     // Re = vL/ν
-    simplify(&Expr::mul(
-        Expr::mul(v, l),
-        Expr::pow(nu, Expr::num(-1))
-    ))
+    simplify(&Expr::mul(Expr::mul(v, l), Expr::pow(nu, Expr::num(-1))))
 }
 
 /// Navier-Stokes momentum equation (symbolic form)
@@ -140,26 +127,20 @@ pub fn navier_stokes_momentum_symbolic() -> Expr {
     // Symbolic representation: ∂v/∂t + (v·∇)v = -∇p/ρ + ν∇²v + f
     let lhs = Expr::add(
         Expr::func("∂/∂t", vec![Expr::sym("v")]),
-        Expr::func("(v·∇)", vec![Expr::sym("v")])
+        Expr::func("(v·∇)", vec![Expr::sym("v")]),
     );
 
     let pressure_term = Expr::mul(
         Expr::num(-1),
         Expr::mul(
             Expr::func("∇", vec![Expr::sym("p")]),
-            Expr::pow(Expr::sym("ρ"), Expr::num(-1))
-        )
+            Expr::pow(Expr::sym("ρ"), Expr::num(-1)),
+        ),
     );
 
-    let viscosity_term = Expr::mul(
-        Expr::sym("ν"),
-        Expr::func("∇²", vec![Expr::sym("v")])
-    );
+    let viscosity_term = Expr::mul(Expr::sym("ν"), Expr::func("∇²", vec![Expr::sym("v")]));
 
-    let rhs = Expr::add(
-        Expr::add(pressure_term, viscosity_term),
-        Expr::sym("f")
-    );
+    let rhs = Expr::add(Expr::add(pressure_term, viscosity_term), Expr::sym("f"));
 
     Expr::add(lhs, Expr::mul(Expr::num(-1), rhs))
 }
@@ -173,11 +154,8 @@ pub fn stokes_flow_equation() -> Expr {
         Expr::func("∇", vec![Expr::sym("p")]),
         Expr::mul(
             Expr::num(-1),
-            Expr::mul(
-                Expr::sym("μ"),
-                Expr::func("∇²", vec![Expr::sym("v")])
-            )
-        )
+            Expr::mul(Expr::sym("μ"), Expr::func("∇²", vec![Expr::sym("v")])),
+        ),
     )
 }
 
@@ -185,7 +163,7 @@ pub fn stokes_flow_equation() -> Expr {
 pub fn euler_equation_symbolic() -> Expr {
     let lhs = Expr::add(
         Expr::func("∂/∂t", vec![Expr::sym("v")]),
-        Expr::func("(v·∇)", vec![Expr::sym("v")])
+        Expr::func("(v·∇)", vec![Expr::sym("v")]),
     );
 
     let rhs = Expr::add(
@@ -193,10 +171,10 @@ pub fn euler_equation_symbolic() -> Expr {
             Expr::num(-1),
             Expr::mul(
                 Expr::func("∇", vec![Expr::sym("p")]),
-                Expr::pow(Expr::sym("ρ"), Expr::num(-1))
-            )
+                Expr::pow(Expr::sym("ρ"), Expr::num(-1)),
+            ),
         ),
-        Expr::sym("f")
+        Expr::sym("f"),
     );
 
     Expr::add(lhs, Expr::mul(Expr::num(-1), rhs))
@@ -221,16 +199,13 @@ pub fn poiseuille_flow_velocity(
     // (ΔP/4μL)
     let prefactor = Expr::mul(
         delta_p,
-        Expr::pow(
-            Expr::mul(Expr::mul(Expr::num(4), mu), l),
-            Expr::num(-1)
-        )
+        Expr::pow(Expr::mul(Expr::mul(Expr::num(4), mu), l), Expr::num(-1)),
     );
 
     // (R² - r²)
     let radius_term = Expr::add(
         Expr::pow(big_r, Expr::num(2)),
-        Expr::mul(Expr::num(-1), Expr::pow(r, Expr::num(2)))
+        Expr::mul(Expr::num(-1), Expr::pow(r, Expr::num(2))),
     );
 
     simplify(&Expr::mul(prefactor, radius_term))
@@ -239,32 +214,20 @@ pub fn poiseuille_flow_velocity(
 /// Drag force on a sphere (Stokes drag)
 ///
 /// F_d = 6πμRv
-pub fn stokes_drag_force(
-    viscosity: &str,
-    radius: &str,
-    velocity: &str,
-) -> Expr {
+pub fn stokes_drag_force(viscosity: &str, radius: &str, velocity: &str) -> Expr {
     let mu = Expr::sym(viscosity);
     let r = Expr::sym(radius);
     let v = Expr::sym(velocity);
 
     // 6πμRv
     simplify(&Expr::mul(
-        Expr::mul(
-            Expr::mul(Expr::num(6), Expr::sym("π")),
-            Expr::mul(mu, r)
-        ),
-        v
+        Expr::mul(Expr::mul(Expr::num(6), Expr::sym("π")), Expr::mul(mu, r)),
+        v,
     ))
 }
 
 /// Drag coefficient: C_d = F_d / (0.5 ρ v² A)
-pub fn drag_coefficient(
-    drag_force: &str,
-    density: &str,
-    velocity: &str,
-    area: &str,
-) -> Expr {
+pub fn drag_coefficient(drag_force: &str, density: &str, velocity: &str, area: &str) -> Expr {
     let f_d = Expr::sym(drag_force);
     let rho = Expr::sym(density);
     let v = Expr::sym(velocity);
@@ -273,7 +236,7 @@ pub fn drag_coefficient(
     // C_d = F_d / (0.5 ρ v² A)
     let denominator = Expr::mul(
         Expr::mul(Expr::rational_unchecked(1, 2), rho),
-        Expr::mul(Expr::pow(v, Expr::num(2)), a)
+        Expr::mul(Expr::pow(v, Expr::num(2)), a),
     );
 
     simplify(&Expr::mul(f_d, Expr::pow(denominator, Expr::num(-1))))

@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use rand::Rng;
 use std::error::Error;
 use std::fmt;
 
@@ -94,11 +94,10 @@ enum Expression {
 impl Expression {
     fn evaluate(&self, variables: &HashMap<String, f64>) -> Result<f64, Box<dyn Error>> {
         match self {
-            Expression::Variable(name) => {
-                variables.get(name)
-                    .copied()
-                    .ok_or_else(|| format!("Unknown variable: {}", name).into())
-            }
+            Expression::Variable(name) => variables
+                .get(name)
+                .copied()
+                .ok_or_else(|| format!("Unknown variable: {}", name).into()),
             Expression::Constant(value) => Ok(*value),
             Expression::Add(left, right) => {
                 Ok(left.evaluate(variables)? + right.evaluate(variables)?)
@@ -146,10 +145,18 @@ impl Expression {
         match self {
             Expression::Variable(name) => name.clone(),
             Expression::Constant(value) => format!("{:.3}", value),
-            Expression::Add(left, right) => format!("({} + {})", left.to_string(), right.to_string()),
-            Expression::Subtract(left, right) => format!("({} - {})", left.to_string(), right.to_string()),
-            Expression::Multiply(left, right) => format!("({} * {})", left.to_string(), right.to_string()),
-            Expression::Divide(left, right) => format!("({} / {})", left.to_string(), right.to_string()),
+            Expression::Add(left, right) => {
+                format!("({} + {})", left.to_string(), right.to_string())
+            }
+            Expression::Subtract(left, right) => {
+                format!("({} - {})", left.to_string(), right.to_string())
+            }
+            Expression::Multiply(left, right) => {
+                format!("({} * {})", left.to_string(), right.to_string())
+            }
+            Expression::Divide(left, right) => {
+                format!("({} / {})", left.to_string(), right.to_string())
+            }
             Expression::Power(base, exp) => format!("({}^{})", base.to_string(), exp.to_string()),
             Expression::Sin(expr) => format!("sin({})", expr.to_string()),
             Expression::Cos(expr) => format!("cos({})", expr.to_string()),
@@ -162,16 +169,25 @@ impl Expression {
     fn complexity(&self) -> u32 {
         match self {
             Expression::Variable(_) | Expression::Constant(_) => 1,
-            Expression::Add(left, right) | Expression::Subtract(left, right) |
-            Expression::Multiply(left, right) | Expression::Divide(left, right) |
-            Expression::Power(left, right) => 1 + left.complexity() + right.complexity(),
-            Expression::Sin(expr) | Expression::Cos(expr) | Expression::Exp(expr) |
-            Expression::Log(expr) | Expression::Sqrt(expr) => 2 + expr.complexity(),
+            Expression::Add(left, right)
+            | Expression::Subtract(left, right)
+            | Expression::Multiply(left, right)
+            | Expression::Divide(left, right)
+            | Expression::Power(left, right) => 1 + left.complexity() + right.complexity(),
+            Expression::Sin(expr)
+            | Expression::Cos(expr)
+            | Expression::Exp(expr)
+            | Expression::Log(expr)
+            | Expression::Sqrt(expr) => 2 + expr.complexity(),
         }
     }
 }
 
-pub fn generate_random_expression(variables: &[String], max_depth: u32, rng: &mut impl Rng) -> Expression {
+pub fn generate_random_expression(
+    variables: &[String],
+    max_depth: u32,
+    rng: &mut impl Rng,
+) -> Expression {
     if max_depth == 0 || rng.gen_bool(0.3) {
         // Terminal node
         if rng.gen_bool(0.7) && !variables.is_empty() {
@@ -202,11 +218,31 @@ pub fn generate_random_expression(variables: &[String], max_depth: u32, rng: &mu
                 Box::new(generate_random_expression(variables, max_depth - 1, rng)),
                 Box::new(Expression::Constant(rng.gen_range(0.1..3.0))),
             ),
-            5 => Expression::Sin(Box::new(generate_random_expression(variables, max_depth - 1, rng))),
-            6 => Expression::Cos(Box::new(generate_random_expression(variables, max_depth - 1, rng))),
-            7 => Expression::Exp(Box::new(generate_random_expression(variables, max_depth - 1, rng))),
-            8 => Expression::Log(Box::new(generate_random_expression(variables, max_depth - 1, rng))),
-            9 => Expression::Sqrt(Box::new(generate_random_expression(variables, max_depth - 1, rng))),
+            5 => Expression::Sin(Box::new(generate_random_expression(
+                variables,
+                max_depth - 1,
+                rng,
+            ))),
+            6 => Expression::Cos(Box::new(generate_random_expression(
+                variables,
+                max_depth - 1,
+                rng,
+            ))),
+            7 => Expression::Exp(Box::new(generate_random_expression(
+                variables,
+                max_depth - 1,
+                rng,
+            ))),
+            8 => Expression::Log(Box::new(generate_random_expression(
+                variables,
+                max_depth - 1,
+                rng,
+            ))),
+            9 => Expression::Sqrt(Box::new(generate_random_expression(
+                variables,
+                max_depth - 1,
+                rng,
+            ))),
             _ => Expression::Variable(variables[rng.gen_range(0..variables.len())].clone()),
         }
     }
@@ -241,17 +277,22 @@ pub fn evaluate_fitness(
     }
 
     // Calculate MSE
-    let mse = predictions.iter()
+    let mse = predictions
+        .iter()
         .zip(data.target_values.iter())
         .map(|(pred, target)| (pred - target).powi(2))
-        .sum::<f64>() / predictions.len() as f64;
+        .sum::<f64>()
+        / predictions.len() as f64;
 
     // Calculate R²
     let target_mean = data.target_values.iter().sum::<f64>() / data.target_values.len() as f64;
-    let ss_tot = data.target_values.iter()
+    let ss_tot = data
+        .target_values
+        .iter()
         .map(|target| (target - target_mean).powi(2))
         .sum::<f64>();
-    let ss_res = predictions.iter()
+    let ss_res = predictions
+        .iter()
         .zip(data.target_values.iter())
         .map(|(pred, target)| (target - pred).powi(2))
         .sum::<f64>();
@@ -277,13 +318,15 @@ pub fn check_physics_constraints(
 ) -> f64 {
     // Simple heuristic physics validation
     let expression_str = expr.to_string();
-    
+
     let mut validity_score: f64 = 1.0;
 
     match domain {
         "mechanics" => {
             // Check for common physics patterns
-            if expression_str.contains("*") && (expression_str.contains("m") || expression_str.contains("a")) {
+            if expression_str.contains("*")
+                && (expression_str.contains("m") || expression_str.contains("a"))
+            {
                 validity_score += 0.2; // Likely F=ma type relationship
             }
             if expression_str.contains("^2") && expression_str.contains("v") {
@@ -342,11 +385,13 @@ pub fn discover_equations(
                     Ok((fitness, r_squared, mse)) => {
                         let physics_validity = check_physics_constraints(expr, &domain, &units);
                         let combined_fitness = fitness * 0.7 + physics_validity * 0.3;
-                        
+
                         fitness_scores.push((combined_fitness, r_squared, mse, physics_validity));
-                        
+
                         // Track best candidates
-                        if best_candidates.len() < 10 || combined_fitness > best_candidates.last().unwrap().fitness {
+                        if best_candidates.len() < 10
+                            || combined_fitness > best_candidates.last().unwrap().fitness
+                        {
                             let candidate = EquationCandidate {
                                 expression: expr.to_string(),
                                 complexity: expr.complexity(),
@@ -355,9 +400,10 @@ pub fn discover_equations(
                                 mse,
                                 physical_validity: physics_validity,
                             };
-                            
+
                             best_candidates.push(candidate);
-                            best_candidates.sort_by(|a, b| b.fitness.partial_cmp(&a.fitness).unwrap());
+                            best_candidates
+                                .sort_by(|a, b| b.fitness.partial_cmp(&a.fitness).unwrap());
                             if best_candidates.len() > 10 {
                                 best_candidates.truncate(10);
                             }
@@ -373,21 +419,23 @@ pub fn discover_equations(
         }
 
         // Record best fitness
-        let best_fitness = fitness_scores.iter()
+        let best_fitness = fitness_scores
+            .iter()
             .map(|(f, _, _, _)| *f)
             .fold(0.0f64, f64::max);
         best_fitnesses.push(best_fitness);
 
         // Selection and reproduction (simplified)
         let mut new_population = Vec::new();
-        
+
         // Keep best individuals (elitism)
-        let mut indexed_fitness: Vec<(usize, f64)> = fitness_scores.iter()
+        let mut indexed_fitness: Vec<(usize, f64)> = fitness_scores
+            .iter()
             .enumerate()
             .map(|(i, (f, _, _, _))| (i, *f))
             .collect();
         indexed_fitness.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
-        
+
         for i in 0..(population_size / 4) {
             if let Some((idx, _)) = indexed_fitness.get(i) {
                 new_population.push(population[*idx].clone());
@@ -414,7 +462,10 @@ pub fn discover_equations(
             "electromagnetism" => vec!["charge".to_string(), "energy".to_string()],
             _ => vec!["energy".to_string()],
         },
-        symmetries: vec!["space_translation".to_string(), "time_translation".to_string()],
+        symmetries: vec![
+            "space_translation".to_string(),
+            "time_translation".to_string(),
+        ],
         dimensional_consistency: true,
         physical_plausibility: true,
     };
@@ -426,4 +477,3 @@ pub fn discover_equations(
         convergence_data: best_fitnesses,
     })
 }
-
