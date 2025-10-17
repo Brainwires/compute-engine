@@ -1,6 +1,6 @@
 # Brainwires Compute Engine
 
-A comprehensive computational engine for mathematical and scientific computing in Rust, providing **916 operations** (510 public functions + 406 enum variants) through a clean **10-tool API**.
+A comprehensive computational engine for mathematical and scientific computing in Rust, providing **916 computational capabilities** (510 public functions + 406 operation types) through a clean **10-tool API**.
 
 [![Tests](https://img.shields.io/badge/tests-525%20passing-brightgreen)](https://github.com/nightness/brainwires-compute-engine)
 [![Coverage](https://img.shields.io/badge/coverage-980%2B%20tests-blue)](https://github.com/nightness/brainwires-compute-engine)
@@ -51,6 +51,7 @@ println!("{:#?}", response);
 - ✅ **525 unit tests** with 100% pass rate
 - ✅ **980+ total tests** (comprehensive integration + unit tests)
 - ✅ **Adaptive integration** with automatic subdivision and error estimation
+- ✅ **24+ traditional mathematical subjects** including calculus, linear algebra, statistics, differential equations, graph theory, optimization, and more
 - ✅ **Custom Computer Algebra System (CAS)** - no Python dependencies
 - ✅ **Multiple interfaces**: Native Rust, JSON/MCP, WebAssembly
 - ✅ **Rust 2024 edition** with full type safety
@@ -88,6 +89,46 @@ println!("{:#?}", response);
 - **Information Theory**: Entropy, mutual information, channel capacity, Huffman coding
 - **Cryptography**: RSA, prime generation, modular arithmetic
 - **Computational Geometry**: Convex hull, Delaunay triangulation, Voronoi diagrams
+
+## 📚 Traditional Mathematical Subjects Covered
+
+The engine spans **24+ traditional mathematical subjects** familiar to educators and students:
+
+### Core Mathematics
+- **Differential Calculus** - Symbolic differentiation, partial derivatives, chain rule, gradient, divergence, curl
+- **Integral Calculus** - Definite/indefinite integrals, multiple integrals, contour integration
+- **Advanced Calculus** - Taylor series, limits, L'Hôpital's rule, convergence tests
+- **Linear Algebra** - Matrix operations, decompositions (SVD, QR, LU, Cholesky), eigenvalues, PCA
+- **Symbolic Algebra** - Expression parsing, simplification, factorization, polynomial operations
+- **Differential Equations** - ODEs, PDEs (heat, wave, Laplace), stiff equations
+
+### Advanced Pure Mathematics
+- **Tensor Calculus** - Christoffel symbols, Riemann tensors, Einstein equations, metric tensors
+- **Number Theory** - Primes, modular arithmetic, GCD/LCM, Chinese remainder theorem
+- **Special Functions** - Bessel, Gamma, Error functions, Elliptic integrals, orthogonal polynomials
+- **Computational Geometry** - Convex hull, Delaunay triangulation, Voronoi diagrams
+
+### Applied Mathematics
+- **Statistics & Probability** - Distributions, hypothesis testing, regression, ANOVA, correlation
+- **Optimization** - Gradient descent, Nelder-Mead, curve fitting, symbolic regression
+- **Stochastic Processes** - Brownian motion, Poisson processes, Lévy processes, MCMC
+- **Graph Theory** - Shortest paths, MST, topological sorting, connected components
+- **Information Theory** - Entropy, mutual information, KL divergence, channel capacity
+
+### Signal & Transform Analysis
+- **Fourier Analysis** - FFT, Fourier/Laplace transforms, Fourier series
+- **Wavelet Analysis** - Haar, Daubechies, Morlet wavelets, wavelet transforms
+- **Signal Processing** - Digital filters, spectral analysis, autocorrelation, power spectrum
+
+### Physics Mathematics
+- **Quantum Mechanics** - Schrödinger equation, perturbation theory, wave functions
+- **Relativity** - Lorentz transformations, Schwarzschild metric, gravitational effects
+- **Statistical Physics** - Partition functions, Boltzmann/Fermi-Dirac/Bose-Einstein distributions
+- **Control Theory** - Transfer functions, Bode plots, stability analysis, state-space
+- **Nuclear Physics** - Radioactive decay, binding energy, fission/fusion calculations
+
+### Cryptography & Security
+- **Cryptographic Mathematics** - RSA, hashing (SHA256/SHA3), discrete logarithm, elliptic curves
 
 ## 📦 Installation
 
@@ -276,7 +317,7 @@ cargo test numerical_methods  # Includes adaptive integration tests
 - [ARCHITECTURE.md](ARCHITECTURE.md) - Detailed 10-tool architecture
 - [API.md](API.md) - Complete JSON API reference
 - [WASM.md](WASM.md) - WebAssembly build and usage guide
-- [OPERATIONS_COMPLETE_LIST.md](OPERATIONS_COMPLETE_LIST.md) - All 916 operations inventory
+- [OPERATIONS_COMPLETE_LIST.md](OPERATIONS_COMPLETE_LIST.md) - All 916 capabilities inventory
 - [MATHEMATICA_COMPETITION_PROGRESS.md](MATHEMATICA_COMPETITION_PROGRESS.md) - Feature parity tracking
 - [STDOUT_STDERR_POLICY.md](STDOUT_STDERR_POLICY.md) - MCP server compatibility
 - API documentation: `cargo doc --open`
@@ -311,8 +352,8 @@ cargo bench
 
 ## 🌟 Design Philosophy
 
-- **Simplicity**: 10 intuitive tools providing access to 916 operations
-- **Comprehensiveness**: 916 operations (510 functions + 406 variants) covering mathematics, physics, and science
+- **Simplicity**: 10 intuitive tools providing access to 916 computational capabilities
+- **Comprehensiveness**: 916 capabilities (510 functions + 406 operation types) covering 24+ traditional mathematical subjects from calculus and linear algebra to quantum mechanics and control theory
 - **Self-Contained**: Custom CAS with no Python dependencies
 - **Type Safety**: Full Rust type checking with zero-cost abstractions
 - **Performance**: Release builds optimized with LTO and single codegen unit
