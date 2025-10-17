@@ -57,9 +57,9 @@ hex = "0.4"
 # CLI
 clap = { version = "4.0", features = ["derive"] }
 
-# MCP SDK (primary interface)
-rmcp = { version = "0.8", features = ["server", "transport-io", "macros"] }
-schemars = { version = "1.0" }
+# MCP SDK (primary interface) - optional to support WASM builds
+rmcp = { version = "0.8", features = ["server", "transport-io", "macros"], optional = true }
+schemars = { version = "1.0", optional = true }
 
 # Error handling
 thiserror = "1.0"
@@ -73,8 +73,8 @@ petgraph = "0.6"
 # Parallelism
 rayon = "1.7"
 
-# Async runtime (for MCP server)
-tokio = { version = "1.0", features = ["full"] }
+# Async runtime (for MCP server) - optional to support WASM builds
+tokio = { version = "1.0", features = ["full"], optional = true }
 
 # GPU acceleration (optional)
 wgpu = { version = "22.0", optional = true }
@@ -92,8 +92,8 @@ console_error_panic_hook = { version = "0.1", optional = true }
 rmcp = { version = "0.8", features = ["server", "client", "transport-io", "macros"] }
 
 [features]
-default = []
-quantum = ["gpu-acceleration"]
+default = ["tokio", "rmcp", "schemars"]
+quantum = ["gpu-acceleration", "tokio"]
 gpu-acceleration = ["wgpu", "bytemuck"]
 wasm = ["wasm-bindgen", "js-sys", "web-sys", "serde-wasm-bindgen", "console_error_panic_hook"]
 

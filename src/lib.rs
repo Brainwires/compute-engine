@@ -73,6 +73,7 @@ pub mod engine;
 pub mod implementations;
 
 // MCP Server (Official MCP SDK integration - primary interface)
+#[cfg(feature = "rmcp")]
 pub mod mcp_server;
 
 // Scientific formula modules (NEW - 2025 Expansion)

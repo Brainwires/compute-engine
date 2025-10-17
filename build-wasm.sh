@@ -12,12 +12,12 @@ fi
 # Build for different targets
 echo ""
 echo "Building for bundler (webpack, rollup, vite - for client-side)..."
-wasm-pack build --target bundler --features wasm
+wasm-pack build --target bundler --features wasm --no-default-features
 
 echo ""
 echo "Building for Node.js (for server-side)..."
 # Build to temp directory then move to pkg/nodejs/
-wasm-pack build --target nodejs --features wasm
+wasm-pack build --target nodejs --features wasm --no-default-features
 
 # Move nodejs build to subdirectory
 echo "Organizing Node.js output..."
@@ -31,7 +31,7 @@ cp pkg/README.md pkg/nodejs/ 2>/dev/null || true
 
 # Restore bundler target (it was overwritten)
 echo "Restoring bundler target..."
-wasm-pack build --target bundler --features wasm
+wasm-pack build --target bundler --features wasm --no-default-features
 
 echo ""
 echo "✓ WASM build complete!"

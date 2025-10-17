@@ -191,7 +191,7 @@ JSON request format:
 Use in JavaScript/TypeScript for on-device computation:
 
 ```javascript
-import init, { ComputationalEngine } from '@brainwires/brainwires-compute-engine';
+import init, { ComputationalEngine } from '@brainwires/compute-engine';
 
 await init();
 const engine = new ComputationalEngine();
