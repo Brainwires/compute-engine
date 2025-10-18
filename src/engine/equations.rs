@@ -3,42 +3,115 @@
 //! This module contains all the specific equation types, models, and operations
 //! that map the 180+ original operations to the 10 core tools.
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 
 // ============================================================================
 // SOLVE TOOL - Equation Types
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Custom deserializer for EquationType that accepts BOTH:
+/// - Simple strings: "einstein" → Einstein(Vacuum) (uses default sub-type)
+/// - Case-insensitive: "Einstein", "EINSTEIN" all work
+/// - Nested objects: {"einstein": "schwarzschild"} → Einstein(Schwarzschild)
+///
+/// This is the UNIVERSAL solution for all 916 operations across all 10 tools
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum EquationType {
-    // Einstein Field Equations
-    #[serde(alias = "Einstein")]
     Einstein(EinsteinEquation),
-    // Fluid Dynamics
-    #[serde(alias = "Fluid")]
     Fluid(FluidEquation),
-    // Differential Equations
-    #[serde(alias = "Differential")]
     Differential(DifferentialEquation),
-    // Electromagnetic
-    #[serde(alias = "Electromagnetic")]
     Electromagnetic(EMEquation),
-    // Chemical
-    #[serde(alias = "Chemical")]
     Chemical(ChemicalEquation),
-    // Linear Systems
-    #[serde(alias = "LinearSystem")]
     LinearSystem,
-    // Root Finding
-    #[serde(alias = "RootFinding")]
     RootFinding,
-    // Number Theory
-    #[serde(alias = "NumberTheory")]
     NumberTheory(NumberTheoryProblem),
-    // Differential Geometry
-    #[serde(alias = "DifferentialGeometry")]
     DifferentialGeometry(DiffGeoProblem),
+}
+
+// Custom deserializer implementation
+impl<'de> Deserialize<'de> for EquationType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        use serde::de::{self, MapAccess, Visitor};
+        use std::fmt;
+
+        struct EquationTypeVisitor;
+
+        impl<'de> Visitor<'de> for EquationTypeVisitor {
+            type Value = EquationType;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("equation type as string or object")
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<EquationType, E>
+            where
+                E: de::Error,
+            {
+                // Accept simple strings with default sub-types
+                match value.to_lowercase().as_str() {
+                    "einstein" => Ok(EquationType::Einstein(EinsteinEquation::Vacuum)),
+                    "fluid" => Ok(EquationType::Fluid(FluidEquation::NavierStokes)),
+                    "differential" => Ok(EquationType::Differential(DifferentialEquation::ODE)),
+                    "electromagnetic" => Ok(EquationType::Electromagnetic(EMEquation::Maxwell)),
+                    "chemical" => Ok(EquationType::Chemical(ChemicalEquation::Balance)),
+                    "linear_system" | "linearsystem" => Ok(EquationType::LinearSystem),
+                    "root_finding" | "rootfinding" => Ok(EquationType::RootFinding),
+                    "number_theory" | "numbertheory" => Ok(EquationType::NumberTheory(NumberTheoryProblem::PrimalityTest)),
+                    "differential_geometry" | "differentialgeometry" => Ok(EquationType::DifferentialGeometry(DiffGeoProblem::Geodesic)),
+                    _ => Err(E::custom(format!("unknown equation type: {}", value))),
+                }
+            }
+
+            fn visit_map<M>(self, mut map: M) -> Result<EquationType, M::Error>
+            where
+                M: MapAccess<'de>,
+            {
+                // For nested objects like {"einstein": "schwarzschild"}
+                if let Some(key) = map.next_key::<String>()? {
+                    let key_lower = key.to_lowercase();
+                    match key_lower.as_str() {
+                        "einstein" => {
+                            let sub: EinsteinEquation = map.next_value()?;
+                            Ok(EquationType::Einstein(sub))
+                        }
+                        "fluid" => {
+                            let sub: FluidEquation = map.next_value()?;
+                            Ok(EquationType::Fluid(sub))
+                        }
+                        "differential" => {
+                            let sub: DifferentialEquation = map.next_value()?;
+                            Ok(EquationType::Differential(sub))
+                        }
+                        "electromagnetic" => {
+                            let sub: EMEquation = map.next_value()?;
+                            Ok(EquationType::Electromagnetic(sub))
+                        }
+                        "chemical" => {
+                            let sub: ChemicalEquation = map.next_value()?;
+                            Ok(EquationType::Chemical(sub))
+                        }
+                        "number_theory" | "numbertheory" => {
+                            let sub: NumberTheoryProblem = map.next_value()?;
+                            Ok(EquationType::NumberTheory(sub))
+                        }
+                        "differential_geometry" | "differentialgeometry" => {
+                            let sub: DiffGeoProblem = map.next_value()?;
+                            Ok(EquationType::DifferentialGeometry(sub))
+                        }
+                        _ => Err(de::Error::custom(format!("unknown equation type: {}", key))),
+                    }
+                } else {
+                    Err(de::Error::custom("expected equation type"))
+                }
+            }
+        }
+
+        deserializer.deserialize_any(EquationTypeVisitor)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
