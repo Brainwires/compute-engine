@@ -13,22 +13,31 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "snake_case")]
 pub enum EquationType {
     // Einstein Field Equations
+    #[serde(alias = "Einstein")]
     Einstein(EinsteinEquation),
     // Fluid Dynamics
+    #[serde(alias = "Fluid")]
     Fluid(FluidEquation),
     // Differential Equations
+    #[serde(alias = "Differential")]
     Differential(DifferentialEquation),
     // Electromagnetic
+    #[serde(alias = "Electromagnetic")]
     Electromagnetic(EMEquation),
     // Chemical
+    #[serde(alias = "Chemical")]
     Chemical(ChemicalEquation),
     // Linear Systems
+    #[serde(alias = "LinearSystem")]
     LinearSystem,
     // Root Finding
+    #[serde(alias = "RootFinding")]
     RootFinding,
     // Number Theory
+    #[serde(alias = "NumberTheory")]
     NumberTheory(NumberTheoryProblem),
     // Differential Geometry
+    #[serde(alias = "DifferentialGeometry")]
     DifferentialGeometry(DiffGeoProblem),
 }
 
@@ -107,16 +116,22 @@ pub enum DiffGeoProblem {
 #[serde(rename_all = "snake_case")]
 pub enum DifferentiationOp {
     // Vector Calculus
+    #[serde(alias = "VectorCalc")]
     VectorCalc(VectorCalcOp),
     // Tensor Calculus
+    #[serde(alias = "TensorCalc")]
     TensorCalc(TensorDiffOp),
     // Variational Calculus
+    #[serde(alias = "Variational")]
     Variational,
     // Differential Forms
+    #[serde(alias = "DifferentialForms")]
     DifferentialForms,
     // Numeric
+    #[serde(alias = "Numeric")]
     Numeric,
     // Symbolic
+    #[serde(alias = "Symbolic")]
     Symbolic,
 }
 
@@ -146,16 +161,22 @@ pub enum TensorDiffOp {
 #[serde(rename_all = "snake_case")]
 pub enum IntegrationType {
     // Line/Surface/Volume
+    #[serde(alias = "Geometric")]
     Geometric(GeometricIntegral),
     // Theorems
+    #[serde(alias = "Theorem")]
     Theorem(IntegralTheorem),
     // Complex Analysis
+    #[serde(alias = "ComplexAnalysis")]
     ComplexAnalysis(ComplexIntegral),
     // Numeric
+    #[serde(alias = "Numeric")]
     Numeric(NumericIntegration),
     // Symbolic
+    #[serde(alias = "Symbolic")]
     Symbolic,
     // Monte Carlo
+    #[serde(alias = "MonteCarlo")]
     MonteCarlo,
 }
 
@@ -202,37 +223,61 @@ pub enum NumericIntegration {
 #[serde(rename_all = "snake_case")]
 pub enum AnalysisOp {
     // Expression Operations
+    #[serde(alias = "Simplify")]
     Simplify,
+    #[serde(alias = "Parse")]
     Parse,
+    #[serde(alias = "ExtractVariables")]
     ExtractVariables,
     // Validation
+    #[serde(alias = "Validate")]
     Validate,
+    #[serde(alias = "CheckCorrectness")]
     CheckCorrectness,
+    #[serde(alias = "CheckDimensions")]
     CheckDimensions,
+    #[serde(alias = "CheckPhysics")]
     CheckPhysics,
+    #[serde(alias = "CheckConservation")]
     CheckConservation,
+    #[serde(alias = "CheckSymmetries")]
     CheckSymmetries,
     // Series and Limits
+    #[serde(alias = "PartialFraction")]
     PartialFraction,
+    #[serde(alias = "SeriesExpansion")]
     SeriesExpansion,
+    #[serde(alias = "LaurentSeries")]
     LaurentSeries,
+    #[serde(alias = "Limit")]
     Limit,
     // Field Analysis
+    #[serde(alias = "FieldAnalysis")]
     FieldAnalysis(FieldAnalysisType),
     // Dimensional Analysis
+    #[serde(alias = "DimensionalCheck")]
     DimensionalCheck,
+    #[serde(alias = "ValidateDimensions")]
     ValidateDimensions,
+    #[serde(alias = "InferDimensions")]
     InferDimensions,
+    #[serde(alias = "ScaleAnalysis")]
     ScaleAnalysis,
     // Units
+    #[serde(alias = "UnitsDerive")]
     UnitsDerive,
+    #[serde(alias = "UnitsAnalyze")]
     UnitsAnalyze,
     // Graph Theory
+    #[serde(alias = "GraphComponents")]
     GraphComponents,
+    #[serde(alias = "GraphProperties")]
     GraphProperties,
     // Number Theory
+    #[serde(alias = "IsPrime")]
     IsPrime,
     // Fluid Analysis
+    #[serde(alias = "FluidAnalysis")]
     FluidAnalysis,
 }
 
@@ -252,12 +297,16 @@ pub enum FieldAnalysisType {
 #[serde(rename_all = "snake_case")]
 pub enum SimulationModel {
     // Stochastic Processes
+    #[serde(alias = "Stochastic")]
     Stochastic(StochasticProcess),
     // Finance Models
+    #[serde(alias = "Finance")]
     Finance(FinanceModel),
     // Fluid Dynamics
+    #[serde(alias = "FluidDynamics")]
     FluidDynamics(FluidSim),
     // ODE/PDE Time-stepping
+    #[serde(alias = "TimeEvolution")]
     TimeEvolution(TimeEvolutionMethod),
 }
 
@@ -309,35 +358,53 @@ pub enum TimeEvolutionMethod {
 #[serde(rename_all = "snake_case")]
 pub enum ComputeOp {
     // Tensor Operations
+    #[serde(alias = "Tensor")]
     Tensor(TensorOp),
     // Matrix Operations
+    #[serde(alias = "Matrix")]
     Matrix(MatrixOp),
     // Matrix Decompositions
+    #[serde(alias = "MatrixDecomp")]
     MatrixDecomp(MatrixDecomp),
     // Special Functions
+    #[serde(alias = "SpecialFunc")]
     SpecialFunc(SpecialFunction),
     // Number Theory
+    #[serde(alias = "NumberTheory")]
     NumberTheory(NumberTheoryOp),
     // Computational Geometry
+    #[serde(alias = "Geometry")]
     Geometry(GeometryOp),
     // Information Theory
+    #[serde(alias = "Information")]
     Information(InformationOp),
     // Fourier Series
+    #[serde(alias = "FourierSeries")]
     FourierSeries,
     // EM Calculations
+    #[serde(alias = "EM")]
     EM(EMComputation),
     // Chemistry
+    #[serde(alias = "Chemistry")]
     Chemistry(ChemistryOp),
     // Graph Theory
+    #[serde(alias = "Graph")]
     Graph(GraphOp),
     // Scientific Formulas (2025 Expansion)
+    #[serde(alias = "Biology")]
     Biology(BiologyOp),
+    #[serde(alias = "Thermodynamics")]
     Thermodynamics(ThermodynamicsOp),
+    #[serde(alias = "Optics")]
     Optics(OpticsOp),
+    #[serde(alias = "Geophysics")]
     Geophysics(GeophysicsOp),
+    #[serde(alias = "Engineering")]
     Engineering(EngineeringOp),
+    #[serde(alias = "DateTime")]
     DateTime(DateTimeOp),
     // Physics (Tier 1 Wolfram Alpha expansion)
+    #[serde(alias = "Physics")]
     Physics(PhysicsOp),
 }
 
@@ -645,12 +712,19 @@ pub enum NuclearOp {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum TransformType {
+    #[serde(alias = "Fourier")]
     Fourier(FourierTransform),
+    #[serde(alias = "Laplace")]
     Laplace(LaplaceTransform),
+    #[serde(alias = "Wavelet")]
     Wavelet(WaveletType),
+    #[serde(alias = "FFT")]
     FFT(FFTType),
+    #[serde(alias = "Filter")]
     Filter(FilterType),
+    #[serde(alias = "Window")]
     Window(WindowType),
+    #[serde(alias = "Conformal")]
     Conformal,
 }
 
@@ -709,8 +783,11 @@ pub enum WindowType {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum FieldType {
+    #[serde(alias = "EM")]
     EM(EMField),
+    #[serde(alias = "GreenFunction")]
     GreenFunction,
+    #[serde(alias = "QuantumField")]
     QuantumField(QuantumFieldType),
 }
 
@@ -738,13 +815,18 @@ pub enum QuantumFieldType {
 #[serde(rename_all = "snake_case")]
 pub enum SamplingMethod {
     // Stochastic
+    #[serde(alias = "PathGeneration")]
     PathGeneration,
+    #[serde(alias = "Moments")]
     Moments,
     // Monte Carlo
+    #[serde(alias = "MonteCarlo")]
     MonteCarlo(MonteCarloMethod),
     // Statistical
+    #[serde(alias = "Stats")]
     Stats(StatisticalMethod),
     // Signal Processing
+    #[serde(alias = "SignalAnalysis")]
     SignalAnalysis(SignalMethod),
 }
 
@@ -788,16 +870,22 @@ pub enum SignalMethod {
 #[serde(rename_all = "snake_case")]
 pub enum OptimizationMethod {
     // Curve Fitting
+    #[serde(alias = "Fit")]
     Fit(FitMethod),
     // Minimization
+    #[serde(alias = "Minimize")]
     Minimize(MinimizationMethod),
     // Interpolation
+    #[serde(alias = "Interpolation")]
     Interpolation(InterpolationMethod),
     // Dimensional Analysis
+    #[serde(alias = "DimensionalAnalysis")]
     DimensionalAnalysis(DimAnalysisMethod),
     // Symbolic Regression (Evolutionary Function Discovery)
+    #[serde(alias = "SymbolicRegression")]
     SymbolicRegression,
     // Automatic Model Selection
+    #[serde(alias = "Auto")]
     Auto {
         #[serde(default)]
         criteria: SelectionCriteria,

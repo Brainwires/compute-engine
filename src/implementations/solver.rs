@@ -44,11 +44,27 @@ impl UnifiedSolver {
                         .iter()
                         .map(|sol| {
                             let mut map = HashMap::new();
-                            map.insert("metric".to_string(), serde_json::json!(sol.metric_tensor));
+
+                            // Convert metric tensor to string format for proper JSON serialization
+                            let metric_strings: Vec<Vec<String>> = sol.metric_tensor.iter()
+                                .map(|row| row.iter().map(|expr| expr.to_string()).collect())
+                                .collect();
+
+                            map.insert("metric".to_string(), serde_json::json!(metric_strings));
                             map.insert(
                                 "solution_type".to_string(),
                                 Value::String(sol.solution_type.clone()),
                             );
+
+                            // Add physical parameters (converted to strings)
+                            let params: HashMap<String, String> = sol.physical_parameters.iter()
+                                .map(|(k, v)| (k.clone(), v.to_string()))
+                                .collect();
+                            map.insert("physical_parameters".to_string(), serde_json::json!(params));
+
+                            // Add coordinates
+                            map.insert("coordinates".to_string(), serde_json::json!(sol.coordinates));
+
                             map
                         })
                         .collect(),
@@ -91,7 +107,23 @@ impl UnifiedSolver {
                         .iter()
                         .map(|sol| {
                             let mut map = HashMap::new();
-                            map.insert("metric".to_string(), serde_json::json!(sol.metric_tensor));
+
+                            // Convert metric tensor to string format for proper JSON serialization
+                            let metric_strings: Vec<Vec<String>> = sol.metric_tensor.iter()
+                                .map(|row| row.iter().map(|expr| expr.to_string()).collect())
+                                .collect();
+
+                            map.insert("metric".to_string(), serde_json::json!(metric_strings));
+                            map.insert("solution_type".to_string(), Value::String(sol.solution_type.clone()));
+
+                            // Add physical parameters
+                            let params: HashMap<String, String> = sol.physical_parameters.iter()
+                                .map(|(k, v)| (k.clone(), v.to_string()))
+                                .collect();
+                            map.insert("physical_parameters".to_string(), serde_json::json!(params));
+
+                            map.insert("coordinates".to_string(), serde_json::json!(sol.coordinates));
+
                             map
                         })
                         .collect(),
@@ -179,7 +211,23 @@ impl UnifiedSolver {
                         .iter()
                         .map(|sol| {
                             let mut map = HashMap::new();
-                            map.insert("metric".to_string(), serde_json::json!(sol.metric_tensor));
+
+                            // Convert metric tensor to string format for proper JSON serialization
+                            let metric_strings: Vec<Vec<String>> = sol.metric_tensor.iter()
+                                .map(|row| row.iter().map(|expr| expr.to_string()).collect())
+                                .collect();
+
+                            map.insert("metric".to_string(), serde_json::json!(metric_strings));
+                            map.insert("solution_type".to_string(), Value::String(sol.solution_type.clone()));
+
+                            // Add physical parameters
+                            let params: HashMap<String, String> = sol.physical_parameters.iter()
+                                .map(|(k, v)| (k.clone(), v.to_string()))
+                                .collect();
+                            map.insert("physical_parameters".to_string(), serde_json::json!(params));
+
+                            map.insert("coordinates".to_string(), serde_json::json!(sol.coordinates));
+
                             map
                         })
                         .collect(),
