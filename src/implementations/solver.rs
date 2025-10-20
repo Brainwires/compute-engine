@@ -17,14 +17,15 @@ impl UnifiedSolver {
     fn solve_einstein(&self, eq: &EinsteinEquation, input: &SolveInput) -> ToolResult<SolveOutput> {
         use crate::mathematics::tensor_calculus;
 
-        let coords = input.variables.clone().unwrap_or_else(|| {
-            vec![
-                "t".to_string(),
-                "r".to_string(),
-                "theta".to_string(),
-                "phi".to_string(),
-            ]
-        });
+        // ALWAYS use 4D coordinates for Einstein equations (spacetime)
+        // The input.variables are the FUNCTIONS to solve (like A(r), B(r)),
+        // NOT the coordinates!
+        let coords = vec![
+            "t".to_string(),
+            "r".to_string(),
+            "theta".to_string(),
+            "phi".to_string(),
+        ];
 
         match eq {
             EinsteinEquation::Vacuum => {
