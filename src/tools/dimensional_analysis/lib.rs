@@ -26,20 +26,20 @@ enum Commands {
 
 #[derive(Serialize, Debug)]
 pub struct DimensionalAnalysisResult {
-    expression: String,
-    dimension: String,
-    consistent: bool,
-    unit_breakdown: HashMap<String, DimensionInfo>,
-    analysis: String,
-    recommendations: Vec<String>,
-    target_match: Option<bool>,
+    pub expression: String,
+    pub dimension: String,
+    pub consistent: bool,
+    pub unit_breakdown: HashMap<String, DimensionInfo>,
+    pub analysis: String,
+    pub recommendations: Vec<String>,
+    pub target_match: Option<bool>,
 }
 
 #[derive(Serialize, Debug, Clone)]
-struct DimensionInfo {
-    unit: String,
-    dimension: PhysicalDimension,
-    power: i32,
+pub struct DimensionInfo {
+    pub unit: String,
+    pub dimension: PhysicalDimension,
+    pub power: i32,
 }
 
 #[derive(Serialize, Debug, Clone, PartialEq)]
@@ -537,6 +537,299 @@ pub fn dimensional_analysis(
         recommendations,
         target_match,
     })
+}
+
+/// Unit conversion structure
+#[derive(Serialize, Debug)]
+pub struct UnitConversion {
+    pub from_unit: String,
+    pub to_unit: String,
+    pub factor: f64,
+    pub dimension: String,
+}
+
+/// Convert between units
+///
+/// # Examples
+/// ```
+/// use computational_engine::tools::dimensional_analysis::convert_units;
+/// let result = convert_units("m", "km", 1000.0).unwrap();
+/// assert_eq!(result.factor, 0.001);
+/// ```
+pub fn convert_units(
+    from_unit: &str,
+    to_unit: &str,
+    value: f64,
+) -> Result<UnitConversion, Box<dyn Error>> {
+    let from_dim = PhysicalDimension::from_unit(from_unit)?;
+    let to_dim = PhysicalDimension::from_unit(to_unit)?;
+
+    if from_dim != to_dim {
+        return Err(format!(
+            "Cannot convert between incompatible dimensions: {} ({}) and {} ({})",
+            from_unit,
+            from_dim.to_string(),
+            to_unit,
+            to_dim.to_string()
+        )
+        .into());
+    }
+
+    // Get conversion factor
+    let factor = get_conversion_factor(from_unit, to_unit)?;
+    let converted_value = value * factor;
+
+    Ok(UnitConversion {
+        from_unit: from_unit.to_string(),
+        to_unit: to_unit.to_string(),
+        factor: converted_value,
+        dimension: from_dim.to_string(),
+    })
+}
+
+/// Get conversion factor between compatible units
+fn get_conversion_factor(from_unit: &str, to_unit: &str) -> Result<f64, Box<dyn Error>> {
+    // Define conversion factors to SI base units
+    let to_si = |unit: &str| -> Result<f64, Box<dyn Error>> {
+        Ok(match unit {
+            // Length
+            "m" => 1.0,
+            "km" => 1000.0,
+            "cm" => 0.01,
+            "mm" => 0.001,
+            "ft" | "feet" => 0.3048,
+            "in" | "inch" => 0.0254,
+            "mi" | "mile" => 1609.34,
+
+            // Mass
+            "kg" => 1.0,
+            "g" => 0.001,
+            "mg" => 1e-6,
+            "ton" | "tonne" => 1000.0,
+            "lb" | "pound" => 0.453592,
+            "oz" | "ounce" => 0.0283495,
+
+            // Time
+            "s" => 1.0,
+            "min" => 60.0,
+            "h" | "hr" | "hour" => 3600.0,
+            "day" => 86400.0,
+            "week" => 604800.0,
+            "year" => 31536000.0,
+
+            // Force
+            "N" => 1.0,
+            "kN" => 1000.0,
+            "dyn" => 1e-5,
+            "lbf" => 4.44822,
+
+            // Energy
+            "J" => 1.0,
+            "kJ" => 1000.0,
+            "MJ" => 1e6,
+            "eV" => 1.602176634e-19,
+            "keV" => 1.602176634e-16,
+            "MeV" => 1.602176634e-13,
+            "GeV" => 1.602176634e-10,
+            "cal" => 4.184,
+            "kcal" => 4184.0,
+            "kWh" => 3.6e6,
+            "BTU" => 1055.06,
+
+            // Power
+            "W" => 1.0,
+            "kW" => 1000.0,
+            "MW" => 1e6,
+            "hp" => 745.7,
+
+            // Pressure
+            "Pa" => 1.0,
+            "kPa" => 1000.0,
+            "MPa" => 1e6,
+            "bar" => 1e5,
+            "atm" => 101325.0,
+            "mmHg" | "Torr" => 133.322,
+            "psi" => 6894.76,
+
+            // Temperature (handled specially)
+            "K" => 1.0,
+            "C" | "°C" => 1.0, // Delta T
+            "F" | "°F" => 5.0 / 9.0, // Delta T
+
+            // Area
+            "m^2" | "m²" => 1.0,
+            "km^2" | "km²" => 1e6,
+            "cm^2" | "cm²" => 1e-4,
+            "mm^2" | "mm²" => 1e-6,
+
+            // Volume
+            "m^3" | "m³" => 1.0,
+            "L" | "liter" => 0.001,
+            "mL" | "milliliter" => 1e-6,
+            "gal" | "gallon" => 0.00378541,
+
+            // Frequency
+            "Hz" => 1.0,
+            "kHz" => 1000.0,
+            "MHz" => 1e6,
+            "GHz" => 1e9,
+
+            // Velocity
+            "m/s" => 1.0,
+            "km/h" | "kph" => 1.0 / 3.6,
+            "mph" => 0.44704,
+
+            _ => return Err(format!("Unknown unit for conversion: {}", unit).into()),
+        })
+    };
+
+    let from_factor = to_si(from_unit)?;
+    let to_factor = to_si(to_unit)?;
+
+    Ok(from_factor / to_factor)
+}
+
+/// Derive units for common physics quantities
+///
+/// # Examples
+/// ```
+/// use computational_engine::tools::dimensional_analysis::derive_units_for_quantity;
+/// let units = derive_units_for_quantity("force").unwrap();
+/// assert!(units.contains(&"N".to_string()));
+/// ```
+pub fn derive_units_for_quantity(quantity: &str) -> Result<Vec<String>, Box<dyn Error>> {
+    let units = match quantity.to_lowercase().as_str() {
+        "force" => vec!["N", "kN", "dyn", "lbf"],
+        "energy" | "work" => vec!["J", "kJ", "MJ", "eV", "keV", "MeV", "cal", "kcal", "kWh"],
+        "power" => vec!["W", "kW", "MW", "hp"],
+        "pressure" | "stress" => vec!["Pa", "kPa", "MPa", "bar", "atm", "mmHg", "psi"],
+        "length" | "distance" => vec!["m", "km", "cm", "mm", "ft", "in", "mi"],
+        "mass" => vec!["kg", "g", "mg", "ton", "lb", "oz"],
+        "time" => vec!["s", "min", "h", "day", "year"],
+        "velocity" | "speed" => vec!["m/s", "km/h", "mph"],
+        "acceleration" => vec!["m/s²", "g"],
+        "frequency" => vec!["Hz", "kHz", "MHz", "GHz"],
+        "electric_current" | "current" => vec!["A", "mA", "µA"],
+        "voltage" | "potential" => vec!["V", "kV", "mV"],
+        "resistance" => vec!["Ω", "ohm", "kΩ", "MΩ"],
+        "capacitance" => vec!["F", "µF", "nF", "pF"],
+        "inductance" => vec!["H", "mH", "µH"],
+        "magnetic_field" => vec!["T", "mT", "G"],
+        "electric_charge" => vec!["C", "mC", "µC"],
+        "temperature" => vec!["K", "°C", "°F"],
+        "area" => vec!["m²", "km²", "cm²", "mm²"],
+        "volume" => vec!["m³", "L", "mL", "gal"],
+        _ => {
+            return Err(format!("Unknown physical quantity: {}", quantity).into());
+        }
+    };
+
+    Ok(units.iter().map(|s| s.to_string()).collect())
+}
+
+/// Check if units are dimensionally compatible
+///
+/// # Examples
+/// ```
+/// use computational_engine::tools::dimensional_analysis::are_units_compatible;
+/// assert!(are_units_compatible("m", "km").unwrap());
+/// assert!(!are_units_compatible("m", "kg").unwrap());
+/// ```
+pub fn are_units_compatible(unit1: &str, unit2: &str) -> Result<bool, Box<dyn Error>> {
+    let dim1 = PhysicalDimension::from_unit(unit1)?;
+    let dim2 = PhysicalDimension::from_unit(unit2)?;
+    Ok(dim1 == dim2)
+}
+
+/// Get the SI base units for a given unit
+pub fn get_si_base_units(unit: &str) -> Result<String, Box<dyn Error>> {
+    let dim = PhysicalDimension::from_unit(unit)?;
+    Ok(dim.to_string())
+}
+
+/// List common physics formulas with their dimensional analysis
+#[derive(Serialize, Debug)]
+pub struct PhysicsFormula {
+    pub name: String,
+    pub formula: String,
+    pub dimension: String,
+    pub si_unit: String,
+    pub description: String,
+}
+
+pub fn get_physics_formulas() -> Vec<PhysicsFormula> {
+    vec![
+        PhysicsFormula {
+            name: "Newton's Second Law".to_string(),
+            formula: "F = ma".to_string(),
+            dimension: "M⋅L⋅T^-2".to_string(),
+            si_unit: "N (Newton)".to_string(),
+            description: "Force equals mass times acceleration".to_string(),
+        },
+        PhysicsFormula {
+            name: "Kinetic Energy".to_string(),
+            formula: "KE = (1/2)mv²".to_string(),
+            dimension: "M⋅L^2⋅T^-2".to_string(),
+            si_unit: "J (Joule)".to_string(),
+            description: "Energy of motion".to_string(),
+        },
+        PhysicsFormula {
+            name: "Gravitational Potential Energy".to_string(),
+            formula: "PE = mgh".to_string(),
+            dimension: "M⋅L^2⋅T^-2".to_string(),
+            si_unit: "J (Joule)".to_string(),
+            description: "Energy due to position in gravitational field".to_string(),
+        },
+        PhysicsFormula {
+            name: "Power".to_string(),
+            formula: "P = W/t".to_string(),
+            dimension: "M⋅L^2⋅T^-3".to_string(),
+            si_unit: "W (Watt)".to_string(),
+            description: "Rate of energy transfer".to_string(),
+        },
+        PhysicsFormula {
+            name: "Pressure".to_string(),
+            formula: "P = F/A".to_string(),
+            dimension: "M⋅L^-1⋅T^-2".to_string(),
+            si_unit: "Pa (Pascal)".to_string(),
+            description: "Force per unit area".to_string(),
+        },
+        PhysicsFormula {
+            name: "Momentum".to_string(),
+            formula: "p = mv".to_string(),
+            dimension: "M⋅L⋅T^-1".to_string(),
+            si_unit: "kg⋅m/s".to_string(),
+            description: "Mass times velocity".to_string(),
+        },
+        PhysicsFormula {
+            name: "Impulse".to_string(),
+            formula: "J = FΔt".to_string(),
+            dimension: "M⋅L⋅T^-1".to_string(),
+            si_unit: "N⋅s".to_string(),
+            description: "Change in momentum".to_string(),
+        },
+        PhysicsFormula {
+            name: "Angular Momentum".to_string(),
+            formula: "L = Iω".to_string(),
+            dimension: "M⋅L^2⋅T^-1".to_string(),
+            si_unit: "kg⋅m²/s".to_string(),
+            description: "Rotational momentum".to_string(),
+        },
+        PhysicsFormula {
+            name: "Electric Field".to_string(),
+            formula: "E = F/q".to_string(),
+            dimension: "M⋅L⋅T^-3⋅I^-1".to_string(),
+            si_unit: "V/m".to_string(),
+            description: "Force per unit charge".to_string(),
+        },
+        PhysicsFormula {
+            name: "Magnetic Field".to_string(),
+            formula: "B = F/(qv)".to_string(),
+            dimension: "M⋅T^-2⋅I^-1".to_string(),
+            si_unit: "T (Tesla)".to_string(),
+            description: "Magnetic flux density".to_string(),
+        },
+    ]
 }
 
 #[cfg(test)]

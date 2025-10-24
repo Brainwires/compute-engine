@@ -138,29 +138,87 @@ impl UnifiedAnalyzer {
 
     /// Check dimensional consistency
     fn analyze_dimensions(&self, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
-        // Dimensional analysis with private types - using simplified approach
+        use crate::tools::dimensional_analysis;
+
         let variable_units: std::collections::HashMap<String, String> = input
             .options
             .get("variable_units")
             .and_then(|v| serde_json::from_value(v.clone()).ok())
             .unwrap_or_default();
 
-        // For now, basic check - full dimensional analysis requires refactoring the module
-        let is_consistent = !variable_units.is_empty();
+        if variable_units.is_empty() {
+            return Ok(AnalyzeOutput {
+                result: serde_json::json!(false),
+                latex: None,
+                validation: Some(ValidationResult {
+                    is_valid: false,
+                    errors: vec!["No variable units provided for dimensional check".to_string()],
+                    warnings: vec![],
+                }),
+                details: Some(serde_json::json!({
+                    "expression": input.expression.clone(),
+                    "message": "Variable units required for dimensional analysis"
+                })),
+            });
+        }
 
-        Ok(AnalyzeOutput {
-            result: serde_json::json!(is_consistent),
-            latex: None,
-            validation: Some(ValidationResult {
-                is_valid: is_consistent,
-                errors: if is_consistent { vec![] } else { vec!["No variable units provided for dimensional check".to_string()] },
-                warnings: vec!["Full dimensional analysis not yet integrated - check requires dimensional_analysis module refactoring".to_string()],
-            }),
-            details: Some(serde_json::json!({
-                "expression": input.expression.clone(),
-                "variable_units": variable_units
-            })),
-        })
+        // Get target dimension if provided
+        let target_dimension = input
+            .options
+            .get("target_dimension")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string());
+
+        // Perform dimensional analysis
+        match dimensional_analysis::dimensional_analysis(
+            input.expression.clone(),
+            variable_units,
+            target_dimension,
+        ) {
+            Ok(result) => {
+                let errors = if !result.consistent {
+                    vec!["Dimensional inconsistency detected".to_string()]
+                } else if let Some(false) = result.target_match {
+                    vec!["Expression dimensions do not match target dimension".to_string()]
+                } else {
+                    vec![]
+                };
+
+                Ok(AnalyzeOutput {
+                    result: serde_json::json!({
+                        "consistent": result.consistent,
+                        "dimension": result.dimension,
+                        "target_match": result.target_match,
+                        "analysis": result.analysis,
+                    }),
+                    latex: None,
+                    validation: Some(ValidationResult {
+                        is_valid: result.consistent,
+                        errors,
+                        warnings: result.recommendations,
+                    }),
+                    details: Some(serde_json::json!({
+                        "expression": result.expression,
+                        "unit_breakdown": result.unit_breakdown,
+                    })),
+                })
+            }
+            Err(e) => {
+                Ok(AnalyzeOutput {
+                    result: serde_json::json!(false),
+                    latex: None,
+                    validation: Some(ValidationResult {
+                        is_valid: false,
+                        errors: vec![format!("Dimensional analysis error: {}", e)],
+                        warnings: vec![],
+                    }),
+                    details: Some(serde_json::json!({
+                        "expression": input.expression.clone(),
+                        "error": e.to_string()
+                    })),
+                })
+            }
+        }
     }
 
     /// Perform field analysis
