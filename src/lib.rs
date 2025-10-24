@@ -80,6 +80,7 @@ pub mod mcp_server;
 pub mod biology;
 pub mod chemistry;
 pub mod datetime;
+pub mod electrical; // Circuit analysis + NEC calculations
 pub mod engineering;
 pub mod geophysics;
 pub mod optics;
