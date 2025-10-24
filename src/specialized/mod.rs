@@ -3,6 +3,7 @@
 //! Specialized computational modules
 
 pub mod chemistry;
+pub mod control_theory;
 pub mod cryptographic_mathematics;
 pub mod graph_theory;
 pub mod information_theory;
