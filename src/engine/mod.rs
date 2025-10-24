@@ -50,5 +50,5 @@ pub use types::{
     TransformOutput,
 };
 
-pub use dispatcher::{ToolDispatcher, ToolRequest, ToolResponse};
+pub use dispatcher::{TimedResponse, ToolDispatcher, ToolRequest, ToolResponse};
 pub use equations::*;
