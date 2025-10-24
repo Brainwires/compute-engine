@@ -4,8 +4,10 @@
 
 pub mod black_holes;
 pub mod control_systems;
+pub mod cosmology;
 pub mod electromagnetism;
 pub mod fluid_dynamics;
+pub mod gravitational_waves;
 pub mod n_body;
 pub mod nuclear_physics;
 pub mod quantum;
