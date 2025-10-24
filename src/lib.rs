@@ -83,6 +83,7 @@ pub mod datetime;
 pub mod electrical; // Circuit analysis + NEC calculations
 pub mod engineering;
 pub mod geophysics;
+pub mod materials_science; // Crystal structures, band theory, mechanical properties
 pub mod optics;
 pub mod thermodynamics;
 
