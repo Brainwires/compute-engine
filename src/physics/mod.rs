@@ -10,6 +10,7 @@ pub mod quantum;
 pub mod quantum_mechanics;
 pub mod relativity;
 pub mod statistical_physics;
+pub mod warp_drive;
 
 // Re-export quantum_physics as quantum for backwards compatibility
 pub use quantum as quantum_physics;

@@ -2,9 +2,11 @@
 //!
 //! Specialized computational modules
 
+pub mod advanced_numerical;
 pub mod chemistry;
 pub mod control_theory;
 pub mod cryptographic_mathematics;
+pub mod game_theory;
 pub mod graph_theory;
 pub mod information_theory;
 pub mod linear_programming;
