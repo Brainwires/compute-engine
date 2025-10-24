@@ -3,6 +3,7 @@
 //! Core mathematical computation modules
 
 pub mod calculus;
+pub mod chaos;
 pub mod linear_algebra;
 pub mod numerical;
 pub mod special_functions;
