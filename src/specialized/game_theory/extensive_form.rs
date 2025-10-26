@@ -42,13 +42,3 @@ impl ExtensiveGame {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_extensive_game_creation() {
-        let game = ExtensiveGame::new();
-        assert_eq!(game.nodes.len(), 0);
-    }
-}

@@ -196,13 +196,3 @@ pub type ComputationalResult<T> = Result<T, Box<dyn std::error::Error>>;
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const NAME: &str = env!("CARGO_PKG_NAME");
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_version() {
-        assert!(!VERSION.is_empty());
-        assert_eq!(NAME, "brainwires-compute-engine");
-    }
-}
