@@ -240,12 +240,12 @@ fn random_init(data: &[Vec<f64>], k: usize) -> Vec<Vec<f64>> {
 }
 
 /// Euclidean distance between two points
-fn euclidean_distance(a: &[f64], b: &[f64]) -> f64 {
+pub fn euclidean_distance(a: &[f64], b: &[f64]) -> f64 {
     euclidean_distance_squared(a, b).sqrt()
 }
 
 /// Squared Euclidean distance
-fn euclidean_distance_squared(a: &[f64], b: &[f64]) -> f64 {
+pub fn euclidean_distance_squared(a: &[f64], b: &[f64]) -> f64 {
     a.iter()
         .zip(b)
         .map(|(&x, &y)| (x - y) * (x - y))

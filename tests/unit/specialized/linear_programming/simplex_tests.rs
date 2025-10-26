@@ -1,5 +1,5 @@
 // Unit tests for specialized::linear_programming::simplex
-use computational_engine::specialized::linear_programming::simplex::*;
+use computational_engine::specialized::linear_programming::*;
 
 use super::*;
 

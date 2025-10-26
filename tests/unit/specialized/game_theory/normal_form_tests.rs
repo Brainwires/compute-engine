@@ -1,5 +1,5 @@
 // Unit tests for specialized::game_theory::normal_form
-use computational_engine::specialized::game_theory::normal_form::*;
+use computational_engine::specialized::game_theory::*;
 
 use super::*;
 

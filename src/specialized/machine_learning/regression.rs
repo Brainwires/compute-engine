@@ -361,7 +361,7 @@ pub fn logistic_regression_predict(model: &LogisticRegression, x: &[Vec<f64>]) -
 }
 
 /// Sigmoid function: σ(x) = 1 / (1 + e^(-x))
-fn sigmoid(x: f64) -> f64 {
+pub fn sigmoid(x: f64) -> f64 {
     1.0 / (1.0 + (-x).exp())
 }
 
@@ -369,7 +369,7 @@ fn sigmoid(x: f64) -> f64 {
 ///
 /// R² = 1 - (SS_res / SS_tot)
 /// where SS_res = Σ(y - ŷ)² and SS_tot = Σ(y - ȳ)²
-fn compute_r_squared(y_true: &[f64], y_pred: &[f64]) -> f64 {
+pub fn compute_r_squared(y_true: &[f64], y_pred: &[f64]) -> f64 {
     let mean_y: f64 = y_true.iter().sum::<f64>() / y_true.len() as f64;
 
     let ss_tot: f64 = y_true.iter().map(|&y| (y - mean_y).powi(2)).sum();

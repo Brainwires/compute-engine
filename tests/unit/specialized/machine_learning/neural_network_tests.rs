@@ -1,7 +1,5 @@
 // Unit tests for specialized::machine_learning::neural_network
-use computational_engine::specialized::machine_learning::neural_network::*;
-
-use super::*;
+use computational_engine::specialized::machine_learning::*;
 
     #[test]
     fn test_activation_functions() {

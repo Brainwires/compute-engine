@@ -1,5 +1,5 @@
 // Unit tests for specialized::machine_learning::dimensionality_reduction
-use computational_engine::specialized::machine_learning::dimensionality_reduction::*;
+use computational_engine::specialized::machine_learning::*;
 
 use super::*;
 
