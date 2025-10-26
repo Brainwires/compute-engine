@@ -1,0 +1,13 @@
+pub mod analyze;
+pub mod calculus;
+pub mod compute_scientific;
+pub mod differentiate;
+pub mod fieldtheory;
+pub mod integrate;
+pub mod linear_algebra;
+pub mod optimize;
+pub mod sample;
+pub mod simulate;
+pub mod symbolic_cas;
+pub mod tensor_calculus;
+pub mod transform;
