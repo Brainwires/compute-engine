@@ -157,7 +157,6 @@ fn test_engineering_sound_pressure_level() {
 }
 
 #[test]
-#[ignore] // TODO: Fix parameter format
 fn test_engineering_stress() {
     let request = ComputationRequest {
         module: "engineering".to_string(),
@@ -165,8 +164,8 @@ fn test_engineering_stress() {
         parameters: to_params(json!({
             "discipline": "materials",
             "parameters": {
-                "stress": 1000.0,
-                "strain": 0.01
+                "youngs_modulus": 200e9, // 200 GPa (steel)
+                "strain": 0.001 // 0.1% strain
             }
         })),
     };
@@ -176,7 +175,6 @@ fn test_engineering_stress() {
 }
 
 #[test]
-#[ignore] // TODO: Fix parameter format
 fn test_engineering_fluid_mechanics() {
     let request = ComputationRequest {
         module: "engineering".to_string(),
@@ -184,10 +182,10 @@ fn test_engineering_fluid_mechanics() {
         parameters: to_params(json!({
             "discipline": "fluid_mechanics",
             "parameters": {
-                "velocity": 10.0,
-                "diameter": 0.05,
-                "density": 1000.0,
-                "viscosity": 0.001
+                "density": 1.225,
+                "velocity": 30.0,
+                "drag_coefficient": 0.3,
+                "cross_sectional_area": 2.0
             }
         })),
     };
@@ -242,7 +240,6 @@ fn test_fluid_bernoulli() {
 // ============================================================================
 
 #[test]
-#[ignore] // TODO: Fix parameter format
 fn test_geophysics_seismology() {
     let request = ComputationRequest {
         module: "geophysics".to_string(),
@@ -251,7 +248,8 @@ fn test_geophysics_seismology() {
             "category": "seismology",
             "parameters": {
                 "amplitude": 1000.0,
-                "distance": 100.0
+                "distance": 100.0,
+                "seismic_moment": 1e20 // Added: seismic moment required
             }
         })),
     };
@@ -261,7 +259,6 @@ fn test_geophysics_seismology() {
 }
 
 #[test]
-#[ignore] // TODO: Fix parameter format
 fn test_geophysics_atmosphere() {
     let request = ComputationRequest {
         module: "geophysics".to_string(),
@@ -269,7 +266,9 @@ fn test_geophysics_atmosphere() {
         parameters: to_params(json!({
             "category": "atmosphere",
             "parameters": {
-                "altitude": 10000.0
+                "altitude": 10000.0,
+                "pressure": 101325.0,
+                "temperature": 288.15
             }
         })),
     };
@@ -279,7 +278,6 @@ fn test_geophysics_atmosphere() {
 }
 
 #[test]
-#[ignore] // TODO: Fix parameter format
 fn test_geophysics_radiometric_dating() {
     let request = ComputationRequest {
         module: "geophysics".to_string(),
@@ -287,9 +285,10 @@ fn test_geophysics_radiometric_dating() {
         parameters: to_params(json!({
             "category": "radiometric_dating",
             "parameters": {
-                "parent_atoms": 1000.0,
-                "daughter_atoms": 500.0,
-                "half_life": 5730.0
+                "parent_isotope": 1000.0,
+                "daughter_isotope": 500.0,
+                "half_life": 5730.0,
+                "isotope_system": "C14"
             }
         })),
     };
@@ -321,7 +320,6 @@ fn test_optics_thin_lens() {
 }
 
 #[test]
-#[ignore] // TODO: Fix parameter format
 fn test_optics_snells_law() {
     let request = ComputationRequest {
         module: "optics".to_string(),
@@ -331,7 +329,7 @@ fn test_optics_snells_law() {
             "parameters": {
                 "n1": 1.0,
                 "n2": 1.5,
-                "angle1": 30.0
+                "theta1": 30.0 // Changed from angle1 to theta1
             }
         })),
     };
@@ -341,7 +339,6 @@ fn test_optics_snells_law() {
 }
 
 #[test]
-#[ignore] // TODO: Fix parameter format
 fn test_optics_diffraction_grating() {
     let request = ComputationRequest {
         module: "optics".to_string(),
@@ -351,7 +348,7 @@ fn test_optics_diffraction_grating() {
             "parameters": {
                 "wavelength": 5.5e-7,
                 "grating_spacing": 1.0e-6,
-                "order": 1.0
+                "order": 1 // Changed from 1.0 to 1 (integer)
             }
         })),
     };
@@ -365,7 +362,6 @@ fn test_optics_diffraction_grating() {
 // ============================================================================
 
 #[test]
-#[ignore] // TODO: Fix parameter format
 fn test_thermodynamics_conduction() {
     let request = ComputationRequest {
         module: "thermodynamics".to_string(),
@@ -375,7 +371,8 @@ fn test_thermodynamics_conduction() {
             "parameters": {
                 "thermal_conductivity": 0.6,
                 "area": 1.0,
-                "temperature_difference": 20.0,
+                "temp_hot": 320.0,
+                "temp_cold": 300.0,
                 "thickness": 0.1
             }
         })),
@@ -386,7 +383,6 @@ fn test_thermodynamics_conduction() {
 }
 
 #[test]
-#[ignore] // TODO: Fix parameter format
 fn test_thermodynamics_convection() {
     let request = ComputationRequest {
         module: "thermodynamics".to_string(),
@@ -396,7 +392,8 @@ fn test_thermodynamics_convection() {
             "parameters": {
                 "heat_transfer_coefficient": 10.0,
                 "area": 1.0,
-                "temperature_difference": 20.0
+                "surface_temp": 100.0,
+                "fluid_temp": 20.0
             }
         })),
     };
@@ -406,7 +403,6 @@ fn test_thermodynamics_convection() {
 }
 
 #[test]
-#[ignore] // TODO: Fix parameter format
 fn test_thermodynamics_radiation() {
     let request = ComputationRequest {
         module: "thermodynamics".to_string(),
@@ -416,7 +412,8 @@ fn test_thermodynamics_radiation() {
             "parameters": {
                 "emissivity": 0.9,
                 "area": 1.0,
-                "temperature": 400.0
+                "surface_temp_1": 400.0,
+                "surface_temp_2": 300.0
             }
         })),
     };
@@ -426,7 +423,6 @@ fn test_thermodynamics_radiation() {
 }
 
 #[test]
-#[ignore] // TODO: Fix parameter format
 fn test_thermodynamics_entropy() {
     let request = ComputationRequest {
         module: "thermodynamics".to_string(),
@@ -434,7 +430,7 @@ fn test_thermodynamics_entropy() {
         parameters: to_params(json!({
             "operation": "entropy",
             "parameters": {
-                "heat": 1000.0,
+                "heat_transfer": 1000.0, // Changed from heat to heat_transfer
                 "temperature": 300.0
             }
         })),
