@@ -245,7 +245,6 @@ fn test_lcm_coprime() {
 // ============================================================================
 
 #[test]
-#[ignore]
 fn test_euler_totient_prime() {
     let mut parameters = HashMap::new();
     parameters.insert("n".to_string(), json!("17"));
@@ -262,7 +261,6 @@ fn test_euler_totient_prime() {
 }
 
 #[test]
-#[ignore]
 fn test_euler_totient_composite() {
     let mut parameters = HashMap::new();
     parameters.insert("n".to_string(), json!("36"));
@@ -283,7 +281,6 @@ fn test_euler_totient_composite() {
 // ============================================================================
 
 #[test]
-#[ignore]
 fn test_carmichael_lambda_prime() {
     let mut parameters = HashMap::new();
     parameters.insert("n".to_string(), json!("11"));
@@ -300,7 +297,6 @@ fn test_carmichael_lambda_prime() {
 }
 
 #[test]
-#[ignore]
 fn test_carmichael_lambda_composite() {
     let mut parameters = HashMap::new();
     parameters.insert("n".to_string(), json!("15"));
@@ -535,7 +531,6 @@ fn test_chinese_remainder_three_congruences() {
 
 #[test]
 fn test_ec_point_add() {
-#[ignore]
     let mut parameters = HashMap::new();
     parameters.insert("curve_a".to_string(), json!("0"));
     parameters.insert("curve_b".to_string(), json!("7"));

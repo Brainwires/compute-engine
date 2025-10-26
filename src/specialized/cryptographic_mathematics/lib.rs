@@ -1,5 +1,5 @@
 use num_bigint::{BigInt, BigUint, RandBigInt};
-use num_traits::{Num, One, Zero};
+use num_traits::{Num, One, Signed, Zero};
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest as Sha2Digest, Sha256};
@@ -259,6 +259,110 @@ fn ec_add(p1: &ECPoint, p2: &ECPoint, a: &BigInt, modulus: &BigInt) -> ECPoint {
                 ECPoint::Point(x3, y3)
             }
         }
+    }
+}
+
+// Euler's totient function φ(n)
+// Counts integers from 1 to n that are coprime with n
+pub fn euler_totient(n: &BigInt) -> BigInt {
+    if n <= &BigInt::one() {
+        return BigInt::one();
+    }
+
+    let mut result = n.clone();
+    let mut n_copy = n.clone();
+    let mut p = BigInt::from(2);
+
+    // Factor n and apply formula: φ(n) = n * ∏(1 - 1/p) for all prime factors p
+    while &p * &p <= n_copy {
+        if &n_copy % &p == BigInt::zero() {
+            // Remove all factors of p
+            while &n_copy % &p == BigInt::zero() {
+                n_copy /= &p;
+            }
+            // Apply φ(p^k) = p^(k-1) * (p-1)
+            result -= &result / &p;
+        }
+        p += 1;
+    }
+
+    // If n_copy > 1, then it's a prime factor
+    if n_copy > BigInt::one() {
+        result -= &result / &n_copy;
+    }
+
+    result
+}
+
+// Carmichael's lambda function λ(n)
+// Returns the smallest positive integer m such that a^m ≡ 1 (mod n) for all a coprime to n
+pub fn carmichael_lambda(n: &BigInt) -> BigInt {
+    if n <= &BigInt::one() {
+        return BigInt::one();
+    }
+
+    let mut result = BigInt::one();
+    let mut n_copy = n.clone();
+    let mut p = BigInt::from(2);
+
+    // Factor n and compute λ for each prime power
+    while &p * &p <= n_copy {
+        if &n_copy % &p == BigInt::zero() {
+            let mut pk = p.clone();
+            n_copy /= &p;
+
+            // Count the exponent k
+            while &n_copy % &p == BigInt::zero() {
+                pk *= &p;
+                n_copy /= &p;
+            }
+
+            // λ(p^k) = φ(p^k) for odd primes, λ(2^k) = 2^(k-2) for k >= 3
+            let lambda_pk = if &p == &BigInt::from(2) && &pk >= &BigInt::from(8) {
+                &pk / 4
+            } else {
+                euler_totient(&pk)
+            };
+
+            // λ(n) = lcm of all λ(p^k)
+            result = lcm(&result, &lambda_pk);
+        }
+        p += 1;
+    }
+
+    // If n_copy > 1, then it's a prime
+    if n_copy > BigInt::one() {
+        let lambda_p = &n_copy - 1;
+        result = lcm(&result, &lambda_p);
+    }
+
+    result
+}
+
+// Least common multiple
+fn lcm(a: &BigInt, b: &BigInt) -> BigInt {
+    if a == &BigInt::zero() || b == &BigInt::zero() {
+        return BigInt::zero();
+    }
+    let (gcd, _, _) = extended_gcd(a, b);
+    (a * b).abs() / gcd
+}
+
+// Public wrapper for elliptic curve point addition
+pub fn elliptic_curve_point_add(
+    x1: &BigInt,
+    y1: &BigInt,
+    x2: &BigInt,
+    y2: &BigInt,
+    a: &BigInt,
+    modulus: &BigInt,
+) -> (Option<BigInt>, Option<BigInt>) {
+    let p1 = ECPoint::Point(x1.clone(), y1.clone());
+    let p2 = ECPoint::Point(x2.clone(), y2.clone());
+
+    match ec_add(&p1, &p2, a, modulus) {
+        ECPoint::Infinity => (None, None),
+        ECPoint::Point(x, y) => (Some(x), Some(y)),
     }
 }
 

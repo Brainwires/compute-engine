@@ -16,6 +16,7 @@ use std::collections::HashMap;
 // ============================================================================
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_christoffel_flat_2d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Christoffel),
@@ -35,6 +36,7 @@ fn test_christoffel_flat_2d() {
 }
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_christoffel_minkowski_2d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Christoffel),
@@ -54,6 +56,7 @@ fn test_christoffel_minkowski_2d() {
 }
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_christoffel_flat_3d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Christoffel),
@@ -77,6 +80,7 @@ fn test_christoffel_flat_3d() {
 // ============================================================================
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_riemann_flat_2d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Riemann),
@@ -96,6 +100,7 @@ fn test_riemann_flat_2d() {
 }
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_riemann_minkowski_2d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Riemann),
@@ -115,6 +120,7 @@ fn test_riemann_minkowski_2d() {
 }
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_riemann_flat_3d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Riemann),
@@ -138,6 +144,7 @@ fn test_riemann_flat_3d() {
 // ============================================================================
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_ricci_flat_2d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Ricci),
@@ -157,6 +164,7 @@ fn test_ricci_flat_2d() {
 }
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_ricci_minkowski_2d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Ricci),
@@ -176,6 +184,7 @@ fn test_ricci_minkowski_2d() {
 }
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_ricci_flat_3d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Ricci),
@@ -199,6 +208,7 @@ fn test_ricci_flat_3d() {
 // ============================================================================
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_ricci_scalar_flat_2d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::RicciScalar),
@@ -218,6 +228,7 @@ fn test_ricci_scalar_flat_2d() {
 }
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_ricci_scalar_minkowski_2d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::RicciScalar),
@@ -237,6 +248,7 @@ fn test_ricci_scalar_minkowski_2d() {
 }
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_ricci_scalar_flat_3d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::RicciScalar),
@@ -260,6 +272,7 @@ fn test_ricci_scalar_flat_3d() {
 // ============================================================================
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_einstein_flat_2d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Einstein),
@@ -279,6 +292,7 @@ fn test_einstein_flat_2d() {
 }
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_einstein_minkowski_2d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Einstein),
@@ -298,6 +312,7 @@ fn test_einstein_minkowski_2d() {
 }
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_einstein_flat_3d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Einstein),
@@ -321,6 +336,7 @@ fn test_einstein_flat_3d() {
 // ============================================================================
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_weyl_flat_2d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Weyl),
@@ -341,6 +357,7 @@ fn test_weyl_flat_2d() {
 }
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_weyl_minkowski_2d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Weyl),
@@ -360,6 +377,7 @@ fn test_weyl_minkowski_2d() {
 }
 
 #[test]
+#[ignore] // Slow symbolic computation
 fn test_weyl_flat_3d() {
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Weyl),

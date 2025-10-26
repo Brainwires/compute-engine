@@ -309,13 +309,81 @@ pub fn compute_number_theory(
             })
         }
 
-        NumberTheoryOp::EulerTotient
-        | NumberTheoryOp::CarmichaelLambda
-        | NumberTheoryOp::ECPointAdd => {
-            return Err(format!(
-                "Number theory operation {:?} not yet fully implemented",
-                op
-            ));
+        NumberTheoryOp::EulerTotient => {
+            let n = input
+                .parameters
+                .get("n")
+                .and_then(|v| v.as_str())
+                .and_then(|s| BigInt::from_str(s).ok())
+                .ok_or("Missing or invalid n parameter")?;
+
+            let result = euler_totient(&n);
+            serde_json::json!({
+                "totient": result.to_string()
+            })
+        }
+        NumberTheoryOp::CarmichaelLambda => {
+            let n = input
+                .parameters
+                .get("n")
+                .and_then(|v| v.as_str())
+                .and_then(|s| BigInt::from_str(s).ok())
+                .ok_or("Missing or invalid n parameter")?;
+
+            let result = carmichael_lambda(&n);
+            serde_json::json!({
+                "lambda": result.to_string()
+            })
+        }
+        NumberTheoryOp::ECPointAdd => {
+            let x1 = input
+                .parameters
+                .get("x1")
+                .and_then(|v| v.as_str())
+                .and_then(|s| BigInt::from_str(s).ok())
+                .ok_or("Missing or invalid x1 parameter")?;
+            let y1 = input
+                .parameters
+                .get("y1")
+                .and_then(|v| v.as_str())
+                .and_then(|s| BigInt::from_str(s).ok())
+                .ok_or("Missing or invalid y1 parameter")?;
+            let x2 = input
+                .parameters
+                .get("x2")
+                .and_then(|v| v.as_str())
+                .and_then(|s| BigInt::from_str(s).ok())
+                .ok_or("Missing or invalid x2 parameter")?;
+            let y2 = input
+                .parameters
+                .get("y2")
+                .and_then(|v| v.as_str())
+                .and_then(|s| BigInt::from_str(s).ok())
+                .ok_or("Missing or invalid y2 parameter")?;
+            let curve_a = input
+                .parameters
+                .get("curve_a")
+                .and_then(|v| v.as_str())
+                .and_then(|s| BigInt::from_str(s).ok())
+                .ok_or("Missing or invalid curve_a parameter")?;
+            let p = input
+                .parameters
+                .get("p")
+                .and_then(|v| v.as_str())
+                .and_then(|s| BigInt::from_str(s).ok())
+                .ok_or("Missing or invalid p parameter")?;
+
+            let (x3_opt, y3_opt) = elliptic_curve_point_add(&x1, &y1, &x2, &y2, &curve_a, &p);
+
+            match (x3_opt, y3_opt) {
+                (Some(x3), Some(y3)) => serde_json::json!({
+                    "x3": x3.to_string(),
+                    "y3": y3.to_string()
+                }),
+                _ => serde_json::json!({
+                    "point": "Infinity"
+                }),
+            }
         }
     };
 
