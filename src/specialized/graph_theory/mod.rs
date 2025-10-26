@@ -439,3 +439,8 @@ pub fn topological_sort(request: TopologicalSortRequest) -> Result<TopologicalSo
 
     Ok(TopologicalSortResult { order, has_cycle })
 }
+
+// Test module
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/graph_theory_tests.rs"]
+mod tests;

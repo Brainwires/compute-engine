@@ -884,3 +884,8 @@ pub fn sensitivity_analysis(
         total_sensitivity,
     })
 }
+
+// Test module
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/optimization_tests.rs"]
+mod tests;

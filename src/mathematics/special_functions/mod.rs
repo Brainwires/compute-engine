@@ -47,3 +47,8 @@ pub struct HypergeometricResult {
     pub value: f64,
     pub function_type: String,
 }
+
+// Test module - part of this module, can access private functions
+#[cfg(test)]
+#[path = "../../../tests/unit/mathematics/special_functions_tests.rs"]
+mod tests;

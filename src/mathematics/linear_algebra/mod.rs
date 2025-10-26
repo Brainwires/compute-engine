@@ -604,3 +604,8 @@ fn matrix_scale(a: &[Vec<f64>], scalar: f64) -> Vec<Vec<f64>> {
 fn factorial(n: usize) -> usize {
     (1..=n).product()
 }
+
+// Test module - part of this module, can access private functions
+#[cfg(test)]
+#[path = "../../../tests/unit/mathematics/linear_algebra_tests.rs"]
+mod tests;

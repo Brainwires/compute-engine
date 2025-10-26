@@ -588,3 +588,8 @@ pub fn mutual_information(
         normalized_mi: normalized.min(1.0),
     })
 }
+
+// Test module
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/statistics_tests.rs"]
+mod tests;

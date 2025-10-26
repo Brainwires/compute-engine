@@ -39,3 +39,8 @@ pub struct TensorResult {
     pub success: bool,
     pub error: Option<String>,
 }
+
+// Test module - part of this module, can access private functions
+#[cfg(test)]
+#[path = "../../../tests/unit/mathematics/tensor_calculus_tests.rs"]
+mod tests;

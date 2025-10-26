@@ -562,3 +562,8 @@ pub fn relative_entropy(request: RelativeEntropyRequest) -> Result<RelativeEntro
     })
 }
 
+// Test module
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/information_theory_tests.rs"]
+mod tests;
+
