@@ -99,7 +99,7 @@ impl OptimizerState {
     }
 
     /// Standard SGD update
-    pub fn update_sgd(&self, gradients: &[Vec<Vec<f64>>]) -> Vec<Vec<Vec<f64>>> {
+    pub(crate) fn update_sgd(&self, gradients: &[Vec<Vec<f64>>]) -> Vec<Vec<Vec<f64>>> {
         gradients
             .iter()
             .map(|layer_grad| {

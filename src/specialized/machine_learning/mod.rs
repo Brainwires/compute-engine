@@ -109,3 +109,24 @@ pub struct TrainingHistory {
     /// Whether early stopping was triggered
     pub early_stopped: bool,
 }
+
+// Test modules - part of this module, can access private functions
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/machine_learning/regression_tests.rs"]
+mod regression_tests;
+
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/machine_learning/clustering_tests.rs"]
+mod clustering_tests;
+
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/machine_learning/neural_network_tests.rs"]
+mod neural_network_tests;
+
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/machine_learning/optimization_tests.rs"]
+mod optimization_tests;
+
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/machine_learning/dimensionality_reduction_tests.rs"]
+mod dimensionality_reduction_tests;

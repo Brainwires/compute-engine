@@ -1,7 +1,10 @@
 // Unit tests for specialized::machine_learning::optimization
-use computational_engine::specialized::machine_learning::*;
+use crate::specialized::machine_learning::*;
 
 use super::*;
+
+// Import private methods from OptimizerState
+use super::optimization::OptimizerState;
 
     #[test]
     fn test_optimizer_state() {

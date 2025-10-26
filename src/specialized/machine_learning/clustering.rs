@@ -240,7 +240,7 @@ fn random_init(data: &[Vec<f64>], k: usize) -> Vec<Vec<f64>> {
 }
 
 /// Euclidean distance between two points
-pub fn euclidean_distance(a: &[f64], b: &[f64]) -> f64 {
+pub(crate) fn euclidean_distance(a: &[f64], b: &[f64]) -> f64 {
     euclidean_distance_squared(a, b).sqrt()
 }
 

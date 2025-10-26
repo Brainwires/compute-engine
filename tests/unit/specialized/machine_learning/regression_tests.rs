@@ -1,7 +1,10 @@
 // Unit tests for specialized::machine_learning::regression
-use computational_engine::specialized::machine_learning::*;
+use crate::specialized::machine_learning::*;
 
 use super::*;
+
+// Import private functions from regression module
+use super::regression::{sigmoid, compute_r_squared};
 
     #[test]
     fn test_linear_regression_simple() {

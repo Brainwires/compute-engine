@@ -1,7 +1,10 @@
 // Unit tests for specialized::machine_learning::clustering
-use computational_engine::specialized::machine_learning::*;
+use crate::specialized::machine_learning::*;
 
 use super::*;
+
+// Import private functions from clustering module
+use super::clustering::euclidean_distance;
 
     #[test]
     fn test_kmeans_basic() {
