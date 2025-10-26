@@ -1,69 +1,125 @@
 use crate::api::types::ComputationResponse;
-use crate::chemistry::{ChemistryInput, calculate_chemistry};
-/**
- * Chemistry API Handler - Updated to use new chemistry module
- */
+use crate::specialized::chemistry as chem;
 use serde_json::{Value, json};
 
 pub fn handle(request: &crate::api::types::ComputationRequest) -> ComputationResponse {
-    // Convert HashMap to serde_json::Map
     let params_map: serde_json::Map<String, Value> =
         request.parameters.clone().into_iter().collect();
 
-    // Parse the input from the request parameters
-    let input: ChemistryInput = match serde_json::from_value(serde_json::Value::Object(params_map))
-    {
-        Ok(input) => input,
-        Err(e) => {
-            return ComputationResponse::error(
-                request.module.clone(),
-                request.operation.clone(),
-                format!("Invalid chemistry request: {}", e),
-            );
+    match request.operation.as_str() {
+        "molar_mass" => {
+            let input: chem::MolarMassRequest = match serde_json::from_value(Value::Object(params_map)) {
+                Ok(i) => i,
+                Err(e) => return ComputationResponse::error(
+                    request.module.clone(),
+                    request.operation.clone(),
+                    format!("Invalid molar_mass request: {}", e),
+                ),
+            };
+            match chem::molar_mass(input) {
+                Ok(result) => ComputationResponse::success(
+                    request.module.clone(),
+                    request.operation.clone(),
+                    json!(result),
+                ),
+                Err(e) => ComputationResponse::error(request.module.clone(), request.operation.clone(), e),
+            }
         }
-    };
-
-    // Execute calculation
-    match calculate_chemistry(input) {
-        Ok(result) => ComputationResponse::success(
+        "gas_law" => {
+            let input: chem::GasLawRequest = match serde_json::from_value(Value::Object(params_map)) {
+                Ok(i) => i,
+                Err(e) => return ComputationResponse::error(
+                    request.module.clone(),
+                    request.operation.clone(),
+                    format!("Invalid gas_law request: {}", e),
+                ),
+            };
+            match chem::gas_law(input) {
+                Ok(result) => ComputationResponse::success(
+                    request.module.clone(),
+                    request.operation.clone(),
+                    json!(result),
+                ),
+                Err(e) => ComputationResponse::error(request.module.clone(), request.operation.clone(), e),
+            }
+        }
+        "thermodynamics" => {
+            let input: chem::ThermodynamicsRequest = match serde_json::from_value(Value::Object(params_map)) {
+                Ok(i) => i,
+                Err(e) => return ComputationResponse::error(
+                    request.module.clone(),
+                    request.operation.clone(),
+                    format!("Invalid thermodynamics request: {}", e),
+                ),
+            };
+            match chem::thermodynamics(input) {
+                Ok(result) => ComputationResponse::success(
+                    request.module.clone(),
+                    request.operation.clone(),
+                    json!(result),
+                ),
+                Err(e) => ComputationResponse::error(request.module.clone(), request.operation.clone(), e),
+            }
+        }
+        "acid_base" => {
+            let input: chem::AcidBaseRequest = match serde_json::from_value(Value::Object(params_map)) {
+                Ok(i) => i,
+                Err(e) => return ComputationResponse::error(
+                    request.module.clone(),
+                    request.operation.clone(),
+                    format!("Invalid acid_base request: {}", e),
+                ),
+            };
+            match chem::acid_base(input) {
+                Ok(result) => ComputationResponse::success(
+                    request.module.clone(),
+                    request.operation.clone(),
+                    json!(result),
+                ),
+                Err(e) => ComputationResponse::error(request.module.clone(), request.operation.clone(), e),
+            }
+        }
+        "kinetics" => {
+            let input: chem::KineticsRequest = match serde_json::from_value(Value::Object(params_map)) {
+                Ok(i) => i,
+                Err(e) => return ComputationResponse::error(
+                    request.module.clone(),
+                    request.operation.clone(),
+                    format!("Invalid kinetics request: {}", e),
+                ),
+            };
+            match chem::kinetics(input) {
+                Ok(result) => ComputationResponse::success(
+                    request.module.clone(),
+                    request.operation.clone(),
+                    json!(result),
+                ),
+                Err(e) => ComputationResponse::error(request.module.clone(), request.operation.clone(), e),
+            }
+        }
+        "electrochemistry" => {
+            let input: chem::ElectrochemistryRequest = match serde_json::from_value(Value::Object(params_map)) {
+                Ok(i) => i,
+                Err(e) => return ComputationResponse::error(
+                    request.module.clone(),
+                    request.operation.clone(),
+                    format!("Invalid electrochemistry request: {}", e),
+                ),
+            };
+            match chem::electrochemistry(input) {
+                Ok(result) => ComputationResponse::success(
+                    request.module.clone(),
+                    request.operation.clone(),
+                    json!(result),
+                ),
+                Err(e) => ComputationResponse::error(request.module.clone(), request.operation.clone(), e),
+            }
+        }
+        _ => ComputationResponse::error(
             request.module.clone(),
             request.operation.clone(),
-            json!({
-                "value": result.value,
-                "unit": result.unit,
-                "formula_used": result.formula_used,
-                "interpretation": result.interpretation
-            }),
+            format!("Unknown chemistry operation: {}", request.operation),
         ),
-        Err(e) => ComputationResponse::error(request.module.clone(), request.operation.clone(), e),
     }
 }
 
-// Legacy function for backwards compatibility
-pub fn handle_chemistry_request(request: serde_json::Map<String, Value>) -> Value {
-    // Parse the input
-    let input: ChemistryInput = match serde_json::from_value(serde_json::Value::Object(request)) {
-        Ok(input) => input,
-        Err(e) => {
-            return json!({
-                "error": format!("Invalid chemistry request: {}", e),
-                "success": false
-            });
-        }
-    };
-
-    // Execute calculation
-    match calculate_chemistry(input) {
-        Ok(result) => json!({
-            "success": true,
-            "value": result.value,
-            "unit": result.unit,
-            "formula": result.formula_used,
-            "interpretation": result.interpretation
-        }),
-        Err(e) => json!({
-            "error": e,
-            "success": false
-        }),
-    }
-}

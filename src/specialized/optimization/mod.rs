@@ -93,7 +93,11 @@ pub fn gradient_descent(
 
         // Update variables
         for i in 0..x.len() {
-            x[i] -= options.step_size * grad[i];
+            if options.maximize {
+                x[i] += options.step_size * grad[i]; // Maximize: ascend gradient
+            } else {
+                x[i] -= options.step_size * grad[i]; // Minimize: descend gradient
+            }
         }
 
         let current_objective = objective(&x);
@@ -154,14 +158,20 @@ pub fn nelder_mead(
         iterations = iter + 1;
 
         // Sort simplex by objective value
-        simplex.sort_by(|a, b| objective(a).partial_cmp(&objective(b)).unwrap());
+        if options.maximize {
+            // For maximization: best = highest value
+            simplex.sort_by(|a, b| objective(b).partial_cmp(&objective(a)).unwrap());
+        } else {
+            // For minimization: best = lowest value
+            simplex.sort_by(|a, b| objective(a).partial_cmp(&objective(b)).unwrap());
+        }
 
         let best = simplex[0].clone();
         let worst = simplex[n].clone();
         let second_worst = simplex[n - 1].clone();
 
         // Check convergence
-        let range = objective(&worst) - objective(&best);
+        let range = (objective(&worst) - objective(&best)).abs();
         if range < options.tolerance {
             break;
         }
@@ -185,13 +195,30 @@ pub fn nelder_mead(
             .collect();
         let reflected_value = objective(&reflected);
 
-        if reflected_value >= objective(&best) && reflected_value < objective(&second_worst) {
+        // Comparisons depend on whether we're maximizing or minimizing
+        let is_better = |a: f64, b: f64| {
+            if options.maximize {
+                a > b
+            } else {
+                a < b
+            }
+        };
+
+        let is_between = |val: f64, bound1: f64, bound2: f64| {
+            if options.maximize {
+                val < bound1 && val >= bound2
+            } else {
+                val >= bound1 && val < bound2
+            }
+        };
+
+        if is_between(reflected_value, objective(&best), objective(&second_worst)) {
             simplex[n] = reflected;
             continue;
         }
 
         // Expansion
-        if reflected_value < objective(&best) {
+        if is_better(reflected_value, objective(&best)) {
             let expanded: Vec<f64> = centroid
                 .iter()
                 .zip(reflected.iter())
@@ -199,7 +226,7 @@ pub fn nelder_mead(
                 .collect();
             let expanded_value = objective(&expanded);
 
-            if expanded_value < reflected_value {
+            if is_better(expanded_value, reflected_value) {
                 simplex[n] = expanded;
             } else {
                 simplex[n] = reflected;
@@ -215,7 +242,7 @@ pub fn nelder_mead(
             .collect();
         let contracted_value = objective(&contracted);
 
-        if contracted_value < objective(&worst) {
+        if is_better(contracted_value, objective(&worst)) {
             simplex[n] = contracted;
             continue;
         }
@@ -437,9 +464,9 @@ pub fn curve_fitting(request: CurveFitRequest) -> Result<CurveFitResult, String>
             })
         }
         "trigonometric" | "sinusoidal" => {
-            // y = a + b*sin(c*x + d)
-            // Simplified: y = a + b*sin(x) + c*cos(x)
-            // Using linearized form for initial fit
+            // Trigonometric (linearized): y = a + b*sin(x) + c*cos(x)
+            // Note: Equivalent to A*sin(x + φ) where A = √(b²+c²), tan(φ) = c/b
+            // This linearized form allows for analytical least-squares solution
 
             let n_f64 = n as f64;
             let sum_y: f64 = request.y_data.iter().sum();

@@ -10,6 +10,7 @@ pub mod fluid_dynamics;
 pub mod gravitational_waves;
 pub mod n_body;
 pub mod nuclear_physics;
+pub mod plasma;
 pub mod quantum;
 pub mod quantum_mechanics;
 pub mod relativity;

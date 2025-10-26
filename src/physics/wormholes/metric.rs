@@ -112,7 +112,11 @@ pub fn proper_distance(r_start: f64, r_end: f64, config: &WormholeConfig, n_step
             phi: 0.0,
         };
         let metric = morris_thorne_metric(&coords, config);
-        distance += metric.g_rr.sqrt() * dr.abs();
+
+        // g_rr should be positive for physical metric
+        if metric.g_rr > 0.0 && metric.g_rr.is_finite() {
+            distance += metric.g_rr.sqrt() * dr.abs();
+        }
     }
 
     distance
@@ -123,32 +127,30 @@ pub fn proper_distance(r_start: f64, r_end: f64, config: &WormholeConfig, n_step
 /// For Morris-Thorne: (dz/dr)² = (b/r)/(1 - b/r)
 pub fn embedding_surface(r: f64, config: &WormholeConfig) -> f64 {
     let r0 = config.throat_radius;
-    if r < r0 {
-        return 0.0; // Not defined inside throat
+    if r <= r0 {
+        return 0.0; // At or inside throat, z = 0
     }
 
-    let b = shape_function(r, config);
-    let integrand = (b / r) / (1.0 - b / r);
+    // Numerical integration from r0 to r
+    let n = 100;
+    let dr = (r - r0) / n as f64;
+    let mut z = 0.0;
 
-    if integrand < 0.0 {
-        0.0
-    } else {
-        // Numerical integration from r0 to r
-        let n = 100;
-        let dr = (r - r0) / n as f64;
-        let mut z = 0.0;
+    for i in 1..n {  // Start at i=1 to avoid exactly r=r0
+        let r_i = r0 + i as f64 * dr;
+        let b_i = shape_function(r_i, config);
+        let ratio = b_i / r_i;
 
-        for i in 0..n {
-            let r_i = r0 + (i as f64 + 0.5) * dr;
-            let b_i = shape_function(r_i, config);
-            let integrand_i = (b_i / r_i) / (1.0 - b_i / r_i);
-            if integrand_i > 0.0 {
+        // Only integrate where 1 - b/r > 0 (physical region)
+        if ratio < 1.0 {
+            let integrand_i = ratio / (1.0 - ratio);
+            if integrand_i > 0.0 && integrand_i.is_finite() {
                 z += integrand_i.sqrt() * dr;
             }
         }
-
-        z
     }
+
+    z
 }
 
 #[cfg(test)]

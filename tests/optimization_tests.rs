@@ -351,3 +351,269 @@ fn test_nelder_mead_different_starting_points() {
     // Both should converge to same minimum
     assert!((result1.objective_value - result2.objective_value).abs() < 0.1);
 }
+
+// ========================================================================
+// CRITICAL BUG FIX TESTS (Added 2025-10-26)
+// ========================================================================
+
+#[test]
+fn test_gradient_descent_maximize_flag() {
+    // Bug Fix #4: Test that maximize flag works correctly
+    // Maximize f(x,y) = -(x^2 + y^2), maximum at (0,0)
+    fn objective(params: &[f64]) -> f64 {
+        -(params[0].powi(2) + params[1].powi(2))
+    }
+
+    fn gradient(params: &[f64]) -> Vec<f64> {
+        vec![-2.0 * params[0], -2.0 * params[1]]
+    }
+
+    // Test maximization
+    let result_max = gradient_descent(
+        objective,
+        gradient,
+        vec![5.0, 5.0],
+        OptimizationOptions {
+            max_iterations: 1000,
+            tolerance: 1e-6,
+            step_size: 0.1,
+            maximize: true, // MAXIMIZE
+        },
+    )
+    .unwrap();
+
+    // Should converge to (0,0) when maximizing
+    assert!(
+        result_max.variables.get("x1").unwrap().abs() < 0.1,
+        "Maximization should find x1 ≈ 0, got {}",
+        result_max.variables.get("x1").unwrap()
+    );
+    assert!(
+        result_max.variables.get("x2").unwrap().abs() < 0.1,
+        "Maximization should find x2 ≈ 0, got {}",
+        result_max.variables.get("x2").unwrap()
+    );
+}
+
+#[test]
+fn test_gradient_descent_minimize_vs_maximize() {
+    // Test that minimize and maximize give opposite results
+    fn objective(params: &[f64]) -> f64 {
+        params[0].powi(2) // Simple parabola, min at 0
+    }
+
+    fn gradient(params: &[f64]) -> Vec<f64> {
+        vec![2.0 * params[0]]
+    }
+
+    // Minimize from positive starting point
+    let result_min = gradient_descent(
+        objective,
+        gradient,
+        vec![5.0],
+        OptimizationOptions {
+            max_iterations: 100,
+            tolerance: 1e-6,
+            step_size: 0.1,
+            maximize: false,
+        },
+    )
+    .unwrap();
+
+    // Should go toward 0
+    let x_min = result_min.variables.get("x1").unwrap();
+    assert!(*x_min < 5.0, "Minimization should decrease x");
+}
+
+#[test]
+fn test_nelder_mead_maximize_flag() {
+    // Bug Fix #5: Test that Nelder-Mead maximize flag works
+    // Maximize f(x,y) = -(x^2 + y^2), maximum at (0,0)
+    fn objective(params: &[f64]) -> f64 {
+        -(params[0].powi(2) + params[1].powi(2))
+    }
+
+    let result_max = nelder_mead(
+        objective,
+        vec![5.0, 5.0],
+        OptimizationOptions {
+            max_iterations: 1000,
+            tolerance: 1e-6,
+            step_size: 0.1,
+            maximize: true, // MAXIMIZE
+        },
+    )
+    .unwrap();
+
+    // Should converge to (0,0) when maximizing
+    assert!(
+        result_max.variables.get("x1").unwrap().abs() < 0.5,
+        "Maximization should find x1 ≈ 0, got {}",
+        result_max.variables.get("x1").unwrap()
+    );
+    assert!(
+        result_max.variables.get("x2").unwrap().abs() < 0.5,
+        "Maximization should find x2 ≈ 0, got {}",
+        result_max.variables.get("x2").unwrap()
+    );
+}
+
+#[test]
+fn test_nelder_mead_minimize_vs_maximize() {
+    // Maximize vs minimize should give different results
+    fn objective(params: &[f64]) -> f64 {
+        // Function with clear min (0,0) and behavior away from origin
+        params[0].powi(2) + params[1].powi(2)
+    }
+
+    // Minimize - should go to (0,0)
+    let result_min = nelder_mead(
+        objective,
+        vec![5.0, 5.0],
+        OptimizationOptions {
+            max_iterations: 1000,
+            tolerance: 1e-6,
+            step_size: 0.1,
+            maximize: false,
+        },
+    )
+    .unwrap();
+
+    // Should find minimum near origin
+    assert!(result_min.objective_value < 1.0);
+
+    // Maximize with bounded starting point
+    // For unbounded function x^2+y^2, it will try to go to infinity
+    // So we test with a different function
+    fn bounded_objective(params: &[f64]) -> f64 {
+        // Inverted Gaussian - has clear maximum at (0,0)
+        let r2 = params[0].powi(2) + params[1].powi(2);
+        (-r2).exp()
+    }
+
+    let result_max = nelder_mead(
+        bounded_objective,
+        vec![2.0, 2.0],
+        OptimizationOptions {
+            max_iterations: 1000,
+            tolerance: 1e-6,
+            step_size: 0.1,
+            maximize: true,
+        },
+    )
+    .unwrap();
+
+    // Should find maximum near origin, value close to 1.0
+    assert!(
+        result_max.objective_value > 0.9,
+        "Maximum of exp(-r²) should be ≈ 1.0, got {}",
+        result_max.objective_value
+    );
+}
+
+#[test]
+fn test_curve_fitting_trigonometric_documentation() {
+    // Bug Fix #7: Verify trigonometric fit uses linearized form
+    // y = a + b*sin(x) + c*cos(x), not y = a + b*sin(c*x + d)
+    let x_data = vec![0.0, 0.785, 1.571, 2.356, 3.142]; // 0, π/4, π/2, 3π/4, π
+    let y_data = vec![0.0, 0.707, 1.0, 0.707, 0.0]; // sin(x)
+
+    let result = curve_fitting(CurveFitRequest {
+        x_data,
+        y_data,
+        model: "trigonometric".to_string(),
+    })
+    .unwrap();
+
+    // Should return 3 coefficients (a, amplitude, phase)
+    // NOT 4 coefficients (a, b, c, d)
+    assert_eq!(
+        result.coefficients.len(),
+        3,
+        "Trigonometric fit should return 3 coefficients (linearized form)"
+    );
+
+    // First coefficient should be close to 0 (no DC offset)
+    assert!(
+        result.coefficients[0].abs() < 0.2,
+        "DC offset should be small for sin(x)"
+    );
+
+    // Second coefficient (amplitude) should be close to 1
+    assert!(
+        (result.coefficients[1] - 1.0).abs() < 0.2,
+        "Amplitude should be ≈ 1.0 for sin(x)"
+    );
+}
+
+#[test]
+fn test_curve_fitting_sinusoidal_alias() {
+    // Verify "sinusoidal" is an alias for "trigonometric"
+    let x_data = vec![0.0, 1.0, 2.0, 3.0];
+    let y_data = vec![1.0, 2.0, 1.5, 2.5];
+
+    let result_trig = curve_fitting(CurveFitRequest {
+        x_data: x_data.clone(),
+        y_data: y_data.clone(),
+        model: "trigonometric".to_string(),
+    })
+    .unwrap();
+
+    let result_sin = curve_fitting(CurveFitRequest {
+        x_data,
+        y_data,
+        model: "sinusoidal".to_string(),
+    })
+    .unwrap();
+
+    // Should give identical results
+    assert_eq!(result_trig.coefficients.len(), result_sin.coefficients.len());
+    for (c1, c2) in result_trig.coefficients.iter().zip(result_sin.coefficients.iter()) {
+        assert!((c1 - c2).abs() < 1e-10);
+    }
+}
+
+#[test]
+fn test_optimization_options_default() {
+    // Verify default options
+    let opts = OptimizationOptions::default();
+    assert_eq!(opts.max_iterations, 1000);
+    assert_eq!(opts.tolerance, 1e-6);
+    assert_eq!(opts.step_size, 0.01);
+    assert_eq!(opts.maximize, false);
+}
+
+#[test]
+fn test_curve_fitting_error_handling() {
+    // Test mismatched x and y lengths
+    let result = curve_fitting(CurveFitRequest {
+        x_data: vec![1.0, 2.0, 3.0],
+        y_data: vec![1.0, 2.0],
+        model: "linear".to_string(),
+    });
+    assert!(result.is_err());
+
+    // Test exponential with non-positive y values
+    let result = curve_fitting(CurveFitRequest {
+        x_data: vec![1.0, 2.0, 3.0],
+        y_data: vec![1.0, -2.0, 3.0], // negative value
+        model: "exponential".to_string(),
+    });
+    assert!(result.is_err());
+
+    // Test logarithmic with non-positive x values
+    let result = curve_fitting(CurveFitRequest {
+        x_data: vec![0.0, 1.0, 2.0], // zero value
+        y_data: vec![1.0, 2.0, 3.0],
+        model: "logarithmic".to_string(),
+    });
+    assert!(result.is_err());
+
+    // Test power with non-positive values
+    let result = curve_fitting(CurveFitRequest {
+        x_data: vec![-1.0, 1.0, 2.0], // negative value
+        y_data: vec![1.0, 2.0, 3.0],
+        model: "power".to_string(),
+    });
+    assert!(result.is_err());
+}

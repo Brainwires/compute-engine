@@ -134,8 +134,10 @@ pub fn statistics(request: StatisticsRequest) -> Result<StatisticsResult, String
 
     if should_compute("variance") || should_compute("std") {
         let mean = request.data.iter().sum::<f64>() / request.data.len() as f64;
+        // Use sample variance (Bessel's correction: n-1 instead of n)
+        // This provides an unbiased estimator when data is a sample from a population
         let variance = request.data.iter().map(|x| (x - mean).powi(2)).sum::<f64>()
-            / request.data.len() as f64;
+            / (request.data.len() - 1) as f64;
 
         if should_compute("variance") {
             result.variance = Some(variance);
@@ -147,8 +149,9 @@ pub fn statistics(request: StatisticsRequest) -> Result<StatisticsResult, String
 
     if should_compute("skewness") {
         let mean = request.data.iter().sum::<f64>() / request.data.len() as f64;
+        // Use sample standard deviation (Bessel's correction)
         let std = (request.data.iter().map(|x| (x - mean).powi(2)).sum::<f64>()
-            / request.data.len() as f64)
+            / (request.data.len() - 1) as f64)
             .sqrt();
 
         let skewness = request
@@ -163,8 +166,9 @@ pub fn statistics(request: StatisticsRequest) -> Result<StatisticsResult, String
 
     if should_compute("kurtosis") {
         let mean = request.data.iter().sum::<f64>() / request.data.len() as f64;
+        // Use sample standard deviation (Bessel's correction)
         let std = (request.data.iter().map(|x| (x - mean).powi(2)).sum::<f64>()
-            / request.data.len() as f64)
+            / (request.data.len() - 1) as f64)
             .sqrt();
 
         let kurtosis = request
@@ -196,7 +200,7 @@ fn calculate_percentile(sorted_data: &[f64], percentile: f64) -> f64 {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MonteCarloRequest {
-    pub function: String, // Function to integrate (simplified - would need parser in practice)
+    pub function: String, // Currently ignored - only sum of x² is supported. TODO: implement function parser
     pub bounds: Vec<(f64, f64)>, // Integration bounds for each dimension
     pub samples: usize,
 }
@@ -222,7 +226,9 @@ pub fn monte_carlo_integration(request: MonteCarloRequest) -> Result<MonteCarloR
     // Calculate volume of integration region
     let volume: f64 = request.bounds.iter().map(|(a, b)| b - a).product();
 
-    // Simple example: integrate x^2 + y^2 (would need proper function parser)
+    // NOTE: Currently hardcoded to integrate Σx² (sum of squares)
+    // The 'function' parameter is ignored and reserved for future implementation
+    // TODO: Implement proper function parser to support arbitrary integrands
     for _ in 0..request.samples {
         let point: Vec<f64> = request
             .bounds
@@ -230,7 +236,7 @@ pub fn monte_carlo_integration(request: MonteCarloRequest) -> Result<MonteCarloR
             .map(|(a, b)| rng.gen_range(*a..*b))
             .collect();
 
-        // Evaluate function at random point (simplified)
+        // Hardcoded function: f(x₁, x₂, ..., xₙ) = Σxᵢ²
         let value = point.iter().map(|x| x * x).sum::<f64>();
 
         sum += value;
@@ -251,7 +257,7 @@ pub fn monte_carlo_integration(request: MonteCarloRequest) -> Result<MonteCarloR
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MCMCRequest {
-    pub target_distribution: String, // Target distribution type
+    pub target_distribution: String, // Currently ignored - only Gaussian is supported. TODO: implement distribution parser
     pub dimensions: usize,
     pub samples: usize,
     pub burn_in: usize,
@@ -285,7 +291,9 @@ pub fn mcmc_sampling(request: MCMCRequest) -> Result<MCMCResult, String> {
     let mut samples = Vec::new();
     let mut accepted = 0;
 
-    // Target distribution (simplified - Gaussian for demonstration)
+    // NOTE: Currently hardcoded to Gaussian target distribution: exp(-x²/2)
+    // The 'target_distribution' parameter is ignored and reserved for future implementation
+    // TODO: Implement proper distribution parser to support arbitrary target distributions
     let log_target = |x: &[f64]| -> f64 { -0.5 * x.iter().map(|v| v * v).sum::<f64>() };
 
     let mut current_log_prob = log_target(&current_state);
@@ -397,8 +405,24 @@ fn assign_ranks(data: &[f64]) -> Vec<f64> {
     indexed.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
 
     let mut ranks = vec![0.0; data.len()];
-    for (rank, (idx, _)) in indexed.iter().enumerate() {
-        ranks[*idx] = (rank + 1) as f64;
+    let mut i = 0;
+
+    while i < indexed.len() {
+        // Find all elements with the same value (ties)
+        let mut j = i + 1;
+        while j < indexed.len() && (indexed[j].1 - indexed[i].1).abs() < 1e-10 {
+            j += 1;
+        }
+
+        // Calculate average rank for tied values
+        let avg_rank = ((i + 1) + j) as f64 / 2.0;
+
+        // Assign average rank to all tied values
+        for k in i..j {
+            ranks[indexed[k].0] = avg_rank;
+        }
+
+        i = j;
     }
 
     ranks
