@@ -351,3 +351,8 @@ impl Default for ChemistryParams {
         }
     }
 }
+
+// Test module
+#[cfg(test)]
+#[path = "../../tests/unit/chemistry_tests.rs"]
+mod tests;

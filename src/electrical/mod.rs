@@ -56,3 +56,7 @@ pub struct Branch {
     pub to_node: usize,
     pub component: Component,
 }
+
+#[cfg(test)]
+#[path = "../../tests/unit/electrical_tests.rs"]
+mod tests;

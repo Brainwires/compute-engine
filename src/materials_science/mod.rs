@@ -113,3 +113,7 @@ pub type Vector3D = [f64; 3];
 
 /// Matrix 3x3 (used for strain tensors, rotation matrices)
 pub type Matrix3x3 = [[f64; 3]; 3];
+
+#[cfg(test)]
+#[path = "../../tests/unit/materials_science_tests.rs"]
+mod tests;

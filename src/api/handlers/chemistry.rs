@@ -123,3 +123,6 @@ pub fn handle(request: &crate::api::types::ComputationRequest) -> ComputationRes
     }
 }
 
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/chemistry_handler_tests.rs"]
+mod tests;

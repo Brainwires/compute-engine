@@ -228,3 +228,7 @@ impl NBodyConfig {
     }
 }
 
+#[cfg(test)]
+#[path = "../../../tests/unit/physics/n_body_tests.rs"]
+mod tests;
+

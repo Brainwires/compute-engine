@@ -211,3 +211,8 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
         }
     }
 }
+
+// Test module
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/linear_algebra_handler_tests.rs"]
+mod tests;

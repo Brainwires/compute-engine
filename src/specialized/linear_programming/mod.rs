@@ -139,3 +139,9 @@ impl LinearProgram {
         self.equality_constraints.as_ref().map_or(0, |c| c.len())
     }
 }
+
+
+// Test module
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/linear_programming_tests.rs"]
+mod tests;

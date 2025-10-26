@@ -348,3 +348,8 @@ impl Default for BiologyParams {
         }
     }
 }
+
+// Test module
+#[cfg(test)]
+#[path = "../../tests/unit/biology_tests.rs"]
+mod tests;

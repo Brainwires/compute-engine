@@ -242,3 +242,8 @@ fn find_polynomial_roots(coeffs: &[f64]) -> Vec<Complex64> {
     vec![]
 }
 
+// Test module
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/control_theory_transfer_function_tests.rs"]
+mod tests;
+

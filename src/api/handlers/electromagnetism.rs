@@ -163,3 +163,7 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
         Err(e) => ComputationResponse::error(request.module.clone(), request.operation.clone(), e),
     }
 }
+
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/electromagnetism_handler_tests.rs"]
+mod tests;

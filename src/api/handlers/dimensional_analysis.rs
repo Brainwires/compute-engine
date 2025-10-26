@@ -73,3 +73,7 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/dimensional_analysis_handler_tests.rs"]
+mod tests;

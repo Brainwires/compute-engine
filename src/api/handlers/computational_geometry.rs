@@ -116,3 +116,7 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/computational_geometry_handler_tests.rs"]
+mod tests;

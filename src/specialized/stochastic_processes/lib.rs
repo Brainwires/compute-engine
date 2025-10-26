@@ -381,3 +381,8 @@ fn process_request(input: &str) -> String {
 
     serde_json::to_string(&result).unwrap()
 }
+
+// Test module
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/stochastic_processes_tests.rs"]
+mod tests;

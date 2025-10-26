@@ -651,3 +651,7 @@ fn day_of_week(params: &DateTimeParams) -> Result<DateTimeResult, String> {
     })
 }
 
+#[cfg(test)]
+#[path = "../../tests/unit/datetime_tests.rs"]
+mod tests;
+

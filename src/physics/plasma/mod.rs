@@ -144,3 +144,6 @@ pub fn is_plasma(params: &PlasmaParams) -> bool {
     debye_number(params) > 10.0
 }
 
+#[cfg(test)]
+#[path = "../../../tests/unit/physics/plasma_tests.rs"]
+mod tests;

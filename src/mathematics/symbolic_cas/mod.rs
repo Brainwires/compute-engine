@@ -667,3 +667,7 @@ pub fn rationalize(expr_str: &str) -> SymbolicResult<SymbolicOutput> {
     simplify(expr_str)
 }
 
+#[cfg(test)]
+#[path = "../../../tests/unit/mathematics/symbolic_cas_tests.rs"]
+mod tests;
+

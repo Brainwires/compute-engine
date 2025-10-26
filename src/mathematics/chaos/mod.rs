@@ -86,3 +86,7 @@ impl Point3D {
     }
 }
 
+#[cfg(test)]
+#[path = "../../../tests/unit/mathematics/chaos_tests.rs"]
+mod tests;
+

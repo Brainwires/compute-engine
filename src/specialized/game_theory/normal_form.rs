@@ -261,3 +261,9 @@ pub fn battle_of_sexes() -> NormalFormGame {
     )
 }
 
+
+
+// Test module
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/game_theory_tests.rs"]
+mod tests;

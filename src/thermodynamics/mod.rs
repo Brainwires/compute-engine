@@ -370,3 +370,7 @@ impl Default for ThermodynamicsParams {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "../../tests/unit/thermodynamics_tests.rs"]
+mod tests;

@@ -3,6 +3,10 @@
 use crate::api::types::{ComputationRequest, ComputationResponse};
 use serde_json::json;
 
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/fluid_dynamics_handler_tests.rs"]
+mod tests;
+
 pub fn handle(request: &ComputationRequest) -> ComputationResponse {
     match request.operation.as_str() {
         "navier_stokes" | "reynolds_number" | "bernoulli" => {

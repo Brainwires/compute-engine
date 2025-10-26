@@ -338,3 +338,7 @@ impl Default for GeophysicsParams {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "../../tests/unit/geophysics_tests.rs"]
+mod tests;

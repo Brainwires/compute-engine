@@ -440,3 +440,7 @@ impl Default for EngineeringParams {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "../../tests/unit/engineering_tests.rs"]
+mod tests;

@@ -641,3 +641,8 @@ fn process_request(input: &str) -> String {
     serde_json::to_string(&result).unwrap()
 }
 
+// Test module
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/cryptographic_mathematics_tests.rs"]
+mod tests;
+

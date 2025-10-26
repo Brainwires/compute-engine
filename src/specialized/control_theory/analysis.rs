@@ -60,3 +60,8 @@ pub fn eigenvalues(a: &[Vec<f64>]) -> Vec<Complex64> {
     vec![]
 }
 
+// Test module
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/control_theory_analysis_tests.rs"]
+mod tests;
+

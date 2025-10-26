@@ -120,3 +120,7 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/function_approximator_handler_tests.rs"]
+mod tests;

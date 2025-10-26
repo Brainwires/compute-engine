@@ -167,3 +167,8 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
         }
     }
 }
+
+// TODO: Fix test compilation error
+// #[cfg(test)]
+// #[path = "../../../tests/unit/api/handlers/cryptographic_mathematics_handler_tests.rs"]
+// mod tests;

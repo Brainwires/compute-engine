@@ -33,3 +33,8 @@ pub fn lqr(
     })
 }
 
+// Test module
+#[cfg(test)]
+#[path = "../../../tests/unit/specialized/control_theory_lqr_tests.rs"]
+mod tests;
+
