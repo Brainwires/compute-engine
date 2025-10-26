@@ -65,6 +65,19 @@ pub fn calculate_christoffel_symbols(
     let n = metric.len();
     let mut symbols = Vec::new();
 
+    // Early return for constant metrics (all derivatives are zero)
+    let is_constant_metric = metric.iter().all(|row| {
+        row.iter().all(|expr| matches!(expr, SymbolicExpr::Constant(_)))
+    });
+
+    if is_constant_metric {
+        // For constant metrics, all Christoffel symbols are zero (no derivatives)
+        return Ok(ChristoffelResult {
+            symbols: vec![], // No non-zero components
+            dimension: n,
+        });
+    }
+
     // Calculate metric inverse (simplified - in real implementation would use proper matrix inversion)
     let metric_inv = calculate_metric_inverse(metric)?;
 
