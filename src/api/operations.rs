@@ -335,3 +335,7 @@ pub fn list_all_operations() -> HashMap<String, Vec<String>> {
 
     ops
 }
+
+#[cfg(test)]
+#[path = "../../tests/unit/api/operations_tests.rs"]
+mod tests;

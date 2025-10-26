@@ -123,3 +123,8 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
         }
     }
 }
+
+// Test module
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/statistics_handler_tests.rs"]
+mod tests;

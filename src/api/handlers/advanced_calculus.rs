@@ -214,3 +214,7 @@ fn handle_limit(request: &ComputationRequest) -> ComputationResponse {
         "Invalid parameters for limit".to_string(),
     )
 }
+
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/advanced_calculus_handler_tests.rs"]
+mod tests;

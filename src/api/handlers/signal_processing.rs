@@ -87,3 +87,7 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/signal_processing_handler_tests.rs"]
+mod tests;

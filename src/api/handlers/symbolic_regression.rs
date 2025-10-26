@@ -100,3 +100,7 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
         }
     }
 }
+
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/symbolic_regression_handler_tests.rs"]
+mod tests;

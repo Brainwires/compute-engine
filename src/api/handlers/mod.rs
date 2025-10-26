@@ -89,3 +89,7 @@ pub fn route_request(request: &ComputationRequest) -> ComputationResponse {
         ),
     }
 }
+
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/mod_tests.rs"]
+mod tests;

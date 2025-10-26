@@ -39,3 +39,7 @@ pub fn handle(request: &crate::api::types::ComputationRequest) -> ComputationRes
         Err(e) => ComputationResponse::error(request.module.clone(), request.operation.clone(), e),
     }
 }
+
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/datetime_handler_tests.rs"]
+mod tests;

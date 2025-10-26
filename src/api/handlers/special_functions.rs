@@ -127,3 +127,7 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
         Err(e) => ComputationResponse::error(request.module.clone(), request.operation.clone(), e),
     }
 }
+
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/special_functions_handler_tests.rs"]
+mod tests;

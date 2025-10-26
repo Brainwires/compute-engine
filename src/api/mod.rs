@@ -35,3 +35,7 @@ pub fn process_json_request(json_str: &str) -> String {
     serde_json::to_string(&response).unwrap()
 }
 
+#[cfg(test)]
+#[path = "../../tests/unit/api/mod_tests.rs"]
+mod tests;
+

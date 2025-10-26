@@ -58,3 +58,7 @@ fn handle_genetic_algorithm(request: &ComputationRequest) -> ComputationResponse
         }),
     )
 }
+
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/optimization_handler_tests.rs"]
+mod tests;
