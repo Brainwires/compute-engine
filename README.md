@@ -1,12 +1,10 @@
 # Brainwires Compute Engine
 
-A comprehensive computational engine for mathematical and scientific computing in Rust, providing **916 computational capabilities** (510 public functions + 406 operation types) through a clean **10-tool API**.
+A comprehensive computational engine for mathematical and scientific computing in Rust, providing **406 mathematical operations** through a clean **10-tool API**.
 
-[![Tests](https://img.shields.io/badge/tests-525%20passing-brightgreen)](https://github.com/nightness/brainwires-compute-engine)
-[![Coverage](https://img.shields.io/badge/coverage-980%2B%20tests-blue)](https://github.com/nightness/brainwires-compute-engine)
+[![Tests](https://img.shields.io/badge/tests-1131%20passing-brightgreen)](https://github.com/nightness/brainwires-compute-engine)
+[![Coverage](https://img.shields.io/badge/coverage-44.78%25-yellow)](https://github.com/nightness/brainwires-compute-engine)
 [![Rust](https://img.shields.io/badge/rust-2024%20edition-orange)](https://www.rust-lang.org/)
-
-> 📊 **[See how we compare to Mathematica & Wolfram Alpha →](COMPARISON_ANALYSIS.md)**
 
 ## 🚀 Quick Start
 
@@ -48,8 +46,9 @@ println!("{:#?}", response);
 ## ✨ Key Features
 
 ### Core Capabilities
-- ✅ **525 unit tests** with 100% pass rate
-- ✅ **980+ total tests** (comprehensive integration + unit tests)
+- ✅ **1,139 tests** with 100% pass rate (1,131 passing, 8 ignored for performance)
+- ✅ **163 test files** professionally organized (123 unit + 40 integration)
+- ✅ **406 mathematical operations** across 10 unified tools
 - ✅ **Adaptive integration** with automatic subdivision and error estimation
 - ✅ **24+ traditional mathematical subjects** including calculus, linear algebra, statistics, differential equations, graph theory, optimization, and more
 - ✅ **Custom Computer Algebra System (CAS)** - no Python dependencies
@@ -229,13 +228,15 @@ cargo build --release
 # Run the MCP server
 ./target/release/brainwires-compute-engine stdin
 
-# Run all tests (525 unit + 980+ total tests)
+# Run all tests (1,139 tests in 163 files)
 cargo test
 
+# Run integration tests only
+cargo test --test all_integration_tests
+
 # Run specific test suites
-cargo test --test linear_algebra_comprehensive_tests
-cargo test --test tensor_calculus_comprehensive_tests
-cargo test mathematics::special_functions
+cargo test --test all_integration_tests integration::tools::linear_algebra
+cargo test --test all_integration_tests integration::tools::tensor_calculus
 
 # Generate documentation
 cargo doc --open
@@ -274,31 +275,56 @@ See [WASM.md](WASM.md) for detailed WASM build instructions.
 
 Comprehensive test suite with **100% pass rate**:
 
-- **525 unit tests** in library modules (including 2 adaptive integration tests)
-- **40+ integration test files** with 455+ additional tests
-- **Coverage**: Science (181 tests), Physics (178 tests), Math (113+ tests), Tools (142 tests), Specialized (83 tests)
-- **Performance**: 8 fluid dynamics tests disabled for CI (marked as `#[ignore]` for optional execution)
+### Test Statistics
+- **1,139 total tests** (1,131 passing, 8 ignored for performance)
+- **163 test files** organized professionally:
+  - **123 unit test files** in `tests/unit/` (mirror `src/` structure)
+  - **40 integration test files** in `tests/integration/` (organized by category)
+
+### Test Distribution by Category
+- **Tools**: 569 tests (10 unified tool comprehensive tests)
+- **API**: 182 tests (API & engine functionality)
+- **Physics**: 178 tests (quantum, relativity, EM, control, nuclear, statistical)
+- **Modules**: 134 tests (crypto, datetime, graph theory, info theory, etc.)
+- **Coverage**: ~76 tests (complete operation coverage verification)
+
+### Test Organization
+```
+tests/
+├── all_integration_tests.rs  # Entry point for all integration tests
+├── integration/               # 40 integration test files
+│   ├── tools/                # 13 files - Tool comprehensive tests
+│   ├── physics/              # 6 files - Physics module tests
+│   ├── modules/              # 9 files - Module-specific tests
+│   ├── api/                  # 7 files - API & engine tests
+│   ├── coverage/             # 4 files - Coverage verification
+│   └── other/                # 1 file - Uncategorized
+└── unit/                     # 123 unit test files (mirrors src/)
+    ├── mathematics/
+    ├── physics/
+    ├── specialized/
+    └── ...
+```
 
 ### Test Commands
 
 ```bash
-# Run all tests (excludes ignored tests)
+# Run all tests (excludes 8 ignored slow tests)
 cargo test
 
-# Run with coverage report
-cargo test --test '*_comprehensive_tests'
+# Run integration tests
+cargo test --test all_integration_tests
 
-# Run ignored tests (slow fluid dynamics tests)
+# Run specific test categories
+cargo test --test all_integration_tests integration::tools::
+cargo test --test all_integration_tests integration::physics::
+cargo test --test all_integration_tests integration::modules::
+
+# Run ignored tests (slow physics simulations)
 cargo test -- --ignored
 
 # Run ALL tests including ignored
 cargo test -- --include-ignored
-
-# Test specific modules
-cargo test chemistry
-cargo test physics::electromagnetism
-cargo test mathematics::linear_algebra
-cargo test numerical_methods  # Includes adaptive integration tests
 ```
 
 ## 🎯 Use Cases
@@ -317,7 +343,7 @@ cargo test numerical_methods  # Includes adaptive integration tests
 - [ARCHITECTURE.md](ARCHITECTURE.md) - Detailed 10-tool architecture
 - [API.md](API.md) - Complete JSON API reference
 - [WASM.md](WASM.md) - WebAssembly build and usage guide
-- [OPERATIONS_COMPLETE_LIST.md](OPERATIONS_COMPLETE_LIST.md) - All 916 capabilities inventory
+- [OPERATIONS_COMPLETE_LIST.md](OPERATIONS_COMPLETE_LIST.md) - All 406 operations inventory
 - [MATHEMATICA_COMPETITION_PROGRESS.md](MATHEMATICA_COMPETITION_PROGRESS.md) - Feature parity tracking
 - [STDOUT_STDERR_POLICY.md](STDOUT_STDERR_POLICY.md) - MCP server compatibility
 - API documentation: `cargo doc --open`
@@ -352,22 +378,25 @@ cargo bench
 
 ## 🌟 Design Philosophy
 
-- **Simplicity**: 10 intuitive tools providing access to 916 computational capabilities
-- **Comprehensiveness**: 916 capabilities (510 functions + 406 operation types) covering 24+ traditional mathematical subjects from calculus and linear algebra to quantum mechanics and control theory
+- **Simplicity**: 10 intuitive tools providing access to 406 mathematical operations
+- **Comprehensiveness**: 406 operations covering 24+ traditional mathematical subjects from calculus and linear algebra to quantum mechanics and control theory
 - **Self-Contained**: Custom CAS with no Python dependencies
 - **Type Safety**: Full Rust type checking with zero-cost abstractions
 - **Performance**: Release builds optimized with LTO and single codegen unit
-- **Testability**: 100% test pass rate with comprehensive coverage
+- **Testability**: 100% test pass rate with 1,139 tests across 163 professionally organized files
 - **Flexibility**: Rich input schemas with sensible defaults
 - **Interoperability**: Native Rust, JSON, and WebAssembly interfaces
 
 ## 🆕 Recent Updates
 
-### December 2024
-- ✅ **Adaptive Integration**: Implemented adaptive Simpson's rule with automatic subdivision and Richardson extrapolation
-- ✅ **Performance Optimization**: Disabled 8 slow fluid dynamics tests for CI (still available with `--ignored` flag)
-- ✅ **Test Coverage**: Increased from 523 to 525 unit tests
-- ✅ **Error Handling**: Improved integration error estimation and reporting
+### October 2024
+- ✅ **Test Reorganization**: Complete refactoring of test structure
+  - Extracted all 123 inline tests to separate files mirroring `src/` structure
+  - Organized 40 integration tests by category (tools, physics, modules, api, coverage)
+  - Professional test organization following Rust best practices
+- ✅ **Documentation Updates**: Accurate operation counts from source code (406 operations)
+- ✅ **Bug Fixes**: Fixed 8 critical bugs (Spearman correlation, optimization flags, variance calculation)
+- ✅ **Test Coverage**: 1,139 tests with 100% pass rate (8 ignored for performance)
 
 ## 📝 License
 
