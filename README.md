@@ -329,14 +329,9 @@ See [TESTING.md](TESTING.md) for detailed testing guidelines and best practices.
 
 ## 📖 Documentation
 
-- **[COMPARISON_ANALYSIS.md](COMPARISON_ANALYSIS.md)** - 📊 **How we compare to Mathematica & Wolfram Alpha**
 - **[TESTING.md](TESTING.md)** - 🧪 **Complete testing guide and best practices**
-- [ARCHITECTURE.md](ARCHITECTURE.md) - Detailed 10-tool architecture
-- [API.md](API.md) - Complete JSON API reference
+- **[CLAUDE.md](CLAUDE.md)** - 🤖 **Development guide for Claude Code and contributors**
 - [WASM.md](WASM.md) - WebAssembly build and usage guide
-- [OPERATIONS_COMPLETE_LIST.md](OPERATIONS_COMPLETE_LIST.md) - All 406 operations inventory
-- [MATHEMATICA_COMPETITION_PROGRESS.md](MATHEMATICA_COMPETITION_PROGRESS.md) - Feature parity tracking
-- [STDOUT_STDERR_POLICY.md](STDOUT_STDERR_POLICY.md) - MCP server compatibility
 - API documentation: `cargo doc --open`
 
 ## 🛠️ Development
