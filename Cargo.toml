@@ -56,6 +56,8 @@ hex = "0.4"
 
 # CLI
 clap = { version = "4.0", features = ["derive"] }
+strum = { version = "0.26", features = ["derive"] }
+strum_macros = "0.26"
 
 # MCP SDK (primary interface) - optional to support WASM builds
 rmcp = { version = "0.8", features = ["server", "transport-io", "macros"], optional = true }

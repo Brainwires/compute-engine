@@ -6,13 +6,23 @@ use serde_json::json;
 #[command(name = "brainwires-compute-engine")]
 #[command(about = "Unified computational engine for mathematics and physics", long_about = None)]
 #[command(version)]
+#[command(disable_help_subcommand = true)]
+#[command(arg_required_else_help = false)]
 struct Cli {
     #[command(subcommand)]
-    command: Commands,
+    command: Option<Commands>,
 }
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Display help for tools and their operations (e.g., "help compute", "help compute physics")
+    Help {
+        /// Tool name (solve, differentiate, integrate, analyze, simulate, compute, transform, fieldtheory, sample, optimize)
+        /// If not specified, shows all operations across all tools
+        tool: Option<String>,
+        /// Category within the tool (e.g., "physics", "matrix", "tensor")
+        category: Option<String>,
+    },
     /// Tensor calculus and Einstein equations
     Tensor {
         #[command(subcommand)]
@@ -46,8 +56,6 @@ enum Commands {
     },
     /// Display version and module information
     Info,
-    /// List all available operations across all modules
-    ListOps,
     /// Execute a JSON request (MCP-style interface)
     Json {
         /// JSON request string or file path (use @file.json for file, or - for stdin)
@@ -110,11 +118,51 @@ enum QuantumOps {
 #[tokio::main]
 async fn main() {
     let cli = Cli::parse();
-    run_command(cli.command).await;
+    if let Some(command) = cli.command {
+        run_command(command).await;
+    } else {
+        // Show default help when no command given
+        use computational_engine::help::print_main_help;
+        print_main_help();
+    }
 }
 
 async fn run_command(command: Commands) {
     match command {
+        Commands::Help { tool, category } => {
+            use computational_engine::help_auto::print_hierarchical_help;
+
+            if let Some(tool_name) = tool {
+                // Show hierarchical help for specific tool and optional category
+                print_hierarchical_help(&tool_name, category.as_deref());
+            } else {
+                // Show all operations organized by module
+                println!("Computational Engine - All Available Operations");
+                println!();
+                let ops = list_all_operations();
+                let mut total = 0;
+                for (module, operations) in ops.iter() {
+                    println!("📦 {} ({} operations):", module, operations.len());
+                    total += operations.len();
+                    for op in operations {
+                        println!("   • {}", op);
+                    }
+                    println!();
+                }
+                println!("Total: {} operations across {} modules", total, ops.len());
+                println!();
+                println!("💡 TIP: For tool-specific help with examples, use:");
+                println!("   brainwires-compute-engine help <TOOL> [CATEGORY]");
+                println!();
+                println!("Examples:");
+                println!("   brainwires-compute-engine help compute           # All compute categories");
+                println!("   brainwires-compute-engine help compute physics   # Physics operations only");
+                println!("   brainwires-compute-engine help compute matrix    # Matrix operations only");
+                println!();
+                println!("Available tools: solve, differentiate, integrate, analyze, simulate,");
+                println!("                 compute, transform, fieldtheory, sample, optimize");
+            }
+        }
         Commands::McpServer => {
             eprintln!("Starting MCP server...");
             if let Err(e) = mcp_server::server::serve_stdio().await {
@@ -207,21 +255,6 @@ async fn run_command(command: Commands) {
             println!("  ✓ Equation Validation");
             println!("  ✓ Computational Geometry");
             println!("  ✓ Quantum Physics (with GPU support)");
-        }
-        Commands::ListOps => {
-            println!("All Available Operations (~189 total):");
-            println!();
-            let ops = list_all_operations();
-            let mut total = 0;
-            for (module, operations) in ops.iter() {
-                println!("📦 {} ({} operations):", module, operations.len());
-                total += operations.len();
-                for op in operations {
-                    println!("   • {}", op);
-                }
-                println!();
-            }
-            println!("Total: {} operations across {} modules", total, ops.len());
         }
         Commands::Json { request } => {
             // Handle file input if request starts with @

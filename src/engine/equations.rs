@@ -4,6 +4,7 @@
 //! that map the 180+ original operations to the 10 core tools.
 
 use serde::{Deserialize, Deserializer, Serialize};
+use strum::EnumIter;
 
 // ============================================================================
 // SOLVE TOOL - Equation Types
@@ -15,7 +16,7 @@ use serde::{Deserialize, Deserializer, Serialize};
 /// - Nested objects: {"einstein": "schwarzschild"} → Einstein(Schwarzschild)
 ///
 /// This is the UNIVERSAL solution for all 916 operations across all 10 tools
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, EnumIter)]
 #[serde(rename_all = "snake_case")]
 pub enum EquationType {
     Einstein(EinsteinEquation),
@@ -114,9 +115,10 @@ impl<'de> Deserialize<'de> for EquationType {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum EinsteinEquation {
+    #[default]
     Vacuum,
     WithSource,
     Schwarzschild,
@@ -124,9 +126,10 @@ pub enum EinsteinEquation {
     FriedmannRobertsonWalker,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum FluidEquation {
+    #[default]
     NavierStokes,
     CavityFlow,
     ChannelFlow,
@@ -135,18 +138,20 @@ pub enum FluidEquation {
     Bernoulli,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum DifferentialEquation {
+    #[default]
     ODE,
     PDE,
     BoundaryValue,
     InitialValue,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum EMEquation {
+    #[default]
     Maxwell,
     Wave,
     TransmissionLine,
@@ -154,9 +159,10 @@ pub enum EMEquation {
     Helmholtz,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum ChemicalEquation {
+    #[default]
     Balance,
     Thermodynamic,
     Kinetics,
@@ -165,17 +171,19 @@ pub enum ChemicalEquation {
     Electrochemistry,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum NumberTheoryProblem {
+    #[default]
     DiscreteLog,
     Factorization,
     PrimalityTest,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum DiffGeoProblem {
+    #[default]
     Geodesic,
     ParallelTransport,
     MinimalSurface,
@@ -185,9 +193,10 @@ pub enum DiffGeoProblem {
 // DIFFERENTIATE TOOL - Operation Types
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum DifferentiationOp {
+    #[default]
     // Vector Calculus
     #[serde(alias = "VectorCalc")]
     VectorCalc(VectorCalcOp),
@@ -208,9 +217,10 @@ pub enum DifferentiationOp {
     Symbolic,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum VectorCalcOp {
+    #[default]
     Gradient,
     Divergence,
     Curl,
@@ -218,9 +228,10 @@ pub enum VectorCalcOp {
     Directional,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum TensorDiffOp {
+    #[default]
     Covariant,
     Lie,
     ExteriorDerivative,
@@ -230,9 +241,10 @@ pub enum TensorDiffOp {
 // INTEGRATE TOOL - Integration Types
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum IntegrationType {
+    #[default]
     // Line/Surface/Volume
     #[serde(alias = "Geometric")]
     Geometric(GeometricIntegral),
@@ -253,35 +265,39 @@ pub enum IntegrationType {
     MonteCarlo,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum GeometricIntegral {
+    #[default]
     Line,
     Surface,
     Volume,
     Contour,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum IntegralTheorem {
+    #[default]
     Greens,
     Stokes,
     Divergence,
     CauchyIntegral,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum ComplexIntegral {
+    #[default]
     Residue,
     Cauchy,
     Contour,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum NumericIntegration {
+    #[default]
     Trapezoidal,
     Simpson,
     GaussQuadrature,
@@ -292,9 +308,10 @@ pub enum NumericIntegration {
 // ANALYZE TOOL - Analysis Operations
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum AnalysisOp {
+    #[default]
     // Expression Operations
     #[serde(alias = "Simplify")]
     Simplify,
@@ -354,9 +371,10 @@ pub enum AnalysisOp {
     FluidAnalysis,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum FieldAnalysisType {
+    #[default]
     Vector,
     Scalar,
     Tensor,
@@ -366,9 +384,10 @@ pub enum FieldAnalysisType {
 // SIMULATE TOOL - Simulation Models
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum SimulationModel {
+    #[default]
     // Stochastic Processes
     #[serde(alias = "Stochastic")]
     Stochastic(StochasticProcess),
@@ -383,9 +402,10 @@ pub enum SimulationModel {
     TimeEvolution(TimeEvolutionMethod),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum StochasticProcess {
+    #[default]
     BrownianMotion,
     GeometricBrownian,
     OrnsteinUhlenbeck,
@@ -397,26 +417,29 @@ pub enum StochasticProcess {
     VarianceGamma,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum FinanceModel {
+    #[default]
     Heston,
     SABR,
     StochasticVolatility,
     BlackScholes,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum FluidSim {
+    #[default]
     NavierStokes,
     Euler,
     LatticeBotzmann,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum TimeEvolutionMethod {
+    #[default]
     Euler,
     RungeKutta4,
     AdaptiveStep,
@@ -427,9 +450,10 @@ pub enum TimeEvolutionMethod {
 // COMPUTE TOOL - Computation Operations
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum ComputeOp {
+    #[default]
     // Tensor Operations
     #[serde(alias = "Tensor")]
     Tensor(TensorOp),
@@ -481,9 +505,10 @@ pub enum ComputeOp {
     Physics(PhysicsOp),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum TensorOp {
+    #[default]
     Christoffel,
     Riemann,
     Ricci,
@@ -495,9 +520,10 @@ pub enum TensorOp {
     ParallelTransport,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum MatrixOp {
+    #[default]
     Norm,
     Power,
     Exp,
@@ -508,9 +534,10 @@ pub enum MatrixOp {
     Inverse,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum MatrixDecomp {
+    #[default]
     QR,
     SVD,
     Eigen,
@@ -520,9 +547,10 @@ pub enum MatrixDecomp {
     Schur,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum SpecialFunction {
+    #[default]
     Bessel,
     Gamma,
     Erf,
@@ -532,9 +560,10 @@ pub enum SpecialFunction {
     Hypergeometric,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum NumberTheoryOp {
+    #[default]
     GeneratePrime,
     ModExp,
     ModInv,
@@ -554,9 +583,10 @@ pub enum NumberTheoryOp {
     PrimalityTest,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum GeometryOp {
+    #[default]
     ConvexHull,
     Delaunay,
     Voronoi,
@@ -564,9 +594,10 @@ pub enum GeometryOp {
     PointInPolygon,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum InformationOp {
+    #[default]
     Entropy,
     MutualInfo,
     ChannelCapacity,
@@ -576,16 +607,18 @@ pub enum InformationOp {
     KLDivergence,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum EMComputation {
+    #[default]
     PoyntingVector,
     SkinEffect,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum ChemistryOp {
+    #[default]
     // Legacy operations
     MolarMass,
     EquilibriumConstant,
@@ -601,9 +634,10 @@ pub enum ChemistryOp {
     VanDerWaals,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum BiologyOp {
+    #[default]
     MichaelisMenten,
     Pharmacokinetics,
     HardyWeinberg,
@@ -612,9 +646,10 @@ pub enum BiologyOp {
     GrowthModel,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum ThermodynamicsOp {
+    #[default]
     Conduction,
     Convection,
     Radiation,
@@ -622,27 +657,30 @@ pub enum ThermodynamicsOp {
     Entropy,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum OpticsOp {
+    #[default]
     ThinLens,
     SnellsLaw,
     DiffractionGrating,
     FresnelEquations,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum GeophysicsOp {
+    #[default]
     Seismology,
     Atmosphere,
     RadiometricDating,
     PlanetaryScience,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum EngineeringOp {
+    #[default]
     SoundPressureLevel,
     DopplerEffect,
     ReverberationTime,
@@ -656,9 +694,10 @@ pub enum EngineeringOp {
     FirstOrderResponse,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum DateTimeOp {
+    #[default]
     AddInterval,
     SubtractInterval,
     DateDifference,
@@ -672,17 +711,19 @@ pub enum DateTimeOp {
     DayOfWeek,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum GraphOp {
+    #[default]
     TopologicalSort,
     ShortestPath,
     MinimumSpanningTree,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum PhysicsOp {
+    #[default]
     // Relativity (12 operations)
     Relativity(RelativityOp),
     // Statistical Physics (10 operations)
@@ -695,9 +736,10 @@ pub enum PhysicsOp {
     NuclearPhysics(NuclearOp),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum RelativityOp {
+    #[default]
     // Special Relativity
     LorentzTransform,
     TimeDilation,
@@ -713,9 +755,10 @@ pub enum RelativityOp {
     BlackHoleProperties,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum StatPhysicsOp {
+    #[default]
     PartitionFunction,
     MaxwellBoltzmann,
     FermiDirac,
@@ -728,9 +771,10 @@ pub enum StatPhysicsOp {
     FugacityCoefficient,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum QuantumMechOp {
+    #[default]
     SchrodingerEquation,
     HarmonicOscillator,
     HydrogenAtom,
@@ -748,9 +792,10 @@ pub enum QuantumMechOp {
     QuantumCircuit,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum ControlSystemsOp {
+    #[default]
     TransferFunction,
     PoleZeroAnalysis,
     BodePlot,
@@ -765,9 +810,10 @@ pub enum ControlSystemsOp {
     StepResponse,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum NuclearOp {
+    #[default]
     RadioactiveDecay,
     DecayChain,
     HalfLife,
@@ -782,7 +828,7 @@ pub enum NuclearOp {
 // TRANSFORM TOOL - Transform Types
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum TransformType {
     #[serde(alias = "Fourier")]
@@ -801,48 +847,54 @@ pub enum TransformType {
     Conformal,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum FourierTransform {
+    #[default]
     Forward,
     Inverse,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum LaplaceTransform {
+    #[default]
     Forward,
     Inverse,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum WaveletType {
+    #[default]
     Haar,
     Daubechies,
     Morlet,
     Mexican,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum FFTType {
+    #[default]
     Forward,
     Inverse,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum FilterType {
+    #[default]
     LowPass,
     HighPass,
     BandPass,
     BandStop,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum WindowType {
+    #[default]
     Hamming,
     Hanning,
     Blackman,
@@ -853,7 +905,7 @@ pub enum WindowType {
 // FIELDTHEORY TOOL - Field Types
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum FieldType {
     #[serde(alias = "EM")]
@@ -864,17 +916,19 @@ pub enum FieldType {
     QuantumField(QuantumFieldType),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum EMField {
+    #[default]
     Antenna,
     Waveguide,
     Scattering,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum QuantumFieldType {
+    #[default]
     ScalarField,
     DiracField,
     GaugeField,
@@ -884,9 +938,10 @@ pub enum QuantumFieldType {
 // SAMPLE TOOL - Sampling Methods
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum SamplingMethod {
+    #[default]
     // Stochastic
     #[serde(alias = "PathGeneration")]
     PathGeneration,
@@ -903,18 +958,20 @@ pub enum SamplingMethod {
     SignalAnalysis(SignalMethod),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum MonteCarloMethod {
+    #[default]
     Integration,
     MCMC,
     MetropolisHastings,
     Gibbs,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum StatisticalMethod {
+    #[default]
     HypothesisTest,
     ANOVA,
     Regression,
@@ -923,9 +980,10 @@ pub enum StatisticalMethod {
     Correlation,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum SignalMethod {
+    #[default]
     SpectralAnalysis,
     Autocorrelation,
     CrossCorrelation,
@@ -939,9 +997,10 @@ pub enum SignalMethod {
 // OPTIMIZE TOOL - Optimization Methods
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum OptimizationMethod {
+    #[default]
     // Curve Fitting
     #[serde(alias = "Fit")]
     Fit(FitMethod),
@@ -967,7 +1026,7 @@ pub enum OptimizationMethod {
     },
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum SelectionCriteria {
     Aic,      // Akaike Information Criterion
@@ -982,9 +1041,10 @@ impl Default for SelectionCriteria {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum FitMethod {
+    #[default]
     Polynomial,
     Exponential,
     Logarithmic,
@@ -994,9 +1054,10 @@ pub enum FitMethod {
     Custom,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum MinimizationMethod {
+    #[default]
     GradientDescent,
     NelderMead,
     ConjugateGradient,
@@ -1004,18 +1065,20 @@ pub enum MinimizationMethod {
     LevenbergMarquardt,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum InterpolationMethod {
+    #[default]
     Linear,
     Polynomial,
     Spline,
     Cubic,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum DimAnalysisMethod {
+    #[default]
     BuckinghamPi,
     DimensionlessGroups,
     SimilarityAnalysis,

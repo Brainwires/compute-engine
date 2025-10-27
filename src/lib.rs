@@ -71,6 +71,8 @@
 // Core 10-tool engine (NEW - Recommended)
 pub mod engine;
 pub mod implementations;
+pub mod help;
+pub mod help_auto;
 
 // MCP Server (Official MCP SDK integration - primary interface)
 #[cfg(feature = "rmcp")]
