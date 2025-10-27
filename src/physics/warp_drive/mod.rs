@@ -47,7 +47,7 @@ pub struct WarpDriveConfig {
 }
 
 /// Shape function types for the warp bubble
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum ShapeFunction {
     /// Classic Alcubierre top-hat function
     TopHat,
@@ -109,4 +109,8 @@ impl WarpDriveConfig {
         Ok(())
     }
 }
+
+#[cfg(test)]
+#[path = "../../../tests/unit/physics/warp_drive_tests.rs"]
+mod tests;
 

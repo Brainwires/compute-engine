@@ -36,7 +36,8 @@ use crate::physics::warp_drive::{C, G, C2};
 pub struct BlackHoleConfig {
     /// Mass (kg)
     pub mass: f64,
-    /// Angular momentum parameter a = J/(Mc) (dimensionless, 0 ≤ a ≤ M)
+    /// Dimensionless spin parameter (0 ≤ spin ≤ 1), where spin = a/M_geom
+    /// and M_geom = GM/c² is the geometric mass
     pub spin: f64,
     /// Black hole type
     pub bh_type: BlackHoleType,
@@ -65,11 +66,12 @@ impl BlackHoleConfig {
     }
 
     /// Create Kerr (rotating) black hole
+    /// spin: dimensionless spin parameter (0 ≤ spin ≤ 1)
     pub fn kerr(mass: f64, spin: f64) -> Self {
-        let spin_normalized = spin.min(mass); // Can't exceed extremal
-        let bh_type = if spin_normalized.abs() < mass * 0.1 {
+        let spin_normalized = spin.min(1.0).max(0.0); // Clamp to [0, 1]
+        let bh_type = if spin_normalized < 0.1 {
             BlackHoleType::SlowRotating
-        } else if (spin_normalized - mass).abs() < mass * 0.01 {
+        } else if (spin_normalized - 1.0).abs() < 0.01 {
             BlackHoleType::Extremal
         } else {
             BlackHoleType::RapidRotating
@@ -93,8 +95,9 @@ impl BlackHoleConfig {
             self.schwarzschild_radius()
         } else {
             // Kerr outer horizon: r+ = M + √(M² - a²) in geometric units
-            let m_geom = G * self.mass / C2; // Geometric mass
-            let a_geom = self.spin / (self.mass * C); // Geometric angular momentum
+            // where a = spin * M (self.spin is dimensionless)
+            let m_geom = G * self.mass / C2; // Geometric mass M = GM/c²
+            let a_geom = self.spin * m_geom; // a = (spin parameter) * M
             let discriminant = m_geom * m_geom - a_geom * a_geom;
             m_geom + discriminant.max(0.0).sqrt()
         }
@@ -120,9 +123,9 @@ impl BlackHoleConfig {
         } else {
             // Kerr ISCO (approximate)
             let r_s = self.schwarzschild_radius();
-            let a_normalized = self.spin / self.mass;
+            // self.spin is already dimensionless (0-1)
             // Prograde orbit: smaller ISCO for spinning BH
-            r_s * (3.0 - 2.0 * a_normalized)
+            r_s * (3.0 - 2.0 * self.spin)
         }
     }
 
@@ -164,4 +167,8 @@ impl BlackHoleConfig {
         (K_B * C * C * C * area) / (4.0 * HBAR * G)
     }
 }
+
+#[cfg(test)]
+#[path = "../../../tests/unit/physics/black_holes_tests.rs"]
+mod tests;
 

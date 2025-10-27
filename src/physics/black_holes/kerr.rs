@@ -16,12 +16,11 @@ pub struct KerrMetric {
 
 /// Ergosphere radius (stationary limit surface)
 pub fn ergosphere_radius(theta: f64, config: &BlackHoleConfig) -> f64 {
-    let r_s = config.schwarzschild_radius();
     let m = config.mass;
 
-    // Convert spin to geometric units: a_geom = a/(Mc)
-    let m_geom = super::G * m / super::C2;
-    let a_geom = config.spin / (m * super::C);
+    // config.spin is dimensionless (0-1), convert to geometric units
+    let m_geom = super::G * m / super::C2; // M = GM/c²
+    let a_geom = config.spin * m_geom; // a = (spin parameter) * M
 
     // r_ergo = M + √(M² - a²cos²θ) in geometric units
     let cos_theta = theta.cos();

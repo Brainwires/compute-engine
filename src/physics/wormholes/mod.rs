@@ -108,3 +108,7 @@ impl WormholeConfig {
 pub use crate::physics::warp_drive::C as SPEED_OF_LIGHT;
 pub use crate::physics::warp_drive::G as GRAVITATIONAL_CONSTANT;
 
+#[cfg(test)]
+#[path = "../../../tests/unit/physics/wormholes_tests.rs"]
+mod tests;
+

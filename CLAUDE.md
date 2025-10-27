@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A unified computational engine for mathematical and scientific computing in Rust, providing **194+ mathematical operations** accessible through a clean 10-tool API. Internally uses domain-specific modules for implementation. Supports native Rust, WebAssembly (browser/Node.js), and MCP server interfaces.
 
-**Comprehensive Test Coverage**: 337 tests passing (202 comprehensive integration tests + 135 unit tests) with 100% pass rate.
+**Comprehensive Test Coverage**: 1685 tests passing (202 comprehensive integration tests + 1483 unit tests) with 100% pass rate.
 
 ## Build Commands
 
@@ -169,6 +169,43 @@ JSON Request → ToolDispatcher → Unified Implementation → Domain Modules �
 
 ## Critical Rules
 
+### ALWAYS Fix Implementation Bugs, NEVER Weaken Tests (CRITICAL)
+
+**THIS PROJECT REQUIRES PERFECTLY ACCURATE AND DETERMINISTIC BEHAVIOR.**
+
+When a test fails, you MUST:
+1. ✅ **Investigate the implementation** - Assume the test is correct and the implementation is wrong
+2. ✅ **Fix the root cause** - Correct the algorithm, formula, or logic error in the implementation
+3. ✅ **Verify the physics/math** - Ensure the fix matches the correct scientific/mathematical behavior
+
+You MUST NEVER:
+1. ❌ **Weaken test assertions** - Don't change expected values to match buggy output
+2. ❌ **Add tolerance when not needed** - Don't add `approx_eq` if exact equality should work
+3. ❌ **Comment out failing tests** - Don't hide failures by disabling tests
+4. ❌ **Make assumptions** - Don't assume the test is wrong without investigating
+
+**Example of the WRONG approach (NEVER DO THIS):**
+```rust
+// ❌ WRONG - Weakening test to match buggy implementation
+assert!(r_ergo >= r_h);  // Changed from > to >= to make test pass
+```
+
+**Example of the CORRECT approach:**
+```rust
+// ✅ CORRECT - Fix the implementation bug
+// In implementation file:
+let a_geom = self.spin * m_geom;  // Fixed: was using wrong formula
+```
+
+**Real incident from 2025-10-26:**
+- Black hole ergosphere tests were failing
+- Initial response: Weakened test assertions from `>` to `>=`
+- **This was WRONG** - It hid a fundamental bug in spin parameter interpretation
+- Correct response: Fixed implementation to use dimensionless spin (0-1) instead of mass units
+- Result: Tests pass with correct physics, no compromises made
+
+**Remember:** This is a computational engine competing with Mathematica. Wrong results are unacceptable. A failing test is a gift - it shows you where the implementation is incorrect. Fix the implementation, never the test.
+
 ### stdout/stderr Policy (CRITICAL for MCP Compatibility)
 
 **NEVER use `println!` in library code.** The engine runs as an MCP server where:
@@ -273,7 +310,7 @@ wasm = ["wasm-bindgen"]      # WebAssembly support
 ### Testing Strategy
 
 ```bash
-# Run all tests (337 total)
+# Run all tests (1685 total)
 cargo test
 
 # Run comprehensive integration tests (202 tests)
@@ -290,7 +327,7 @@ cargo test --test fieldtheory_comprehensive_tests      # 15 tests
 cargo test --test sample_comprehensive_tests           # 23 tests
 cargo test --test optimize_comprehensive_tests         # 27 tests
 
-# Run unit tests (135 tests)
+# Run unit tests (1483 tests)
 cargo test --lib
 
 # Test specific module
@@ -419,7 +456,7 @@ Enable with `--features quantum,gpu-acceleration` for quantum physics simulation
 
 This engine aims to compete with Mathematica/Wolfram Alpha by providing:
 - Comprehensive mathematical operations (**194+ operations** across 10 tools, see OPERATIONS_COMPLETE_LIST.md)
-- 100% test coverage with **337 tests passing** (202 comprehensive integration + 135 unit tests)
+- Extensive test coverage with **1685 tests passing** (202 comprehensive integration + 1483 unit tests)
 - High-performance Rust implementation
 - Multiple interfaces (Rust API, JSON/MCP, WebAssembly)
 - Self-contained (custom CAS, no Python dependencies)

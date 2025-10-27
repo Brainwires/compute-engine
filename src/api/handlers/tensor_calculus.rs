@@ -23,3 +23,7 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
         ),
     }
 }
+
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/tensor_calculus_handler_tests.rs"]
+mod tests;

@@ -23,3 +23,7 @@ pub fn handle(request: &ComputationRequest) -> ComputationResponse {
         ),
     }
 }
+
+#[cfg(test)]
+#[path = "../../../tests/unit/api/handlers/quantum_physics_handler_tests.rs"]
+mod tests;
