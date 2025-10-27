@@ -196,7 +196,6 @@ pub enum DiffGeoProblem {
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum DifferentiationOp {
-    #[default]
     // Vector Calculus
     #[serde(alias = "VectorCalc")]
     VectorCalc(VectorCalcOp),
@@ -204,6 +203,7 @@ pub enum DifferentiationOp {
     #[serde(alias = "TensorCalc")]
     TensorCalc(TensorDiffOp),
     // Variational Calculus
+    #[default]
     #[serde(alias = "Variational")]
     Variational,
     // Differential Forms
@@ -244,7 +244,6 @@ pub enum TensorDiffOp {
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum IntegrationType {
-    #[default]
     // Line/Surface/Volume
     #[serde(alias = "Geometric")]
     Geometric(GeometricIntegral),
@@ -258,6 +257,7 @@ pub enum IntegrationType {
     #[serde(alias = "Numeric")]
     Numeric(NumericIntegration),
     // Symbolic
+    #[default]
     #[serde(alias = "Symbolic")]
     Symbolic,
     // Monte Carlo
@@ -384,10 +384,9 @@ pub enum FieldAnalysisType {
 // SIMULATE TOOL - Simulation Models
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter)]
 #[serde(rename_all = "snake_case")]
 pub enum SimulationModel {
-    #[default]
     // Stochastic Processes
     #[serde(alias = "Stochastic")]
     Stochastic(StochasticProcess),
@@ -400,6 +399,12 @@ pub enum SimulationModel {
     // ODE/PDE Time-stepping
     #[serde(alias = "TimeEvolution")]
     TimeEvolution(TimeEvolutionMethod),
+}
+
+impl Default for SimulationModel {
+    fn default() -> Self {
+        SimulationModel::TimeEvolution(TimeEvolutionMethod::default())
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
@@ -450,10 +455,9 @@ pub enum TimeEvolutionMethod {
 // COMPUTE TOOL - Computation Operations
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter)]
 #[serde(rename_all = "snake_case")]
 pub enum ComputeOp {
-    #[default]
     // Tensor Operations
     #[serde(alias = "Tensor")]
     Tensor(TensorOp),
@@ -503,6 +507,12 @@ pub enum ComputeOp {
     // Physics (Tier 1 Wolfram Alpha expansion)
     #[serde(alias = "Physics")]
     Physics(PhysicsOp),
+}
+
+impl Default for ComputeOp {
+    fn default() -> Self {
+        ComputeOp::Tensor(TensorOp::default())
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
@@ -720,10 +730,9 @@ pub enum GraphOp {
     MinimumSpanningTree,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter)]
 #[serde(rename_all = "snake_case")]
 pub enum PhysicsOp {
-    #[default]
     // Relativity (12 operations)
     Relativity(RelativityOp),
     // Statistical Physics (10 operations)
@@ -734,6 +743,12 @@ pub enum PhysicsOp {
     ControlSystems(ControlSystemsOp),
     // Nuclear Physics (8 operations)
     NuclearPhysics(NuclearOp),
+}
+
+impl Default for PhysicsOp {
+    fn default() -> Self {
+        PhysicsOp::Relativity(RelativityOp::default())
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
@@ -843,6 +858,7 @@ pub enum TransformType {
     Filter(FilterType),
     #[serde(alias = "Window")]
     Window(WindowType),
+    #[default]
     #[serde(alias = "Conformal")]
     Conformal,
 }
@@ -910,6 +926,7 @@ pub enum WindowType {
 pub enum FieldType {
     #[serde(alias = "EM")]
     EM(EMField),
+    #[default]
     #[serde(alias = "GreenFunction")]
     GreenFunction,
     #[serde(alias = "QuantumField")]
@@ -941,8 +958,8 @@ pub enum QuantumFieldType {
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum SamplingMethod {
-    #[default]
     // Stochastic
+    #[default]
     #[serde(alias = "PathGeneration")]
     PathGeneration,
     #[serde(alias = "Moments")]
@@ -997,10 +1014,9 @@ pub enum SignalMethod {
 // OPTIMIZE TOOL - Optimization Methods
 // ============================================================================
 
-#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter)]
 #[serde(rename_all = "snake_case")]
 pub enum OptimizationMethod {
-    #[default]
     // Curve Fitting
     #[serde(alias = "Fit")]
     Fit(FitMethod),
@@ -1026,19 +1042,20 @@ pub enum OptimizationMethod {
     },
 }
 
+impl Default for OptimizationMethod {
+    fn default() -> Self {
+        OptimizationMethod::Fit(FitMethod::default())
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
 #[serde(rename_all = "snake_case")]
 pub enum SelectionCriteria {
     Aic,      // Akaike Information Criterion
     Bic,      // Bayesian Information Criterion
+    #[default]
     Aicc,     // Corrected AIC for small samples
     RSquared, // Simple R² comparison
-}
-
-impl Default for SelectionCriteria {
-    fn default() -> Self {
-        SelectionCriteria::Aicc
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
