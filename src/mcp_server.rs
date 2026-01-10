@@ -1,6 +1,7 @@
 //! MCP Server Implementation
 //!
 //! Official Model Context Protocol server using rmcp SDK v0.8.1
+//! Exposes 4 primary tools: solve, compute, analyze, simulate
 
 pub mod server {
     use crate::engine::*;
@@ -11,77 +12,125 @@ pub mod server {
         service::ServiceExt,
         tool, tool_handler, tool_router,
     };
-    use schemars::{schema_for, JsonSchema};
+    use schemars::JsonSchema;
     use serde::{Deserialize, Serialize};
+    use serde_json::Value;
+    use std::collections::HashMap;
     use std::sync::Arc;
 
-    /// Request parameters for compute_json tool
+    // =========================================================================
+    // SOLVE TOOL - Equations, systems, optimization
+    // =========================================================================
+
     #[derive(Debug, Serialize, Deserialize, JsonSchema)]
-    pub struct ComputeJsonRequest {
-        /// JSON string containing ToolRequest data
-        pub request_json: String,
+    pub struct SolveRequest {
+        /// Type of equation to solve
+        /// Options: "root_finding", "linear_system", or nested object like {"einstein": "schwarzschild"}, {"fluid": "navier_stokes"}, {"differential": "ode"}, {"optimize": {"fit": "polynomial"}}
+        pub equation_type: Value,
+
+        /// Equations to solve (array of strings)
+        /// Example: ["x^2 - 4 = 0"] or ["2x + 3y = 7", "x - y = 1"]
+        pub equations: Vec<String>,
+
+        /// Variables to solve for (optional)
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub variables: Option<Vec<String>>,
+
+        /// Initial guess for iterative methods (optional)
+        /// Map of variable name to initial value
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub initial_guess: Option<HashMap<String, f64>>,
     }
 
-    /// Generate the full JSON schema for ToolRequest
-    pub fn get_tool_request_schema() -> String {
-        let schema = schema_for!(ToolRequest);
-        serde_json::to_string_pretty(&schema).unwrap_or_else(|_| "{}".to_string())
+    // =========================================================================
+    // COMPUTE TOOL - Calculus, transforms, fields, sampling, matrix ops
+    // =========================================================================
+
+    #[derive(Debug, Serialize, Deserialize, JsonSchema)]
+    pub struct ComputeRequest {
+        /// Operation to perform. Common operations:
+        /// - Matrix: {"matrix": "determinant"}, {"matrix": "inverse"}, {"matrix_decomp": "svd"}
+        /// - Calculus: {"differentiate": "symbolic"}, {"integrate": "definite"}
+        /// - Transforms: {"transform": {"fft": "forward"}}, {"transform": {"laplace": "forward"}}
+        /// - Fields: {"field": "decoherence_scale"}, {"field": "green_function"}, {"field": "bohm_potential"}
+        /// - Sampling: {"sample": "monte_carlo"}, {"sample": {"distribution": "normal"}}
+        /// - Physics: {"physics": {"quantum": "wave_function"}}, {"physics": {"relativity": "lorentz_factor"}}
+        pub operation: Value,
+
+        /// Input data for the operation
+        /// For matrix: {"matrix": [[1,2],[3,4]]}
+        /// For calculus: {"expression": "x^2", "variable": "x"}
+        /// For fields: {"mass": 3e-26, "temperature": 300}
+        pub data: Value,
+
+        /// Additional parameters (optional)
+        #[serde(default)]
+        pub parameters: HashMap<String, Value>,
     }
 
-    /// Get examples for each tool type
-    pub fn get_tool_examples() -> String {
-        r#"{
-  "examples": {
-    "solve": {
-      "description": "Solve equations (algebraic, differential, linear systems)",
-      "example": {"tool":"solve","input":{"equation_type":"root_finding","equations":["x^2 - 4 = 0"]}}
-    },
-    "differentiate": {
-      "description": "Compute derivatives (symbolic, numeric, partial, gradient)",
-      "example": {"tool":"differentiate","input":{"operation":"symbolic","expression":"x^3 + 2*x","variables":["x"]}}
-    },
-    "integrate": {
-      "description": "Compute integrals (definite, indefinite, multiple, contour)",
-      "example": {"tool":"integrate","input":{"integration_type":"symbolic","expression":"x^2","variables":["x"]}}
-    },
-    "analyze": {
-      "description": "Analyze expressions (simplify, expand, series, limits)",
-      "example": {"tool":"analyze","input":{"operation":"simplify","expression":"(x+1)^2 - x^2 - 2*x"}}
-    },
-    "simulate": {
-      "description": "Run simulations (ODE, stochastic, Monte Carlo)",
-      "example": {"tool":"simulate","input":{"model":{"time_evolution":"runge_kutta4"},"equations":["dx/dt = -x"],"variables":["x"],"initial_conditions":{"x":1.0},"range":[0.0,10.0],"steps":100}}
-    },
-    "compute": {
-      "description": "Compute operations (matrix, tensor, special functions)",
-      "example": {"tool":"compute","input":{"operation":{"matrix":"determinant"},"data":[[1,2],[3,4]]}}
-    },
-    "transform": {
-      "description": "Apply transforms (FFT, Fourier, Laplace, wavelets)",
-      "example": {"tool":"transform","input":{"transform_type":{"fft":"forward"},"data":[1.0,0.0,-1.0,0.0]}}
-    },
-    "fieldtheory": {
-      "description": "Field theory calculations (EM fields, Green's functions)",
-      "example": {"tool":"fieldtheory","input":{"field_type":"green_function","configuration":{"source":[0,0,0],"field_point":[1,0,0]}}}
-    },
-    "sample": {
-      "description": "Statistical sampling (Monte Carlo, MCMC, distributions)",
-      "example": {"tool":"sample","input":{"method":"path_generation","num_samples":1000,"parameters":{"process":"brownian_motion"}}}
-    },
-    "optimize": {
-      "description": "Optimization (curve fitting, minimization, regression)",
-      "example": {"tool":"optimize","input":{"method":{"fit":"polynomial"},"data":[[0,1,2,3,4],[0,1,4,9,16]],"parameters":{"degree":2}}}
-    }
-  },
-  "important_notes": [
-    "Tool names MUST be lowercase in JSON (solve, analyze, NOT Solve, Analyze)",
-    "Each tool has a required operation/type field - check the schema",
-    "Use get_schema tool to see the complete JSON schema for all types"
-  ]
-}"#.to_string()
+    // =========================================================================
+    // ANALYZE TOOL - Series, limits, stability, simplification
+    // =========================================================================
+
+    #[derive(Debug, Serialize, Deserialize, JsonSchema)]
+    pub struct AnalyzeRequest {
+        /// Analysis operation to perform
+        /// Options: "simplify", "expand", "factor", "series", "limit", "asymptotic", "stability", "roots", "extrema", "validate"
+        pub operation: String,
+
+        /// Expression to analyze
+        pub expression: String,
+
+        /// Additional options (optional)
+        /// For series: {"variable": "x", "point": 0, "order": 5}
+        /// For limit: {"variable": "x", "point": "infinity"}
+        #[serde(default)]
+        pub options: HashMap<String, Value>,
     }
 
-    /// Computational Engine MCP Server
+    // =========================================================================
+    // SIMULATE TOOL - Time evolution, stochastic, fluid dynamics
+    // =========================================================================
+
+    #[derive(Debug, Serialize, Deserialize, JsonSchema)]
+    pub struct SimulateRequest {
+        /// Simulation model type
+        /// Options:
+        /// - Time evolution: {"time_evolution": "euler"}, {"time_evolution": "runge_kutta4"}
+        /// - Stochastic: {"stochastic": "brownian_motion"}, {"stochastic": "geometric_brownian"}
+        /// - Finance: {"finance": "black_scholes"}, {"finance": "heston"}
+        /// - Fluid dynamics: {"fluid_dynamics": "navier_stokes_2d"}, {"fluid_dynamics": "quantum_navier_stokes_1d"}
+        pub model: Value,
+
+        /// System equations (array of strings)
+        /// Example: ["dx/dt = -k*x", "dy/dt = k*x - m*y"]
+        pub equations: Vec<String>,
+
+        /// Variable names
+        pub variables: Vec<String>,
+
+        /// System parameters (name -> value)
+        #[serde(default)]
+        pub parameters: HashMap<String, f64>,
+
+        /// Initial conditions (variable -> value)
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub initial_conditions: Option<HashMap<String, f64>>,
+
+        /// Time range [start, end]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub range: Option<[f64; 2]>,
+
+        /// Number of time steps
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub steps: Option<usize>,
+    }
+
+    // =========================================================================
+    // MCP SERVER
+    // =========================================================================
+
+    /// Computational Engine MCP Server - 4 Tool Architecture
     #[derive(Clone)]
     pub struct ComputationalEngine {
         dispatcher: Arc<ToolDispatcher>,
@@ -97,54 +146,186 @@ pub mod server {
             }
         }
 
-        /// Execute a computational request using JSON
+        /// Solve equations, systems, and optimization problems
         #[tool(
-            description = r#"Execute computational operations via JSON.
+            description = r#"Solve equations and mathematical problems.
 
-IMPORTANT: Tool names MUST be lowercase: solve, differentiate, integrate, analyze, simulate, compute, transform, fieldtheory, sample, optimize
+EQUATION TYPES:
+- "root_finding" - Find roots of equations: {"equations": ["x^2 - 4 = 0"]}
+- "linear_system" - Solve Ax=b systems: {"equations": ["2x + y = 5", "x - y = 1"]}
+- {"differential": "ode"} - Solve ODEs
+- {"einstein": "schwarzschild"} - Einstein field equations
+- {"fluid": "navier_stokes"} - Fluid dynamics
+- {"optimize": {"fit": "polynomial"}} - Curve fitting (pass data in initial_guess)
 
-Quick examples:
-- solve: {"tool":"solve","input":{"equation_type":"root_finding","equations":["x^2-4=0"]}}
-- analyze: {"tool":"analyze","input":{"operation":"simplify","expression":"(x+1)^2"}}
-- differentiate: {"tool":"differentiate","input":{"operation":"symbolic","expression":"x^2","variables":["x"]}}
-- compute: {"tool":"compute","input":{"operation":{"matrix":"determinant"},"data":[[1,2],[3,4]]}}
-
-Use get_schema tool for complete JSON schema, or get_examples for all tool examples."#
+EXAMPLES:
+1. Quadratic: equation_type="root_finding", equations=["x^2 - 4 = 0"]
+2. System: equation_type="linear_system", equations=["2x + y = 5", "x - y = 1"], variables=["x", "y"]"#
         )]
-        async fn compute_json(
-            &self,
-            Parameters(req): Parameters<ComputeJsonRequest>,
-        ) -> Result<String, String> {
-            // Parse the JSON request
-            let tool_request: ToolRequest = serde_json::from_str(&req.request_json)
-                .map_err(|e| format!("JSON parse error: {}", e))?;
+        async fn solve(&self, Parameters(req): Parameters<SolveRequest>) -> Result<String, String> {
+            // Convert to internal format
+            let equation_type: EquationType = serde_json::from_value(req.equation_type.clone())
+                .map_err(|e| format!("Invalid equation_type: {}. Use 'root_finding', 'linear_system', or object like {{\"optimize\": ...}}", e))?;
 
-            // Dispatch the request
-            match self.dispatcher.dispatch(tool_request) {
-                Ok(response) => {
-                    let result_json = serde_json::to_string_pretty(&response)
-                        .map_err(|e| format!("Serialization failed: {}", e))?;
+            let input = SolveInput {
+                equation_type,
+                equations: req.equations,
+                variables: req.variables,
+                initial_guess: req.initial_guess,
+                boundary_conditions: None,
+                domain: None,
+                method: None,
+                parameters: HashMap::new(),
+            };
 
-                    Ok(result_json)
-                }
-                Err(e) => Err(format!("Computation error: {}", e)),
+            let request = ToolRequest::Solve(input);
+            match self.dispatcher.dispatch(request) {
+                Ok(response) => serde_json::to_string_pretty(&response)
+                    .map_err(|e| format!("Serialization error: {}", e)),
+                Err(e) => Err(e),
             }
         }
 
-        /// Get the complete JSON schema for ToolRequest
+        /// Compute mathematical operations (calculus, transforms, fields, matrices)
         #[tool(
-            description = "Get the complete JSON schema for all computational tools. Returns the full type definitions for ToolRequest including all 10 tools (solve, differentiate, integrate, analyze, simulate, compute, transform, fieldtheory, sample, optimize) and their input types."
+            description = r#"Compute mathematical operations including calculus, transforms, field theory, and matrix operations.
+
+OPERATIONS:
+- Matrix: {"matrix": "determinant"}, {"matrix": "inverse"}, {"matrix_decomp": "svd"}
+- Calculus: {"differentiate": "symbolic"}, {"integrate": "definite"}
+- Transforms: {"transform": {"fft": "forward"}}, {"transform": {"laplace": "forward"}}
+- Fields: {"field": "decoherence_scale"}, {"field": "bohm_potential"}, {"field": "green_function"}
+- Sampling: {"sample": "monte_carlo"}, {"sample": {"distribution": "normal"}}
+- Physics: {"physics": {"quantum": "energy_levels"}}, {"chemistry": "molar_mass"}
+
+DATA FORMAT (depends on operation):
+- Matrix ops: {"matrix": [[1,2],[3,4]]}
+- Calculus: {"expression": "x^2", "variable": "x", "lower": 0, "upper": 1}
+- Fields: {"mass": 3e-26, "temperature": 300}
+
+EXAMPLES:
+1. Determinant: operation={"matrix": "determinant"}, data={"matrix": [[1,2],[3,4]]}
+2. Decoherence: operation={"field": "decoherence_scale"}, data={"mass": 3e-26, "temperature": 300}
+3. Derivative: operation={"differentiate": "symbolic"}, data={"expression": "x^3", "variable": "x"}"#
         )]
-        async fn get_schema(&self) -> Result<String, String> {
-            Ok(get_tool_request_schema())
+        async fn compute(
+            &self,
+            Parameters(req): Parameters<ComputeRequest>,
+        ) -> Result<String, String> {
+            // Convert to internal format
+            let operation: ComputeOp = serde_json::from_value(req.operation.clone())
+                .map_err(|e| format!("Invalid operation: {}. See tool description for valid operations.", e))?;
+
+            let input = ComputeInput {
+                operation,
+                data: req.data,
+                parameters: req.parameters,
+            };
+
+            let request = ToolRequest::Compute(input);
+            match self.dispatcher.dispatch(request) {
+                Ok(response) => serde_json::to_string_pretty(&response)
+                    .map_err(|e| format!("Serialization error: {}", e)),
+                Err(e) => Err(e),
+            }
         }
 
-        /// Get examples for all tools
+        /// Analyze mathematical expressions (simplify, series, limits, stability)
         #[tool(
-            description = "Get working examples for all 10 computational tools. Each example shows the correct JSON format including required fields. Use this to understand how to construct requests for each tool type."
+            description = r#"Analyze mathematical expressions - simplify, expand, series expansion, limits, stability analysis.
+
+OPERATIONS:
+- "simplify" - Simplify algebraic expressions
+- "expand" - Expand products and powers
+- "factor" - Factor polynomials
+- "series" - Taylor/Laurent series (use options: {"variable": "x", "point": 0, "order": 5})
+- "limit" - Compute limits (use options: {"variable": "x", "point": "infinity"})
+- "stability" - Analyze system stability
+- "roots" - Find roots of polynomials
+- "extrema" - Find critical points
+
+EXAMPLES:
+1. Simplify: operation="simplify", expression="(x+1)^2 - x^2 - 2*x - 1"
+2. Series: operation="series", expression="sin(x)", options={"variable": "x", "point": 0, "order": 5}
+3. Limit: operation="limit", expression="sin(x)/x", options={"variable": "x", "point": 0}"#
         )]
-        async fn get_examples(&self) -> Result<String, String> {
-            Ok(get_tool_examples())
+        async fn analyze(
+            &self,
+            Parameters(req): Parameters<AnalyzeRequest>,
+        ) -> Result<String, String> {
+            // Convert operation string to AnalysisOp
+            let operation: AnalysisOp = serde_json::from_value(serde_json::json!(req.operation))
+                .map_err(|e| format!("Invalid operation '{}': {}. Use: simplify, expand, factor, series, limit, stability, roots, extrema", req.operation, e))?;
+
+            let input = AnalyzeInput {
+                operation,
+                expression: req.expression,
+                options: req.options,
+            };
+
+            let request = ToolRequest::Analyze(input);
+            match self.dispatcher.dispatch(request) {
+                Ok(response) => serde_json::to_string_pretty(&response)
+                    .map_err(|e| format!("Serialization error: {}", e)),
+                Err(e) => Err(e),
+            }
+        }
+
+        /// Simulate dynamic systems (ODEs, stochastic processes, fluid dynamics)
+        #[tool(
+            description = r#"Simulate time evolution of dynamic systems including ODEs, stochastic processes, and fluid dynamics.
+
+MODELS:
+- Time evolution: {"time_evolution": "euler"}, {"time_evolution": "runge_kutta4"}, {"time_evolution": "adaptive_step"}
+- Stochastic: {"stochastic": "brownian_motion"}, {"stochastic": "geometric_brownian"}, {"stochastic": "ornstein_uhlenbeck"}
+- Finance: {"finance": "black_scholes"}, {"finance": "heston"}
+- Fluids: {"fluid_dynamics": "navier_stokes_2d"}, {"fluid_dynamics": "quantum_navier_stokes_1d"}
+
+EXAMPLES:
+1. Harmonic oscillator:
+   model={"time_evolution": "runge_kutta4"}
+   equations=["dx/dt = v", "dv/dt = -omega^2 * x"]
+   variables=["x", "v"]
+   parameters={"omega": 1.0}
+   initial_conditions={"x": 1.0, "v": 0.0}
+   range=[0.0, 10.0]
+   steps=100
+
+2. Brownian motion:
+   model={"stochastic": "brownian_motion"}
+   equations=["dX = mu*dt + sigma*dW"]
+   variables=["X"]
+   parameters={"mu": 0.0, "sigma": 1.0}
+   initial_conditions={"X": 0.0}
+   range=[0.0, 1.0]
+   steps=1000"#
+        )]
+        async fn simulate(
+            &self,
+            Parameters(req): Parameters<SimulateRequest>,
+        ) -> Result<String, String> {
+            // Convert model to SimulationModel
+            let model: SimulationModel = serde_json::from_value(req.model.clone())
+                .map_err(|e| format!("Invalid model: {}. Use {{\"time_evolution\": \"euler\"}}, {{\"stochastic\": \"brownian_motion\"}}, etc.", e))?;
+
+            let input = SimulateInput {
+                model,
+                equations: req.equations,
+                variables: req.variables,
+                parameters: req.parameters,
+                initial_conditions: req.initial_conditions,
+                range: req.range,
+                steps: req.steps,
+                method: None,
+                num_paths: None,
+            };
+
+            let request = ToolRequest::Simulate(input);
+            match self.dispatcher.dispatch(request) {
+                Ok(response) => serde_json::to_string_pretty(&response)
+                    .map_err(|e| format!("Serialization error: {}", e)),
+                Err(e) => Err(e),
+            }
         }
     }
 
@@ -156,15 +337,17 @@ Use get_schema tool for complete JSON schema, or get_examples for all tool examp
                 capabilities: ServerCapabilities::builder().enable_tools().build(),
                 server_info: Implementation {
                     name: "brainwires-compute-engine".into(),
-                    title: Some("Brainwires Compute Engine - Mathematics & Physics".into()),
+                    title: Some("Brainwires Compute Engine".into()),
                     version: env!("CARGO_PKG_VERSION").into(),
                     icons: None,
                     website_url: None,
                 },
                 instructions: Some(
-                    "Computational engine with 229+ operations. Use compute_json with lowercase tool names \
-                    (solve, analyze, etc). Call get_schema for full JSON schema or get_examples for working examples. \
-                    IMPORTANT: Tool names in JSON must be lowercase (e.g., 'analyze' not 'Analyze')."
+                    "Computational engine with 229+ operations across 4 tools:\n\
+                    - solve: Equations, systems, optimization\n\
+                    - compute: Matrix ops, calculus, transforms, field theory, sampling\n\
+                    - analyze: Simplify, series, limits, stability\n\
+                    - simulate: ODEs, stochastic processes, fluid dynamics"
                         .into(),
                 ),
             }
@@ -181,11 +364,8 @@ Use get_schema tool for complete JSON schema, or get_examples for all tool examp
             env!("CARGO_PKG_VERSION")
         );
         eprintln!("Protocol: MCP 2024-11-05");
-        eprintln!("Tool: compute_json");
-        eprintln!(
-            "Operations: Solve, Differentiate, Integrate, Analyze, Simulate, Compute, Transform, FieldTheory, Sample, Optimize"
-        );
-        eprintln!("Total: 229+ mathematical and physics operations");
+        eprintln!("Tools: solve, compute, analyze, simulate");
+        eprintln!("Operations: 229+ mathematical and physics computations");
         eprintln!("");
 
         engine.serve(transport).await?.waiting().await?;
