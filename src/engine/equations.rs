@@ -31,6 +31,8 @@ pub enum EquationType {
     RootFinding,
     NumberTheory(NumberTheoryProblem),
     DifferentialGeometry(DiffGeoProblem),
+    /// Optimization problems (curve fitting, minimization, etc.)
+    Optimize(OptimizationMethod),
 }
 
 // Custom deserializer implementation
@@ -66,6 +68,7 @@ impl<'de> Deserialize<'de> for EquationType {
                     "root_finding" | "rootfinding" => Ok(EquationType::RootFinding),
                     "number_theory" | "numbertheory" => Ok(EquationType::NumberTheory(NumberTheoryProblem::PrimalityTest)),
                     "differential_geometry" | "differentialgeometry" => Ok(EquationType::DifferentialGeometry(DiffGeoProblem::Geodesic)),
+                    "optimize" | "optimization" => Ok(EquationType::Optimize(OptimizationMethod::default())),
                     _ => Err(E::custom(format!("unknown equation type: {}", value))),
                 }
             }
@@ -105,6 +108,10 @@ impl<'de> Deserialize<'de> for EquationType {
                         "differential_geometry" | "differentialgeometry" => {
                             let sub: DiffGeoProblem = map.next_value()?;
                             Ok(EquationType::DifferentialGeometry(sub))
+                        }
+                        "optimize" | "optimization" => {
+                            let sub: OptimizationMethod = map.next_value()?;
+                            Ok(EquationType::Optimize(sub))
                         }
                         _ => Err(de::Error::custom(format!("unknown equation type: {}", key))),
                     }
@@ -490,55 +497,100 @@ pub enum TimeEvolutionMethod {
 #[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum ComputeOp {
-    // Tensor Operations
+    // ========== TENSOR & MATRIX ==========
+    /// Tensor operations (Christoffel symbols, Riemann, Ricci, etc.)
     #[serde(alias = "Tensor")]
     Tensor(TensorOp),
-    // Matrix Operations
+    /// Matrix operations (norm, power, etc.)
     #[serde(alias = "Matrix")]
     Matrix(MatrixOp),
-    // Matrix Decompositions
+    /// Matrix decompositions (LU, QR, SVD, etc.)
     #[serde(alias = "MatrixDecomp")]
     MatrixDecomp(MatrixDecomp),
-    // Special Functions
+
+    // ========== CALCULUS (absorbed from Differentiate/Integrate tools) ==========
+    /// Differentiation operations
+    #[serde(alias = "Differentiate")]
+    Differentiate(DifferentiationOp),
+    /// Integration operations
+    #[serde(alias = "Integrate")]
+    Integrate(IntegrationType),
+
+    // ========== TRANSFORMS (absorbed from Transform tool) ==========
+    /// Signal transforms (FFT, Laplace, wavelet, etc.)
+    #[serde(alias = "Transform")]
+    Transform(TransformType),
+
+    // ========== FIELD THEORY (absorbed from FieldTheory tool) ==========
+    /// Field theory operations (EM, quantum, Bohm potential, decoherence)
+    #[serde(alias = "Field")]
+    Field(FieldType),
+
+    // ========== SAMPLING & STATISTICS (absorbed from Sample tool) ==========
+    /// Statistical sampling and analysis
+    #[serde(alias = "Sample")]
+    Sample(SamplingMethod),
+
+    // ========== SPECIAL FUNCTIONS ==========
+    /// Special mathematical functions (Bessel, Gamma, etc.)
     #[serde(alias = "SpecialFunc")]
     SpecialFunc(SpecialFunction),
-    // Number Theory
+
+    // ========== NUMBER THEORY ==========
+    /// Number theory operations
     #[serde(alias = "NumberTheory")]
     NumberTheory(NumberTheoryOp),
-    // Computational Geometry
+
+    // ========== GEOMETRY ==========
+    /// Computational geometry
     #[serde(alias = "Geometry")]
     Geometry(GeometryOp),
-    // Information Theory
+
+    // ========== INFORMATION THEORY ==========
+    /// Information theory (entropy, mutual information)
     #[serde(alias = "Information")]
     Information(InformationOp),
-    // Fourier Series
+
+    // ========== FOURIER SERIES ==========
+    /// Fourier series computation
     #[serde(alias = "FourierSeries")]
     FourierSeries,
-    // EM Calculations
+
+    // ========== PHYSICS & CHEMISTRY ==========
+    /// EM calculations
     #[serde(alias = "EM")]
     EM(EMComputation),
-    // Chemistry
+    /// Chemistry operations
     #[serde(alias = "Chemistry")]
     Chemistry(ChemistryOp),
-    // Graph Theory
-    #[serde(alias = "Graph")]
-    Graph(GraphOp),
-    // Scientific Formulas (2025 Expansion)
-    #[serde(alias = "Biology")]
-    Biology(BiologyOp),
-    #[serde(alias = "Thermodynamics")]
-    Thermodynamics(ThermodynamicsOp),
-    #[serde(alias = "Optics")]
-    Optics(OpticsOp),
-    #[serde(alias = "Geophysics")]
-    Geophysics(GeophysicsOp),
-    #[serde(alias = "Engineering")]
-    Engineering(EngineeringOp),
-    #[serde(alias = "DateTime")]
-    DateTime(DateTimeOp),
-    // Physics (Tier 1 Wolfram Alpha expansion)
+    /// Physics formulas
     #[serde(alias = "Physics")]
     Physics(PhysicsOp),
+
+    // ========== GRAPH THEORY ==========
+    /// Graph theory operations
+    #[serde(alias = "Graph")]
+    Graph(GraphOp),
+
+    // ========== SCIENTIFIC FORMULAS (2025 Expansion) ==========
+    /// Biology formulas
+    #[serde(alias = "Biology")]
+    Biology(BiologyOp),
+    /// Thermodynamics
+    #[serde(alias = "Thermodynamics")]
+    Thermodynamics(ThermodynamicsOp),
+    /// Optics
+    #[serde(alias = "Optics")]
+    Optics(OpticsOp),
+    /// Geophysics
+    #[serde(alias = "Geophysics")]
+    Geophysics(GeophysicsOp),
+    /// Engineering formulas
+    #[serde(alias = "Engineering")]
+    Engineering(EngineeringOp),
+    /// Date/time calculations
+    #[serde(alias = "DateTime")]
+    DateTime(DateTimeOp),
 }
 
 impl Default for ComputeOp {

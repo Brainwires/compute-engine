@@ -1,19 +1,39 @@
 //! Comprehensive CLI help system that programmatically discovers all operations
 //!
-//! This module provides detailed help for all 10 tools and their 194+ operations.
+//! This module provides detailed help for 4 primary tools and 6 legacy tools.
+//!
+//! ## 4-Tool Architecture (Primary API)
+//!
+//! The engine has been consolidated to 4 primary tools:
+//! - **Solve**: Equations, systems, root finding, optimization
+//! - **Compute**: Calculus, transforms, field theory, sampling, matrix ops
+//! - **Analyze**: Series, limits, stability, simplification
+//! - **Simulate**: Time evolution, stochastic, fluid dynamics
+//!
+//! ## Legacy Tools (Backward Compatibility)
+//!
+//! Legacy tool names are still supported for backward compatibility:
+//! - `differentiate` → routes to `compute` with `operation: {differentiate: ...}`
+//! - `integrate` → routes to `compute` with `operation: {integrate: ...}`
+//! - `transform` → routes to `compute` with `operation: {transform: ...}`
+//! - `fieldtheory` → routes to `compute` with `operation: {field: ...}`
+//! - `sample` → routes to `compute` with `operation: {sample: ...}`
+//! - `optimize` → routes to `solve` with `equation_type: {optimize: ...}`
 
 use crate::engine::equations::*;
 use std::fmt;
 
-/// Tool names in the 10-tool architecture
+/// Tool names (primary 4 + legacy 6)
 #[derive(Debug, Clone, Copy)]
 pub enum ToolName {
+    // Primary 4 tools
     Solve,
-    Differentiate,
-    Integrate,
+    Compute,
     Analyze,
     Simulate,
-    Compute,
+    // Legacy tools (backward compatibility)
+    Differentiate,
+    Integrate,
     Transform,
     FieldTheory,
     Sample,
@@ -54,14 +74,21 @@ impl ToolName {
         }
     }
 
-    pub fn all() -> Vec<ToolName> {
+    /// Returns primary 4 tools only
+    pub fn primary() -> Vec<ToolName> {
         vec![
             ToolName::Solve,
-            ToolName::Differentiate,
-            ToolName::Integrate,
+            ToolName::Compute,
             ToolName::Analyze,
             ToolName::Simulate,
-            ToolName::Compute,
+        ]
+    }
+
+    /// Returns legacy tools (backward compatibility)
+    pub fn legacy() -> Vec<ToolName> {
+        vec![
+            ToolName::Differentiate,
+            ToolName::Integrate,
             ToolName::Transform,
             ToolName::FieldTheory,
             ToolName::Sample,
@@ -69,26 +96,47 @@ impl ToolName {
         ]
     }
 
+    /// Returns all tools (primary + legacy)
+    pub fn all() -> Vec<ToolName> {
+        let mut all = Self::primary();
+        all.extend(Self::legacy());
+        all
+    }
+
     pub fn description(&self) -> &str {
         match self {
-            ToolName::Solve => "Solve equations, systems, and mathematical problems",
-            ToolName::Differentiate => "Compute derivatives, gradients, and differential operators",
-            ToolName::Integrate => "Compute integrals (definite, indefinite, line, surface, volume)",
-            ToolName::Analyze => "Analyze expressions (validate, simplify, parse, check)",
-            ToolName::Simulate => "Simulate time evolution and stochastic processes",
-            ToolName::Compute => "Compute tensor operations, matrix decompositions, special functions",
-            ToolName::Transform => "Apply transforms (Fourier, Laplace, wavelet, filters)",
-            ToolName::FieldTheory => "Work with physics fields (EM, gravity, quantum)",
-            ToolName::Sample => "Sample and analyze statistical data",
-            ToolName::Optimize => "Optimize and fit data to models",
+            // Primary 4 tools
+            ToolName::Solve => "Solve equations, systems, optimization, and mathematical problems",
+            ToolName::Compute => "Compute: calculus, transforms, fields, sampling, matrix ops",
+            ToolName::Analyze => "Analyze expressions (validate, simplify, parse, stability)",
+            ToolName::Simulate => "Simulate time evolution, stochastic, and fluid dynamics",
+            // Legacy tools (backward compatibility)
+            ToolName::Differentiate => "[Legacy → compute] Derivatives and gradients",
+            ToolName::Integrate => "[Legacy → compute] Integrals (definite, indefinite, etc.)",
+            ToolName::Transform => "[Legacy → compute] Fourier, Laplace, wavelet transforms",
+            ToolName::FieldTheory => "[Legacy → compute] Physics fields (EM, quantum, gravity)",
+            ToolName::Sample => "[Legacy → compute] Statistical sampling and analysis",
+            ToolName::Optimize => "[Legacy → solve] Curve fitting and optimization",
         }
+    }
+
+    pub fn is_legacy(&self) -> bool {
+        matches!(
+            self,
+            ToolName::Differentiate
+                | ToolName::Integrate
+                | ToolName::Transform
+                | ToolName::FieldTheory
+                | ToolName::Sample
+                | ToolName::Optimize
+        )
     }
 }
 
 /// Print the main help screen (not currently used - kept for future reference)
 #[allow(dead_code)]
 pub fn print_main_help() {
-    println!("Computational Engine - Unified 10-Tool Architecture");
+    println!("Computational Engine - Consolidated 4-Tool Architecture");
     println!();
     println!("USAGE:");
     println!("  brainwires-compute-engine list-ops [TOOL]");
@@ -96,10 +144,15 @@ pub fn print_main_help() {
     println!();
     println!("DESCRIPTION:");
     println!("  A unified computational engine providing 194+ mathematical operations");
-    println!("  accessible through a clean 10-tool API.");
+    println!("  accessible through a clean 4-tool API with backward compatibility.");
     println!();
-    println!("AVAILABLE TOOLS:");
-    for tool in ToolName::all() {
+    println!("PRIMARY TOOLS (Recommended):");
+    for tool in ToolName::primary() {
+        println!("  {:15} - {}", tool.to_string(), tool.description());
+    }
+    println!();
+    println!("LEGACY TOOLS (Backward Compatibility):");
+    for tool in ToolName::legacy() {
         println!("  {:15} - {}", tool.to_string(), tool.description());
     }
     println!();

@@ -803,6 +803,64 @@ impl Solve for UnifiedSolver {
             EquationType::LinearSystem => self.solve_linear_system(input),
             EquationType::NumberTheory(nt_prob) => self.solve_number_theory(nt_prob, input),
             EquationType::DifferentialGeometry(dg_prob) => self.solve_diff_geometry(dg_prob, input),
+            EquationType::Optimize(opt_method) => self.solve_optimization(opt_method, input),
         }
+    }
+}
+
+impl UnifiedSolver {
+    /// Handle optimization problems routed through the Solve tool
+    fn solve_optimization(
+        &self,
+        opt_method: &OptimizationMethod,
+        input: &SolveInput,
+    ) -> ToolResult<SolveOutput> {
+        use crate::implementations::optimizer::UnifiedOptimizer;
+
+        let optimizer = UnifiedOptimizer::new();
+
+        // Convert SolveInput to OptimizeInput
+        let opt_input = OptimizeInput {
+            method: opt_method.clone(),
+            data: input
+                .initial_guess
+                .as_ref()
+                .map(|g| {
+                    let x_data: Vec<f64> = g.keys().filter_map(|k| k.parse().ok()).collect();
+                    let y_data: Vec<f64> = g.values().copied().collect();
+                    (x_data, y_data)
+                }),
+            objective: input.equations.first().cloned(),
+            initial_guess: None,
+            constraints: None,
+            parameters: HashMap::new(),
+        };
+
+        // Call the optimizer
+        let opt_result = optimizer.optimize(&opt_input)?;
+
+        // Convert OptimizeOutput to SolveOutput
+        Ok(SolveOutput {
+            solutions: vec![{
+                let mut map = HashMap::new();
+                for (i, param) in opt_result.parameters.iter().enumerate() {
+                    map.insert(
+                        format!("p{}", i),
+                        Value::Number(serde_json::Number::from_f64(*param).unwrap_or(serde_json::Number::from(0))),
+                    );
+                }
+                if let Some(err) = opt_result.error {
+                    map.insert("error".to_string(), Value::Number(serde_json::Number::from_f64(err).unwrap_or(serde_json::Number::from(0))));
+                }
+                if let Some(r2) = opt_result.r_squared {
+                    map.insert("r_squared".to_string(), Value::Number(serde_json::Number::from_f64(r2).unwrap_or(serde_json::Number::from(0))));
+                }
+                map
+            }],
+            symbolic: opt_result.function,
+            numeric: None,
+            steps: Some(vec!["Optimization completed via Solve tool".to_string()]),
+            metadata: opt_result.metadata,
+        })
     }
 }

@@ -1,4 +1,10 @@
 //! Central dispatcher for routing tool requests
+//!
+//! Consolidated 4-tool architecture:
+//! - Solve: Equations, optimization, root finding, curve fitting
+//! - Compute: All numerical calculations (calculus, transforms, physics, statistics)
+//! - Analyze: Series, limits, stability analysis, simplification
+//! - Simulate: Time evolution, stochastic processes, fluid dynamics
 
 use super::traits::*;
 use super::types::*;
@@ -9,22 +15,38 @@ use std::time::Instant;
 
 /// Unified tool request envelope
 ///
-/// All tool names are **lowercase** in JSON: solve, differentiate, integrate,
-/// analyze, simulate, compute, transform, fieldtheory, sample, optimize.
+/// Primary tools (lowercase in JSON): solve, compute, analyze, simulate
+///
+/// Legacy tools (for backward compatibility, routed to primary tools):
+/// - differentiate -> compute
+/// - integrate -> compute
+/// - transform -> compute
+/// - fieldtheory -> compute
+/// - sample -> compute
+/// - optimize -> solve
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(tag = "tool", content = "input")]
 #[serde(rename_all = "lowercase")]
 pub enum ToolRequest {
+    // ===== Primary 4 Tools =====
     Solve(SolveInput),
-    Differentiate(DifferentiateInput),
-    Integrate(IntegrateInput),
+    Compute(ComputeInput),
     Analyze(AnalyzeInput),
     Simulate(SimulateInput),
-    Compute(ComputeInput),
+
+    // ===== Legacy Tools (backward compatibility) =====
+    /// Legacy: Use compute with operation: {differentiate: ...}
+    Differentiate(DifferentiateInput),
+    /// Legacy: Use compute with operation: {integrate: ...}
+    Integrate(IntegrateInput),
+    /// Legacy: Use compute with operation: {transform: ...}
     Transform(TransformInput),
+    /// Legacy: Use compute with operation: {field: ...}
     FieldTheory(FieldTheoryInput),
+    /// Legacy: Use compute with operation: {sample: ...}
     Sample(SampleInput),
+    /// Legacy: Use solve with equation_type: {optimize: ...}
     Optimize(OptimizeInput),
 }
 
@@ -34,12 +56,15 @@ pub enum ToolRequest {
 #[serde(tag = "tool", content = "output")]
 #[serde(rename_all = "lowercase")]
 pub enum ToolResponse {
+    // Primary responses
     Solve(SolveOutput),
-    Differentiate(DifferentiateOutput),
-    Integrate(IntegrateOutput),
+    Compute(ComputeOutput),
     Analyze(AnalyzeOutput),
     Simulate(SimulateOutput),
-    Compute(ComputeOutput),
+
+    // Legacy responses (for backward compatibility)
+    Differentiate(DifferentiateOutput),
+    Integrate(IntegrateOutput),
     Transform(TransformOutput),
     FieldTheory(FieldTheoryOutput),
     Sample(SampleOutput),
@@ -71,13 +96,17 @@ pub struct TimedResponse {
 }
 
 /// Main dispatcher that routes requests to appropriate tool implementations
+///
+/// Consolidated 4-tool architecture. Legacy tools are routed internally.
 pub struct ToolDispatcher {
     solver: Box<dyn Solve + Send + Sync>,
-    differentiator: Box<dyn Differentiate + Send + Sync>,
-    integrator: Box<dyn Integrate + Send + Sync>,
+    computer: Box<dyn Compute + Send + Sync>,
     analyzer: Box<dyn Analyze + Send + Sync>,
     simulator: Box<dyn Simulate + Send + Sync>,
-    computer: Box<dyn Compute + Send + Sync>,
+
+    // Legacy tool implementations (for backward compatibility routing)
+    differentiator: Box<dyn Differentiate + Send + Sync>,
+    integrator: Box<dyn Integrate + Send + Sync>,
     transformer: Box<dyn Transform + Send + Sync>,
     field_theory: Box<dyn FieldTheory + Send + Sync>,
     sampler: Box<dyn Sample + Send + Sync>,
@@ -85,7 +114,35 @@ pub struct ToolDispatcher {
 }
 
 impl ToolDispatcher {
-    /// Create a new dispatcher with the given tool implementations
+    /// Create a new dispatcher with the 4 primary tool implementations
+    pub fn new_consolidated(
+        solver: Box<dyn Solve + Send + Sync>,
+        computer: Box<dyn Compute + Send + Sync>,
+        analyzer: Box<dyn Analyze + Send + Sync>,
+        simulator: Box<dyn Simulate + Send + Sync>,
+        // Legacy implementations for backward compatibility
+        differentiator: Box<dyn Differentiate + Send + Sync>,
+        integrator: Box<dyn Integrate + Send + Sync>,
+        transformer: Box<dyn Transform + Send + Sync>,
+        field_theory: Box<dyn FieldTheory + Send + Sync>,
+        sampler: Box<dyn Sample + Send + Sync>,
+        optimizer: Box<dyn Optimize + Send + Sync>,
+    ) -> Self {
+        Self {
+            solver,
+            computer,
+            analyzer,
+            simulator,
+            differentiator,
+            integrator,
+            transformer,
+            field_theory,
+            sampler,
+            optimizer,
+        }
+    }
+
+    /// Legacy constructor - kept for backward compatibility
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         solver: Box<dyn Solve + Send + Sync>,
@@ -101,11 +158,11 @@ impl ToolDispatcher {
     ) -> Self {
         Self {
             solver,
-            differentiator,
-            integrator,
+            computer,
             analyzer,
             simulator,
-            computer,
+            differentiator,
+            integrator,
             transformer,
             field_theory,
             sampler,
@@ -116,7 +173,13 @@ impl ToolDispatcher {
     /// Process a tool request and return the appropriate response
     pub fn dispatch(&self, request: ToolRequest) -> ToolResult<ToolResponse> {
         match request {
+            // ===== Primary 4 Tools =====
             ToolRequest::Solve(input) => self.solver.solve(&input).map(ToolResponse::Solve),
+            ToolRequest::Compute(input) => self.computer.compute(&input).map(ToolResponse::Compute),
+            ToolRequest::Analyze(input) => self.analyzer.analyze(&input).map(ToolResponse::Analyze),
+            ToolRequest::Simulate(input) => self.simulator.simulate(&input).map(ToolResponse::Simulate),
+
+            // ===== Legacy Tools (backward compatibility) =====
             ToolRequest::Differentiate(input) => self
                 .differentiator
                 .differentiate(&input)
@@ -125,11 +188,6 @@ impl ToolDispatcher {
                 .integrator
                 .integrate(&input)
                 .map(ToolResponse::Integrate),
-            ToolRequest::Analyze(input) => self.analyzer.analyze(&input).map(ToolResponse::Analyze),
-            ToolRequest::Simulate(input) => {
-                self.simulator.simulate(&input).map(ToolResponse::Simulate)
-            }
-            ToolRequest::Compute(input) => self.computer.compute(&input).map(ToolResponse::Compute),
             ToolRequest::Transform(input) => self
                 .transformer
                 .transform(&input)
@@ -139,9 +197,10 @@ impl ToolDispatcher {
                 .field_theory(&input)
                 .map(ToolResponse::FieldTheory),
             ToolRequest::Sample(input) => self.sampler.sample(&input).map(ToolResponse::Sample),
-            ToolRequest::Optimize(input) => {
-                self.optimizer.optimize(&input).map(ToolResponse::Optimize)
-            }
+            ToolRequest::Optimize(input) => self
+                .optimizer
+                .optimize(&input)
+                .map(ToolResponse::Optimize),
         }
     }
 
@@ -236,4 +295,14 @@ impl ToolDispatcher {
             .to_string(),
         }
     }
+}
+
+/// Get the list of primary tools (4-tool architecture)
+pub fn primary_tools() -> Vec<&'static str> {
+    vec!["solve", "compute", "analyze", "simulate"]
+}
+
+/// Get the list of legacy tools (for backward compatibility)
+pub fn legacy_tools() -> Vec<&'static str> {
+    vec!["differentiate", "integrate", "transform", "fieldtheory", "sample", "optimize"]
 }

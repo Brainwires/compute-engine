@@ -2724,10 +2724,146 @@ impl Compute for UnifiedComputer {
             // Physics (Tier 1 Wolfram Alpha expansion)
             ComputeOp::Physics(op) => compute::compute_physics(op, input),
 
-            _ => Err(format!(
-                "Compute operation {:?} not yet implemented",
-                input.operation
-            )),
+            // ========== Consolidated Operations (formerly separate tools) ==========
+
+            // Differentiate operations (absorbed from Differentiate tool)
+            ComputeOp::Differentiate(diff_op) => {
+                use crate::implementations::differentiator::UnifiedDifferentiator;
+                let differentiator = UnifiedDifferentiator::new();
+                let variable = input.data.get("variable").and_then(|v| v.as_str()).unwrap_or("x").to_string();
+                let diff_input = DifferentiateInput {
+                    operation: diff_op.clone(),
+                    expression: input.data.get("expression").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+                    variables: vec![variable.clone()],
+                    order: input.data.get("order").and_then(|v| v.as_u64()).map(|n| vec![n as usize]),
+                    evaluate_at: input.data.get("point").and_then(|v| v.as_f64()).map(|p| {
+                        let mut m = HashMap::new();
+                        m.insert(variable, p);
+                        m
+                    }),
+                    parameters: HashMap::new(),
+                };
+                let result = differentiator.differentiate(&diff_input)?;
+                Ok(ComputeOutput {
+                    result: serde_json::json!(result.derivatives),
+                    additional: result.latex.map(|l| {
+                        let mut m = HashMap::new();
+                        m.insert("latex".to_string(), serde_json::json!(l));
+                        m
+                    }),
+                    metadata: result.metadata,
+                })
+            }
+
+            // Integrate operations (absorbed from Integrate tool)
+            ComputeOp::Integrate(int_type) => {
+                use crate::implementations::integrator::UnifiedIntegrator;
+                let integrator = UnifiedIntegrator::new();
+                let variable = input.data.get("variable").and_then(|v| v.as_str()).unwrap_or("x").to_string();
+                let limits = match (input.data.get("lower").and_then(|v| v.as_f64()), input.data.get("upper").and_then(|v| v.as_f64())) {
+                    (Some(l), Some(u)) => Some(vec![[l, u]]),
+                    _ => None,
+                };
+                let int_input = IntegrateInput {
+                    integration_type: int_type.clone(),
+                    expression: input.data.get("expression").and_then(|v| v.as_str()).unwrap_or("").to_string(),
+                    variables: vec![variable],
+                    limits,
+                    path: None,
+                    method: None,
+                    parameters: HashMap::new(),
+                };
+                let result = integrator.integrate(&int_input)?;
+                Ok(ComputeOutput {
+                    result: result.result,
+                    additional: result.symbolic.map(|s| {
+                        let mut m = HashMap::new();
+                        m.insert("symbolic".to_string(), serde_json::json!(s));
+                        if let Some(latex) = result.latex.clone() {
+                            m.insert("latex".to_string(), serde_json::json!(latex));
+                        }
+                        m
+                    }),
+                    metadata: result.metadata,
+                })
+            }
+
+            // Transform operations (absorbed from Transform tool)
+            ComputeOp::Transform(transform_type) => {
+                use crate::implementations::transformer::UnifiedTransformer;
+                let transformer = UnifiedTransformer::new();
+                let transform_input = TransformInput {
+                    transform_type: transform_type.clone(),
+                    data: input.data.get("data").and_then(|v| v.as_array()).map(|arr| {
+                        arr.iter().filter_map(|v| v.as_f64()).collect()
+                    }).unwrap_or_default(),
+                    sampling_rate: input.data.get("sampling_rate").and_then(|v| v.as_f64()),
+                    parameters: input.parameters.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
+                };
+                let result = transformer.transform(&transform_input)?;
+                Ok(ComputeOutput {
+                    result: serde_json::json!(result.result),
+                    additional: result.frequencies.map(|f| {
+                        let mut m = HashMap::new();
+                        m.insert("frequencies".to_string(), serde_json::json!(f));
+                        if let Some(mag) = result.magnitude.clone() {
+                            m.insert("magnitude".to_string(), serde_json::json!(mag));
+                        }
+                        if let Some(ph) = result.phase.clone() {
+                            m.insert("phase".to_string(), serde_json::json!(ph));
+                        }
+                        m
+                    }),
+                    metadata: result.metadata,
+                })
+            }
+
+            // Field theory operations (absorbed from FieldTheory tool)
+            ComputeOp::Field(field_type) => {
+                use crate::implementations::field_solver::UnifiedFieldSolver;
+                let field_solver = UnifiedFieldSolver::new();
+                // Convert Value to HashMap for configuration
+                let configuration: HashMap<String, Value> = match &input.data {
+                    Value::Object(map) => map.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
+                    _ => HashMap::new(),
+                };
+                let field_input = FieldTheoryInput {
+                    field_type: field_type.clone(),
+                    configuration,
+                    points: None,
+                    parameters: input.parameters.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
+                };
+                let result = field_solver.field_theory(&field_input)?;
+                Ok(ComputeOutput {
+                    result: serde_json::json!(result.field_values),
+                    additional: result.components.map(|c| {
+                        c.into_iter().map(|(k, v)| (k, serde_json::json!(v))).collect()
+                    }),
+                    metadata: result.metadata,
+                })
+            }
+
+            // Sample operations (absorbed from Sample tool)
+            ComputeOp::Sample(sampling_method) => {
+                use crate::implementations::sampler::UnifiedSampler;
+                let sampler = UnifiedSampler::new();
+                let sample_input = SampleInput {
+                    method: sampling_method.clone(),
+                    data: input.data.get("data").and_then(|v| v.as_array()).map(|arr| {
+                        arr.iter().filter_map(|v| v.as_f64()).collect()
+                    }).unwrap_or_default(),
+                    num_samples: input.data.get("num_samples").and_then(|v| v.as_u64()).map(|n| n as usize),
+                    parameters: input.parameters.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
+                };
+                let result = sampler.sample(&sample_input)?;
+                Ok(ComputeOutput {
+                    result: result.result,
+                    additional: result.moments.map(|m| {
+                        m.into_iter().map(|(k, v)| (k, serde_json::json!(v))).collect()
+                    }),
+                    metadata: result.metadata,
+                })
+            }
         }
     }
 }

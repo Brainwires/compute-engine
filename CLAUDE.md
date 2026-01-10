@@ -4,9 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-A unified computational engine for mathematical and scientific computing in Rust, providing **194+ mathematical operations** accessible through a clean 10-tool API. Internally uses domain-specific modules for implementation. Supports native Rust, WebAssembly (browser/Node.js), and MCP server interfaces.
+A unified computational engine for mathematical and scientific computing in Rust, providing **194+ mathematical operations** accessible through a **consolidated 4-tool API**:
 
-**Comprehensive Test Coverage**: 1685 tests passing (202 comprehensive integration tests + 1483 unit tests) with 100% pass rate.
+- **Solve**: Equations, systems, optimization, root finding
+- **Compute**: Calculus, transforms, field theory, sampling, matrix ops
+- **Analyze**: Series, limits, stability analysis, simplification
+- **Simulate**: Time evolution, stochastic processes, fluid dynamics
+
+Legacy tool names (differentiate, integrate, transform, fieldtheory, sample, optimize) are maintained for backward compatibility and route internally to the 4 primary tools.
+
+Supports native Rust, WebAssembly (browser/Node.js), and MCP server interfaces.
+
+**Comprehensive Test Coverage**: 2939 tests passing (1222 comprehensive integration tests + 1717 unit tests) with 100% pass rate.
 
 ## Build Commands
 
@@ -68,19 +77,28 @@ echo '{"tool":"solve","input":{"equations":["x^2 - 4 = 0"]}}' | cargo run --rele
 
 ## Architecture Overview
 
-### Unified 10-Tool Architecture
+### Consolidated 4-Tool Architecture
 
-**Public API Layer**: 10 core tools
-- Defined in `src/engine/traits.rs`
-- Tools: Solve, Differentiate, Integrate, Analyze, Simulate, Compute, Transform, FieldTheory, Sample, Optimize
+**Public API Layer**: 4 primary tools + 6 legacy tools for backward compatibility
+- Defined in `src/engine/traits.rs` and `src/engine/dispatcher.rs`
+- **Primary Tools**: Solve, Compute, Analyze, Simulate
+- **Legacy Tools** (route to primary): Differentiate, Integrate, Transform, FieldTheory, Sample, Optimize
 - Clean trait-based interface with JSON-serializable types
 - Request/response handled by `ToolDispatcher` in `src/engine/dispatcher.rs`
+
+**Tool Routing**:
+- `differentiate` → `compute` with `operation: {differentiate: ...}`
+- `integrate` → `compute` with `operation: {integrate: ...}`
+- `transform` → `compute` with `operation: {transform: ...}`
+- `fieldtheory` → `compute` with `operation: {field: ...}`
+- `sample` → `compute` with `operation: {sample: ...}`
+- `optimize` → `solve` with `equation_type: {optimize: ...}`
 
 **Implementation Layer**: Unified tool implementations
 - Located in `src/implementations/`
 - Each tool has a `Unified*` implementation (e.g., `UnifiedSolver`, `UnifiedComputer`)
-- These wire the 10-tool API to the 245 domain-specific functions
-- Some tools are fully implemented, others are in progress
+- These wire the 4-tool API to the 245 domain-specific functions
+- Legacy tool implementations maintained for backward compatibility
 
 **Domain Modules**: Implementation details (not a separate API)
 - Located in `src/mathematics/`, `src/physics/`, `src/tools/`, `src/specialized/`
