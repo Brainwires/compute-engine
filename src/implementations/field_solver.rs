@@ -3,6 +3,10 @@
 //! Routes field theory problems to appropriate physics modules
 
 use crate::engine::*;
+use crate::physics::quantum_mechanics::bohm_potential::BohmPotential;
+use crate::physics::quantum_mechanics::decoherence::{
+    calculate_decoherence_scale, decoherence_length, DecoherenceParams,
+};
 use serde_json::Value;
 use std::collections::HashMap;
 
@@ -454,12 +458,182 @@ impl UnifiedFieldSolver {
     }
 }
 
+impl UnifiedFieldSolver {
+    /// Calculate Bohm quantum potential
+    fn compute_bohm_potential(&self, input: &FieldTheoryInput) -> ToolResult<FieldTheoryOutput> {
+        let mass = input
+            .parameters
+            .get("mass")
+            .and_then(|v| v.as_f64())
+            .ok_or("Parameter 'mass' required for Bohm potential (in kg)")?;
+
+        // Get density field from configuration
+        let density: Vec<f64> = input
+            .configuration
+            .get("density")
+            .and_then(|v| v.as_array())
+            .map(|arr| arr.iter().filter_map(|v| v.as_f64()).collect())
+            .unwrap_or_else(|| vec![1.0; 100]); // Default uniform density
+
+        let dx = input
+            .parameters
+            .get("dx")
+            .and_then(|v| v.as_f64())
+            .unwrap_or(1e-9); // Default 1 nm grid spacing
+
+        // Calculate Bohm potential
+        let bohm = BohmPotential::with_mass(mass);
+        let q = bohm.calculate_1d(&density, dx);
+        let quantum_force = bohm.quantum_force_1d(&density, dx);
+
+        let mut field_data = HashMap::new();
+        field_data.insert("mass".to_string(), serde_json::json!(mass));
+        field_data.insert("grid_spacing".to_string(), serde_json::json!(dx));
+        field_data.insert("prefactor_hbar_sq_2m".to_string(), serde_json::json!(bohm.prefactor()));
+
+        Ok(FieldTheoryOutput {
+            field_values: vec![serde_json::json!({
+                "bohm_potential": q,
+                "quantum_force": quantum_force,
+            })],
+            components: Some({
+                let mut comps = HashMap::new();
+                comps.insert("Q".to_string(), q.clone());
+                comps.insert("F_quantum".to_string(), quantum_force);
+                comps
+            }),
+            metadata: Some(serde_json::json!({
+                "field_type": "bohm_potential",
+                "formula": "Q = (ℏ²/2m) × ∇²√ρ / √ρ",
+                "grid_points": density.len()
+            })),
+        })
+    }
+
+    /// Calculate decoherence length scale
+    fn compute_decoherence_scale(&self, input: &FieldTheoryInput) -> ToolResult<FieldTheoryOutput> {
+        let mass = input
+            .configuration
+            .get("mass")
+            .and_then(|v| v.as_f64())
+            .ok_or("Configuration 'mass' required (particle mass in kg)")?;
+
+        let temperature = input
+            .configuration
+            .get("temperature")
+            .and_then(|v| v.as_f64())
+            .ok_or("Configuration 'temperature' required (in Kelvin)")?;
+
+        let scattering_rate = input
+            .parameters
+            .get("scattering_rate")
+            .and_then(|v| v.as_f64());
+
+        let reference_length = input
+            .parameters
+            .get("reference_length")
+            .and_then(|v| v.as_f64());
+
+        // Calculate decoherence length
+        let l_d = decoherence_length(mass, temperature);
+
+        // Calculate full analysis if more parameters provided
+        let full_result = calculate_decoherence_scale(DecoherenceParams {
+            mass,
+            temperature,
+            scattering_rate,
+            reference_length,
+        });
+
+        let mut field_data = HashMap::new();
+        field_data.insert("mass".to_string(), serde_json::json!(mass));
+        field_data.insert("temperature".to_string(), serde_json::json!(temperature));
+        field_data.insert("decoherence_length".to_string(), serde_json::json!(l_d));
+
+        if let Ok(result) = full_result {
+            field_data.insert("classical_valid".to_string(), serde_json::json!(result.classical_valid));
+            field_data.insert("length_ratio".to_string(), serde_json::json!(result.length_ratio));
+            if let Some(t_d) = result.decoherence_time {
+                field_data.insert("decoherence_time".to_string(), serde_json::json!(t_d));
+            }
+        }
+
+        Ok(FieldTheoryOutput {
+            field_values: vec![serde_json::json!(field_data)],
+            components: None,
+            metadata: Some(serde_json::json!({
+                "field_type": "decoherence_scale",
+                "formula": "L_D = ℏ / √(2 m k_B T)",
+                "interpretation": "Length scale below which quantum coherence effects are significant"
+            })),
+        })
+    }
+
+    /// Calculate quantum stress tensor for fluid dynamics
+    fn compute_quantum_stress(&self, input: &FieldTheoryInput) -> ToolResult<FieldTheoryOutput> {
+        let mass = input
+            .parameters
+            .get("mass")
+            .and_then(|v| v.as_f64())
+            .ok_or("Parameter 'mass' required for quantum stress")?;
+
+        // Get density field
+        let density: Vec<f64> = input
+            .configuration
+            .get("density")
+            .and_then(|v| v.as_array())
+            .map(|arr| arr.iter().filter_map(|v| v.as_f64()).collect())
+            .unwrap_or_else(|| vec![1.0; 100]);
+
+        let dx = input
+            .parameters
+            .get("dx")
+            .and_then(|v| v.as_f64())
+            .unwrap_or(1e-9);
+
+        // Calculate Bohm potential and quantum force
+        let bohm = BohmPotential::with_mass(mass);
+        let q = bohm.calculate_1d(&density, dx);
+        let quantum_force = bohm.quantum_force_1d(&density, dx);
+
+        // Quantum stress = -ρ Q (acts like a pressure)
+        let quantum_stress: Vec<f64> = density
+            .iter()
+            .zip(q.iter())
+            .map(|(rho, q_val)| -rho * q_val)
+            .collect();
+
+        Ok(FieldTheoryOutput {
+            field_values: vec![serde_json::json!({
+                "quantum_stress": quantum_stress,
+                "bohm_potential": q,
+                "quantum_force": quantum_force,
+            })],
+            components: Some({
+                let mut comps = HashMap::new();
+                comps.insert("P_quantum".to_string(), quantum_stress);
+                comps.insert("Q".to_string(), q);
+                comps.insert("F_quantum".to_string(), quantum_force);
+                comps
+            }),
+            metadata: Some(serde_json::json!({
+                "field_type": "quantum_stress",
+                "formula": "P_Q = -ρ Q, where Q is Bohm potential",
+                "usage": "Add to Navier-Stokes momentum equation"
+            })),
+        })
+    }
+}
+
 impl FieldTheory for UnifiedFieldSolver {
     fn field_theory(&self, input: &FieldTheoryInput) -> ToolResult<FieldTheoryOutput> {
         match &input.field_type {
             FieldType::EM(em_field) => self.solve_em_field(em_field, input),
             FieldType::QuantumField(qf_type) => self.solve_quantum_field(qf_type, input),
             FieldType::GreenFunction => self.compute_green_function(input),
+            FieldType::BohmPotential => self.compute_bohm_potential(input),
+            FieldType::DecoherenceScale => self.compute_decoherence_scale(input),
+            FieldType::QuantumStress => self.compute_quantum_stress(input),
         }
     }
 }

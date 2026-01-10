@@ -1,6 +1,8 @@
 //! Type definitions for the 10-tool architecture
 
 use super::equations::*;
+#[cfg(feature = "schemars")]
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -10,6 +12,7 @@ pub type ToolResult<T> = Result<T, String>;
 
 /// Mathematical domain (real or complex)
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "lowercase")]
 pub enum Domain {
     Real,
@@ -18,6 +21,7 @@ pub enum Domain {
 
 /// Computation method preference
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "lowercase")]
 pub enum Method {
     Symbolic,
@@ -30,6 +34,7 @@ pub enum Method {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct SolveInput {
     /// Type of equation to solve
     pub equation_type: EquationType,
@@ -64,6 +69,7 @@ pub struct SolveInput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct SolveOutput {
     /// Solution sets
     pub solutions: Vec<HashMap<String, Value>>,
@@ -90,6 +96,7 @@ pub struct SolveOutput {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct DifferentiateInput {
     /// Type of differentiation
     pub operation: DifferentiationOp,
@@ -114,6 +121,7 @@ pub struct DifferentiateInput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct DifferentiateOutput {
     /// Derivatives (symbolic or evaluated)
     pub derivatives: HashMap<String, Value>,
@@ -132,6 +140,7 @@ pub struct DifferentiateOutput {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct IntegrateInput {
     /// Type of integration
     pub integration_type: IntegrationType,
@@ -160,6 +169,7 @@ pub struct IntegrateInput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct IntegrateOutput {
     /// Result (symbolic expression or numeric value)
     pub result: Value,
@@ -186,6 +196,7 @@ pub struct IntegrateOutput {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct AnalyzeInput {
     /// Operation to perform
     pub operation: AnalysisOp,
@@ -199,6 +210,7 @@ pub struct AnalyzeInput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct AnalyzeOutput {
     /// Result (type depends on operation)
     pub result: Value,
@@ -217,6 +229,7 @@ pub struct AnalyzeOutput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct ValidationResult {
     pub is_valid: bool,
     pub errors: Vec<String>,
@@ -228,6 +241,7 @@ pub struct ValidationResult {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct SimulateInput {
     /// Type of simulation
     pub model: SimulationModel,
@@ -264,6 +278,7 @@ pub struct SimulateInput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct SimulateOutput {
     /// Simulation results (variable name -> values over time)
     pub results: HashMap<String, Vec<f64>>,
@@ -290,6 +305,7 @@ pub struct SimulateOutput {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct ComputeInput {
     /// Operation to perform
     pub operation: ComputeOp,
@@ -303,6 +319,7 @@ pub struct ComputeInput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct ComputeOutput {
     /// Computed result
     pub result: Value,
@@ -321,6 +338,7 @@ pub struct ComputeOutput {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct TransformInput {
     /// Type of transform
     pub transform_type: TransformType,
@@ -338,6 +356,7 @@ pub struct TransformInput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct TransformOutput {
     /// Transformed data
     pub result: Vec<f64>,
@@ -364,6 +383,7 @@ pub struct TransformOutput {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct FieldTheoryInput {
     /// Type of field
     pub field_type: FieldType,
@@ -381,6 +401,7 @@ pub struct FieldTheoryInput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct FieldTheoryOutput {
     /// Field values at requested points
     pub field_values: Vec<Value>,
@@ -399,6 +420,7 @@ pub struct FieldTheoryOutput {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct SampleInput {
     /// Sampling method
     pub method: SamplingMethod,
@@ -417,6 +439,7 @@ pub struct SampleInput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct SampleOutput {
     /// Generated samples or computed statistics
     pub result: Value,
@@ -447,6 +470,7 @@ fn default_optimization_method() -> OptimizationMethod {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct OptimizeInput {
     /// Optimization method (defaults to Auto if not specified)
     #[serde(default = "default_optimization_method")]
@@ -474,6 +498,7 @@ pub struct OptimizeInput {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 pub struct OptimizeOutput {
     /// Optimized parameters
     pub parameters: Vec<f64>,

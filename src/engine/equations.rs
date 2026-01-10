@@ -3,6 +3,8 @@
 //! This module contains all the specific equation types, models, and operations
 //! that map the 180+ original operations to the 10 core tools.
 
+#[cfg(feature = "schemars")]
+use schemars::JsonSchema;
 use serde::{Deserialize, Deserializer, Serialize};
 use strum::EnumIter;
 
@@ -17,6 +19,7 @@ use strum::EnumIter;
 ///
 /// This is the UNIVERSAL solution for all 916 operations across all 10 tools
 #[derive(Debug, Clone, Serialize, EnumIter)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum EquationType {
     Einstein(EinsteinEquation),
@@ -116,6 +119,7 @@ impl<'de> Deserialize<'de> for EquationType {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum EinsteinEquation {
     #[default]
@@ -127,6 +131,7 @@ pub enum EinsteinEquation {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum FluidEquation {
     #[default]
@@ -139,6 +144,7 @@ pub enum FluidEquation {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum DifferentialEquation {
     #[default]
@@ -149,6 +155,7 @@ pub enum DifferentialEquation {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum EMEquation {
     #[default]
@@ -160,6 +167,7 @@ pub enum EMEquation {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum ChemicalEquation {
     #[default]
@@ -172,6 +180,7 @@ pub enum ChemicalEquation {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum NumberTheoryProblem {
     #[default]
@@ -181,6 +190,7 @@ pub enum NumberTheoryProblem {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum DiffGeoProblem {
     #[default]
@@ -194,6 +204,7 @@ pub enum DiffGeoProblem {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum DifferentiationOp {
     // Vector Calculus
@@ -218,6 +229,7 @@ pub enum DifferentiationOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum VectorCalcOp {
     #[default]
@@ -229,6 +241,7 @@ pub enum VectorCalcOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum TensorDiffOp {
     #[default]
@@ -242,6 +255,7 @@ pub enum TensorDiffOp {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum IntegrationType {
     // Line/Surface/Volume
@@ -266,6 +280,7 @@ pub enum IntegrationType {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum GeometricIntegral {
     #[default]
@@ -276,6 +291,7 @@ pub enum GeometricIntegral {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum IntegralTheorem {
     #[default]
@@ -286,6 +302,7 @@ pub enum IntegralTheorem {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum ComplexIntegral {
     #[default]
@@ -295,6 +312,7 @@ pub enum ComplexIntegral {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum NumericIntegration {
     #[default]
@@ -309,6 +327,7 @@ pub enum NumericIntegration {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum AnalysisOp {
     #[default]
@@ -372,6 +391,7 @@ pub enum AnalysisOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum FieldAnalysisType {
     #[default]
@@ -385,6 +405,7 @@ pub enum FieldAnalysisType {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum SimulationModel {
     // Stochastic Processes
@@ -408,6 +429,7 @@ impl Default for SimulationModel {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum StochasticProcess {
     #[default]
@@ -423,6 +445,7 @@ pub enum StochasticProcess {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum FinanceModel {
     #[default]
@@ -433,15 +456,23 @@ pub enum FinanceModel {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum FluidSim {
     #[default]
     NavierStokes,
     Euler,
     LatticeBotzmann,
+    /// 1D Quantum Navier-Stokes with Bohm potential correction
+    QuantumNavierStokes1D,
+    /// 2D Quantum Navier-Stokes with Bohm potential correction
+    QuantumNavierStokes2D,
+    /// 3D incompressible Navier-Stokes (Taylor-Green benchmark)
+    NavierStokes3D,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum TimeEvolutionMethod {
     #[default]
@@ -456,6 +487,7 @@ pub enum TimeEvolutionMethod {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum ComputeOp {
     // Tensor Operations
@@ -516,6 +548,7 @@ impl Default for ComputeOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum TensorOp {
     #[default]
@@ -531,6 +564,7 @@ pub enum TensorOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum MatrixOp {
     #[default]
@@ -545,6 +579,7 @@ pub enum MatrixOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum MatrixDecomp {
     #[default]
@@ -558,6 +593,7 @@ pub enum MatrixDecomp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum SpecialFunction {
     #[default]
@@ -571,6 +607,7 @@ pub enum SpecialFunction {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum NumberTheoryOp {
     #[default]
@@ -594,6 +631,7 @@ pub enum NumberTheoryOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum GeometryOp {
     #[default]
@@ -605,6 +643,7 @@ pub enum GeometryOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum InformationOp {
     #[default]
@@ -618,6 +657,7 @@ pub enum InformationOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum EMComputation {
     #[default]
@@ -626,6 +666,7 @@ pub enum EMComputation {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum ChemistryOp {
     #[default]
@@ -645,6 +686,7 @@ pub enum ChemistryOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum BiologyOp {
     #[default]
@@ -657,6 +699,7 @@ pub enum BiologyOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum ThermodynamicsOp {
     #[default]
@@ -668,6 +711,7 @@ pub enum ThermodynamicsOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum OpticsOp {
     #[default]
@@ -678,6 +722,7 @@ pub enum OpticsOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum GeophysicsOp {
     #[default]
@@ -688,6 +733,7 @@ pub enum GeophysicsOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum EngineeringOp {
     #[default]
@@ -705,6 +751,7 @@ pub enum EngineeringOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum DateTimeOp {
     #[default]
@@ -722,6 +769,7 @@ pub enum DateTimeOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum GraphOp {
     #[default]
@@ -731,6 +779,7 @@ pub enum GraphOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum PhysicsOp {
     // Relativity (12 operations)
@@ -752,6 +801,7 @@ impl Default for PhysicsOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum RelativityOp {
     #[default]
@@ -771,6 +821,7 @@ pub enum RelativityOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum StatPhysicsOp {
     #[default]
@@ -787,6 +838,7 @@ pub enum StatPhysicsOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum QuantumMechOp {
     #[default]
@@ -808,6 +860,7 @@ pub enum QuantumMechOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum ControlSystemsOp {
     #[default]
@@ -826,6 +879,7 @@ pub enum ControlSystemsOp {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum NuclearOp {
     #[default]
@@ -844,6 +898,7 @@ pub enum NuclearOp {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum TransformType {
     #[serde(alias = "Fourier")]
@@ -864,6 +919,7 @@ pub enum TransformType {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum FourierTransform {
     #[default]
@@ -872,6 +928,7 @@ pub enum FourierTransform {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum LaplaceTransform {
     #[default]
@@ -880,6 +937,7 @@ pub enum LaplaceTransform {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum WaveletType {
     #[default]
@@ -890,6 +948,7 @@ pub enum WaveletType {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum FFTType {
     #[default]
@@ -898,6 +957,7 @@ pub enum FFTType {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum FilterType {
     #[default]
@@ -908,6 +968,7 @@ pub enum FilterType {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum WindowType {
     #[default]
@@ -922,6 +983,7 @@ pub enum WindowType {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum FieldType {
     #[serde(alias = "EM")]
@@ -931,9 +993,19 @@ pub enum FieldType {
     GreenFunction,
     #[serde(alias = "QuantumField")]
     QuantumField(QuantumFieldType),
+    /// Bohm quantum potential Q = (ℏ²/2m) × ∇²√ρ / √ρ
+    #[serde(alias = "bohm_potential")]
+    BohmPotential,
+    /// Decoherence length scale L_D = ℏ / √(2 m k_B T)
+    #[serde(alias = "decoherence_scale")]
+    DecoherenceScale,
+    /// Quantum stress tensor for fluid dynamics
+    #[serde(alias = "quantum_stress")]
+    QuantumStress,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum EMField {
     #[default]
@@ -943,6 +1015,7 @@ pub enum EMField {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum QuantumFieldType {
     #[default]
@@ -956,6 +1029,7 @@ pub enum QuantumFieldType {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum SamplingMethod {
     // Stochastic
@@ -976,6 +1050,7 @@ pub enum SamplingMethod {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum MonteCarloMethod {
     #[default]
@@ -986,6 +1061,7 @@ pub enum MonteCarloMethod {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum StatisticalMethod {
     #[default]
@@ -998,6 +1074,7 @@ pub enum StatisticalMethod {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum SignalMethod {
     #[default]
@@ -1015,6 +1092,7 @@ pub enum SignalMethod {
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum OptimizationMethod {
     // Curve Fitting
@@ -1049,6 +1127,7 @@ impl Default for OptimizationMethod {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum SelectionCriteria {
     Aic,      // Akaike Information Criterion
@@ -1059,6 +1138,7 @@ pub enum SelectionCriteria {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum FitMethod {
     #[default]
@@ -1072,6 +1152,7 @@ pub enum FitMethod {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum MinimizationMethod {
     #[default]
@@ -1083,6 +1164,7 @@ pub enum MinimizationMethod {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum InterpolationMethod {
     #[default]
@@ -1093,6 +1175,7 @@ pub enum InterpolationMethod {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(rename_all = "snake_case")]
 pub enum DimAnalysisMethod {
     #[default]

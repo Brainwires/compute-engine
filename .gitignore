@@ -3,6 +3,9 @@
 **/*.rs.bk
 *.pdb
 
+# Cache
+.fastembed_cache
+
 # WASM build artifacts
 /pkg/
 **/pkg/

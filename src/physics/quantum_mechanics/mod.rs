@@ -13,12 +13,17 @@
 use serde::{Deserialize, Serialize};
 use std::f64::consts::PI;
 
-// Physical constants
-const H_BAR: f64 = 1.054571817e-34; // Reduced Planck constant (J·s)
-const M_E: f64 = 9.10938356e-31; // Electron mass (kg)
-const E_CHARGE: f64 = 1.602176634e-19; // Elementary charge (C)
-const K_E: f64 = 8.9875517923e9; // Coulomb constant (N·m²/C²)
-const A_0: f64 = 5.29177210903e-11; // Bohr radius (m)
+// Submodules for quantum fluid dynamics
+pub mod bohm_potential;
+pub mod decoherence;
+
+// Physical constants (pub for use by submodules)
+pub const H_BAR: f64 = 1.054571817e-34; // Reduced Planck constant (J·s)
+pub const M_E: f64 = 9.10938356e-31; // Electron mass (kg)
+pub const E_CHARGE: f64 = 1.602176634e-19; // Elementary charge (C)
+pub const K_E: f64 = 8.9875517923e9; // Coulomb constant (N·m²/C²)
+pub const A_0: f64 = 5.29177210903e-11; // Bohr radius (m)
+pub const K_B: f64 = 1.380649e-23; // Boltzmann constant (J/K)
 
 // ============================================================================
 // SCHRÖDINGER EQUATION

@@ -731,6 +731,321 @@ impl UnifiedSimulator {
                 "Fluid simulation {:?} should use Solve tool with FluidEquation type",
                 fluid_sim
             )),
+
+            FluidSim::QuantumNavierStokes1D => {
+                use crate::physics::fluid_dynamics::quantum_navier_stokes_1d::{QNS1DConfig, QNS1DSolver};
+
+                // Extract parameters
+                let nx = input
+                    .parameters
+                    .get("nx")
+                    .map(|v| *v as usize)
+                    .unwrap_or(200);
+                let domain_length = *input.parameters.get("domain_length").unwrap_or(&1.0);
+                let viscosity = *input.parameters.get("viscosity").unwrap_or(&0.01);
+                let particle_mass = *input.parameters.get("mass").unwrap_or(&4.8e-26); // N2 molecule
+                let gamma = *input.parameters.get("gamma").unwrap_or(&1.4);
+                let enable_quantum = input
+                    .parameters
+                    .get("enable_quantum")
+                    .map(|v| *v != 0.0)
+                    .unwrap_or(true);
+                let cfl = *input.parameters.get("cfl").unwrap_or(&0.5);
+
+                // Time parameters
+                let range = input.range.ok_or("range [start, end] required for QNS simulation")?;
+                let end_time = range[1];
+
+                // Create config
+                let config = QNS1DConfig {
+                    nx,
+                    length: domain_length,
+                    viscosity,
+                    particle_mass,
+                    gamma,
+                    enable_quantum,
+                    cfl,
+                };
+
+                // Create solver
+                let mut solver = QNS1DSolver::new(config);
+
+                // Check for initial condition type
+                let init_type = input
+                    .parameters
+                    .get("init_type")
+                    .map(|v| *v as i32)
+                    .unwrap_or(0);
+
+                if init_type == 1 {
+                    // Sod shock tube (uses standard Sod parameters)
+                    solver.init_sod_shock_tube();
+                }
+
+                // Run simulation until end time
+                solver.run_until(end_time);
+
+                // Extract results
+                let state = solver.get_state();
+                let mut results = std::collections::HashMap::new();
+                results.insert("density".to_string(), state.density.clone());
+                results.insert("velocity".to_string(), state.velocity.clone());
+                results.insert("pressure".to_string(), state.pressure.clone());
+                results.insert("x".to_string(), solver.get_x_coords());
+
+                Ok(SimulateOutput {
+                    results,
+                    time: Some(vec![state.time]),
+                    moments: None,
+                    plots: None,
+                    metadata: Some(serde_json::json!({
+                        "method": "quantum_navier_stokes_1d",
+                        "grid_size": nx,
+                        "domain_length": domain_length,
+                        "viscosity": viscosity,
+                        "particle_mass": particle_mass,
+                        "gamma": gamma,
+                        "enable_quantum": enable_quantum,
+                        "cfl": cfl,
+                        "steps_taken": state.step_count,
+                        "note": "1D Quantum Navier-Stokes with Bohm potential correction"
+                    })),
+                })
+            }
+
+            FluidSim::QuantumNavierStokes2D => {
+                use crate::physics::fluid_dynamics::quantum_navier_stokes_2d::{QNS2DConfig, QNS2DSolver};
+
+                // Extract parameters
+                let nx = input
+                    .parameters
+                    .get("nx")
+                    .map(|v| *v as usize)
+                    .unwrap_or(64);
+                let ny = input
+                    .parameters
+                    .get("ny")
+                    .map(|v| *v as usize)
+                    .unwrap_or(64);
+                let lx = *input.parameters.get("lx").unwrap_or(&(2.0 * std::f64::consts::PI));
+                let ly = *input.parameters.get("ly").unwrap_or(&(2.0 * std::f64::consts::PI));
+                let viscosity = *input.parameters.get("viscosity").unwrap_or(&0.01);
+                let particle_mass = *input.parameters.get("mass").unwrap_or(&4.8e-26);
+                let rho_ref = *input.parameters.get("rho_ref").unwrap_or(&1.0);
+                let gamma = *input.parameters.get("gamma").unwrap_or(&1.4);
+                let enable_quantum = input
+                    .parameters
+                    .get("enable_quantum")
+                    .map(|v| *v != 0.0)
+                    .unwrap_or(true);
+                let cfl = *input.parameters.get("cfl").unwrap_or(&0.3);
+                let sound_speed = *input.parameters.get("sound_speed").unwrap_or(&10.0);
+
+                // Time parameters
+                let range = input.range.ok_or("range [start, end] required for QNS simulation")?;
+                let end_time = range[1];
+
+                // Create config
+                let config = QNS2DConfig {
+                    nx,
+                    ny,
+                    lx,
+                    ly,
+                    viscosity,
+                    particle_mass,
+                    rho_ref,
+                    gamma,
+                    enable_quantum,
+                    cfl,
+                    sound_speed,
+                };
+
+                // Create solver
+                let mut solver = QNS2DSolver::new(config);
+
+                // Check for initial condition type
+                let init_type = input
+                    .parameters
+                    .get("init_type")
+                    .map(|v| *v as i32)
+                    .unwrap_or(0);
+
+                match init_type {
+                    1 => {
+                        // Taylor-Green vortex
+                        let u0 = *input.parameters.get("u0").unwrap_or(&1.0);
+                        let k = *input.parameters.get("wavenumber").unwrap_or(&1.0);
+                        solver.init_taylor_green(u0, k);
+                    }
+                    2 => {
+                        // Decaying turbulence
+                        let energy = *input.parameters.get("energy").unwrap_or(&1.0);
+                        let k_peak = *input.parameters.get("k_peak").unwrap_or(&4.0);
+                        solver.init_decaying_turbulence(energy, k_peak);
+                    }
+                    _ => {
+                        // Default: uniform flow (already initialized)
+                    }
+                }
+
+                // Run simulation until end time
+                solver.run_until(end_time);
+
+                // Extract results - flatten 2D arrays to 1D for JSON
+                let state = solver.get_state();
+                let mut results = std::collections::HashMap::new();
+
+                // Flatten density, u, v, pressure
+                let density_flat: Vec<f64> = state.density.iter().cloned().collect();
+                let u_flat: Vec<f64> = state.u.iter().cloned().collect();
+                let v_flat: Vec<f64> = state.v.iter().cloned().collect();
+                let pressure_flat: Vec<f64> = state.pressure.iter().cloned().collect();
+
+                results.insert("density".to_string(), density_flat);
+                results.insert("velocity_x".to_string(), u_flat);
+                results.insert("velocity_y".to_string(), v_flat);
+                results.insert("pressure".to_string(), pressure_flat);
+                results.insert("x".to_string(), solver.get_x_coords());
+                results.insert("y".to_string(), solver.get_y_coords());
+
+                Ok(SimulateOutput {
+                    results,
+                    time: Some(vec![state.time]),
+                    moments: Some(std::collections::HashMap::from([
+                        ("kinetic_energy".to_string(), solver.kinetic_energy()),
+                        ("enstrophy".to_string(), solver.enstrophy()),
+                        ("max_vorticity".to_string(), solver.max_vorticity()),
+                        ("max_divergence".to_string(), solver.max_divergence()),
+                    ])),
+                    plots: None,
+                    metadata: Some(serde_json::json!({
+                        "method": "quantum_navier_stokes_2d",
+                        "grid_size": [nx, ny],
+                        "domain_size": [lx, ly],
+                        "viscosity": viscosity,
+                        "particle_mass": particle_mass,
+                        "gamma": gamma,
+                        "enable_quantum": enable_quantum,
+                        "cfl": cfl,
+                        "sound_speed": sound_speed,
+                        "steps_taken": state.step_count,
+                        "note": "2D Quantum Navier-Stokes with Bohm potential correction"
+                    })),
+                })
+            }
+
+            FluidSim::NavierStokes3D => {
+                use crate::physics::fluid_dynamics::navier_stokes_3d::{NS3DConfig, NS3DSolver};
+
+                // Extract parameters
+                let nx = input
+                    .parameters
+                    .get("nx")
+                    .map(|v| *v as usize)
+                    .unwrap_or(32);
+                let ny = input
+                    .parameters
+                    .get("ny")
+                    .map(|v| *v as usize)
+                    .unwrap_or(32);
+                let nz = input
+                    .parameters
+                    .get("nz")
+                    .map(|v| *v as usize)
+                    .unwrap_or(32);
+                let lx = *input.parameters.get("lx").unwrap_or(&(2.0 * std::f64::consts::PI));
+                let ly = *input.parameters.get("ly").unwrap_or(&(2.0 * std::f64::consts::PI));
+                let lz = *input.parameters.get("lz").unwrap_or(&(2.0 * std::f64::consts::PI));
+                let viscosity = *input.parameters.get("viscosity").unwrap_or(&0.01);
+                let rho = *input.parameters.get("rho").unwrap_or(&1.0);
+                let cfl = *input.parameters.get("cfl").unwrap_or(&0.5);
+
+                // Time parameters
+                let range = input.range.ok_or("range [start, end] required for NS3D simulation")?;
+                let end_time = range[1];
+
+                // Create config
+                let config = NS3DConfig {
+                    nx,
+                    ny,
+                    nz,
+                    lx,
+                    ly,
+                    lz,
+                    viscosity,
+                    rho,
+                    cfl,
+                    ..Default::default()
+                };
+
+                // Create solver
+                let mut solver = NS3DSolver::new(config);
+
+                // Check for initial condition type
+                let init_type = input
+                    .parameters
+                    .get("init_type")
+                    .map(|v| *v as i32)
+                    .unwrap_or(0);
+
+                match init_type {
+                    1 => {
+                        // Taylor-Green vortex
+                        let u0 = *input.parameters.get("u0").unwrap_or(&1.0);
+                        solver.init_taylor_green(u0);
+                    }
+                    _ => {
+                        // Default: uniform flow
+                        let u0 = *input.parameters.get("u0").unwrap_or(&0.0);
+                        let v0 = *input.parameters.get("v0").unwrap_or(&0.0);
+                        let w0 = *input.parameters.get("w0").unwrap_or(&0.0);
+                        solver.init_uniform(u0, v0, w0);
+                    }
+                }
+
+                // Run simulation until end time
+                solver.run_until(end_time);
+
+                // Extract results - flatten 3D arrays to 1D
+                let state = solver.get_state();
+                let mut results = std::collections::HashMap::new();
+
+                let u_flat: Vec<f64> = state.u.iter().cloned().collect();
+                let v_flat: Vec<f64> = state.v.iter().cloned().collect();
+                let w_flat: Vec<f64> = state.w.iter().cloned().collect();
+                let p_flat: Vec<f64> = state.p.iter().cloned().collect();
+
+                results.insert("velocity_x".to_string(), u_flat);
+                results.insert("velocity_y".to_string(), v_flat);
+                results.insert("velocity_z".to_string(), w_flat);
+                results.insert("pressure".to_string(), p_flat);
+                results.insert("x".to_string(), solver.get_x_coords());
+                results.insert("y".to_string(), solver.get_y_coords());
+                results.insert("z".to_string(), solver.get_z_coords());
+
+                Ok(SimulateOutput {
+                    results,
+                    time: Some(vec![state.time]),
+                    moments: Some(std::collections::HashMap::from([
+                        ("kinetic_energy".to_string(), solver.kinetic_energy()),
+                        ("enstrophy".to_string(), solver.enstrophy()),
+                        ("max_vorticity".to_string(), solver.max_vorticity()),
+                        ("max_divergence".to_string(), solver.max_divergence()),
+                        ("reynolds_number".to_string(), solver.reynolds_number()),
+                    ])),
+                    plots: None,
+                    metadata: Some(serde_json::json!({
+                        "method": "navier_stokes_3d",
+                        "grid_size": [nx, ny, nz],
+                        "domain_size": [lx, ly, lz],
+                        "viscosity": viscosity,
+                        "rho": rho,
+                        "cfl": cfl,
+                        "steps_taken": state.step_count,
+                        "note": "3D incompressible Navier-Stokes with fractional step method"
+                    })),
+                })
+            }
         }
     }
 

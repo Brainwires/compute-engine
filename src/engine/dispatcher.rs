@@ -2,11 +2,17 @@
 
 use super::traits::*;
 use super::types::*;
+#[cfg(feature = "schemars")]
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
 
 /// Unified tool request envelope
+///
+/// All tool names are **lowercase** in JSON: solve, differentiate, integrate,
+/// analyze, simulate, compute, transform, fieldtheory, sample, optimize.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(tag = "tool", content = "input")]
 #[serde(rename_all = "lowercase")]
 pub enum ToolRequest {
@@ -24,6 +30,7 @@ pub enum ToolRequest {
 
 /// Unified tool response envelope
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
 #[serde(tag = "tool", content = "output")]
 #[serde(rename_all = "lowercase")]
 pub enum ToolResponse {
