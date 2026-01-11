@@ -291,10 +291,13 @@ async fn run_command(command: Commands) {
                         }
                     }
                 }
-                Err(_) => {
-                    // Fall back to legacy API for backwards compatibility
-                    let response = process_json_request(&json_str);
-                    println!("{}", response);
+                Err(parse_error) => {
+                    let error = json!({
+                        "success": false,
+                        "error": format!("Invalid request format: {}. Expected ToolRequest with 'tool' and 'input' fields.", parse_error)
+                    });
+                    println!("{}", serde_json::to_string_pretty(&error).unwrap());
+                    std::process::exit(1);
                 }
             }
         }
@@ -325,12 +328,13 @@ async fn run_command(command: Commands) {
                     }
                 }
                 Err(parse_error) => {
-                    // Log parse error to stderr for debugging
+                    let error = json!({
+                        "success": false,
+                        "error": format!("Invalid request format: {}. Expected ToolRequest with 'tool' and 'input' fields.", parse_error)
+                    });
                     eprintln!("Failed to parse as ToolRequest: {}", parse_error);
-                    eprintln!("Falling back to legacy API...");
-                    // Fall back to legacy API
-                    let response = process_json_request(&buffer);
-                    println!("{}", response);
+                    println!("{}", serde_json::to_string_pretty(&error).unwrap());
+                    std::process::exit(1);
                 }
             }
         }

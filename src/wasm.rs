@@ -268,7 +268,7 @@ impl ComputationalEngine {
     /// List all available operations
     #[wasm_bindgen(js_name = listOperations)]
     pub fn list_operations(&self) -> JsValue {
-        let ops = crate::api::list_all_operations();
+        let ops = crate::engine::list_all_operations();
         serde_wasm_bindgen::to_value(&ops).unwrap_or(JsValue::NULL)
     }
 }

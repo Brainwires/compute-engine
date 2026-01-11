@@ -535,3 +535,192 @@ pub struct OptimizeOutput {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<Value>,
 }
+
+// ============================================================================
+// TOOL 11: ML (Machine Learning)
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+pub struct MLInput {
+    /// ML operation to perform
+    pub operation: MLOp,
+
+    /// Input data (feature matrix, labels, etc.)
+    pub data: Value,
+
+    /// Additional parameters (learning_rate, epochs, etc.)
+    #[serde(default)]
+    pub parameters: HashMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+pub struct MLOutput {
+    /// Computed result (predictions, clusters, model, etc.)
+    pub result: Value,
+
+    /// Model parameters (weights, coefficients, etc.)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub model: Option<Value>,
+
+    /// Training metrics (loss, accuracy, etc.)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metrics: Option<HashMap<String, f64>>,
+
+    /// Additional metadata
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<Value>,
+}
+
+// ============================================================================
+// TOOL 12: CHAOS (Fractals, Attractors, Lyapunov)
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+pub struct ChaosInput {
+    /// Chaos operation to perform
+    pub operation: ChaosOp,
+
+    /// Input parameters (varies by operation)
+    #[serde(default)]
+    pub parameters: HashMap<String, Value>,
+
+    /// Number of iterations/steps
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub iterations: Option<usize>,
+
+    /// Resolution (for fractal generation)
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub resolution: Option<[usize; 2]>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+pub struct ChaosOutput {
+    /// Computed result (trajectory, fractal data, exponents, etc.)
+    pub result: Value,
+
+    /// Time series data (for attractors)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub trajectory: Option<Vec<Vec<f64>>>,
+
+    /// Computed values (Lyapunov exponents, dimensions, etc.)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub values: Option<HashMap<String, f64>>,
+
+    /// Additional metadata
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<Value>,
+}
+
+// ============================================================================
+// TOOL 13: UNITS (Dimensional Analysis, Conversion)
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+pub struct UnitsInput {
+    /// Units operation to perform
+    pub operation: UnitsOp,
+
+    /// Value to convert (for conversion operations)
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub value: Option<f64>,
+
+    /// Source unit
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub from_unit: Option<String>,
+
+    /// Target unit
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub to_unit: Option<String>,
+
+    /// Expression to analyze (for dimensional analysis)
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expression: Option<String>,
+
+    /// Variable units mapping
+    #[serde(default)]
+    pub variable_units: HashMap<String, String>,
+
+    /// Additional parameters
+    #[serde(default)]
+    pub parameters: HashMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+pub struct UnitsOutput {
+    /// Result (converted value, analysis result, etc.)
+    pub result: Value,
+
+    /// Converted value (for conversion operations)
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub converted_value: Option<f64>,
+
+    /// SI base units representation
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub si_units: Option<String>,
+
+    /// Dimensional analysis result
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub dimensions: Option<HashMap<String, i32>>,
+
+    /// Compatibility check result
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub compatible: Option<bool>,
+
+    /// Additional metadata
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<Value>,
+}
+
+// ============================================================================
+// TOOL 14: VALIDATE (Equation/Physics Validation)
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+pub struct ValidateInput {
+    /// Validation operation to perform
+    pub operation: ValidateOp,
+
+    /// Equation or expression to validate
+    pub expression: String,
+
+    /// Variable units (for dimensional validation)
+    #[serde(default)]
+    pub variable_units: HashMap<String, String>,
+
+    /// Additional parameters
+    #[serde(default)]
+    pub parameters: HashMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+pub struct ValidateOutput {
+    /// Overall validation result
+    pub is_valid: bool,
+
+    /// Detailed validation results
+    pub result: Value,
+
+    /// Errors found
+    #[serde(default)]
+    pub errors: Vec<String>,
+
+    /// Warnings
+    #[serde(default)]
+    pub warnings: Vec<String>,
+
+    /// Suggestions for fixing issues
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub suggestions: Option<Vec<String>>,
+
+    /// Additional metadata
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<Value>,
+}

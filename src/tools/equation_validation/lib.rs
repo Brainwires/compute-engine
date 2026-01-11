@@ -31,13 +31,13 @@ enum Commands {
 
 #[derive(Serialize, Debug)]
 pub struct ValidationResult {
-    is_valid: bool,
-    dimensional_consistency: bool,
-    physics_compliance: bool,
-    mathematical_correctness: bool,
-    unit_analysis: HashMap<String, String>,
-    violations: Vec<String>,
-    confidence: f64,
+    pub is_valid: bool,
+    pub dimensional_consistency: bool,
+    pub physics_compliance: bool,
+    pub mathematical_correctness: bool,
+    pub unit_analysis: HashMap<String, String>,
+    pub violations: Vec<String>,
+    pub confidence: f64,
 }
 
 #[derive(Debug)]

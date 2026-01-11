@@ -1,7 +1,7 @@
 //! MCP Server Implementation
 //!
 //! Official Model Context Protocol server using rmcp SDK v0.8.1
-//! Exposes 4 primary tools: solve, compute, analyze, simulate
+//! Exposes 8 primary tools: solve, compute, analyze, simulate, ml, chaos, units, validate
 
 pub mod server {
     use crate::engine::*;
@@ -127,10 +127,123 @@ pub mod server {
     }
 
     // =========================================================================
+    // ML TOOL - Machine learning operations
+    // =========================================================================
+
+    #[derive(Debug, Serialize, Deserialize, JsonSchema)]
+    pub struct MlRequest {
+        /// ML operation to perform
+        /// Options:
+        /// - Clustering: {"clustering": "kmeans"}, {"clustering": "silhouette_score"}
+        /// - Neural Network: {"neural_network": "train"}, {"neural_network": "predict"}
+        /// - Regression: {"regression": "linear"}, {"regression": "ridge"}, {"regression": "logistic"}
+        /// - Dimensionality Reduction: {"dim_reduction": "pca"}, {"dim_reduction": "transform"}
+        pub operation: Value,
+
+        /// Input data (typically 2D array of samples)
+        /// Example: [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
+        pub data: Value,
+
+        /// Additional parameters (optional)
+        /// For clustering: {"k": 3}
+        /// For neural network: {"layer_sizes": [2, 4, 1], "epochs": 100}
+        /// For regression: {"lambda": 0.1}
+        #[serde(default)]
+        pub parameters: HashMap<String, Value>,
+    }
+
+    // =========================================================================
+    // CHAOS TOOL - Chaos theory and fractals
+    // =========================================================================
+
+    #[derive(Debug, Serialize, Deserialize, JsonSchema)]
+    pub struct ChaosRequest {
+        /// Chaos operation to perform
+        /// Options:
+        /// - Fractals: {"fractal": "mandelbrot"}, {"fractal": "julia"}, {"fractal": "burning_ship"}
+        /// - Attractors: {"attractor": "lorenz"}, {"attractor": "rossler"}
+        /// - Lyapunov: {"lyapunov": "map_1d"}, {"lyapunov": "logistic_map"}
+        /// - Bifurcation: {"bifurcation": "logistic_map"}
+        /// - Dimension: {"dimension": "box_counting"}, {"dimension": "kaplan_yorke"}
+        pub operation: Value,
+
+        /// Parameters for the operation
+        /// For fractals: {"c_re": -0.5, "c_im": 0.5, "max_iter": 100}
+        /// For attractors: {"sigma": 10.0, "rho": 28.0, "beta": 2.667, "dt": 0.01}
+        #[serde(default)]
+        pub parameters: HashMap<String, Value>,
+
+        /// Number of iterations/steps
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub iterations: Option<usize>,
+
+        /// Resolution for fractal generation [width, height]
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub resolution: Option<[usize; 2]>,
+    }
+
+    // =========================================================================
+    // UNITS TOOL - Dimensional analysis and unit conversion
+    // =========================================================================
+
+    #[derive(Debug, Serialize, Deserialize, JsonSchema)]
+    pub struct UnitsRequest {
+        /// Units operation to perform
+        /// Options: "convert", "analyze", "check_compatibility", "get_base", "derive", "parse", "simplify"
+        pub operation: String,
+
+        /// Value to convert (for convert operation)
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub value: Option<f64>,
+
+        /// Source unit (e.g., "m", "kg", "m/s")
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub from_unit: Option<String>,
+
+        /// Target unit (e.g., "ft", "lb", "km/h")
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub to_unit: Option<String>,
+
+        /// Expression to analyze (for analyze operation)
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub expression: Option<String>,
+
+        /// Variable units mapping (for analyze operation)
+        /// Example: {"m": "kg", "v": "m/s", "F": "N"}
+        #[serde(default)]
+        pub variable_units: HashMap<String, String>,
+    }
+
+    // =========================================================================
+    // VALIDATE TOOL - Equation and physics validation
+    // =========================================================================
+
+    #[derive(Debug, Serialize, Deserialize, JsonSchema)]
+    pub struct ValidateRequest {
+        /// Validation operation to perform
+        /// Options: "equation", "dimensions", "conservation", "symmetry", "physics", "bounds", "singularities"
+        pub operation: String,
+
+        /// Expression or equation to validate
+        pub expression: String,
+
+        /// Variable units (for dimensional validation)
+        /// Example: {"E": "J", "m": "kg", "c": "m/s"}
+        #[serde(default)]
+        pub variable_units: HashMap<String, String>,
+
+        /// Additional parameters
+        /// For conservation: {"domain": "mechanics", "conservation_laws": ["energy", "momentum"]}
+        /// For physics: {"domain": "relativity"}
+        #[serde(default)]
+        pub parameters: HashMap<String, Value>,
+    }
+
+    // =========================================================================
     // MCP SERVER
     // =========================================================================
 
-    /// Computational Engine MCP Server - 4 Tool Architecture
+    /// Computational Engine MCP Server - 8 Tool Architecture
     #[derive(Clone)]
     pub struct ComputationalEngine {
         dispatcher: Arc<ToolDispatcher>,
@@ -327,6 +440,201 @@ EXAMPLES:
                 Err(e) => Err(e),
             }
         }
+
+        /// Machine learning operations (clustering, neural networks, regression)
+        #[tool(
+            description = r#"Perform machine learning operations including clustering, neural networks, regression, and dimensionality reduction.
+
+OPERATIONS:
+- Clustering: {"clustering": "kmeans"}, {"clustering": "silhouette_score"}
+- Neural Network: {"neural_network": "train"}, {"neural_network": "predict"}, {"neural_network": "create_layer"}
+- Regression: {"regression": "linear"}, {"regression": "ridge"}, {"regression": "logistic"}
+- Dimensionality Reduction: {"dim_reduction": "pca"}, {"dim_reduction": "transform"}
+
+DATA FORMAT:
+- 2D array of samples: [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
+- For supervised learning, include targets in parameters
+
+EXAMPLES:
+1. K-Means clustering:
+   operation={"clustering": "kmeans"}
+   data=[[1,2], [1,3], [5,6], [5,7]]
+   parameters={"k": 2}
+
+2. Linear regression:
+   operation={"regression": "linear"}
+   data=[[1], [2], [3]]
+   parameters={"targets": [2, 4, 6]}
+
+3. PCA:
+   operation={"dim_reduction": "pca"}
+   data=[[1,2,3], [4,5,6], [7,8,9]]
+   parameters={"n_components": 2}"#
+        )]
+        async fn ml(&self, Parameters(req): Parameters<MlRequest>) -> Result<String, String> {
+            let operation: MLOp = serde_json::from_value(req.operation.clone())
+                .map_err(|e| format!("Invalid ML operation: {}. See tool description for valid operations.", e))?;
+
+            let input = MLInput {
+                operation,
+                data: req.data,
+                parameters: req.parameters,
+            };
+
+            let request = ToolRequest::Ml(input);
+            match self.dispatcher.dispatch(request) {
+                Ok(response) => serde_json::to_string_pretty(&response)
+                    .map_err(|e| format!("Serialization error: {}", e)),
+                Err(e) => Err(e),
+            }
+        }
+
+        /// Chaos theory operations (fractals, attractors, Lyapunov exponents)
+        #[tool(
+            description = r#"Perform chaos theory operations including fractal generation, strange attractors, Lyapunov exponents, and bifurcation analysis.
+
+OPERATIONS:
+- Fractals: {"fractal": "mandelbrot"}, {"fractal": "julia"}, {"fractal": "burning_ship"}, {"fractal": "koch"}
+- Attractors: {"attractor": "lorenz"}, {"attractor": "rossler"}
+- Lyapunov: {"lyapunov": "map_1d"}, {"lyapunov": "logistic_map"}
+- Bifurcation: {"bifurcation": "logistic_map"}
+- Dimension: {"dimension": "box_counting"}, {"dimension": "kaplan_yorke"}
+
+EXAMPLES:
+1. Mandelbrot set:
+   operation={"fractal": "mandelbrot"}
+   parameters={"c_re": -0.5, "c_im": 0.5, "max_iter": 100}
+   resolution=[800, 600]
+
+2. Lorenz attractor:
+   operation={"attractor": "lorenz"}
+   parameters={"sigma": 10.0, "rho": 28.0, "beta": 2.667, "dt": 0.01}
+   iterations=1000
+
+3. Lyapunov exponent:
+   operation={"lyapunov": "logistic_map"}
+   parameters={"r": 3.9}
+   iterations=1000"#
+        )]
+        async fn chaos(&self, Parameters(req): Parameters<ChaosRequest>) -> Result<String, String> {
+            let operation: ChaosOp = serde_json::from_value(req.operation.clone())
+                .map_err(|e| format!("Invalid chaos operation: {}. See tool description for valid operations.", e))?;
+
+            let input = ChaosInput {
+                operation,
+                parameters: req.parameters,
+                iterations: req.iterations,
+                resolution: req.resolution,
+            };
+
+            let request = ToolRequest::Chaos(input);
+            match self.dispatcher.dispatch(request) {
+                Ok(response) => serde_json::to_string_pretty(&response)
+                    .map_err(|e| format!("Serialization error: {}", e)),
+                Err(e) => Err(e),
+            }
+        }
+
+        /// Unit conversion and dimensional analysis
+        #[tool(
+            description = r#"Perform unit conversions and dimensional analysis.
+
+OPERATIONS:
+- "convert" - Convert between units (requires value, from_unit, to_unit)
+- "analyze" - Analyze dimensional consistency of an expression
+- "check_compatibility" - Check if two units are compatible
+- "get_base" - Get SI base units for a given unit
+- "derive" - Derive units for a physical quantity
+- "parse" - Parse a unit string into components
+- "simplify" - Simplify a unit expression
+
+EXAMPLES:
+1. Convert meters to feet:
+   operation="convert"
+   value=100
+   from_unit="m"
+   to_unit="ft"
+
+2. Check dimensional consistency:
+   operation="analyze"
+   expression="F = m * a"
+   variable_units={"F": "N", "m": "kg", "a": "m/s^2"}
+
+3. Check unit compatibility:
+   operation="check_compatibility"
+   from_unit="J"
+   to_unit="kg*m^2/s^2""#
+        )]
+        async fn units(&self, Parameters(req): Parameters<UnitsRequest>) -> Result<String, String> {
+            let operation: UnitsOp = serde_json::from_value(serde_json::json!(req.operation))
+                .map_err(|e| format!("Invalid units operation '{}': {}. Use: convert, analyze, check_compatibility, get_base, derive, parse, simplify", req.operation, e))?;
+
+            let input = UnitsInput {
+                operation,
+                value: req.value,
+                from_unit: req.from_unit,
+                to_unit: req.to_unit,
+                expression: req.expression,
+                variable_units: req.variable_units,
+                parameters: HashMap::new(),
+            };
+
+            let request = ToolRequest::Units(input);
+            match self.dispatcher.dispatch(request) {
+                Ok(response) => serde_json::to_string_pretty(&response)
+                    .map_err(|e| format!("Serialization error: {}", e)),
+                Err(e) => Err(e),
+            }
+        }
+
+        /// Validate equations and physics
+        #[tool(
+            description = r#"Validate mathematical equations and physics compliance.
+
+OPERATIONS:
+- "equation" - Full equation validation (syntax, dimensions, physics)
+- "dimensions" - Check dimensional consistency only
+- "conservation" - Check conservation laws (energy, momentum, charge)
+- "symmetry" - Check symmetry properties (time, space, rotation, Lorentz)
+- "physics" - Check physics domain compliance
+- "bounds" - Check mathematical bounds and constraints
+- "singularities" - Check for singularities in expressions
+
+EXAMPLES:
+1. Validate Einstein's mass-energy equation:
+   operation="equation"
+   expression="E = m * c^2"
+   variable_units={"E": "J", "m": "kg", "c": "m/s"}
+   parameters={"domain": "relativity"}
+
+2. Check dimensional consistency:
+   operation="dimensions"
+   expression="F = m * a"
+   variable_units={"F": "N", "m": "kg", "a": "m/s^2"}
+
+3. Check conservation laws:
+   operation="conservation"
+   expression="E1 + E2 = E3"
+   parameters={"domain": "mechanics", "conservation_laws": ["energy"]}"#
+        )]
+        async fn validate(&self, Parameters(req): Parameters<ValidateRequest>) -> Result<String, String> {
+            let operation: ValidateOp = serde_json::from_value(serde_json::json!(req.operation))
+                .map_err(|e| format!("Invalid validate operation '{}': {}. Use: equation, dimensions, conservation, symmetry, physics, bounds, singularities", req.operation, e))?;
+
+            let input = ValidateInput {
+                operation,
+                expression: req.expression,
+                variable_units: req.variable_units,
+                parameters: req.parameters,
+            };
+
+            let request = ToolRequest::Validate(input);
+            match self.dispatcher.dispatch(request) {
+                Ok(response) => serde_json::to_string_pretty(&response)
+                    .map_err(|e| format!("Serialization error: {}", e)),
+                Err(e) => Err(e),
+            }
+        }
     }
 
     #[tool_handler(router = self.tool_router)]
@@ -343,11 +651,15 @@ EXAMPLES:
                     website_url: None,
                 },
                 instructions: Some(
-                    "Computational engine with 229+ operations across 4 tools:\n\
+                    "Computational engine with 350+ operations across 8 tools:\n\
                     - solve: Equations, systems, optimization\n\
                     - compute: Matrix ops, calculus, transforms, field theory, sampling\n\
                     - analyze: Simplify, series, limits, stability\n\
-                    - simulate: ODEs, stochastic processes, fluid dynamics"
+                    - simulate: ODEs, stochastic processes, fluid dynamics\n\
+                    - ml: Machine learning (clustering, neural nets, regression)\n\
+                    - chaos: Chaos theory (fractals, attractors, Lyapunov)\n\
+                    - units: Dimensional analysis and unit conversion\n\
+                    - validate: Equation and physics validation"
                         .into(),
                 ),
             }
@@ -364,8 +676,8 @@ EXAMPLES:
             env!("CARGO_PKG_VERSION")
         );
         eprintln!("Protocol: MCP 2024-11-05");
-        eprintln!("Tools: solve, compute, analyze, simulate");
-        eprintln!("Operations: 229+ mathematical and physics computations");
+        eprintln!("Tools: solve, compute, analyze, simulate, ml, chaos, units, validate");
+        eprintln!("Operations: 350+ mathematical and physics computations");
         eprintln!("");
 
         engine.serve(transport).await?.waiting().await?;

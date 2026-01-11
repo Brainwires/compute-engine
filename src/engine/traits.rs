@@ -51,3 +51,23 @@ pub trait Sample {
 pub trait Optimize {
     fn optimize(&self, input: &OptimizeInput) -> ToolResult<OptimizeOutput>;
 }
+
+/// Tool 11: Machine Learning operations (clustering, neural networks, regression)
+pub trait MachineLearning {
+    fn ml(&self, input: &MLInput) -> ToolResult<MLOutput>;
+}
+
+/// Tool 12: Chaos theory (fractals, attractors, Lyapunov exponents)
+pub trait Chaos {
+    fn chaos(&self, input: &ChaosInput) -> ToolResult<ChaosOutput>;
+}
+
+/// Tool 13: Units and dimensional analysis
+pub trait Units {
+    fn units(&self, input: &UnitsInput) -> ToolResult<UnitsOutput>;
+}
+
+/// Tool 14: Equation and physics validation
+pub trait Validate {
+    fn validate(&self, input: &ValidateInput) -> ToolResult<ValidateOutput>;
+}

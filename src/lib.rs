@@ -1,17 +1,28 @@
 //! # Computational Engine
 //!
-//! A unified computational engine built around 5 core tools with a clean, modular architecture.
+//! A unified computational engine built around 8 primary tools with a clean, modular architecture.
 //!
 //! ## Architecture
 //!
-//! ### 5 Core Tools (NEW - Recommended)
-//! The engine is organized around 5 powerful, flexible tools:
+//! ### 8 Primary Tools (NEW - Recommended)
+//! The engine is organized around 8 powerful, flexible tools:
 //!
 //! 1. **Solve** - Equations, systems, optimization, root finding
-//! 2. **Differentiate** - Derivatives, gradients, Jacobians, Hessians
-//! 3. **Integrate** - Definite/indefinite, single/multivariable integrals
-//! 4. **Analyze** - Simplify, expand, factor, transform, evaluate
-//! 5. **Simulate** - ODEs, PDEs, physics, mechanics, optimization
+//! 2. **Compute** - Matrix ops, calculus, transforms, field theory, sampling
+//! 3. **Analyze** - Series, limits, stability analysis, simplification
+//! 4. **Simulate** - Time evolution, stochastic processes, fluid dynamics
+//! 5. **ML** - Machine learning (clustering, neural nets, regression)
+//! 6. **Chaos** - Chaos theory (fractals, attractors, Lyapunov exponents)
+//! 7. **Units** - Dimensional analysis and unit conversion
+//! 8. **Validate** - Equation and physics validation
+//!
+//! ### Legacy Tools (Backward Compatible)
+//! - **Differentiate** - Routes to Compute with differentiate operation
+//! - **Integrate** - Routes to Compute with integrate operation
+//! - **Transform** - Routes to Compute with transform operation
+//! - **FieldTheory** - Routes to Compute with field operation
+//! - **Sample** - Routes to Compute with sample operation
+//! - **Optimize** - Routes to Solve with optimize equation type
 //!
 //! ### Quick Start (New API)
 //!
@@ -121,74 +132,101 @@ pub use tools::numerical_methods;
 pub use tools::signal_processing;
 // Note: specialized::chemistry has been replaced by the new chemistry module
 
-// Unified API for all operations
-pub mod api;
-
 // Re-export new engine types (Recommended)
 pub use engine::{
-    AnalysisOp,
+    // Primary 8 Tools - Traits
     Analyze,
+    Chaos,
+    Compute,
+    MachineLearning,
+    Simulate,
+    Solve,
+    Units,
+    Validate,
+    // Primary 8 Tools - Input/Output types
     AnalyzeInput,
     AnalyzeOutput,
-    ChemicalEquation,
-    Compute,
+    ChaosInput,
+    ChaosOutput,
     ComputeInput,
-    ComputeOp,
     ComputeOutput,
-    DifferentialEquation,
-    Differentiate,
-    DifferentiateInput,
-    DifferentiateOutput,
-    DifferentiationOp,
-    EMEquation,
-    EinsteinEquation,
-    // Equation types
-    EquationType,
-    FieldTheory,
-    FieldTheoryInput,
-    FieldTheoryOutput,
-    FieldType,
-    FluidEquation,
-    Integrate,
-    IntegrateInput,
-    IntegrateOutput,
-    IntegrationType,
-    OptimizationMethod,
-    Optimize,
-    OptimizeInput,
-    OptimizeOutput,
-    Sample,
-    SampleInput,
-    SampleOutput,
-    SamplingMethod,
-    Simulate,
+    MLInput,
+    MLOutput,
     SimulateInput,
     SimulateOutput,
-    SimulationModel,
-    // Traits
-    Solve,
-    // Types
     SolveInput,
     SolveOutput,
+    UnitsInput,
+    UnitsOutput,
+    ValidateInput,
+    ValidateOutput,
+    // Primary 8 Tools - Operation enums
+    AnalysisOp,
+    ChaosOp,
+    ComputeOp,
+    MLOp,
+    SimulationModel,
+    UnitsOp,
+    ValidateOp,
+    // ML sub-enums
+    ClusteringMethod,
+    NeuralNetworkOp,
+    RegressionMethod,
+    DimReductionMethod,
+    ClassificationMethod,
+    // Chaos sub-enums
+    FractalType,
+    AttractorType,
+    LyapunovMethod,
+    BifurcationType,
+    DimensionMethod,
+    // Legacy Tools - Traits
+    Differentiate,
+    FieldTheory,
+    Integrate,
+    Optimize,
+    Sample,
+    Transform,
+    // Legacy Tools - Input/Output types
+    DifferentiateInput,
+    DifferentiateOutput,
+    FieldTheoryInput,
+    FieldTheoryOutput,
+    IntegrateInput,
+    IntegrateOutput,
+    OptimizeInput,
+    OptimizeOutput,
+    SampleInput,
+    SampleOutput,
+    TransformInput,
+    TransformOutput,
+    // Legacy Tools - Operation enums
+    DifferentiationOp,
+    FieldType,
+    IntegrationType,
+    OptimizationMethod,
+    SamplingMethod,
+    TransformType,
+    // Equation types
+    ChemicalEquation,
+    DifferentialEquation,
+    EinsteinEquation,
+    EMEquation,
+    EquationType,
+    FluidEquation,
     // Dispatcher
     ToolDispatcher,
     ToolRequest,
     ToolResponse,
     ToolResult,
-    Transform,
-    TransformInput,
-    TransformOutput,
-    TransformType,
 };
 
 // Re-export implementation helper
 pub use implementations::create_default_dispatcher;
 
-// Re-export legacy API (Still supported for backwards compatibility)
-pub use api::{
-    ComputationRequest, ComputationResponse, list_all_operations, process_json_request,
-    process_request,
-};
+// Re-export operation listing from engine
+pub use engine::{list_all_operations, list_tools};
+
 pub use tensor_calculus::TensorError;
 
 /// Common result type for computational operations

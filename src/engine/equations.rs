@@ -1235,3 +1235,259 @@ pub enum DimAnalysisMethod {
     DimensionlessGroups,
     SimilarityAnalysis,
 }
+
+// ============================================================================
+// ML TOOL - Machine Learning Operations
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum MLOp {
+    /// Clustering algorithms (K-means, DBSCAN, etc.)
+    #[serde(alias = "Clustering")]
+    Clustering(ClusteringMethod),
+    /// Neural network operations
+    #[serde(alias = "NeuralNetwork")]
+    NeuralNetwork(NeuralNetworkOp),
+    /// Regression methods
+    #[serde(alias = "Regression")]
+    Regression(RegressionMethod),
+    /// Dimensionality reduction
+    #[serde(alias = "DimReduction")]
+    DimReduction(DimReductionMethod),
+    /// Classification algorithms
+    #[serde(alias = "Classification")]
+    Classification(ClassificationMethod),
+}
+
+impl Default for MLOp {
+    fn default() -> Self {
+        MLOp::Clustering(ClusteringMethod::default())
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum ClusteringMethod {
+    #[default]
+    KMeans,
+    DBSCAN,
+    Hierarchical,
+    GaussianMixture,
+    /// Compute silhouette score for clustering quality
+    SilhouetteScore,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum NeuralNetworkOp {
+    #[default]
+    /// Create a new layer
+    CreateLayer,
+    /// Forward propagation
+    Forward,
+    /// Backward propagation
+    Backward,
+    /// Train the network
+    Train,
+    /// Predict using trained network
+    Predict,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum RegressionMethod {
+    #[default]
+    Linear,
+    Logistic,
+    Ridge,
+    Lasso,
+    ElasticNet,
+    PolynomialRegression,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum DimReductionMethod {
+    #[default]
+    PCA,
+    TSNE,
+    UMAP,
+    LDA,
+    /// Transform data using fitted model
+    Transform,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum ClassificationMethod {
+    #[default]
+    DecisionTree,
+    RandomForest,
+    SVM,
+    NaiveBayes,
+    KNN,
+}
+
+// ============================================================================
+// CHAOS TOOL - Chaos Theory Operations
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum ChaosOp {
+    /// Fractal generation (Mandelbrot, Julia, etc.)
+    #[serde(alias = "Fractal")]
+    Fractal(FractalType),
+    /// Strange attractors (Lorenz, Rossler, etc.)
+    #[serde(alias = "Attractor")]
+    Attractor(AttractorType),
+    /// Lyapunov exponent calculation
+    #[serde(alias = "Lyapunov")]
+    Lyapunov(LyapunovMethod),
+    /// Bifurcation analysis
+    #[serde(alias = "Bifurcation")]
+    Bifurcation(BifurcationType),
+    /// Fractal dimension calculation
+    #[serde(alias = "Dimension")]
+    Dimension(DimensionMethod),
+}
+
+impl Default for ChaosOp {
+    fn default() -> Self {
+        ChaosOp::Fractal(FractalType::default())
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum FractalType {
+    #[default]
+    Mandelbrot,
+    Julia,
+    BurningShip,
+    KochSnowflake,
+    SierpinskiTriangle,
+    DragonCurve,
+    Cantor,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum AttractorType {
+    #[default]
+    Lorenz,
+    Rossler,
+    Henon,
+    Chua,
+    Thomas,
+    Aizawa,
+    Chen,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum LyapunovMethod {
+    #[default]
+    Map1D,
+    Spectrum1D,
+    Spectrum3D,
+    MaxLyapunov,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum BifurcationType {
+    #[default]
+    LogisticMap,
+    PeriodDoubling,
+    Pitchfork,
+    SaddleNode,
+    Hopf,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum DimensionMethod {
+    #[default]
+    BoxCounting,
+    CorrelationDimension,
+    HausdorffDimension,
+    KaplanYorke,
+}
+
+// ============================================================================
+// UNITS TOOL - Dimensional Analysis Operations
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum UnitsOp {
+    /// Convert between units
+    #[default]
+    #[serde(alias = "Convert")]
+    Convert,
+    /// Analyze dimensions of an expression
+    #[serde(alias = "Analyze")]
+    Analyze,
+    /// Check if two units are compatible
+    #[serde(alias = "CheckCompatibility")]
+    CheckCompatibility,
+    /// Get SI base units for a quantity
+    #[serde(alias = "GetBase")]
+    GetBase,
+    /// Derive units for a quantity
+    #[serde(alias = "Derive")]
+    Derive,
+    /// Parse unit string
+    #[serde(alias = "Parse")]
+    Parse,
+    /// Simplify unit expression
+    #[serde(alias = "Simplify")]
+    Simplify,
+}
+
+// ============================================================================
+// VALIDATE TOOL - Equation/Physics Validation Operations
+// ============================================================================
+
+#[derive(Debug, Clone, Serialize, Deserialize, EnumIter, Default)]
+#[cfg_attr(feature = "schemars", derive(JsonSchema))]
+#[serde(rename_all = "snake_case")]
+pub enum ValidateOp {
+    /// Validate equation syntax and structure
+    #[default]
+    #[serde(alias = "Equation")]
+    Equation,
+    /// Check dimensional consistency
+    #[serde(alias = "Dimensions")]
+    Dimensions,
+    /// Check conservation laws (energy, momentum, charge)
+    #[serde(alias = "Conservation")]
+    Conservation,
+    /// Check symmetry properties
+    #[serde(alias = "Symmetry")]
+    Symmetry,
+    /// Check physics compliance (causality, positivity, etc.)
+    #[serde(alias = "Physics")]
+    Physics,
+    /// Validate mathematical bounds and constraints
+    #[serde(alias = "Bounds")]
+    Bounds,
+    /// Check for singularities
+    #[serde(alias = "Singularities")]
+    Singularities,
+}

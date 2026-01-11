@@ -1,4 +1,3 @@
 mod complete_coverage_test;
 mod complete_operation_coverage;
-mod function_approximator_test;
 mod symbolic_operations_test;
