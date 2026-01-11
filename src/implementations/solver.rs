@@ -813,12 +813,27 @@ impl UnifiedSolver {
     ) -> ToolResult<SolveOutput> {
         use crate::engine::equations::OptimizationMethod;
 
-        // Get data from initial_guess or parameters
-        let data: Option<(Vec<f64>, Vec<f64>)> = input.initial_guess.as_ref().map(|g| {
-            let x_data: Vec<f64> = g.keys().filter_map(|k| k.parse().ok()).collect();
-            let y_data: Vec<f64> = g.values().copied().collect();
-            (x_data, y_data)
-        });
+        // Get data from parameters.x_data/y_data (preferred) or fall back to initial_guess
+        let data: Option<(Vec<f64>, Vec<f64>)> = {
+            // First try to get from parameters as JSON arrays
+            let x_from_params = input.parameters.get("x_data")
+                .and_then(|v| v.as_array())
+                .map(|arr| arr.iter().filter_map(|v| v.as_f64()).collect::<Vec<f64>>());
+            let y_from_params = input.parameters.get("y_data")
+                .and_then(|v| v.as_array())
+                .map(|arr| arr.iter().filter_map(|v| v.as_f64()).collect::<Vec<f64>>());
+
+            if let (Some(x), Some(y)) = (x_from_params, y_from_params) {
+                Some((x, y))
+            } else {
+                // Fall back to initial_guess format
+                input.initial_guess.as_ref().map(|g| {
+                    let x_data: Vec<f64> = g.keys().filter_map(|k| k.parse().ok()).collect();
+                    let y_data: Vec<f64> = g.values().copied().collect();
+                    (x_data, y_data)
+                })
+            }
+        };
 
         match opt_method {
             OptimizationMethod::Fit(fit_method) => {

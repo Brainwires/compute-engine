@@ -1,4 +1,15 @@
-//! Comprehensive tests for the 10-tool engine architecture
+//! Comprehensive tests for the 8-tool engine architecture
+//!
+//! 8-tool architecture:
+//! - Solve: Equations, optimization (includes former Optimize tool)
+//! - Compute: Calculus, transforms, field theory, sampling, matrix ops
+//!   (includes former Differentiate, Integrate, Transform, FieldTheory, Sample tools)
+//! - Analyze: Series, limits, stability analysis, simplification
+//! - Simulate: Time evolution, stochastic processes, fluid dynamics
+//! - ML: Machine learning (clustering, neural networks, regression)
+//! - Chaos: Chaos theory (fractals, attractors, Lyapunov exponents)
+//! - Units: Dimensional analysis and unit conversion
+//! - Validate: Equation and physics validation
 
 use computational_engine::engine::*;
 use serde_json::{Value, json};
@@ -114,23 +125,49 @@ fn test_chemical_equations() {
     }
 }
 
+#[test]
+fn test_optimization_via_solve() {
+    // Test that optimization methods serialize correctly via Solve tool
+    let methods = vec![
+        OptimizationMethod::Fit(FitMethod::Polynomial),
+        OptimizationMethod::Fit(FitMethod::Exponential),
+        OptimizationMethod::Minimize(MinimizationMethod::GradientDescent),
+        OptimizationMethod::Minimize(MinimizationMethod::NelderMead),
+        OptimizationMethod::Interpolation(InterpolationMethod::Spline),
+        OptimizationMethod::DimensionalAnalysis(DimAnalysisMethod::BuckinghamPi),
+    ];
+
+    for method in methods {
+        let eq_type = EquationType::Optimize(method);
+        let json = serde_json::to_string(&eq_type).unwrap();
+        let _: EquationType = serde_json::from_str(&json).unwrap();
+    }
+}
+
 // ============================================================================
-// DIFFERENTIATE TOOL TESTS
+// COMPUTE TOOL TESTS - Differentiation Operations
 // ============================================================================
 
 #[test]
-fn test_differentiate_input() {
-    let input = DifferentiateInput {
-        operation: DifferentiationOp::VectorCalc(VectorCalcOp::Gradient),
-        expression: "x^2 + y^2".to_string(),
-        variables: vec!["x".to_string(), "y".to_string()],
-        order: None,
-        evaluate_at: None,
-        parameters: HashMap::new(),
-    };
+fn test_differentiation_ops() {
+    let ops = vec![
+        DifferentiationOp::Symbolic,
+        DifferentiationOp::Numeric,
+        DifferentiationOp::Variational,
+        DifferentiationOp::DifferentialForms,
+        DifferentiationOp::VectorCalc(VectorCalcOp::Gradient),
+        DifferentiationOp::VectorCalc(VectorCalcOp::Divergence),
+        DifferentiationOp::VectorCalc(VectorCalcOp::Curl),
+        DifferentiationOp::VectorCalc(VectorCalcOp::Laplacian),
+        DifferentiationOp::TensorCalc(TensorDiffOp::Covariant),
+        DifferentiationOp::TensorCalc(TensorDiffOp::Lie),
+    ];
 
-    let json = serde_json::to_string(&input).unwrap();
-    let _: DifferentiateInput = serde_json::from_str(&json).unwrap();
+    for op in ops {
+        let compute_op = ComputeOp::Differentiate(op);
+        let json = serde_json::to_string(&compute_op).unwrap();
+        let _: ComputeOp = serde_json::from_str(&json).unwrap();
+    }
 }
 
 #[test]
@@ -166,23 +203,29 @@ fn test_tensor_diff_ops() {
 }
 
 // ============================================================================
-// INTEGRATE TOOL TESTS
+// COMPUTE TOOL TESTS - Integration Operations
 // ============================================================================
 
 #[test]
-fn test_integrate_input() {
-    let input = IntegrateInput {
-        integration_type: IntegrationType::Geometric(GeometricIntegral::Surface),
-        expression: "f(x,y)".to_string(),
-        variables: vec!["x".to_string(), "y".to_string()],
-        limits: Some(vec![[0.0, 1.0], [0.0, 1.0]]),
-        path: None,
-        method: None,
-        parameters: HashMap::new(),
-    };
+fn test_integration_types() {
+    let types = vec![
+        IntegrationType::Symbolic,
+        IntegrationType::Numeric(NumericIntegration::Simpson),
+        IntegrationType::Numeric(NumericIntegration::Trapezoidal),
+        IntegrationType::Numeric(NumericIntegration::GaussQuadrature),
+        IntegrationType::MonteCarlo,
+        IntegrationType::Geometric(GeometricIntegral::Line),
+        IntegrationType::Geometric(GeometricIntegral::Surface),
+        IntegrationType::Geometric(GeometricIntegral::Volume),
+        IntegrationType::Theorem(IntegralTheorem::Greens),
+        IntegrationType::Theorem(IntegralTheorem::Stokes),
+    ];
 
-    let json = serde_json::to_string(&input).unwrap();
-    let _: IntegrateInput = serde_json::from_str(&json).unwrap();
+    for t in types {
+        let compute_op = ComputeOp::Integrate(t);
+        let json = serde_json::to_string(&compute_op).unwrap();
+        let _: ComputeOp = serde_json::from_str(&json).unwrap();
+    }
 }
 
 #[test]
@@ -214,6 +257,80 @@ fn test_integral_theorems() {
         let int_type = IntegrationType::Theorem(theorem);
         let json = serde_json::to_string(&int_type).unwrap();
         let _: IntegrationType = serde_json::from_str(&json).unwrap();
+    }
+}
+
+// ============================================================================
+// COMPUTE TOOL TESTS - Transform Operations
+// ============================================================================
+
+#[test]
+fn test_transform_types() {
+    let types = vec![
+        TransformType::Fourier(FourierTransform::Forward),
+        TransformType::Fourier(FourierTransform::Inverse),
+        TransformType::Laplace(LaplaceTransform::Forward),
+        TransformType::Laplace(LaplaceTransform::Inverse),
+        TransformType::FFT(FFTType::Forward),
+        TransformType::FFT(FFTType::Inverse),
+        TransformType::Wavelet(WaveletType::Haar),
+        TransformType::Filter(FilterType::LowPass),
+        TransformType::Window(WindowType::Hamming),
+        TransformType::Conformal,
+    ];
+
+    for t in types {
+        let compute_op = ComputeOp::Transform(t);
+        let json = serde_json::to_string(&compute_op).unwrap();
+        let _: ComputeOp = serde_json::from_str(&json).unwrap();
+    }
+}
+
+// ============================================================================
+// COMPUTE TOOL TESTS - Field Operations
+// ============================================================================
+
+#[test]
+fn test_field_types() {
+    let types = vec![
+        FieldType::EM(EMField::Antenna),
+        FieldType::EM(EMField::Waveguide),
+        FieldType::EM(EMField::Scattering),
+        FieldType::GreenFunction,
+        FieldType::DecoherenceScale,
+        FieldType::BohmPotential,
+        FieldType::QuantumField(QuantumFieldType::ScalarField),
+        FieldType::QuantumField(QuantumFieldType::DiracField),
+        FieldType::QuantumField(QuantumFieldType::GaugeField),
+    ];
+
+    for t in types {
+        let compute_op = ComputeOp::Field(t);
+        let json = serde_json::to_string(&compute_op).unwrap();
+        let _: ComputeOp = serde_json::from_str(&json).unwrap();
+    }
+}
+
+// ============================================================================
+// COMPUTE TOOL TESTS - Sample Operations
+// ============================================================================
+
+#[test]
+fn test_sampling_methods() {
+    let methods = vec![
+        SamplingMethod::PathGeneration,
+        SamplingMethod::Moments,
+        SamplingMethod::MonteCarlo(MonteCarloMethod::Integration),
+        SamplingMethod::MonteCarlo(MonteCarloMethod::MCMC),
+        SamplingMethod::Stats(StatisticalMethod::HypothesisTest),
+        SamplingMethod::Stats(StatisticalMethod::ANOVA),
+        SamplingMethod::SignalAnalysis(SignalMethod::Autocorrelation),
+    ];
+
+    for method in methods {
+        let compute_op = ComputeOp::Sample(method);
+        let json = serde_json::to_string(&compute_op).unwrap();
+        let _: ComputeOp = serde_json::from_str(&json).unwrap();
     }
 }
 
@@ -320,7 +437,7 @@ fn test_finance_models() {
 }
 
 // ============================================================================
-// COMPUTE TOOL TESTS
+// COMPUTE TOOL TESTS - Matrix and Tensor Operations
 // ============================================================================
 
 #[test]
@@ -415,151 +532,7 @@ fn test_number_theory_ops() {
 }
 
 // ============================================================================
-// TRANSFORM TOOL TESTS
-// ============================================================================
-
-#[test]
-fn test_transform_input() {
-    let input = TransformInput {
-        transform_type: TransformType::FFT(FFTType::Forward),
-        data: vec![1.0, 2.0, 3.0, 4.0],
-        sampling_rate: Some(1000.0),
-        parameters: HashMap::new(),
-    };
-
-    let json = serde_json::to_string(&input).unwrap();
-    let _: TransformInput = serde_json::from_str(&json).unwrap();
-}
-
-#[test]
-fn test_transform_types() {
-    let types = vec![
-        TransformType::Fourier(FourierTransform::Forward),
-        TransformType::Fourier(FourierTransform::Inverse),
-        TransformType::Laplace(LaplaceTransform::Forward),
-        TransformType::Laplace(LaplaceTransform::Inverse),
-        TransformType::FFT(FFTType::Forward),
-        TransformType::FFT(FFTType::Inverse),
-        TransformType::Wavelet(WaveletType::Haar),
-        TransformType::Filter(FilterType::LowPass),
-        TransformType::Window(WindowType::Hamming),
-        TransformType::Conformal,
-    ];
-
-    for t in types {
-        let json = serde_json::to_string(&t).unwrap();
-        let _: TransformType = serde_json::from_str(&json).unwrap();
-    }
-}
-
-// ============================================================================
-// FIELDTHEORY TOOL TESTS
-// ============================================================================
-
-#[test]
-fn test_fieldtheory_input() {
-    let mut config = HashMap::new();
-    config.insert("frequency".to_string(), json!(2.4e9));
-
-    let input = FieldTheoryInput {
-        field_type: FieldType::EM(EMField::Antenna),
-        configuration: config,
-        points: Some(vec![vec![0.0, 0.0, 0.0]]),
-        parameters: HashMap::new(),
-    };
-
-    let json = serde_json::to_string(&input).unwrap();
-    let _: FieldTheoryInput = serde_json::from_str(&json).unwrap();
-}
-
-#[test]
-fn test_field_types() {
-    let types = vec![
-        FieldType::EM(EMField::Antenna),
-        FieldType::EM(EMField::Waveguide),
-        FieldType::EM(EMField::Scattering),
-        FieldType::GreenFunction,
-    ];
-
-    for t in types {
-        let json = serde_json::to_string(&t).unwrap();
-        let _: FieldType = serde_json::from_str(&json).unwrap();
-    }
-}
-
-// ============================================================================
-// SAMPLE TOOL TESTS
-// ============================================================================
-
-#[test]
-fn test_sample_input() {
-    let input = SampleInput {
-        method: SamplingMethod::MonteCarlo(MonteCarloMethod::MCMC),
-        data: vec![1.0, 2.0, 3.0, 4.0, 5.0],
-        num_samples: Some(10000),
-        parameters: HashMap::new(),
-    };
-
-    let json = serde_json::to_string(&input).unwrap();
-    let _: SampleInput = serde_json::from_str(&json).unwrap();
-}
-
-#[test]
-fn test_sampling_methods() {
-    let methods = vec![
-        SamplingMethod::PathGeneration,
-        SamplingMethod::Moments,
-        SamplingMethod::MonteCarlo(MonteCarloMethod::Integration),
-        SamplingMethod::MonteCarlo(MonteCarloMethod::MCMC),
-        SamplingMethod::Stats(StatisticalMethod::HypothesisTest),
-        SamplingMethod::Stats(StatisticalMethod::ANOVA),
-        SamplingMethod::SignalAnalysis(SignalMethod::Autocorrelation),
-    ];
-
-    for method in methods {
-        let json = serde_json::to_string(&method).unwrap();
-        let _: SamplingMethod = serde_json::from_str(&json).unwrap();
-    }
-}
-
-// ============================================================================
-// OPTIMIZE TOOL TESTS
-// ============================================================================
-
-#[test]
-fn test_optimize_input() {
-    let input = OptimizeInput {
-        method: OptimizationMethod::Minimize(MinimizationMethod::GradientDescent),
-        objective: Some("x^2 + y^2".to_string()),
-        initial_guess: Some(vec![1.0, 1.0]),
-        constraints: None,
-        data: None,
-        parameters: HashMap::new(),
-    };
-
-    let json = serde_json::to_string(&input).unwrap();
-    let _: OptimizeInput = serde_json::from_str(&json).unwrap();
-}
-
-#[test]
-fn test_optimization_methods() {
-    let methods = vec![
-        OptimizationMethod::Fit(FitMethod::Polynomial),
-        OptimizationMethod::Fit(FitMethod::Exponential),
-        OptimizationMethod::Minimize(MinimizationMethod::GradientDescent),
-        OptimizationMethod::Minimize(MinimizationMethod::NelderMead),
-        OptimizationMethod::Interpolation(InterpolationMethod::Spline),
-        OptimizationMethod::DimensionalAnalysis(DimAnalysisMethod::BuckinghamPi),
-    ];
-
-    for method in methods {
-        let json = serde_json::to_string(&method).unwrap();
-        let _: OptimizationMethod = serde_json::from_str(&json).unwrap();
-    }
-}
-
-// ============================================================================
-// TOOL REQUEST/RESPONSE TESTS
+// TOOL REQUEST/RESPONSE TESTS - 8-TOOL ARCHITECTURE
 // ============================================================================
 
 #[test]
@@ -580,8 +553,9 @@ fn test_tool_request_solve() {
 }
 
 #[test]
-fn test_all_tool_requests() {
+fn test_all_8_tool_requests() {
     let requests = vec![
+        // 1. Solve tool
         ToolRequest::Solve(SolveInput {
             equation_type: EquationType::LinearSystem,
             equations: vec![],
@@ -592,28 +566,19 @@ fn test_all_tool_requests() {
             method: None,
             parameters: HashMap::new(),
         }),
-        ToolRequest::Differentiate(DifferentiateInput {
-            operation: DifferentiationOp::Symbolic,
-            expression: "x^2".to_string(),
-            variables: vec!["x".to_string()],
-            order: None,
-            evaluate_at: None,
+        // 2. Compute tool - Matrix
+        ToolRequest::Compute(ComputeInput {
+            operation: ComputeOp::Matrix(MatrixOp::Determinant),
+            data: json!([[1, 2], [3, 4]]),
             parameters: HashMap::new(),
         }),
-        ToolRequest::Integrate(IntegrateInput {
-            integration_type: IntegrationType::Symbolic,
-            expression: "x".to_string(),
-            variables: vec!["x".to_string()],
-            limits: None,
-            path: None,
-            method: None,
-            parameters: HashMap::new(),
-        }),
+        // 3. Analyze tool
         ToolRequest::Analyze(AnalyzeInput {
             operation: AnalysisOp::Simplify,
             expression: "x + x".to_string(),
             options: HashMap::new(),
         }),
+        // 4. Simulate tool
         ToolRequest::Simulate(SimulateInput {
             model: SimulationModel::Stochastic(StochasticProcess::BrownianMotion),
             equations: vec![],
@@ -625,35 +590,34 @@ fn test_all_tool_requests() {
             method: None,
             num_paths: None,
         }),
-        ToolRequest::Compute(ComputeInput {
-            operation: ComputeOp::Matrix(MatrixOp::Determinant),
-            data: json!([[1, 2], [3, 4]]),
+        // 5. ML tool
+        ToolRequest::Ml(MLInput {
+            operation: MLOp::Clustering(ClusteringMethod::KMeans),
+            data: json!({"features": [[1, 2], [3, 4]]}),
             parameters: HashMap::new(),
         }),
-        ToolRequest::Transform(TransformInput {
-            transform_type: TransformType::FFT(FFTType::Forward),
-            data: vec![1.0],
-            sampling_rate: None,
+        // 6. Chaos tool
+        ToolRequest::Chaos(ChaosInput {
+            operation: ChaosOp::Fractal(FractalType::Mandelbrot),
+            parameters: HashMap::new(),
+            iterations: Some(100),
+            resolution: Some([64, 64]),
+        }),
+        // 7. Units tool
+        ToolRequest::Units(UnitsInput {
+            operation: UnitsOp::Convert,
+            value: Some(100.0),
+            from_unit: Some("m".to_string()),
+            to_unit: Some("ft".to_string()),
+            expression: None,
+            variable_units: HashMap::new(),
             parameters: HashMap::new(),
         }),
-        ToolRequest::FieldTheory(FieldTheoryInput {
-            field_type: FieldType::GreenFunction,
-            configuration: HashMap::new(),
-            points: None,
-            parameters: HashMap::new(),
-        }),
-        ToolRequest::Sample(SampleInput {
-            method: SamplingMethod::Moments,
-            data: vec![],
-            num_samples: None,
-            parameters: HashMap::new(),
-        }),
-        ToolRequest::Optimize(OptimizeInput {
-            method: OptimizationMethod::Fit(FitMethod::Custom),
-            objective: None,
-            initial_guess: None,
-            constraints: None,
-            data: None,
+        // 8. Validate tool
+        ToolRequest::Validate(ValidateInput {
+            operation: ValidateOp::Equation,
+            expression: "E = mc^2".to_string(),
+            variable_units: HashMap::new(),
             parameters: HashMap::new(),
         }),
     ];
@@ -662,6 +626,104 @@ fn test_all_tool_requests() {
         let json = serde_json::to_string(&request).unwrap();
         let deserialized: ToolRequest = serde_json::from_str(&json).unwrap();
         // Verify it round-trips
+        let _json2 = serde_json::to_string(&deserialized).unwrap();
+    }
+}
+
+#[test]
+fn test_compute_tool_all_operations() {
+    // Test that Compute tool can handle all the consolidated operations
+    let requests = vec![
+        // Differentiate operations (was Differentiate tool)
+        ToolRequest::Compute(ComputeInput {
+            operation: ComputeOp::Differentiate(DifferentiationOp::Symbolic),
+            data: json!({"expression": "x^2", "variable": "x"}),
+            parameters: HashMap::new(),
+        }),
+        // Integrate operations (was Integrate tool)
+        ToolRequest::Compute(ComputeInput {
+            operation: ComputeOp::Integrate(IntegrationType::Symbolic),
+            data: json!({"expression": "x", "variable": "x"}),
+            parameters: HashMap::new(),
+        }),
+        // Transform operations (was Transform tool)
+        ToolRequest::Compute(ComputeInput {
+            operation: ComputeOp::Transform(TransformType::FFT(FFTType::Forward)),
+            data: json!({"data": [1.0, 2.0, 3.0, 4.0]}),
+            parameters: HashMap::new(),
+        }),
+        // Field operations (was FieldTheory tool)
+        ToolRequest::Compute(ComputeInput {
+            operation: ComputeOp::Field(FieldType::GreenFunction),
+            data: json!({"r": 1.0}),
+            parameters: HashMap::new(),
+        }),
+        // Sample operations (was Sample tool)
+        ToolRequest::Compute(ComputeInput {
+            operation: ComputeOp::Sample(SamplingMethod::Moments),
+            data: json!({"data": [1.0, 2.0, 3.0]}),
+            parameters: HashMap::new(),
+        }),
+        // Matrix operations
+        ToolRequest::Compute(ComputeInput {
+            operation: ComputeOp::Matrix(MatrixOp::Determinant),
+            data: json!({"matrix": [[1, 2], [3, 4]]}),
+            parameters: HashMap::new(),
+        }),
+        // Tensor operations
+        ToolRequest::Compute(ComputeInput {
+            operation: ComputeOp::Tensor(TensorOp::Christoffel),
+            data: json!({"metric": [[1, 0], [0, 1]]}),
+            parameters: HashMap::new(),
+        }),
+    ];
+
+    for request in requests {
+        let json = serde_json::to_string(&request).unwrap();
+        let deserialized: ToolRequest = serde_json::from_str(&json).unwrap();
+        let _json2 = serde_json::to_string(&deserialized).unwrap();
+    }
+}
+
+#[test]
+fn test_solve_tool_optimization() {
+    // Test that optimization now routes through Solve tool
+    let requests = vec![
+        ToolRequest::Solve(SolveInput {
+            equation_type: EquationType::Optimize(OptimizationMethod::Fit(FitMethod::Polynomial)),
+            equations: vec![],
+            variables: None,
+            initial_guess: None,
+            boundary_conditions: None,
+            domain: None,
+            method: None,
+            parameters: HashMap::new(),
+        }),
+        ToolRequest::Solve(SolveInput {
+            equation_type: EquationType::Optimize(OptimizationMethod::Minimize(MinimizationMethod::GradientDescent)),
+            equations: vec!["x^2 + y^2".to_string()],
+            variables: Some(vec!["x".to_string(), "y".to_string()]),
+            initial_guess: None,
+            boundary_conditions: None,
+            domain: None,
+            method: None,
+            parameters: HashMap::new(),
+        }),
+        ToolRequest::Solve(SolveInput {
+            equation_type: EquationType::Optimize(OptimizationMethod::Interpolation(InterpolationMethod::Spline)),
+            equations: vec![],
+            variables: None,
+            initial_guess: None,
+            boundary_conditions: None,
+            domain: None,
+            method: None,
+            parameters: HashMap::new(),
+        }),
+    ];
+
+    for request in requests {
+        let json = serde_json::to_string(&request).unwrap();
+        let deserialized: ToolRequest = serde_json::from_str(&json).unwrap();
         let _json2 = serde_json::to_string(&deserialized).unwrap();
     }
 }
@@ -693,6 +755,7 @@ fn test_json_api_format() {
 #[test]
 fn test_coverage_count() {
     // This test documents that we have comprehensive enum coverage
+    // Updated for 8-tool architecture
 
     // Count equation types (SOLVE)
     let _einstein_variants = 5; // Vacuum, WithSource, etc.
@@ -700,41 +763,45 @@ fn test_coverage_count() {
     let _em_variants = 5;
     let _chem_variants = 6;
     let _diff_eq_variants = 4;
+    let _optimization_variants = 15; // Now in Solve via EquationType::Optimize
 
-    // Count differentiation ops
-    let _vector_calc_variants = 5;
-    let _tensor_diff_variants = 3;
-
-    // Count integration types
-    let _geometric_variants = 4;
-    let _theorem_variants = 4;
-    let _complex_variants = 3;
-
-    // Count compute operations
+    // Count ComputeOp variants (COMPUTE)
+    let _differentiation_ops = 10; // Symbolic, Numeric, VectorCalc, TensorCalc
+    let _integration_types = 12;   // Symbolic, Numeric, MonteCarlo, Geometric, Theorem
+    let _transform_types = 10;     // FFT, Fourier, Laplace, Wavelet, Filter, Window
+    let _field_types = 9;          // EM, Green, Decoherence, Bohm, etc.
+    let _sampling_methods = 15;    // MonteCarlo, Stats, SignalAnalysis, etc.
     let _tensor_op_variants = 9;
     let _matrix_decomp_variants = 7;
     let _special_func_variants = 7;
     let _number_theory_variants = 8;
 
-    // Count transform types
-    let _wavelet_variants = 4;
-    let _filter_variants = 4;
-    let _window_variants = 4;
-
-    // Count stochastic processes
+    // Count stochastic processes (SIMULATE)
     let _stochastic_variants = 9;
     let _finance_variants = 4;
+    let _time_evolution_variants = 4;
 
-    // Count sampling methods
-    let _monte_carlo_variants = 4;
-    let _stats_variants = 6;
-    let _signal_variants = 7;
+    // Count analysis ops (ANALYZE)
+    let _analysis_ops = 15;
 
-    // Count optimization methods
-    let _fit_variants = 6;
-    let _minimization_variants = 5;
-    let _interpolation_variants = 4;
+    // Count ML ops
+    let _clustering_ops = 5;        // KMeans, DBSCAN, Hierarchical, etc.
+    let _neural_network_ops = 4;    // Create, Train, Forward, etc.
+    let _regression_ops = 5;        // Linear, Logistic, Ridge, etc.
+    let _dim_reduction_ops = 3;     // PCA, Transform, etc.
 
-    // Total: 100+ enum variants covering 180+ operations
-    assert!(true, "Comprehensive enum coverage documented");
+    // Count Chaos ops
+    let _fractal_ops = 5;           // Mandelbrot, Julia, BurningShip, etc.
+    let _attractor_ops = 3;         // Lorenz, Rossler, etc.
+    let _lyapunov_ops = 3;          // Map1D, Spectrum3D, etc.
+    let _bifurcation_ops = 2;
+
+    // Count Units ops
+    let _units_ops = 5;             // Convert, Analyze, CheckCompatibility, etc.
+
+    // Count Validate ops
+    let _validate_ops = 5;          // Equation, Dimensions, Conservation, etc.
+
+    // Total: 8 tools covering 350+ operations
+    assert!(true, "Comprehensive 8-tool architecture coverage documented");
 }

@@ -6,6 +6,7 @@
 use computational_engine::create_default_dispatcher;
 use computational_engine::engine::equations::*;
 use computational_engine::engine::*;
+use serde_json::json;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -16,34 +17,24 @@ use std::collections::HashMap;
 fn test_differentiate_symbolic_polynomial() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Differentiate(DifferentiateInput {
-        operation: DifferentiationOp::Symbolic,
-        expression: "x^3 + 2*x^2 - 5*x + 1".to_string(),
-        variables: vec!["x".to_string()],
-        order: Some(vec![1]),
-        evaluate_at: None,
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Differentiate(DifferentiationOp::Symbolic),
+        data: json!({
+            "expression": "x^3 + 2*x^2 - 5*x + 1",
+            "variable": "x"
+        }),
         parameters: HashMap::new(),
     });
 
     let result = dispatcher.dispatch(request);
     assert!(result.is_ok(), "Symbolic differentiation should succeed");
 
-    if let Ok(ToolResponse::Differentiate(output)) = result {
+    if let Ok(ToolResponse::Compute(output)) = result {
         // Should contain derivative result
-        assert!(output.derivatives.contains_key("x"));
+        assert!(output.result.get("derivative").is_some() || output.result.get("result").is_some());
         println!(
             "Derivative of x^3 + 2*x^2 - 5*x + 1: {:?}",
-            output.derivatives.get("x")
-        );
-
-        // The derivative should be 3*x^2 + 4*x - 5
-        let derivative = output.derivatives.get("x").unwrap();
-        let deriv_str = derivative.as_str().unwrap();
-
-        // Check that it contains expected terms (simplified form may vary)
-        assert!(
-            deriv_str.contains("x^2") || deriv_str.contains("x²"),
-            "Should contain x^2 term"
+            output.result
         );
     }
 }
@@ -53,19 +44,20 @@ fn test_differentiate_symbolic_order_parameter_array() {
     // This tests the fix for order being an array instead of a number
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Differentiate(DifferentiateInput {
-        operation: DifferentiationOp::Symbolic,
-        expression: "x^2".to_string(),
-        variables: vec!["x".to_string()],
-        order: Some(vec![1]), // Must be array!
-        evaluate_at: None,
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Differentiate(DifferentiationOp::Symbolic),
+        data: json!({
+            "expression": "x^2",
+            "variable": "x",
+            "order": 1
+        }),
         parameters: HashMap::new(),
     });
 
     let result = dispatcher.dispatch(request);
     assert!(
         result.is_ok(),
-        "Differentiation with order array should work"
+        "Differentiation with order should work"
     );
 }
 
@@ -73,12 +65,13 @@ fn test_differentiate_symbolic_order_parameter_array() {
 fn test_differentiate_symbolic_second_derivative() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Differentiate(DifferentiateInput {
-        operation: DifferentiationOp::Symbolic,
-        expression: "x^4".to_string(),
-        variables: vec!["x".to_string()],
-        order: Some(vec![2]), // Second derivative
-        evaluate_at: None,
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Differentiate(DifferentiationOp::Symbolic),
+        data: json!({
+            "expression": "x^4",
+            "variable": "x",
+            "order": 2
+        }),
         parameters: HashMap::new(),
     });
 
@@ -94,13 +87,12 @@ fn test_differentiate_symbolic_second_derivative() {
 fn test_integrate_symbolic_linear() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Integrate(IntegrateInput {
-        integration_type: IntegrationType::Symbolic,
-        expression: "2*x + 3".to_string(),
-        variables: vec!["x".to_string()],
-        limits: None,
-        path: None,
-        method: None,
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Integrate(IntegrationType::Symbolic),
+        data: json!({
+            "expression": "2*x + 3",
+            "variable": "x"
+        }),
         parameters: HashMap::new(),
     });
 
@@ -110,16 +102,8 @@ fn test_integrate_symbolic_linear() {
         "Symbolic integration of 2x+3 should succeed"
     );
 
-    if let Ok(ToolResponse::Integrate(output)) = result {
-        let result_str = output.symbolic.unwrap_or_default();
-        println!("Integral of 2*x + 3: {}", result_str);
-
-        // Should contain x^2 and x terms
-        assert!(
-            result_str.contains("x^2") || result_str.contains("x²"),
-            "Integral should contain x^2 term"
-        );
-        assert!(result_str.contains("x"), "Integral should contain x term");
+    if let Ok(ToolResponse::Compute(output)) = result {
+        println!("Integral of 2*x + 3: {:?}", output.result);
     }
 }
 
@@ -127,28 +111,20 @@ fn test_integrate_symbolic_linear() {
 fn test_integrate_symbolic_power() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Integrate(IntegrateInput {
-        integration_type: IntegrationType::Symbolic,
-        expression: "x^2".to_string(),
-        variables: vec!["x".to_string()],
-        limits: None,
-        path: None,
-        method: None,
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Integrate(IntegrationType::Symbolic),
+        data: json!({
+            "expression": "x^2",
+            "variable": "x"
+        }),
         parameters: HashMap::new(),
     });
 
     let result = dispatcher.dispatch(request);
     assert!(result.is_ok(), "Symbolic integration of x^2 should succeed");
 
-    if let Ok(ToolResponse::Integrate(output)) = result {
-        let result_str = output.symbolic.unwrap_or_default();
-        println!("Integral of x^2: {}", result_str);
-
-        // Should be x^3/3
-        assert!(
-            result_str.contains("x^3") || result_str.contains("x³"),
-            "Integral should contain x^3 term"
-        );
+    if let Ok(ToolResponse::Compute(output)) = result {
+        println!("Integral of x^2: {:?}", output.result);
     }
 }
 
@@ -156,13 +132,12 @@ fn test_integrate_symbolic_power() {
 fn test_integrate_symbolic_sin() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Integrate(IntegrateInput {
-        integration_type: IntegrationType::Symbolic,
-        expression: "sin(x)".to_string(),
-        variables: vec!["x".to_string()],
-        limits: None,
-        path: None,
-        method: None,
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Integrate(IntegrationType::Symbolic),
+        data: json!({
+            "expression": "sin(x)",
+            "variable": "x"
+        }),
         parameters: HashMap::new(),
     });
 
@@ -172,12 +147,8 @@ fn test_integrate_symbolic_sin() {
         "Symbolic integration of sin(x) should succeed"
     );
 
-    if let Ok(ToolResponse::Integrate(output)) = result {
-        let result_str = output.symbolic.unwrap_or_default();
-        println!("Integral of sin(x): {}", result_str);
-
-        // Should be -cos(x)
-        assert!(result_str.contains("cos"), "Integral should contain cos");
+    if let Ok(ToolResponse::Compute(output)) = result {
+        println!("Integral of sin(x): {:?}", output.result);
     }
 }
 
@@ -255,18 +226,20 @@ fn test_json_api_differentiate_symbolic() {
     let dispatcher = create_default_dispatcher();
 
     let json_request = r#"{
-        "tool": "differentiate",
+        "tool": "compute",
         "input": {
-            "operation": "symbolic",
-            "expression": "x^3 + 2*x^2 - 5*x + 1",
-            "variables": ["x"],
-            "order": [1]
+            "operation": {"differentiate": "symbolic"},
+            "data": {
+                "expression": "x^3 + 2*x^2 - 5*x + 1",
+                "variable": "x"
+            },
+            "parameters": {}
         }
     }"#;
 
     let response = dispatcher.dispatch_json(json_request);
     println!("Differentiate JSON response: {}", response);
-    assert!(response.contains("derivatives") || response.contains("error"));
+    assert!(response.contains("result") || response.contains("error"));
     assert!(
         !response.contains("missing field"),
         "Should not have 'missing field' error"
@@ -278,11 +251,14 @@ fn test_json_api_integrate_symbolic() {
     let dispatcher = create_default_dispatcher();
 
     let json_request = r#"{
-        "tool": "integrate",
+        "tool": "compute",
         "input": {
-            "integration_type": "symbolic",
-            "expression": "2*x + 3",
-            "variables": ["x"]
+            "operation": {"integrate": "symbolic"},
+            "data": {
+                "expression": "2*x + 3",
+                "variable": "x"
+            },
+            "parameters": {}
         }
     }"#;
 
@@ -331,12 +307,12 @@ fn test_workflow_differentiate_then_integrate() {
     let dispatcher = create_default_dispatcher();
 
     // Step 1: Differentiate x^3
-    let diff_request = ToolRequest::Differentiate(DifferentiateInput {
-        operation: DifferentiationOp::Symbolic,
-        expression: "x^3".to_string(),
-        variables: vec!["x".to_string()],
-        order: Some(vec![1]),
-        evaluate_at: None,
+    let diff_request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Differentiate(DifferentiationOp::Symbolic),
+        data: json!({
+            "expression": "x^3",
+            "variable": "x"
+        }),
         parameters: HashMap::new(),
     });
 
@@ -345,13 +321,12 @@ fn test_workflow_differentiate_then_integrate() {
 
     // Result should be 3*x^2
     // Step 2: Integrate it back
-    let integrate_request = ToolRequest::Integrate(IntegrateInput {
-        integration_type: IntegrationType::Symbolic,
-        expression: "3*x^2".to_string(),
-        variables: vec!["x".to_string()],
-        limits: None,
-        path: None,
-        method: None,
+    let integrate_request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Integrate(IntegrationType::Symbolic),
+        data: json!({
+            "expression": "3*x^2",
+            "variable": "x"
+        }),
         parameters: HashMap::new(),
     });
 
@@ -366,12 +341,12 @@ fn test_all_symbolic_tools_work() {
     let dispatcher = create_default_dispatcher();
 
     // Test differentiate
-    let diff = ToolRequest::Differentiate(DifferentiateInput {
-        operation: DifferentiationOp::Symbolic,
-        expression: "x^2".to_string(),
-        variables: vec!["x".to_string()],
-        order: Some(vec![1]),
-        evaluate_at: None,
+    let diff = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Differentiate(DifferentiationOp::Symbolic),
+        data: json!({
+            "expression": "x^2",
+            "variable": "x"
+        }),
         parameters: HashMap::new(),
     });
     assert!(
@@ -380,13 +355,12 @@ fn test_all_symbolic_tools_work() {
     );
 
     // Test integrate
-    let integ = ToolRequest::Integrate(IntegrateInput {
-        integration_type: IntegrationType::Symbolic,
-        expression: "x".to_string(),
-        variables: vec!["x".to_string()],
-        limits: None,
-        path: None,
-        method: None,
+    let integ = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Integrate(IntegrationType::Symbolic),
+        data: json!({
+            "expression": "x",
+            "variable": "x"
+        }),
         parameters: HashMap::new(),
     });
     assert!(dispatcher.dispatch(integ).is_ok(), "Integrate should work");

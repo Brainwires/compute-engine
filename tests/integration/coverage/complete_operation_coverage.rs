@@ -1,10 +1,11 @@
 //! Complete operation coverage tests
 //!
-//! Goal: Test every major operation in all 10 tools for maximum coverage
+//! Goal: Test every major operation in all tools for maximum coverage
 
 use computational_engine::create_default_dispatcher;
 use computational_engine::engine::equations::*;
 use computational_engine::engine::*;
+use serde_json::json;
 use std::collections::HashMap;
 
 // ============================================================================
@@ -64,7 +65,7 @@ fn solve_differential_ode() {
         variables: Some(vec!["y".to_string()]),
         initial_guess: None,
         boundary_conditions: None,
-        domain: None, // Domain type complex, skip for now
+        domain: None,
         method: None,
         parameters: HashMap::new(),
     });
@@ -94,23 +95,20 @@ fn solve_electromagnetic_maxwell() {
 }
 
 // ============================================================================
-// DIFFERENTIATE - All Operation Types
+// DIFFERENTIATE - All Operation Types (via Compute tool)
 // ============================================================================
 
 #[test]
 fn differentiate_vector_calc_gradient() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Differentiate(DifferentiateInput {
-        operation: DifferentiationOp::VectorCalc(VectorCalcOp::Gradient),
-        expression: "f(x,y,z)".to_string(),
-        variables: vec!["x".to_string(), "y".to_string(), "z".to_string()],
-        order: None,
-        evaluate_at: None,
-        parameters: HashMap::from([(
-            "data".to_string(),
-            serde_json::json!([[1.0, 2.0, 3.0], [2.0, 3.0, 4.0], [3.0, 4.0, 5.0]]),
-        )]),
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Differentiate(DifferentiationOp::VectorCalc(VectorCalcOp::Gradient)),
+        data: json!({
+            "expression": "f(x,y,z)",
+            "data": [[1.0, 2.0, 3.0], [2.0, 3.0, 4.0], [3.0, 4.0, 5.0]]
+        }),
+        parameters: HashMap::new(),
     });
 
     let result = dispatcher.dispatch(request);
@@ -121,12 +119,11 @@ fn differentiate_vector_calc_gradient() {
 fn differentiate_vector_calc_divergence() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Differentiate(DifferentiateInput {
-        operation: DifferentiationOp::VectorCalc(VectorCalcOp::Divergence),
-        expression: "F(x,y,z)".to_string(),
-        variables: vec!["x".to_string(), "y".to_string(), "z".to_string()],
-        order: None,
-        evaluate_at: None,
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Differentiate(DifferentiationOp::VectorCalc(VectorCalcOp::Divergence)),
+        data: json!({
+            "expression": "F(x,y,z)"
+        }),
         parameters: HashMap::new(),
     });
 
@@ -138,12 +135,11 @@ fn differentiate_vector_calc_divergence() {
 fn differentiate_vector_calc_curl() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Differentiate(DifferentiateInput {
-        operation: DifferentiationOp::VectorCalc(VectorCalcOp::Curl),
-        expression: "F(x,y,z)".to_string(),
-        variables: vec!["x".to_string(), "y".to_string(), "z".to_string()],
-        order: None,
-        evaluate_at: None,
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Differentiate(DifferentiationOp::VectorCalc(VectorCalcOp::Curl)),
+        data: json!({
+            "expression": "F(x,y,z)"
+        }),
         parameters: HashMap::new(),
     });
 
@@ -155,12 +151,12 @@ fn differentiate_vector_calc_curl() {
 fn differentiate_tensor_calc_covariant() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Differentiate(DifferentiateInput {
-        operation: DifferentiationOp::TensorCalc(TensorDiffOp::Covariant),
-        expression: "T^{ij}".to_string(),
-        variables: vec!["x".to_string()],
-        order: None,
-        evaluate_at: None,
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Differentiate(DifferentiationOp::TensorCalc(TensorDiffOp::Covariant)),
+        data: json!({
+            "expression": "T^{ij}",
+            "variable": "x"
+        }),
         parameters: HashMap::new(),
     });
 
@@ -169,20 +165,20 @@ fn differentiate_tensor_calc_covariant() {
 }
 
 // ============================================================================
-// INTEGRATE - All Integration Types
+// INTEGRATE - All Integration Types (via Compute tool)
 // ============================================================================
 
 #[test]
 fn integrate_geometric_line() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Integrate(IntegrateInput {
-        integration_type: IntegrationType::Geometric(GeometricIntegral::Line),
-        expression: "F·dr".to_string(),
-        variables: vec!["t".to_string()],
-        limits: Some(vec![[0.0, 1.0]]),
-        path: Some(serde_json::json!([[0.0, 0.0], [1.0, 1.0],])),
-        method: None,
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Integrate(IntegrationType::Geometric(GeometricIntegral::Line)),
+        data: json!({
+            "expression": "F·dr",
+            "limits": [[0.0, 1.0]],
+            "path": [[0.0, 0.0], [1.0, 1.0]]
+        }),
         parameters: HashMap::new(),
     });
 
@@ -194,13 +190,13 @@ fn integrate_geometric_line() {
 fn integrate_theorem_greens() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Integrate(IntegrateInput {
-        integration_type: IntegrationType::Theorem(IntegralTheorem::Greens),
-        expression: "P dx + Q dy".to_string(),
-        variables: vec!["x".to_string(), "y".to_string()],
-        limits: None,
-        path: None,
-        method: None,
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Integrate(IntegrationType::Theorem(IntegralTheorem::Greens)),
+        data: json!({
+            "P": "y",
+            "Q": "x",
+            "region": "unit_square"
+        }),
         parameters: HashMap::new(),
     });
 
@@ -212,17 +208,13 @@ fn integrate_theorem_greens() {
 fn integrate_complex_residue() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Integrate(IntegrateInput {
-        integration_type: IntegrationType::ComplexAnalysis(ComplexIntegral::Residue),
-        expression: "f(z)".to_string(),
-        variables: vec!["z".to_string()],
-        limits: None,
-        path: None,
-        method: None,
-        parameters: HashMap::from([(
-            "poles".to_string(),
-            serde_json::json!([{"location": 0.0, "order": 1}]),
-        )]),
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Integrate(IntegrationType::ComplexAnalysis(ComplexIntegral::Residue)),
+        data: json!({
+            "function": "f(z)",
+            "poles": [{"location": 0.0, "order": 1}]
+        }),
+        parameters: HashMap::new(),
     });
 
     let result = dispatcher.dispatch(request);
@@ -233,21 +225,17 @@ fn integrate_complex_residue() {
 fn integrate_numeric_trapezoidal() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Integrate(IntegrateInput {
-        integration_type: IntegrationType::Numeric(NumericIntegration::Trapezoidal),
-        expression: "x^2".to_string(),
-        variables: vec!["x".to_string()],
-        limits: Some(vec![[0.0, 1.0]]),
-        path: None,
-        method: None,
-        parameters: HashMap::from([
-            ("function_type".to_string(), serde_json::json!("polynomial")),
-            (
-                "coefficients".to_string(),
-                serde_json::json!([0.0, 0.0, 1.0]),
-            ),
-            ("num_points".to_string(), serde_json::json!(100)),
-        ]),
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Integrate(IntegrationType::Numeric(NumericIntegration::Trapezoidal)),
+        data: json!({
+            "expression": "x^2",
+            "lower": 0.0,
+            "upper": 1.0,
+            "function_type": "polynomial",
+            "coefficients": [0.0, 0.0, 1.0],
+            "num_points": 100
+        }),
+        parameters: HashMap::new(),
     });
 
     let result = dispatcher.dispatch(request);
@@ -258,17 +246,16 @@ fn integrate_numeric_trapezoidal() {
 fn integrate_numeric_gauss_quadrature() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Integrate(IntegrateInput {
-        integration_type: IntegrationType::Numeric(NumericIntegration::GaussQuadrature),
-        expression: "sin(x)".to_string(),
-        variables: vec!["x".to_string()],
-        limits: Some(vec![[0.0, 3.14159]]),
-        path: None,
-        method: None,
-        parameters: HashMap::from([
-            ("function_type".to_string(), serde_json::json!("polynomial")),
-            ("coefficients".to_string(), serde_json::json!([1.0, 0.0])),
-        ]),
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Integrate(IntegrationType::Numeric(NumericIntegration::GaussQuadrature)),
+        data: json!({
+            "expression": "sin(x)",
+            "lower": 0.0,
+            "upper": 3.14159,
+            "function_type": "polynomial",
+            "coefficients": [1.0, 0.0]
+        }),
+        parameters: HashMap::new(),
     });
 
     let result = dispatcher.dispatch(request);
@@ -428,8 +415,6 @@ fn simulate_geometric_brownian() {
     assert!(result.is_ok(), "Geometric Brownian motion should work");
 }
 
-// CIR process test removed - StochasticProcess::CIR not available
-
 // ============================================================================
 // COMPUTE - All Operations
 // ============================================================================
@@ -440,7 +425,7 @@ fn compute_matrix_qr() {
 
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::MatrixDecomp(MatrixDecomp::QR),
-        data: serde_json::json!({
+        data: json!({
             "matrix": [[1.0, 2.0], [3.0, 4.0]]
         }),
         parameters: HashMap::new(),
@@ -457,7 +442,7 @@ fn compute_matrix_lu() {
 
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::MatrixDecomp(MatrixDecomp::LU),
-        data: serde_json::json!({
+        data: json!({
             "matrix": [[2.0, 1.0], [1.0, 2.0]]
         }),
         parameters: HashMap::new(),
@@ -474,7 +459,7 @@ fn compute_matrix_cholesky() {
 
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::MatrixDecomp(MatrixDecomp::Cholesky),
-        data: serde_json::json!({
+        data: json!({
             "matrix": [[4.0, 2.0], [2.0, 3.0]]
         }),
         parameters: HashMap::new(),
@@ -490,7 +475,7 @@ fn compute_tensor_riemann() {
 
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Riemann),
-        data: serde_json::json!({
+        data: json!({
             "metric": [
                 [-1.0, 0.0, 0.0, 0.0],
                 [0.0, 1.0, 0.0, 0.0],
@@ -512,7 +497,7 @@ fn compute_tensor_ricci() {
 
     let request = ToolRequest::Compute(ComputeInput {
         operation: ComputeOp::Tensor(TensorOp::Ricci),
-        data: serde_json::json!({
+        data: json!({
             "metric": [
                 [-1.0, 0.0, 0.0, 0.0],
                 [0.0, 1.0, 0.0, 0.0],
@@ -528,10 +513,8 @@ fn compute_tensor_ricci() {
     assert!(result.is_ok(), "Ricci tensor should work");
 }
 
-// Quantum operation tests removed - ComputeOp::Quantum not available
-
 // ============================================================================
-// TRANSFORM - All Transform Types
+// TRANSFORM - All Transform Types (via Compute tool)
 // ============================================================================
 
 #[test]
@@ -540,10 +523,11 @@ fn transform_wavelet() {
 
     let signal: Vec<f64> = (0..64).map(|i| (i as f64 * 0.1).sin()).collect();
 
-    let request = ToolRequest::Transform(TransformInput {
-        transform_type: TransformType::Wavelet(WaveletType::Haar),
-        data: signal,
-        sampling_rate: Some(100.0),
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Transform(TransformType::Wavelet(WaveletType::Haar)),
+        data: json!({
+            "data": signal
+        }),
         parameters: HashMap::new(),
     });
 
@@ -557,14 +541,14 @@ fn transform_filter_highpass() {
 
     let signal: Vec<f64> = (0..100).map(|i| (i as f64 * 0.1).sin()).collect();
 
-    let request = ToolRequest::Transform(TransformInput {
-        transform_type: TransformType::Filter(FilterType::HighPass),
-        data: signal,
-        sampling_rate: Some(1000.0),
-        parameters: HashMap::from([
-            ("cutoff".to_string(), serde_json::json!(50.0)),
-            ("order".to_string(), serde_json::json!(4)),
-        ]),
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Transform(TransformType::Filter(FilterType::HighPass)),
+        data: json!({
+            "data": signal,
+            "cutoff": 50.0,
+            "order": 4
+        }),
+        parameters: HashMap::new(),
     });
 
     let result = dispatcher.dispatch(request);
@@ -577,15 +561,15 @@ fn transform_filter_bandpass() {
 
     let signal: Vec<f64> = (0..100).map(|i| (i as f64 * 0.1).sin()).collect();
 
-    let request = ToolRequest::Transform(TransformInput {
-        transform_type: TransformType::Filter(FilterType::BandPass),
-        data: signal,
-        sampling_rate: Some(1000.0),
-        parameters: HashMap::from([
-            ("low_cutoff".to_string(), serde_json::json!(30.0)),
-            ("high_cutoff".to_string(), serde_json::json!(70.0)),
-            ("order".to_string(), serde_json::json!(4)),
-        ]),
+    let request = ToolRequest::Compute(ComputeInput {
+        operation: ComputeOp::Transform(TransformType::Filter(FilterType::BandPass)),
+        data: json!({
+            "data": signal,
+            "low_cutoff": 30.0,
+            "high_cutoff": 70.0,
+            "order": 4
+        }),
+        parameters: HashMap::new(),
     });
 
     let result = dispatcher.dispatch(request);
@@ -594,34 +578,27 @@ fn transform_filter_bandpass() {
 }
 
 // ============================================================================
-// FIELDTHEORY - Basic Tests
-// ============================================================================
-
-// Field theory tests removed - FieldType variants need fixing
-
-// ============================================================================
-// SAMPLE - All Sampling Methods
-// ============================================================================
-
-// Sampling method tests removed - these variants not available (Histogram, Bootstrapping, ImportanceSampling)
-
-// ============================================================================
-// OPTIMIZE - All Optimization Methods
+// OPTIMIZE - All Optimization Methods (via Solve tool)
 // ============================================================================
 
 #[test]
 fn optimize_gradient_descent() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Optimize(OptimizeInput {
-        method: OptimizationMethod::Minimize(MinimizationMethod::GradientDescent),
-        data: None,
-        objective: Some("x^2 + y^2".to_string()),
-        initial_guess: Some(vec![1.0, 1.0]),
-        constraints: None,
+    let request = ToolRequest::Solve(SolveInput {
+        equation_type: EquationType::Optimize(OptimizationMethod::Minimize(MinimizationMethod::GradientDescent)),
+        equations: vec!["x^2 + y^2".to_string()],
+        variables: Some(vec!["x".to_string(), "y".to_string()]),
+        initial_guess: Some(HashMap::from([
+            ("x".to_string(), 1.0),
+            ("y".to_string(), 1.0),
+        ])),
+        boundary_conditions: None,
+        domain: None,
+        method: None,
         parameters: HashMap::from([
-            ("learning_rate".to_string(), serde_json::json!(0.1)),
-            ("max_iterations".to_string(), serde_json::json!(100)),
+            ("learning_rate".to_string(), json!(0.1)),
+            ("max_iterations".to_string(), json!(100)),
         ]),
     });
 
@@ -633,20 +610,23 @@ fn optimize_gradient_descent() {
 fn optimize_nelder_mead() {
     let dispatcher = create_default_dispatcher();
 
-    let request = ToolRequest::Optimize(OptimizeInput {
-        method: OptimizationMethod::Minimize(MinimizationMethod::NelderMead),
-        data: None,
-        objective: Some("(x-3)^2 + (y-2)^2".to_string()),
-        initial_guess: Some(vec![0.0, 0.0]),
-        constraints: None,
+    let request = ToolRequest::Solve(SolveInput {
+        equation_type: EquationType::Optimize(OptimizationMethod::Minimize(MinimizationMethod::NelderMead)),
+        equations: vec!["(x-3)^2 + (y-2)^2".to_string()],
+        variables: Some(vec!["x".to_string(), "y".to_string()]),
+        initial_guess: Some(HashMap::from([
+            ("x".to_string(), 0.0),
+            ("y".to_string(), 0.0),
+        ])),
+        boundary_conditions: None,
+        domain: None,
+        method: None,
         parameters: HashMap::new(),
     });
 
     let result = dispatcher.dispatch(request);
     let _ = result;
 }
-
-// Linear programming test removed - OptimizationMethod::LinearProgramming not available
 
 // ============================================================================
 // JSON API - Test all tools
@@ -662,12 +642,12 @@ fn json_api_all_tools_basic() {
             r#"{"tool":"solve","input":{"equation_type":"root_finding","equations":["x^2-4=0"]}}"#,
         ),
         (
-            "differentiate",
-            r#"{"tool":"differentiate","input":{"operation":"symbolic","expression":"x^2","variables":["x"],"order":[1]}}"#,
+            "compute-differentiate",
+            r#"{"tool":"compute","input":{"operation":{"differentiate":"symbolic"},"data":{"expression":"x^2","variable":"x"},"parameters":{}}}"#,
         ),
         (
-            "integrate",
-            r#"{"tool":"integrate","input":{"integration_type":"symbolic","expression":"x","variables":["x"]}}"#,
+            "compute-integrate",
+            r#"{"tool":"compute","input":{"operation":{"integrate":"symbolic"},"data":{"expression":"x","variable":"x"},"parameters":{}}}"#,
         ),
         (
             "analyze",
@@ -678,20 +658,16 @@ fn json_api_all_tools_basic() {
             r#"{"tool":"simulate","input":{"model":{"time_evolution":"euler"},"equations":["dy/dt=-y"],"variables":["y"],"parameters":{"initial_value":1.0},"range":[0,1],"steps":10}}"#,
         ),
         (
-            "compute",
+            "compute-matrix",
             r#"{"tool":"compute","input":{"operation":{"matrix_decomp":"svd"},"data":{"matrix":[[1,2],[3,4]]},"parameters":{}}}"#,
         ),
         (
-            "transform",
-            r#"{"tool":"transform","input":{"transform_type":{"fft":"forward"},"data":[0,1,0,1,0,1,0,1],"sampling_rate":100}}"#,
+            "compute-transform",
+            r#"{"tool":"compute","input":{"operation":{"transform":{"fft":"forward"}},"data":{"data":[0,1,0,1,0,1,0,1]},"parameters":{}}}"#,
         ),
         (
-            "sample",
-            r#"{"tool":"sample","input":{"method":"moments","data":[1,2,3,4,5],"parameters":{}}}"#,
-        ),
-        (
-            "optimize",
-            r#"{"tool":"optimize","input":{"method":{"fit":"polynomial"},"data":[[0,1,2],[0,1,4]],"parameters":{}}}"#,
+            "compute-sample",
+            r#"{"tool":"compute","input":{"operation":{"sample":"moments"},"data":{"data":[1,2,3,4,5]},"parameters":{}}}"#,
         ),
     ];
 
