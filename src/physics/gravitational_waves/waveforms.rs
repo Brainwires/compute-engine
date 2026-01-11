@@ -3,7 +3,6 @@
 //! Post-Newtonian approximations for binary inspiral waveforms
 
 use super::{BinarySystem, Waveform, C, G, M_SUN, PI};
-use serde::{Deserialize, Serialize};
 
 /// Generate inspiral waveform using TaylorF2 approximation
 pub fn taylor_f2_waveform(
@@ -61,13 +60,13 @@ pub fn taylor_f2_waveform(
 
 /// Post-Newtonian phase at given frequency (2PN approximation)
 fn phase_at_frequency(binary: &BinarySystem, f: f64) -> f64 {
-    let m_chirp = binary.chirp_mass() * M_SUN;
+    let _m_chirp = binary.chirp_mass() * M_SUN;
     let eta = binary.symmetric_mass_ratio();
 
     let v = (PI * G * binary.total_mass() * M_SUN * f / C.powi(3)).powf(1.0 / 3.0);
     let v2 = v * v;
     let v3 = v2 * v;
-    let v4 = v2 * v2;
+    let _v4 = v2 * v2;
 
     // Newtonian term
     let phi_n = binary.coalescence_phase - 2.0 / (eta * v.powf(5.0));

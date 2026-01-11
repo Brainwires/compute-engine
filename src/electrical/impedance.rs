@@ -3,7 +3,6 @@
 //! Advanced impedance manipulation and conversion utilities
 
 use num_complex::Complex64;
-use std::f64::consts::PI;
 
 /// Convert rectangular form (R + jX) to polar form (|Z|∠θ)
 ///

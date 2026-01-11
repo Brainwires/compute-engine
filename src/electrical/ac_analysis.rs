@@ -302,7 +302,7 @@ pub fn admittance(impedance: Complex64) -> Complex64 {
 }
 
 /// Calculate conductance (real part of admittance)
-pub fn conductance(impedance: Complex64) -> f64 {
+pub fn ac_conductance(impedance: Complex64) -> f64 {
     admittance(impedance).re
 }
 

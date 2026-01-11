@@ -5,7 +5,10 @@ use std::f64::consts::PI;
 
 /// Physical constants
 pub const HBAR: f64 = 1.054571817e-34; // J·s
-pub const ALPHA_EM: f64 = 1.0 / 137.036;
+
+// Use the shared constant from parent module
+#[allow(unused_imports)]
+use super::ALPHA_EM;
 
 /// Muon decay width: μ → e ν_μ ν̄_e
 pub fn muon_decay_width(m_mu: f64) -> f64 {

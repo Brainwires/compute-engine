@@ -41,6 +41,7 @@ pub struct ValidationResult {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 struct ValidationError {
     message: String,
 }
@@ -171,6 +172,7 @@ impl Dimension {
         Ok(dim)
     }
 
+    #[allow(dead_code)]
     fn multiply(&self, other: &Dimension) -> Dimension {
         Dimension {
             mass: self.mass + other.mass,
@@ -183,6 +185,7 @@ impl Dimension {
         }
     }
 
+    #[allow(dead_code)]
     fn divide(&self, other: &Dimension) -> Dimension {
         Dimension {
             mass: self.mass - other.mass,
@@ -195,6 +198,7 @@ impl Dimension {
         }
     }
 
+    #[allow(dead_code)]
     fn power(&self, exp: i32) -> Dimension {
         Dimension {
             mass: self.mass * exp,
@@ -207,6 +211,7 @@ impl Dimension {
         }
     }
 
+    #[allow(dead_code)]
     fn is_dimensionless(&self) -> bool {
         self.mass == 0
             && self.length == 0

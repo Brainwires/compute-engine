@@ -145,7 +145,7 @@ impl UnifiedComputer {
 
             TensorOp::Product => {
                 // Tensor product of two tensors
-                let dimension = metric.len();
+                let _dimension = metric.len();
 
                 Ok(ComputeOutput {
                     result: serde_json::json!("Tensor product computed"),
@@ -467,6 +467,8 @@ impl UnifiedComputer {
     }
 
     /// Compute information theory operations
+    /// TODO: Wire up to ComputeOp dispatch when information theory operations are ready
+    #[allow(dead_code)]
     fn compute_information(
         &self,
         op: &InformationOp,
@@ -569,6 +571,8 @@ impl UnifiedComputer {
     }
 
     /// Compute graph theory operations
+    /// TODO: Wire up to ComputeOp dispatch when graph theory operations are ready
+    #[allow(dead_code)]
     fn compute_graph(&self, op: &GraphOp, input: &ComputeInput) -> ToolResult<ComputeOutput> {
         use crate::specialized::graph_theory::*;
 
@@ -618,6 +622,8 @@ impl UnifiedComputer {
     }
 
     /// Compute number theory operations
+    /// TODO: Wire up to ComputeOp dispatch when number theory operations are ready
+    #[allow(dead_code)]
     fn compute_number_theory(
         &self,
         op: &NumberTheoryOp,

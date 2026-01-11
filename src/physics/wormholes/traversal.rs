@@ -2,7 +2,7 @@
 //!
 //! Calculate tidal forces, travel times, and survivability
 
-use super::{WormholeConfig, G, C};
+use super::{WormholeConfig, C};
 use super::metric::{proper_distance, SphericalCoordinates, morris_thorne_metric};
 use serde::{Deserialize, Serialize};
 

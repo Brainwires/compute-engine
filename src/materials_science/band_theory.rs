@@ -143,13 +143,6 @@ pub fn debye_frequency(sound_velocity: f64, atom_density: f64) -> f64 {
     sound_velocity * (6.0 * PI * PI * atom_density).powf(1.0 / 3.0)
 }
 
-/// Calculate Debye temperature
-///
-/// Θ_D = ℏω_D / k_B
-pub fn debye_temperature(debye_freq: f64) -> f64 {
-    (HBAR * debye_freq) / K_B
-}
-
 /// Calculate electron mobility from conductivity
 ///
 /// μ = σ / (ne)

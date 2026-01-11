@@ -18,7 +18,6 @@
 //! - Can connect distant regions of spacetime
 
 use serde::{Deserialize, Serialize};
-use std::f64::consts::PI;
 
 pub mod metric;
 pub mod energy;

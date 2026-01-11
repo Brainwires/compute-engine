@@ -29,14 +29,14 @@ pub fn convex_hull_3d(points: &[Point3D]) -> Result<ConvexHull3D, String> {
     }
 
     // Find initial tetrahedron
-    let mut vertices = points.to_vec();
+    let vertices = points.to_vec();
     let mut faces = Vec::new();
 
     // Find extreme points
-    let min_x_idx = find_extreme(&vertices, |p| p.x, true);
-    let max_x_idx = find_extreme(&vertices, |p| p.x, false);
-    let min_y_idx = find_extreme(&vertices, |p| p.y, true);
-    let max_y_idx = find_extreme(&vertices, |p| p.y, false);
+    let _min_x_idx = find_extreme(&vertices, |p| p.x, true);
+    let _max_x_idx = find_extreme(&vertices, |p| p.x, false);
+    let _min_y_idx = find_extreme(&vertices, |p| p.y, true);
+    let _max_y_idx = find_extreme(&vertices, |p| p.y, false);
 
     // Create initial simplex (simplified - just use first 4 distinct points)
     if vertices.len() >= 4 {

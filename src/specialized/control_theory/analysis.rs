@@ -2,7 +2,6 @@
 //!
 //! Controllability, observability, and stability analysis
 
-use nalgebra::DMatrix;
 use num_complex::Complex64;
 use serde::{Deserialize, Serialize};
 
@@ -54,7 +53,7 @@ pub fn observability(a: &[Vec<f64>], c: &[Vec<f64>]) -> ObservabilityResult {
 }
 
 /// Compute eigenvalues of matrix A (system poles)
-pub fn eigenvalues(a: &[Vec<f64>]) -> Vec<Complex64> {
+pub fn eigenvalues(_a: &[Vec<f64>]) -> Vec<Complex64> {
     // Placeholder: would use proper eigenvalue solver
     // For now return empty
     vec![]

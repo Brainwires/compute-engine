@@ -278,7 +278,7 @@ pub fn time_evolution(
     // Create scaled Hamiltonian: -iHt/ℏ
     let factor = -time / h;
 
-    let scaled_values = values.clone();
+    let _scaled_values = values.clone();
     // We'll evaluate H and scale it
 
     let h_matrix = evaluate_matrix_numeric(hamiltonian, values)?;

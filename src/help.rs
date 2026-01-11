@@ -20,7 +20,6 @@
 //! - `sample` → routes to `compute` with `operation: {sample: ...}`
 //! - `optimize` → routes to `solve` with `equation_type: {optimize: ...}`
 
-use crate::engine::equations::*;
 use std::fmt;
 
 /// Tool names (primary 4 + legacy 6)

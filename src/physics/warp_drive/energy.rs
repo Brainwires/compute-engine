@@ -58,7 +58,7 @@ pub fn compute_stress_energy(coords: &Coordinates, config: &WarpDriveConfig) -> 
     let xs = vs * coords.t;
     let rs = ((coords.x - xs).powi(2) + coords.y.powi(2) + coords.z.powi(2)).sqrt();
 
-    let f = shape_function(rs, config);
+    let _f = shape_function(rs, config);
     let df_drs = shape_function_derivative(rs, config);
 
     // For Alcubierre metric, key components are:

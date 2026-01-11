@@ -295,7 +295,7 @@ impl UnifiedSampler {
                         let mut x_samples = Vec::with_capacity(num_samples);
                         let mut y_samples = Vec::with_capacity(num_samples);
 
-                        let mut x = 0.0;
+                        let mut x;
                         let mut y = 0.0;
 
                         for _ in 0..num_samples {

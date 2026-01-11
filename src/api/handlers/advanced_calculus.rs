@@ -1,7 +1,7 @@
 //! Advanced calculus operations handler
 
 use crate::api::types::{ComputationRequest, ComputationResponse};
-use serde_json::{json, Value};
+use serde_json::json;
 
 pub fn handle(request: &ComputationRequest) -> ComputationResponse {
     match request.operation.as_str() {

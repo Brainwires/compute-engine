@@ -2,7 +2,7 @@
 //!
 //! Calculate exotic matter requirements using Einstein field equations
 
-use super::{WormholeConfig, G, C, C2, C4};
+use super::{WormholeConfig, G, C2, C4};
 use super::metric::{shape_function, shape_function_derivative, redshift_function, SphericalCoordinates};
 use serde::{Deserialize, Serialize};
 use std::f64::consts::PI;
@@ -43,7 +43,7 @@ pub fn compute_energy_density(coords: &SphericalCoordinates, config: &WormholeCo
     let r = coords.r;
     let b = shape_function(r, config);
     let db_dr = shape_function_derivative(r, config);
-    let phi = redshift_function(r, config);
+    let _phi = redshift_function(r, config);
 
     // For Morris-Thorne wormhole, key energy-momentum components:
     // Energy density: ρ = -(c⁴/8πG) · b'/(r²)

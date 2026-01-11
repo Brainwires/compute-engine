@@ -871,7 +871,7 @@ fn test_christoffel_symbols_quantum() {
         vec!["0".to_string(), "r^2".to_string()],
     ];
 
-    let result = quantum_tensors::calculate_christoffel_symbols(metric, 2).unwrap();
+    let result = quantum_tensors::calculate_christoffel_symbols_symbolic(metric, 2).unwrap();
     assert_eq!(result.calculation_type, "christoffel_symbols");
     assert_eq!(result.dimensions, 2);
     assert!(!result.properties.symmetries.is_empty());
@@ -884,7 +884,7 @@ fn test_riemann_tensor_quantum() {
         vec!["0".to_string(), "1".to_string()],
     ];
 
-    let result = quantum_tensors::calculate_riemann_tensor(metric, 2).unwrap();
+    let result = quantum_tensors::calculate_riemann_tensor_symbolic(metric, 2).unwrap();
     assert_eq!(result.calculation_type, "riemann_tensor");
     assert_eq!(result.dimensions, 2);
     assert!(!result.physical_interpretation.is_empty());
@@ -897,7 +897,7 @@ fn test_ricci_tensor_quantum() {
         vec!["0".to_string(), "1".to_string()],
     ];
 
-    let result = quantum_tensors::calculate_ricci_tensor(metric, 2).unwrap();
+    let result = quantum_tensors::calculate_ricci_tensor_symbolic(metric, 2).unwrap();
     assert_eq!(result.calculation_type, "ricci_tensor");
     assert_eq!(result.dimensions, 2);
     assert!(result.properties.trace.is_some());
@@ -910,7 +910,7 @@ fn test_einstein_tensor_quantum() {
         vec!["0".to_string(), "1".to_string()],
     ];
 
-    let result = quantum_tensors::calculate_einstein_tensor(metric, 2).unwrap();
+    let result = quantum_tensors::calculate_einstein_tensor_symbolic(metric, 2).unwrap();
     assert_eq!(result.calculation_type, "einstein_tensor");
     assert_eq!(result.dimensions, 2);
     assert!(result.properties.trace.is_some());
@@ -945,7 +945,7 @@ fn test_christoffel_4d_quantum() {
         ],
     ];
 
-    let result = quantum_tensors::calculate_christoffel_symbols(metric, 4).unwrap();
+    let result = quantum_tensors::calculate_christoffel_symbols_symbolic(metric, 4).unwrap();
     assert_eq!(result.dimensions, 4);
 }
 
@@ -956,7 +956,7 @@ fn test_tensor_properties_symmetries() {
         vec!["0".to_string(), "r^2".to_string()],
     ];
 
-    let result = quantum_tensors::calculate_christoffel_symbols(metric, 2).unwrap();
+    let result = quantum_tensors::calculate_christoffel_symbols_symbolic(metric, 2).unwrap();
     assert!(
         result
             .properties

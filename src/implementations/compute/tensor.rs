@@ -137,7 +137,7 @@ pub fn compute_tensor(op: &TensorOp, input: &ComputeInput) -> ToolResult<Compute
 
         TensorOp::Product => {
             // Tensor product of two tensors
-            let dimension = metric.len();
+            let _dimension = metric.len();
 
             Ok(ComputeOutput {
                 result: serde_json::json!("Tensor product computed"),

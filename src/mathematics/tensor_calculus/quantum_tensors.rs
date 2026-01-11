@@ -21,7 +21,7 @@ pub struct TensorProperties {
 }
 
 /// Calculate Christoffel symbols from metric tensor
-pub fn calculate_christoffel_symbols(
+pub fn calculate_christoffel_symbols_symbolic(
     metric: Vec<Vec<String>>,
     dimensions: usize,
 ) -> Result<TensorCalculationResult> {
@@ -94,7 +94,7 @@ pub fn calculate_christoffel_symbols(
 }
 
 /// Calculate Riemann curvature tensor
-pub fn calculate_riemann_tensor(
+pub fn calculate_riemann_tensor_symbolic(
     metric: Vec<Vec<String>>,
     dimensions: usize,
 ) -> Result<TensorCalculationResult> {
@@ -108,7 +108,7 @@ pub fn calculate_riemann_tensor(
         vec![vec![vec![vec!["0".to_string(); dimensions]; dimensions]; dimensions]; dimensions];
 
     // First compute Christoffel symbols
-    let christoffel_result = calculate_christoffel_symbols(metric, dimensions)?;
+    let christoffel_result = calculate_christoffel_symbols_symbolic(metric, dimensions)?;
     let christoffel = &christoffel_result.result_tensor;
 
     // Calculate Riemann tensor: R^μ_νλρ = ∂_λ Γ^μ_νρ - ∂_ρ Γ^μ_νλ + Γ^μ_σλ Γ^σ_νρ - Γ^μ_σρ Γ^σ_νλ
@@ -190,7 +190,7 @@ pub fn calculate_riemann_tensor(
 }
 
 /// Calculate Ricci tensor by contracting Riemann tensor
-pub fn calculate_ricci_tensor(
+pub fn calculate_ricci_tensor_symbolic(
     metric: Vec<Vec<String>>,
     dimensions: usize,
 ) -> Result<TensorCalculationResult> {
@@ -200,7 +200,7 @@ pub fn calculate_ricci_tensor(
     eprintln!("   Contracting Riemann tensor: R_μν = R^λ_μλν");
 
     // First compute Riemann tensor
-    let riemann_result = calculate_riemann_tensor(metric.clone(), dimensions)?;
+    let riemann_result = calculate_riemann_tensor_symbolic(metric.clone(), dimensions)?;
     let riemann = &riemann_result.result_tensor;
     let metric = metric; // Keep ownership for later use
 
@@ -257,7 +257,7 @@ pub fn calculate_ricci_tensor(
 }
 
 /// Calculate Einstein tensor G_μν = R_μν - (1/2)g_μν R
-pub fn calculate_einstein_tensor(
+pub fn calculate_einstein_tensor_symbolic(
     metric: Vec<Vec<String>>,
     dimensions: usize,
 ) -> Result<TensorCalculationResult> {
@@ -268,7 +268,7 @@ pub fn calculate_einstein_tensor(
     eprintln!("   This is the geometric side of Einstein's field equations!");
 
     // First compute Ricci tensor
-    let ricci_result = calculate_ricci_tensor(metric.clone(), dimensions)?;
+    let ricci_result = calculate_ricci_tensor_symbolic(metric.clone(), dimensions)?;
     let ricci = &ricci_result.result_tensor;
     let ricci_scalar = ricci_result.properties.trace.unwrap_or("R".to_string());
 
@@ -325,7 +325,7 @@ pub fn calculate_einstein_tensor(
 }
 
 /// Calculate inverse metric tensor
-fn calculate_inverse_metric(metric: &[Vec<String>], dimensions: usize) -> Result<Vec<Vec<String>>> {
+fn calculate_inverse_metric(_metric: &[Vec<String>], dimensions: usize) -> Result<Vec<Vec<String>>> {
     let mut inverse = vec![vec!["0".to_string(); dimensions]; dimensions];
 
     // For now, use symbolic representation
@@ -346,7 +346,7 @@ fn calculate_inverse_metric(metric: &[Vec<String>], dimensions: usize) -> Result
 /// Calculate Ricci scalar from Ricci tensor
 fn calculate_ricci_scalar_from_tensor(
     ricci: &[Vec<Vec<Vec<String>>>],
-    metric: &[Vec<String>],
+    _metric: &[Vec<String>],
     dimensions: usize,
 ) -> Result<String> {
     // R = g^μν R_μν

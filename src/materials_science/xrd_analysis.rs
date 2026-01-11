@@ -3,9 +3,7 @@
 //! XRD pattern simulation, peak analysis, lattice parameter refinement,
 //! crystallite size determination, and phase identification.
 
-use super::constants::*;
-use super::{BravaisLattice, UnitCell};
-use std::f64::consts::PI;
+use super::BravaisLattice;
 
 /// Standard X-ray wavelengths (Å)
 pub mod wavelengths {

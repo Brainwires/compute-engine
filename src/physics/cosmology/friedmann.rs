@@ -1,6 +1,6 @@
 //! Friedmann Equations - Evolution of the Universe
 
-use super::{CosmologyParams, Redshift, C, G, PI};
+use super::{CosmologyParams, Redshift, C};
 use serde::{Deserialize, Serialize};
 
 /// Hubble parameter H(z) as function of redshift

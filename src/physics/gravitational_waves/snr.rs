@@ -2,7 +2,6 @@
 
 use super::{LIGODetector, Waveform};
 use serde::{Deserialize, Serialize};
-use std::f64::consts::PI;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SNRResult {

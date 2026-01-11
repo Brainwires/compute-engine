@@ -246,7 +246,7 @@ pub fn logistic_regression(
     let mut intercept = 0.0;
 
     // Gradient descent
-    for iteration in 0..max_iterations {
+    for _iteration in 0..max_iterations {
         // Compute predictions
         let predictions: Vec<f64> = x
             .iter()

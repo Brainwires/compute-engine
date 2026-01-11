@@ -15,7 +15,6 @@
 //! where G_μν is the Einstein tensor and T_μν is the stress-energy tensor
 
 use serde::{Deserialize, Serialize};
-use std::f64::consts::PI;
 
 pub mod metric;
 pub mod energy;

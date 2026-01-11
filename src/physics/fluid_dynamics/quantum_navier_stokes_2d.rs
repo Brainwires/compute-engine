@@ -368,7 +368,7 @@ impl QNS2DSolver {
                 let u_dudx_pred = self.u_pred[[i, j]] * (self.u_pred[[i, j]] - self.u_pred[[im1, j]]) / self.dx;
                 let v_dudy_pred = self.v_pred[[i, j]] * (self.u_pred[[i, j]] - self.u_pred[[i, jm1]]) / self.dy;
                 let dpdx_pred = (self.p[[i, j]] - self.p[[im1, j]]) / self.dx;
-                let nu_pred = mu / self.rho_pred[[i, j]].max(1e-10);
+                let _nu_pred = mu / self.rho_pred[[i, j]].max(1e-10);
                 let f_qx_pred = self.q_force_x[[i, j]] / self.rho_pred[[i, j]].max(1e-10);
 
                 let u_corr = self.u[[i, j]]

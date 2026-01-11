@@ -33,14 +33,13 @@ pub fn symbolic_differentiate(
     eprintln!("   Expression: {}", expression);
 
     let mut steps = vec![format!("Input: {}", expression)];
-    let mut output = String::new();
 
     // Parse expression and identify differentiation variable
     let diff_var = variables.keys().next().cloned().unwrap_or("x".to_string());
     steps.push(format!("Differentiating with respect to: {}", diff_var));
 
     // Basic differentiation rules
-    output = match expression.trim() {
+    let mut output = match expression.trim() {
         // Constant rule: d/dx(c) = 0
         expr if is_constant(expr, &diff_var) => {
             steps.push("Applied constant rule: d/dx(c) = 0".to_string());
@@ -210,13 +209,12 @@ pub fn symbolic_integrate(
     eprintln!("   Expression: {}", expression);
 
     let mut steps = vec![format!("Input: ∫ {} dx", expression)];
-    let mut output = String::new();
 
     let int_var = variables.keys().next().cloned().unwrap_or("x".to_string());
     steps.push(format!("Integrating with respect to: {}", int_var));
 
     // Basic integration rules
-    output = match expression.trim() {
+    let mut output = match expression.trim() {
         // Constant rule: ∫c dx = c*x + C
         expr if is_constant(expr, &int_var) => {
             steps.push("Applied constant rule: ∫c dx = c*x + C".to_string());
@@ -326,7 +324,7 @@ pub fn symbolic_integrate(
 /// Symbolic simplification
 pub fn symbolic_simplify(
     expression: &str,
-    variables: &HashMap<String, f64>,
+    _variables: &HashMap<String, f64>,
 ) -> Result<SymbolicResult> {
     let start = std::time::Instant::now();
 
@@ -406,7 +404,7 @@ pub fn symbolic_simplify(
 /// Symbolic expansion
 pub fn symbolic_expand(
     expression: &str,
-    variables: &HashMap<String, f64>,
+    _variables: &HashMap<String, f64>,
 ) -> Result<SymbolicResult> {
     let start = std::time::Instant::now();
 
@@ -589,7 +587,7 @@ fn expand_squared_binomial(expr: &str) -> String {
     expr.to_string()
 }
 
-fn extract_binomial_product(expr: &str) -> Option<(String, String, String)> {
+fn extract_binomial_product(_expr: &str) -> Option<(String, String, String)> {
     // Look for patterns like (a + b)(c + d)
     None
 }

@@ -2,6 +2,9 @@
 //!
 //! High-accuracy methods using orthogonal polynomials for solving PDEs.
 
+// Allow non-snake case for mathematical convention (D = differentiation matrix, A = coefficient matrix)
+#![allow(non_snake_case)]
+
 use nalgebra::{DMatrix, DVector};
 use serde::{Deserialize, Serialize};
 use std::f64::consts::PI;

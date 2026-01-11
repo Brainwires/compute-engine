@@ -63,7 +63,7 @@ pub fn density_matrix_trace(rho: &SymbolicMatrix) -> SymbolicResult<Expr> {
 /// For maximally mixed states: S = log(d) where d is dimension
 ///
 /// Returns symbolic expression (actual computation requires eigenvalues)
-pub fn von_neumann_entropy_symbolic(dimension: usize) -> Expr {
+pub fn von_neumann_entropy_symbolic(_dimension: usize) -> Expr {
     // S = -Tr(ρ log ρ)
     // Symbolic representation
     Expr::mul(
@@ -147,7 +147,7 @@ pub fn partial_trace_qubit(
 /// Returns true if potentially entangled (non-trivial partial traces)
 pub fn is_potentially_entangled(rho: &SymbolicMatrix) -> SymbolicResult<bool> {
     let rho_a = partial_trace_qubit(rho, true)?;
-    let rho_b = partial_trace_qubit(rho, false)?;
+    let _rho_b = partial_trace_qubit(rho, false)?;
 
     // Check if ρ_A and ρ_B are pure (trace(ρ²) = 1)
     let rho_a_squared = rho_a.mul(&rho_a)?;

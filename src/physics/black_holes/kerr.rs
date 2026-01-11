@@ -30,7 +30,7 @@ pub fn ergosphere_radius(theta: f64, config: &BlackHoleConfig) -> f64 {
 }
 
 /// Frame dragging angular velocity (ZAMO frame)
-pub fn frame_dragging_omega(r: f64, theta: f64, config: &BlackHoleConfig) -> f64 {
+pub fn frame_dragging_omega(r: f64, _theta: f64, config: &BlackHoleConfig) -> f64 {
     let r_s = config.schwarzschild_radius();
     let a = config.spin;
 

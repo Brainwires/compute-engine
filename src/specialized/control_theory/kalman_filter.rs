@@ -2,7 +2,6 @@
 //!
 //! Optimal state estimation in the presence of noise
 
-use nalgebra::{DMatrix, DVector};
 use serde::{Deserialize, Serialize};
 
 /// Kalman filter state
@@ -57,7 +56,7 @@ impl KalmanFilter {
     }
 
     /// Update step with measurement
-    pub fn update(&mut self, z: &[f64], h: &[Vec<f64>]) {
+    pub fn update(&mut self, z: &[f64], _h: &[Vec<f64>]) {
         // Simplified update
         // In practice: compute Kalman gain, update state and covariance
         let n = self.x.len();

@@ -1,11 +1,10 @@
 //! QFT Propagators and Green's Functions
 
 use num_complex::Complex64;
-use serde::{Deserialize, Serialize};
+#[allow(unused_imports)]
 use std::f64::consts::PI;
 
-/// Fine structure constant
-pub const ALPHA_EM: f64 = 1.0 / 137.036;
+// Shared ALPHA_EM constant is defined in parent module and re-exported from there
 
 /// Scalar propagator (Klein-Gordon): i/(p² - m² + iε)
 pub fn scalar_propagator(p_squared: f64, mass: f64) -> Complex64 {

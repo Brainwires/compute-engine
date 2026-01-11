@@ -469,7 +469,7 @@ pub fn chemical_potential(
 pub fn fugacity_coefficient(request: FugacityRequest) -> Result<FugacityResult, String> {
     let t = request.temperature;
     let p = request.pressure;
-    let n = request.particle_density;
+    let _n = request.particle_density;
 
     // For ideal gas: μ = kT ln(P/P₀)
     let p0 = 101325.0; // Standard pressure (Pa)
@@ -535,13 +535,13 @@ pub fn phase_transition(request: PhaseTransitionRequest) -> Result<PhaseTransiti
                 .parameters
                 .get("pressure")
                 .ok_or("pressure required")?;
-            let a = request.parameters.get("a").unwrap_or(&0.1); // Attraction parameter
+            let _a = request.parameters.get("a").unwrap_or(&0.1); // Attraction parameter
             let b = request.parameters.get("b").unwrap_or(&0.01); // Excluded volume
 
             // Reduced variables
             let t_r = t / t_c;
             let p_c = 1.0 / (27.0 * b * b); // Critical pressure (simplified)
-            let v_c = 3.0 * b; // Critical volume
+            let _v_c = 3.0 * b; // Critical volume
 
             // Order parameter: density difference between liquid and gas
             let order_param = if t < t_c { (1.0 - t_r).powf(0.5) } else { 0.0 };

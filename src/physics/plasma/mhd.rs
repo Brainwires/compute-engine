@@ -1,6 +1,6 @@
 //! Magnetohydrodynamics (MHD) - Single fluid description of plasma
 
-use super::{PlasmaParams, E, M_P};
+use super::PlasmaParams;
 use serde::{Deserialize, Serialize};
 use std::f64::consts::PI;
 
@@ -27,6 +27,7 @@ pub fn check_ideal_mhd(params: &PlasmaParams) -> bool {
 
 /// Lundquist number: S = τ_R / τ_A
 fn lundquist_number(params: &PlasmaParams, length: f64) -> f64 {
+    #[allow(dead_code)]
     const MU_0: f64 = 4.0e-7 * PI;
 
     let rho = params.n_i * params.ion_mass;

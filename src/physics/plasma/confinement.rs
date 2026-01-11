@@ -1,6 +1,6 @@
 //! Magnetic Confinement - Tokamaks and Stellarators
 
-use super::{PlasmaParams, E, K_B};
+use super::{PlasmaParams, E};
 use serde::{Deserialize, Serialize};
 use std::f64::consts::PI;
 
@@ -142,7 +142,7 @@ pub fn estimate_confinement_mode(
     params: &PlasmaParams,
     heating_power: f64,
 ) -> ConfinementMode {
-    let tau_scaling = iter98_confinement_time(config, params, heating_power);
+    let _tau_scaling = iter98_confinement_time(config, params, heating_power);
 
     // Simple H-mode threshold: P > P_threshold
     let p_threshold_mw = 2.84; // Simplified threshold

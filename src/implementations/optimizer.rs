@@ -130,7 +130,7 @@ impl UnifiedOptimizer {
     fn optimize_minimize(
         &self,
         min_method: &MinimizationMethod,
-        input: &OptimizeInput,
+        _input: &OptimizeInput,
     ) -> ToolResult<OptimizeOutput> {
         match min_method {
             MinimizationMethod::GradientDescent => {
@@ -209,7 +209,7 @@ impl UnifiedOptimizer {
         interp_method: &InterpolationMethod,
         input: &OptimizeInput,
     ) -> ToolResult<OptimizeOutput> {
-        let (x_data, y_data) = input
+        let (x_data, _y_data) = input
             .data
             .as_ref()
             .ok_or("data (x, y) required for interpolation")?;
@@ -372,12 +372,12 @@ impl UnifiedOptimizer {
         // Find combination: target = C * var1^a * var2^b * var3^c ...
         // where dimensional consistency is maintained
 
-        let max_power = 3; // Try powers from -3 to 3
-        let best_combination: Option<Vec<i32>> = None;
-        let best_residual = f64::INFINITY;
+        let _max_power = 3; // Try powers from -3 to 3
+        let _best_combination: Option<Vec<i32>> = None;
+        let _best_residual = f64::INFINITY;
 
         // If we have data, use it to fit coefficients
-        if let Some((x_data, y_data)) = &input.data {
+        if let Some((_x_data, _y_data)) = &input.data {
             // Try different power combinations
             for _ in 0..100 {
                 // Simplified search
@@ -517,7 +517,7 @@ impl UnifiedOptimizer {
         input: &OptimizeInput,
     ) -> ToolResult<OptimizeOutput> {
         // Default candidates if none specified
-        let default_candidates = vec![
+        let _default_candidates = vec![
             "linear".to_string(),
             "quadratic".to_string(),
             "trigonometric".to_string(),
@@ -632,7 +632,7 @@ impl Optimize for UnifiedOptimizer {
                 self.optimize_interpolate(interp_method, input)
             }
 
-            OptimizationMethod::DimensionalAnalysis(method) => {
+            OptimizationMethod::DimensionalAnalysis(_method) => {
                 // Get target quantity from parameters
                 let target = input
                     .parameters

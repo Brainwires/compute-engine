@@ -32,7 +32,7 @@ pub struct OptimizerState {
 
 impl OptimizerState {
     /// Create a new optimizer state
-    pub fn new(optimizer_type: OptimizerType, learning_rate: f64, num_layers: usize) -> Self {
+    pub fn new(optimizer_type: OptimizerType, learning_rate: f64, _num_layers: usize) -> Self {
         let beta1 = match optimizer_type {
             OptimizerType::Momentum => 0.9,
             OptimizerType::Adam => 0.9,
@@ -236,7 +236,8 @@ pub fn train_network(
 
     for epoch in 0..config.epochs {
         let mut epoch_loss = 0.0;
-        let mut batch_count = 0;
+        // batch_count could be used for progress tracking or metrics
+        let mut _batch_count = 0;
 
         // Mini-batch training
         for batch in train_data.chunks(config.batch_size) {
@@ -302,7 +303,7 @@ pub fn train_network(
                 }
             }
 
-            batch_count += 1;
+            _batch_count += 1;
         }
 
         epoch_loss /= train_data.len() as f64;

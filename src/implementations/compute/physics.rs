@@ -4,7 +4,6 @@
 //! and Fourier series calculations.
 
 use crate::engine::*;
-use serde_json::Value;
 
 /// Compute electromagnetism operations
 ///

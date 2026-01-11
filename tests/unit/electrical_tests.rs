@@ -80,7 +80,7 @@ fn test_energy_dissipated() {
 
 #[test]
 fn test_dc_conductance() {
-    let g = dc_analysis::conductance(10.0); // 10Ω
+    let g = dc_analysis::dc_conductance(10.0); // 10Ω
     assert_eq!(g, 0.1); // 0.1 S
 }
 
@@ -332,7 +332,7 @@ fn test_admittance() {
 #[test]
 fn test_ac_conductance() {
     let z = Complex64::new(10.0, 5.0);
-    let g = ac_analysis::conductance(z);
+    let g = ac_analysis::ac_conductance(z);
     assert!(g > 0.0);
 }
 

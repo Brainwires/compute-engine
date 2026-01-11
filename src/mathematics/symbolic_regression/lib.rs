@@ -62,6 +62,7 @@ pub struct SymbolicRegressionResult {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 struct RegressionError {
     message: String,
 }
@@ -74,9 +75,9 @@ impl fmt::Display for RegressionError {
 
 impl Error for RegressionError {}
 
-// Simple expression tree for symbolic regression
+/// Simple expression tree for symbolic regression
 #[derive(Clone, Debug)]
-enum Expression {
+pub enum Expression {
     Variable(String),
     Constant(f64),
     Add(Box<Expression>, Box<Expression>),
@@ -375,7 +376,7 @@ pub fn discover_equations(
     let mut best_candidates: Vec<EquationCandidate> = Vec::new();
 
     // Evolutionary loop
-    for generation in 0..generations {
+    for _generation in 0..generations {
         let mut fitness_scores = Vec::new();
 
         // Evaluate fitness for each individual

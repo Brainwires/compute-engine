@@ -95,7 +95,7 @@ pub fn future_evolution(
     de_model: &DarkEnergyModel,
 ) -> FutureEvolution {
     let dt = duration / n_steps as f64;
-    let h0 = params.hubble_constant_si();
+    let _h0 = params.hubble_constant_si();
 
     let mut times = vec![];
     let mut scale_factors = vec![1.0]; // Start at a=1 today

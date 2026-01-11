@@ -3,7 +3,6 @@
 //! Optimal state-feedback control minimizing cost:
 //! J = ∫(x'Qx + u'Ru)dt
 
-use nalgebra::{DMatrix, DVector};
 use serde::{Deserialize, Serialize};
 
 /// LQR result
@@ -19,8 +18,8 @@ pub struct LQRResult {
 pub fn lqr(
     a: &[Vec<f64>],
     b: &[Vec<f64>],
-    q: &[Vec<f64>],
-    r: &[Vec<f64>],
+    _q: &[Vec<f64>],
+    _r: &[Vec<f64>],
 ) -> Result<LQRResult, String> {
     // Placeholder: Would implement iterative Riccati equation solver
     // For now, return identity gain

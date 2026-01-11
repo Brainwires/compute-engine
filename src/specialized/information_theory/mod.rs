@@ -428,7 +428,8 @@ fn estimate_lz77_compression(data: &[u8]) -> usize {
 
     while i < data.len() {
         let mut best_len = 0;
-        let mut best_dist = 0;
+        // Note: best_dist would be used in actual encoding but only size estimation is needed here
+        let mut _best_dist = 0;
 
         // Look for matches in the window
         for dist in 1..i.min(256) {
@@ -438,7 +439,7 @@ fn estimate_lz77_compression(data: &[u8]) -> usize {
             }
             if len > best_len {
                 best_len = len;
-                best_dist = dist;
+                _best_dist = dist;
             }
         }
 

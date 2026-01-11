@@ -177,7 +177,7 @@ pub fn energy_dissipated(power: f64, time: f64) -> f64 {
 ///
 /// # Returns
 /// Conductance in siemens (S)
-pub fn conductance(resistance: f64) -> f64 {
+pub fn dc_conductance(resistance: f64) -> f64 {
     1.0 / resistance
 }
 

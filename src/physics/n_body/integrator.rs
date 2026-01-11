@@ -1,6 +1,6 @@
 //! Numerical Integration Methods for N-Body Simulation
 
-use super::{Body, IntegrationMethod, NBodyConfig, Vec3, G};
+use super::{Body, IntegrationMethod, NBodyConfig, Vec3};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

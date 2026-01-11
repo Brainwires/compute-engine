@@ -13,7 +13,6 @@
 //! - Iterated function systems
 
 use serde::{Deserialize, Serialize};
-use std::f64::consts::PI;
 
 pub mod fractals;
 pub mod attractors;

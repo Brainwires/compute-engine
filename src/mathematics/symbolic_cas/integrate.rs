@@ -100,8 +100,6 @@ fn integrate_internal(expr: &Expr, var: &str) -> Expr {
             // Can't integrate general functions
             Expr::func(format!("∫{} d{}", name, var), args.clone())
         }
-
-        _ => Expr::func(format!("∫({}) d{}", expr, var), vec![]),
     }
 }
 
@@ -114,7 +112,6 @@ fn is_constant(expr: &Expr, var: &str) -> bool {
         Expr::Mul(a, b) => is_constant(a, var) && is_constant(b, var),
         Expr::Pow(base, exp) => is_constant(base, var) && is_constant(exp, var),
         Expr::Function(_, args) => args.iter().all(|arg| is_constant(arg, var)),
-        _ => false,
     }
 }
 

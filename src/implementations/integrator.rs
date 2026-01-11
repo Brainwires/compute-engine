@@ -1133,7 +1133,7 @@ impl UnifiedIntegrator {
         let mut sum = 0.0;
 
         for _ in 0..num_samples {
-            let x: f64 = rng.gen_range(lower..upper);
+            let _x: f64 = rng.gen_range(lower..upper);
             // Simplified: assume f(x) = 1 (would need function evaluation)
             sum += 1.0;
         }

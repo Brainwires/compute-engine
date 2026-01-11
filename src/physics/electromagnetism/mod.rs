@@ -270,7 +270,7 @@ pub fn antenna_analysis(request: AntennaRequest) -> Result<AntennaResult, String
     let (gain, directivity, rad_resistance, efficiency, beam_width) =
         match request.antenna_type.as_str() {
             "dipole" => {
-                let length = request.length.unwrap_or(wavelength / 2.0);
+                let _length = request.length.unwrap_or(wavelength / 2.0);
                 let directivity = 1.64; // dBi for half-wave dipole
                 let rad_resistance = 73.0; // Ohms for half-wave dipole
                 let efficiency = 0.95;
@@ -352,7 +352,7 @@ pub fn waveguide(request: WaveguideRequest) -> Result<WaveguideResult, String> {
     match request.guide_type.as_str() {
         "rectangular" => {
             let a = request.width;
-            let b = request.height.unwrap_or(a / 2.0);
+            let _b = request.height.unwrap_or(a / 2.0);
 
             // For TE10 mode (dominant)
             let cutoff_freq = C / (2.0 * a);
@@ -419,7 +419,7 @@ pub fn waveguide(request: WaveguideRequest) -> Result<WaveguideResult, String> {
             let group_velocity = C;
 
             // Characteristic impedance Z₀ = (η/2π) ln(b/a)
-            let z0 = (Z_0 / (2.0 * PI)) * (outer_radius / inner_radius).ln();
+            let _z0 = (Z_0 / (2.0 * PI)) * (outer_radius / inner_radius).ln();
 
             // Attenuation includes conductor and dielectric losses
             let attenuation = 0.0005 * request.frequency / 1e9;

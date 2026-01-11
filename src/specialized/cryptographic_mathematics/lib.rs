@@ -3,16 +3,19 @@ use num_traits::{Num, One, Signed, Zero};
 use rand::prelude::*;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest as Sha2Digest, Sha256};
-use sha3::{Digest as Sha3Digest, Sha3_256};
+use sha3::Sha3_256;
 use std::collections::HashMap;
 
+// Legacy request/response structs for backwards compatibility
 #[derive(Debug, Serialize, Deserialize)]
+#[allow(dead_code)]
 struct CryptographicRequest {
     operation: String,
     parameters: HashMap<String, serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[allow(dead_code)]
 struct CryptographicResult {
     success: bool,
     result: Option<serde_json::Value>,
@@ -382,6 +385,8 @@ pub fn sha3_256(input: &str) -> String {
     hex::encode(result)
 }
 
+// Legacy request processor for backwards compatibility
+#[allow(dead_code)]
 fn process_request(input: &str) -> String {
     let request: CryptographicRequest = match serde_json::from_str(input) {
         Ok(req) => req,

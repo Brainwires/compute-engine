@@ -1,6 +1,6 @@
 //! LIGO Detector Response and Noise Curves
 
-use super::{Waveform, C, PI};
+use super::{Waveform, PI};
 use serde::{Deserialize, Serialize};
 
 /// LIGO detector configuration

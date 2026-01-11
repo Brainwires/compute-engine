@@ -123,7 +123,7 @@ where
 
     // Average over time
     for i in 0..3 {
-        exponents[i] /= (steps as f64 * dt);
+        exponents[i] /= steps as f64 * dt;
     }
 
     exponents

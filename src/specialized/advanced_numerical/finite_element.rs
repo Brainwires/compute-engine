@@ -2,6 +2,9 @@
 //!
 //! Basic finite element method for solving boundary value problems.
 
+// Allow non-snake case for mathematical convention (K = stiffness matrix, F = force vector)
+#![allow(non_snake_case)]
+
 use nalgebra::{DMatrix, DVector};
 use serde::{Deserialize, Serialize};
 use super::BoundaryCondition;

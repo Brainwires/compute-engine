@@ -1,8 +1,7 @@
 //! Plasma Waves and Instabilities
 
-use super::{PlasmaParams, E, M_E, EPSILON_0};
+use super::{PlasmaParams, E, M_E};
 use serde::{Deserialize, Serialize};
-use std::f64::consts::PI;
 
 /// Wave dispersion relation
 #[derive(Debug, Clone, Serialize, Deserialize)]

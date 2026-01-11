@@ -14,7 +14,7 @@
 //! - C: output matrix
 //! - D: feedthrough matrix
 
-use nalgebra::{DMatrix, DVector};
+use nalgebra::DMatrix;
 use serde::{Deserialize, Serialize};
 
 /// State-space system representation
@@ -240,7 +240,7 @@ pub fn siso_state_space(
     c: Vec<f64>,
     d: f64,
 ) -> Result<StateSpace, String> {
-    let n = a.len();
+    let _n = a.len();
 
     let b_matrix = b.into_iter().map(|val| vec![val]).collect();
     let c_matrix = vec![c];

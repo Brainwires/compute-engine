@@ -3,7 +3,6 @@
 //! Stress, strain, elasticity, plasticity, fracture mechanics,
 //! and material failure criteria.
 
-use super::Matrix3x3;
 
 /// Calculate engineering stress
 ///

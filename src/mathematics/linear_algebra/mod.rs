@@ -601,6 +601,7 @@ fn matrix_scale(a: &[Vec<f64>], scalar: f64) -> Vec<Vec<f64>> {
         .collect()
 }
 
+#[allow(dead_code)]
 fn factorial(n: usize) -> usize {
     (1..=n).product()
 }

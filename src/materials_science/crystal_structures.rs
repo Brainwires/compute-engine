@@ -3,7 +3,7 @@
 //! Calculations for crystal lattices, unit cells, Miller indices,
 //! interplanar spacing, and crystallographic analysis.
 
-use super::{BravaisLattice, CrystalSystem, Vector3D};
+use super::{BravaisLattice, Vector3D};
 use std::f64::consts::PI;
 
 /// Unit cell parameters
@@ -251,7 +251,7 @@ pub fn reciprocal_lattice_cubic(a: f64) -> f64 {
 /// F_{hkl} = Σ f_j exp[2πi(hx_j + ky_j + lz_j)]
 ///
 /// For simple structures, returns magnitude
-pub fn structure_factor_simple_cubic(h: i32, k: i32, l: i32) -> f64 {
+pub fn structure_factor_simple_cubic(_h: i32, _k: i32, _l: i32) -> f64 {
     // For simple cubic, all reflections allowed
     // |F|² = f² for all hkl
     1.0

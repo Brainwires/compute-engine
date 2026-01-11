@@ -4,13 +4,16 @@ use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+// Legacy request/response structs for backwards compatibility
 #[derive(Debug, Serialize, Deserialize)]
+#[allow(dead_code)]
 struct StochasticRequest {
     operation: String,
     parameters: HashMap<String, serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[allow(dead_code)]
 struct StochasticResult {
     success: bool,
     result: Option<serde_json::Value>,
@@ -192,6 +195,8 @@ pub fn simulate_poisson_process(rate: f64, time_horizon: f64) -> Result<Vec<f64>
     Ok(events)
 }
 
+// Legacy request processor for backwards compatibility
+#[allow(dead_code)]
 fn process_request(input: &str) -> String {
     let request: StochasticRequest = match serde_json::from_str(input) {
         Ok(req) => req,

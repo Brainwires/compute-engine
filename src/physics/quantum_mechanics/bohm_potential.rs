@@ -14,7 +14,7 @@
 //! which avoids division by √ρ when ρ → 0.
 
 use super::H_BAR;
-use ndarray::{Array1, Array2, Array3};
+use ndarray::{Array2, Array3};
 use serde::{Deserialize, Serialize};
 
 /// Configuration for Bohm potential calculations

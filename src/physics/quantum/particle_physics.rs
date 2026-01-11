@@ -345,7 +345,7 @@ fn simulate_electromagnetic_interaction(
 /// Simulate strong interactions (QCD)
 fn simulate_strong_interaction(
     mut particles: Vec<Particle>,
-    steps: u64,
+    _steps: u64,
 ) -> Result<InteractionResult> {
     eprintln!("💪 Simulating strong interaction (QCD)...");
 

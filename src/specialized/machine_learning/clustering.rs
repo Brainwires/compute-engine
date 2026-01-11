@@ -185,7 +185,7 @@ fn kmeans_plus_plus_init(data: &[Vec<f64>], k: usize) -> Vec<Vec<f64>> {
     centroids.push(data[first_idx].clone());
 
     // Choose remaining centroids
-    for target_count in 2..=k {
+    for _target_count in 2..=k {
         // Compute distance to nearest centroid for each point
         let mut distances = Vec::new();
         let mut total_distance = 0.0;

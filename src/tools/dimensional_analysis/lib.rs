@@ -42,15 +42,23 @@ pub struct DimensionInfo {
     pub power: i32,
 }
 
+/// Physical dimension representation using SI base units
 #[derive(Serialize, Debug, Clone, PartialEq)]
-struct PhysicalDimension {
-    mass: i32,        // M
-    length: i32,      // L
-    time: i32,        // T
-    current: i32,     // I
-    temperature: i32, // Θ (theta)
-    amount: i32,      // N
-    luminosity: i32,  // J
+pub struct PhysicalDimension {
+    /// Mass dimension (M)
+    pub mass: i32,
+    /// Length dimension (L)
+    pub length: i32,
+    /// Time dimension (T)
+    pub time: i32,
+    /// Electric current dimension (I)
+    pub current: i32,
+    /// Temperature dimension (Θ)
+    pub temperature: i32,
+    /// Amount of substance dimension (N)
+    pub amount: i32,
+    /// Luminous intensity dimension (J)
+    pub luminosity: i32,
 }
 
 impl PhysicalDimension {
@@ -67,7 +75,7 @@ impl PhysicalDimension {
     }
 
     fn from_unit(unit: &str) -> Result<Self, Box<dyn Error>> {
-        let dim = PhysicalDimension::new();
+        let _dim = PhysicalDimension::new();
 
         // Parse compound units like "kg*m/s^2" or "m/s^2"
         let normalized = unit
@@ -193,7 +201,6 @@ impl PhysicalDimension {
             "min" | "h" | "hr" | "day" | "year" => dim.time = 1,
 
             // Mass units
-            "g" => dim.mass = 1,
             "ton" | "tonne" => dim.mass = 1,
 
             // Energy units

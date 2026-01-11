@@ -363,8 +363,8 @@ fn calculate_control(params: &EngineeringParams) -> Result<EngineeringResult, St
 
     // Basic PID output calculation (simplified, single time step)
     let kp = params.kp.unwrap_or(1.0);
-    let ki = params.ki.unwrap_or(0.0);
-    let kd = params.kd.unwrap_or(0.0);
+    let _ki = params.ki.unwrap_or(0.0);
+    let _kd = params.kd.unwrap_or(0.0);
 
     let p_term = kp * error;
 
@@ -376,7 +376,7 @@ fn calculate_control(params: &EngineeringParams) -> Result<EngineeringResult, St
     if let Some(tau) = params.time_constant {
         let kp_suggested = 0.9 * tau;
         let ti_suggested = 3.33 * tau;
-        let td_suggested = 0.0; // Conservative
+        let _td_suggested = 0.0; // Conservative
 
         additional.insert("zn_kp_suggested".to_string(), kp_suggested);
         additional.insert("zn_ti_suggested".to_string(), ti_suggested);

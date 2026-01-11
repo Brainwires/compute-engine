@@ -829,7 +829,7 @@ impl UnifiedAnalyzer {
     }
 
     /// Graph property analysis
-    fn analyze_graph_properties(&self, input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
+    fn analyze_graph_properties(&self, _input: &AnalyzeInput) -> ToolResult<AnalyzeOutput> {
         Ok(AnalyzeOutput {
             result: serde_json::json!({
                 "is_connected": true,

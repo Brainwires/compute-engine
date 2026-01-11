@@ -89,7 +89,7 @@ impl UnifiedSolver {
 
             EinsteinEquation::WithSource => {
                 // Construct Einstein equations with source
-                let stress_energy = input
+                let _stress_energy = input
                     .parameters
                     .get("stress_energy")
                     .ok_or("stress_energy parameter required for WithSource")?;
@@ -253,7 +253,7 @@ impl UnifiedSolver {
                     .get("reynolds")
                     .and_then(|v| v.as_f64())
                     .ok_or("reynolds parameter required")?;
-                let viscosity = input
+                let _viscosity = input
                     .parameters
                     .get("viscosity")
                     .and_then(|v| v.as_f64())
@@ -679,7 +679,7 @@ impl UnifiedSolver {
     fn solve_diff_geometry(
         &self,
         prob: &DiffGeoProblem,
-        input: &SolveInput,
+        _input: &SolveInput,
     ) -> ToolResult<SolveOutput> {
         match prob {
             DiffGeoProblem::Geodesic => {
@@ -751,10 +751,7 @@ impl Solve for UnifiedSolver {
         match &input.equation_type {
             EquationType::Einstein(eq) => self.solve_einstein(eq, input),
             EquationType::Fluid(eq) => self.solve_fluid(eq, input),
-            EquationType::LinearSystem => {
-                // Route to linear_algebra module
-                Err("Linear system solving not yet mapped".to_string())
-            }
+            EquationType::LinearSystem => self.solve_linear_system(input),
             EquationType::RootFinding => {
                 use crate::tools::numerical_methods;
 
@@ -800,7 +797,6 @@ impl Solve for UnifiedSolver {
             EquationType::Differential(diff_eq) => self.solve_differential(diff_eq, input),
             EquationType::Electromagnetic(em_eq) => self.solve_electromagnetic(em_eq, input),
             EquationType::Chemical(chem_eq) => self.solve_chemical(chem_eq, input),
-            EquationType::LinearSystem => self.solve_linear_system(input),
             EquationType::NumberTheory(nt_prob) => self.solve_number_theory(nt_prob, input),
             EquationType::DifferentialGeometry(dg_prob) => self.solve_diff_geometry(dg_prob, input),
             EquationType::Optimize(opt_method) => self.solve_optimization(opt_method, input),

@@ -15,6 +15,7 @@ const AMU: f64 = 1.66053906660e-27; // Atomic mass unit (kg)
 const MEV_PER_AMU: f64 = 931.494; // MeV per amu
 const PROTON_MASS: f64 = 1.007276466812; // amu
 const NEUTRON_MASS: f64 = 1.00866491588; // amu
+#[allow(dead_code)]
 const ELECTRON_MASS: f64 = 0.00054857990946; // amu
 
 // ============================================================================

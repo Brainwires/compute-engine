@@ -2,10 +2,11 @@
 
 use num_complex::Complex64;
 use serde::{Deserialize, Serialize};
+#[allow(unused_imports)]
 use std::f64::consts::PI;
 
-/// Fine structure constant
-pub const ALPHA_EM: f64 = 1.0 / 137.036;
+// Use the shared constant from parent module
+use super::ALPHA_EM;
 
 /// QED vertex factor
 pub fn qed_vertex_factor() -> Complex64 {

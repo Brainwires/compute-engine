@@ -7,7 +7,6 @@
 //! - Chebyshev polynomials T_n(x) (first kind)
 
 use serde::{Deserialize, Serialize};
-use std::f64::consts::PI;
 
 /// Request structure for orthogonal polynomial computations
 #[derive(Debug, Deserialize)]

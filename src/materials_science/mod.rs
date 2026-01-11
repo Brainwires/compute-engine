@@ -23,7 +23,6 @@ pub use thermal_properties::*;
 pub use diffusion::*;
 pub use xrd_analysis::*;
 
-use std::f64::consts::PI;
 
 /// Common physical constants for materials science
 pub mod constants {

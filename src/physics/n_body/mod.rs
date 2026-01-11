@@ -167,7 +167,7 @@ impl NBodyConfig {
 
         let r = bj.position - bi.position;
         let dist_sq = r.mag_sq() + self.softening * self.softening;
-        let dist = dist_sq.sqrt();
+        let _dist = dist_sq.sqrt();
 
         // F = G * m1 * m2 / r² * r̂
         let f_mag = G * bi.mass * bj.mass / dist_sq;

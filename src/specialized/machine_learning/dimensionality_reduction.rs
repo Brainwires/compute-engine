@@ -5,7 +5,7 @@
 //! - Explained variance ratio
 //! - Data projection and reconstruction
 
-use nalgebra::{DMatrix, DVector};
+use nalgebra::DMatrix;
 
 /// Result of PCA computation
 #[derive(Debug, Clone)]
@@ -157,7 +157,7 @@ pub fn transform(data: &[Vec<f64>], pca_result: &PCAResult) -> Result<Vec<Vec<f6
     }
 
     let n_features = pca_result.mean.len();
-    let n_components = pca_result.components.len();
+    let _n_components = pca_result.components.len();
 
     let mut transformed = Vec::new();
 

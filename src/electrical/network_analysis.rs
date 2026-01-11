@@ -203,7 +203,7 @@ pub fn voltage_gain(z_params: &ZParameters, z_source: Complex64, z_load: Complex
 /// Calculate current gain of two-port network
 ///
 /// A_i = I2 / I1
-pub fn current_gain(z_params: &ZParameters, z_source: Complex64, z_load: Complex64) -> Complex64 {
+pub fn current_gain(z_params: &ZParameters, _z_source: Complex64, z_load: Complex64) -> Complex64 {
     let numerator = -z_params.z21;
     let denominator = z_params.z22 + z_load;
     numerator / denominator

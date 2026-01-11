@@ -196,7 +196,7 @@ impl UnifiedSimulator {
 
         let range = input.range.ok_or("range [start, end] required")?;
         let steps = input.steps.unwrap_or(1000);
-        let num_paths = input.num_paths.unwrap_or(1);
+        let _num_paths = input.num_paths.unwrap_or(1);
 
         match process {
             StochasticProcess::BrownianMotion => {

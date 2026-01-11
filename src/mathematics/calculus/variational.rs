@@ -43,7 +43,7 @@ pub fn compute_action_functional(lagrangian_values: &[f64], dx: f64) -> f64 {
 }
 
 // Evaluate simple Lagrangians at given points
-fn evaluate_lagrangian(lagrangian: &str, x: f64, y: f64, y_prime: f64) -> f64 {
+fn evaluate_lagrangian(lagrangian: &str, _x: f64, y: f64, y_prime: f64) -> f64 {
     match lagrangian {
         "0.5*y'^2" | "0.5 * y'^2" => 0.5 * y_prime * y_prime,
         "0.5*y'^2 - 0.5*k*y^2" | "0.5 * y'^2 - 0.5 * k * y^2" => {
@@ -60,7 +60,7 @@ fn evaluate_lagrangian(lagrangian: &str, x: f64, y: f64, y_prime: f64) -> f64 {
 
 // Solve simple boundary value problems using finite differences
 pub fn solve_euler_lagrange_bvp(
-    lagrangian: &str,
+    _lagrangian: &str,
     x_range: (f64, f64),
     boundary_conditions: (f64, f64),
     num_points: usize,

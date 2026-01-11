@@ -148,6 +148,7 @@ impl Date {
         }
     }
 
+    #[allow(dead_code)]
     fn days_in_month(&self) -> u32 {
         Self::days_in_month_static(self.year, self.month)
     }

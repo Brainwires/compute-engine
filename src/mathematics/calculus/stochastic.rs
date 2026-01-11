@@ -13,7 +13,7 @@ pub struct StochasticCalculusResult {
 }
 
 // Itô integral approximation using Euler-Maruyama scheme
-pub fn ito_integral(integrand_values: &[f64], brownian_increments: &[f64], dt: f64) -> f64 {
+pub fn ito_integral(integrand_values: &[f64], brownian_increments: &[f64], _dt: f64) -> f64 {
     if integrand_values.len() != brownian_increments.len() {
         return 0.0;
     }
@@ -30,7 +30,7 @@ pub fn ito_integral(integrand_values: &[f64], brownian_increments: &[f64], dt: f
 pub fn stratonovich_integral(
     integrand_values: &[f64],
     brownian_increments: &[f64],
-    dt: f64,
+    _dt: f64,
 ) -> f64 {
     if integrand_values.len() != brownian_increments.len() || integrand_values.len() < 2 {
         return 0.0;
@@ -207,27 +207,28 @@ pub fn ornstein_uhlenbeck_process(
 }
 
 // Predefined drift and diffusion functions for common SDEs
-fn linear_drift(t: f64, x: f64) -> f64 {
+fn linear_drift(_t: f64, x: f64) -> f64 {
     -0.1 * x // Mean-reverting with rate 0.1
 }
 
-fn constant_diffusion(t: f64, x: f64) -> f64 {
+fn constant_diffusion(_t: f64, _x: f64) -> f64 {
     0.2 // Constant volatility
 }
 
-fn linear_diffusion_derivative(t: f64, x: f64) -> f64 {
+#[allow(dead_code)]
+fn linear_diffusion_derivative(_t: f64, _x: f64) -> f64 {
     0.0 // Derivative of constant is zero
 }
 
-fn geometric_drift(t: f64, x: f64) -> f64 {
+fn geometric_drift(_t: f64, x: f64) -> f64 {
     0.05 * x // Geometric Brownian motion drift
 }
 
-fn geometric_diffusion(t: f64, x: f64) -> f64 {
+fn geometric_diffusion(_t: f64, x: f64) -> f64 {
     0.2 * x // Geometric Brownian motion volatility
 }
 
-fn geometric_diffusion_derivative(t: f64, x: f64) -> f64 {
+fn geometric_diffusion_derivative(_t: f64, _x: f64) -> f64 {
     0.2 // Derivative of 0.2*x with respect to x
 }
 

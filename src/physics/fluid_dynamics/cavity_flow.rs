@@ -212,7 +212,7 @@ impl CavityFlowSolver {
     ) -> Result<(), Box<dyn Error>> {
         let n = self.grid_resolution;
         let dx2 = self.dx * self.dx;
-        let dy2 = self.dy * self.dy;
+        let _dy2 = self.dy * self.dy;
 
         // Calculate divergence of velocity field
         let mut div = Array2::<f64>::zeros((n, n));
@@ -229,7 +229,7 @@ impl CavityFlowSolver {
         let max_iterations = 1000;
         let tolerance = 1e-6;
 
-        for iter in 0..max_iterations {
+        for _iter in 0..max_iterations {
             let mut max_residual = 0.0_f64;
 
             for i in 1..n - 1 {

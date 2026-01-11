@@ -196,7 +196,7 @@ fn extract_coefficient_exp(expr: &str, variable: &str) -> Option<f64> {
     let inner = &expr[4..expr.len() - 1]; // Remove "exp(" and ")"
 
     // Handle "a*x" or "x*a"
-    if let Some(star_pos) = inner.find('*') {
+    if let Some(_star_pos) = inner.find('*') {
         let parts: Vec<&str> = inner.split('*').collect();
         if parts.len() == 2 {
             if parts[0] == variable {
