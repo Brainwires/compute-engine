@@ -1,4 +1,14 @@
-//! Type definitions for the 10-tool architecture
+//! Type definitions for the 8-tool architecture
+//!
+//! 8 Tools:
+//! 1. Solve - Equations, systems, optimization
+//! 2. Compute - Calculus, transforms, fields, matrices, sampling
+//! 3. Analyze - Simplify, series, limits, stability
+//! 4. Simulate - ODEs, stochastic, fluid dynamics
+//! 5. ML - Clustering, neural nets, regression
+//! 6. Chaos - Fractals, attractors, Lyapunov
+//! 7. Units - Dimensional analysis, conversion
+//! 8. Validate - Equation and physics validation
 
 use super::equations::*;
 #[cfg(feature = "schemars")]
@@ -92,28 +102,17 @@ pub struct SolveOutput {
 }
 
 // ============================================================================
-// TOOL 2: DIFFERENTIATE
+// TOOL 2: COMPUTE
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "schemars", derive(JsonSchema))]
-pub struct DifferentiateInput {
-    /// Type of differentiation
-    pub operation: DifferentiationOp,
+pub struct ComputeInput {
+    /// Operation to perform
+    pub operation: ComputeOp,
 
-    /// Expression to differentiate
-    pub expression: String,
-
-    /// Variables to differentiate with respect to
-    pub variables: Vec<String>,
-
-    /// Order of derivative (per variable)
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub order: Option<Vec<usize>>,
-
-    /// Point at which to evaluate
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub evaluate_at: Option<HashMap<String, f64>>,
+    /// Input data (matrices, tensors, values, etc.)
+    pub data: Value,
 
     /// Additional parameters
     #[serde(default)]
@@ -122,77 +121,21 @@ pub struct DifferentiateInput {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(feature = "schemars", derive(JsonSchema))]
-pub struct DifferentiateOutput {
-    /// Derivatives (symbolic or evaluated)
-    pub derivatives: HashMap<String, Value>,
-
-    /// LaTeX representations
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub latex: Option<HashMap<String, String>>,
-
-    /// Additional results (Jacobian, Hessian, etc.)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Value>,
-}
-
-// ============================================================================
-// TOOL 3: INTEGRATE
-// ============================================================================
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(feature = "schemars", derive(JsonSchema))]
-pub struct IntegrateInput {
-    /// Type of integration
-    pub integration_type: IntegrationType,
-
-    /// Expression to integrate
-    pub expression: String,
-
-    /// Integration variables (order matters)
-    pub variables: Vec<String>,
-
-    /// Integration limits
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub limits: Option<Vec<[f64; 2]>>,
-
-    /// Path (for line integrals)
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub path: Option<Value>,
-
-    /// Method preference
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub method: Option<Method>,
-
-    /// Additional parameters
-    #[serde(default)]
-    pub parameters: HashMap<String, Value>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(feature = "schemars", derive(JsonSchema))]
-pub struct IntegrateOutput {
-    /// Result (symbolic expression or numeric value)
+pub struct ComputeOutput {
+    /// Computed result
     pub result: Value,
 
-    /// Symbolic form
+    /// Additional outputs (e.g., eigenvalues AND eigenvectors)
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub symbolic: Option<String>,
+    pub additional: Option<HashMap<String, Value>>,
 
-    /// LaTeX representation
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub latex: Option<String>,
-
-    /// Error estimate (for numeric integration)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub error_estimate: Option<f64>,
-
-    /// Additional metadata
+    /// Metadata (convergence info, condition number, etc.)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<Value>,
 }
 
 // ============================================================================
-// TOOL 4: ANALYZE
+// TOOL 3: ANALYZE
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -237,7 +180,7 @@ pub struct ValidationResult {
 }
 
 // ============================================================================
-// TOOL 5: SIMULATE
+// TOOL 4: SIMULATE
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -301,243 +244,7 @@ pub struct SimulateOutput {
 }
 
 // ============================================================================
-// TOOL 6: COMPUTE
-// ============================================================================
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(feature = "schemars", derive(JsonSchema))]
-pub struct ComputeInput {
-    /// Operation to perform
-    pub operation: ComputeOp,
-
-    /// Input data (matrices, tensors, values, etc.)
-    pub data: Value,
-
-    /// Additional parameters
-    #[serde(default)]
-    pub parameters: HashMap<String, Value>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(feature = "schemars", derive(JsonSchema))]
-pub struct ComputeOutput {
-    /// Computed result
-    pub result: Value,
-
-    /// Additional outputs (e.g., eigenvalues AND eigenvectors)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub additional: Option<HashMap<String, Value>>,
-
-    /// Metadata (convergence info, condition number, etc.)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Value>,
-}
-
-// ============================================================================
-// TOOL 7: TRANSFORM
-// ============================================================================
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(feature = "schemars", derive(JsonSchema))]
-pub struct TransformInput {
-    /// Type of transform
-    pub transform_type: TransformType,
-
-    /// Input signal/function
-    pub data: Vec<f64>,
-
-    /// Sampling rate (if applicable)
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub sampling_rate: Option<f64>,
-
-    /// Additional parameters
-    #[serde(default)]
-    pub parameters: HashMap<String, Value>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(feature = "schemars", derive(JsonSchema))]
-pub struct TransformOutput {
-    /// Transformed data
-    pub result: Vec<f64>,
-
-    /// Frequencies (for FFT, etc.)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub frequencies: Option<Vec<f64>>,
-
-    /// Magnitude spectrum
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub magnitude: Option<Vec<f64>>,
-
-    /// Phase spectrum
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub phase: Option<Vec<f64>>,
-
-    /// Additional metadata
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Value>,
-}
-
-// ============================================================================
-// TOOL 8: FIELDTHEORY
-// ============================================================================
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(feature = "schemars", derive(JsonSchema))]
-pub struct FieldTheoryInput {
-    /// Type of field
-    pub field_type: FieldType,
-
-    /// Field configuration
-    pub configuration: HashMap<String, Value>,
-
-    /// Spatial points to evaluate
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub points: Option<Vec<Vec<f64>>>,
-
-    /// Additional parameters
-    #[serde(default)]
-    pub parameters: HashMap<String, Value>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(feature = "schemars", derive(JsonSchema))]
-pub struct FieldTheoryOutput {
-    /// Field values at requested points
-    pub field_values: Vec<Value>,
-
-    /// Vector/tensor field components
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub components: Option<HashMap<String, Vec<f64>>>,
-
-    /// Additional metadata
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Value>,
-}
-
-// ============================================================================
-// TOOL 9: SAMPLE
-// ============================================================================
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(feature = "schemars", derive(JsonSchema))]
-pub struct SampleInput {
-    /// Sampling method
-    pub method: SamplingMethod,
-
-    /// Input data (for statistical analysis)
-    #[serde(default)]
-    pub data: Vec<f64>,
-
-    /// Number of samples to generate
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub num_samples: Option<usize>,
-
-    /// Additional parameters
-    #[serde(default)]
-    pub parameters: HashMap<String, Value>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(feature = "schemars", derive(JsonSchema))]
-pub struct SampleOutput {
-    /// Generated samples or computed statistics
-    pub result: Value,
-
-    /// Statistical moments
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub moments: Option<HashMap<String, f64>>,
-
-    /// Confidence intervals
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub confidence_intervals: Option<HashMap<String, [f64; 2]>>,
-
-    /// Additional metadata
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Value>,
-}
-
-// ============================================================================
-// TOOL 10: OPTIMIZE
-// ============================================================================
-
-/// Default optimization method - Auto selection with AICc criteria
-fn default_optimization_method() -> OptimizationMethod {
-    OptimizationMethod::Auto {
-        criteria: SelectionCriteria::Aicc,
-        candidates: vec![],
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(feature = "schemars", derive(JsonSchema))]
-pub struct OptimizeInput {
-    /// Optimization method (defaults to Auto if not specified)
-    #[serde(default = "default_optimization_method")]
-    pub method: OptimizationMethod,
-
-    /// Data to fit (x, y pairs)
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub data: Option<(Vec<f64>, Vec<f64>)>,
-
-    /// Objective function (as string)
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub objective: Option<String>,
-
-    /// Initial guess
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub initial_guess: Option<Vec<f64>>,
-
-    /// Constraints
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub constraints: Option<Vec<String>>,
-
-    /// Additional parameters
-    #[serde(default)]
-    pub parameters: HashMap<String, Value>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(feature = "schemars", derive(JsonSchema))]
-pub struct OptimizeOutput {
-    /// Optimized parameters
-    pub parameters: Vec<f64>,
-
-    /// Fitted function (as string)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub function: Option<String>,
-
-    /// Error/residuals
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub error: Option<f64>,
-
-    /// R-squared (for fitting)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub r_squared: Option<f64>,
-
-    /// Akaike Information Criterion
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub aic: Option<f64>,
-
-    /// Bayesian Information Criterion
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub bic: Option<f64>,
-
-    /// Corrected AIC (for small samples)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub aicc: Option<f64>,
-
-    /// Convergence info
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub convergence: Option<Value>,
-
-    /// Additional metadata
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<Value>,
-}
-
-// ============================================================================
-// TOOL 11: ML (Machine Learning)
+// TOOL 5: ML (Machine Learning)
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -574,7 +281,7 @@ pub struct MLOutput {
 }
 
 // ============================================================================
-// TOOL 12: CHAOS (Fractals, Attractors, Lyapunov)
+// TOOL 6: CHAOS (Fractals, Attractors, Lyapunov)
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -616,7 +323,7 @@ pub struct ChaosOutput {
 }
 
 // ============================================================================
-// TOOL 13: UNITS (Dimensional Analysis, Conversion)
+// TOOL 7: UNITS (Dimensional Analysis, Conversion)
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -678,7 +385,7 @@ pub struct UnitsOutput {
 }
 
 // ============================================================================
-// TOOL 14: VALIDATE (Equation/Physics Validation)
+// TOOL 8: VALIDATE (Equation/Physics Validation)
 // ============================================================================
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

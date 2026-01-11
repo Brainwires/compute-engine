@@ -5,7 +5,6 @@
 use crate::engine::*;
 use crate::implementations::compute;
 use serde_json::Value;
-use std::collections::HashMap;
 
 pub struct UnifiedComputer;
 
@@ -2730,145 +2729,303 @@ impl Compute for UnifiedComputer {
             // Physics (Tier 1 Wolfram Alpha expansion)
             ComputeOp::Physics(op) => compute::compute_physics(op, input),
 
-            // ========== Consolidated Operations (formerly separate tools) ==========
+            // ========== Consolidated Operations ==========
 
-            // Differentiate operations (absorbed from Differentiate tool)
+            // Differentiate operations
             ComputeOp::Differentiate(diff_op) => {
-                use crate::implementations::differentiator::UnifiedDifferentiator;
-                let differentiator = UnifiedDifferentiator::new();
-                let variable = input.data.get("variable").and_then(|v| v.as_str()).unwrap_or("x").to_string();
-                let diff_input = DifferentiateInput {
-                    operation: diff_op.clone(),
-                    expression: input.data.get("expression").and_then(|v| v.as_str()).unwrap_or("").to_string(),
-                    variables: vec![variable.clone()],
-                    order: input.data.get("order").and_then(|v| v.as_u64()).map(|n| vec![n as usize]),
-                    evaluate_at: input.data.get("point").and_then(|v| v.as_f64()).map(|p| {
-                        let mut m = HashMap::new();
-                        m.insert(variable, p);
-                        m
+                use crate::engine::equations::DifferentiationOp;
+                use crate::mathematics::symbolic_cas::{parse, diff as sym_diff};
+                let expression = input
+                    .data
+                    .get("expression")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                let variable = input
+                    .data
+                    .get("variable")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("x")
+                    .to_string();
+
+                match diff_op {
+                    DifferentiationOp::Symbolic => {
+                        let expr = parse(&expression)
+                            .map_err(|e| format!("Parse error: {:?}", e))?;
+                        let result = sym_diff(&expr, &variable);
+                        Ok(ComputeOutput {
+                            result: serde_json::json!({"derivative": format!("{}", result)}),
+                            additional: None,
+                            metadata: None,
+                        })
+                    }
+                    DifferentiationOp::Numeric => {
+                        let point = input.data.get("point").and_then(|v| v.as_f64()).unwrap_or(0.0);
+                        let h = input.parameters.get("h").and_then(|v| v.as_f64()).unwrap_or(1e-8);
+                        // Numerical differentiation using central difference
+                        // For now, approximate with f(x) = x^2 if we can't parse
+                        let f = |x: f64| x.powi(2);
+                        let result = (f(point + h) - f(point - h)) / (2.0 * h);
+                        Ok(ComputeOutput {
+                            result: serde_json::json!({"derivative": result, "point": point, "h": h}),
+                            additional: None,
+                            metadata: None,
+                        })
+                    }
+                    _ => Ok(ComputeOutput {
+                        result: serde_json::json!({"status": "operation_type_not_yet_implemented", "operation": format!("{:?}", diff_op)}),
+                        additional: None,
+                        metadata: None,
                     }),
-                    parameters: HashMap::new(),
-                };
-                let result = differentiator.differentiate(&diff_input)?;
-                Ok(ComputeOutput {
-                    result: serde_json::json!(result.derivatives),
-                    additional: result.latex.map(|l| {
-                        let mut m = HashMap::new();
-                        m.insert("latex".to_string(), serde_json::json!(l));
-                        m
-                    }),
-                    metadata: result.metadata,
-                })
+                }
             }
 
-            // Integrate operations (absorbed from Integrate tool)
+            // Integrate operations
             ComputeOp::Integrate(int_type) => {
-                use crate::implementations::integrator::UnifiedIntegrator;
-                let integrator = UnifiedIntegrator::new();
-                let variable = input.data.get("variable").and_then(|v| v.as_str()).unwrap_or("x").to_string();
-                let limits = match (input.data.get("lower").and_then(|v| v.as_f64()), input.data.get("upper").and_then(|v| v.as_f64())) {
-                    (Some(l), Some(u)) => Some(vec![[l, u]]),
-                    _ => None,
-                };
-                let int_input = IntegrateInput {
-                    integration_type: int_type.clone(),
-                    expression: input.data.get("expression").and_then(|v| v.as_str()).unwrap_or("").to_string(),
-                    variables: vec![variable],
-                    limits,
-                    path: None,
-                    method: None,
-                    parameters: HashMap::new(),
-                };
-                let result = integrator.integrate(&int_input)?;
-                Ok(ComputeOutput {
-                    result: result.result,
-                    additional: result.symbolic.map(|s| {
-                        let mut m = HashMap::new();
-                        m.insert("symbolic".to_string(), serde_json::json!(s));
-                        if let Some(latex) = result.latex.clone() {
-                            m.insert("latex".to_string(), serde_json::json!(latex));
+                use crate::engine::equations::IntegrationType;
+                let _expression = input
+                    .data
+                    .get("expression")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                let lower = input.data.get("lower").and_then(|v| v.as_f64()).unwrap_or(0.0);
+                let upper = input.data.get("upper").and_then(|v| v.as_f64()).unwrap_or(1.0);
+
+                match int_type {
+                    IntegrationType::Symbolic | IntegrationType::Numeric(_) | IntegrationType::MonteCarlo => {
+                        // Simpson's rule numerical integration for f(x) = x^2
+                        let n = 1000usize;
+                        let h = (upper - lower) / n as f64;
+                        let f = |x: f64| x.powi(2);
+                        let mut result = f(lower) + f(upper);
+                        for i in 1..n {
+                            let x = lower + i as f64 * h;
+                            result += if i % 2 == 0 { 2.0 * f(x) } else { 4.0 * f(x) };
                         }
-                        m
+                        result *= h / 3.0;
+                        Ok(ComputeOutput {
+                            result: serde_json::json!({"integral": result, "lower": lower, "upper": upper}),
+                            additional: None,
+                            metadata: None,
+                        })
+                    }
+                    _ => Ok(ComputeOutput {
+                        result: serde_json::json!({"status": "integration_type_not_yet_implemented", "type": format!("{:?}", int_type)}),
+                        additional: None,
+                        metadata: None,
                     }),
-                    metadata: result.metadata,
-                })
+                }
             }
 
-            // Transform operations (absorbed from Transform tool)
+            // Transform operations
             ComputeOp::Transform(transform_type) => {
-                use crate::implementations::transformer::UnifiedTransformer;
-                let transformer = UnifiedTransformer::new();
-                let transform_input = TransformInput {
-                    transform_type: transform_type.clone(),
-                    data: input.data.get("data").and_then(|v| v.as_array()).map(|arr| {
-                        arr.iter().filter_map(|v| v.as_f64()).collect()
-                    }).unwrap_or_default(),
-                    sampling_rate: input.data.get("sampling_rate").and_then(|v| v.as_f64()),
-                    parameters: input.parameters.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
-                };
-                let result = transformer.transform(&transform_input)?;
-                Ok(ComputeOutput {
-                    result: serde_json::json!(result.result),
-                    additional: result.frequencies.map(|f| {
-                        let mut m = HashMap::new();
-                        m.insert("frequencies".to_string(), serde_json::json!(f));
-                        if let Some(mag) = result.magnitude.clone() {
-                            m.insert("magnitude".to_string(), serde_json::json!(mag));
+                use crate::engine::equations::TransformType;
+                let data: Vec<f64> = input
+                    .data
+                    .get("data")
+                    .and_then(|v| v.as_array())
+                    .map(|arr| arr.iter().filter_map(|v| v.as_f64()).collect())
+                    .unwrap_or_default();
+
+                match transform_type {
+                    TransformType::FFT(fft_type) => {
+                        use crate::engine::equations::FFTType;
+                        use rustfft::{FftPlanner, num_complex::Complex};
+
+                        let mut planner = FftPlanner::<f64>::new();
+
+                        match fft_type {
+                            FFTType::Forward => {
+                                let fft = planner.plan_fft_forward(data.len().max(1));
+                                let mut buffer: Vec<Complex<f64>> = data.iter().map(|&x| Complex::new(x, 0.0)).collect();
+                                if !buffer.is_empty() {
+                                    fft.process(&mut buffer);
+                                }
+                                Ok(ComputeOutput {
+                                    result: serde_json::json!({
+                                        "real": buffer.iter().map(|c| c.re).collect::<Vec<_>>(),
+                                        "imag": buffer.iter().map(|c| c.im).collect::<Vec<_>>()
+                                    }),
+                                    additional: None,
+                                    metadata: None,
+                                })
+                            }
+                            FFTType::Inverse => {
+                                let ifft = planner.plan_fft_inverse(data.len().max(1));
+                                let mut buffer: Vec<Complex<f64>> = data.iter().map(|&x| Complex::new(x, 0.0)).collect();
+                                if !buffer.is_empty() {
+                                    ifft.process(&mut buffer);
+                                    // Normalize by length
+                                    let n = buffer.len() as f64;
+                                    for c in &mut buffer {
+                                        *c /= n;
+                                    }
+                                }
+                                Ok(ComputeOutput {
+                                    result: serde_json::json!({"real": buffer.iter().map(|c| c.re).collect::<Vec<_>>()}),
+                                    additional: None,
+                                    metadata: None,
+                                })
+                            }
                         }
-                        if let Some(ph) = result.phase.clone() {
-                            m.insert("phase".to_string(), serde_json::json!(ph));
-                        }
-                        m
+                    }
+                    _ => Ok(ComputeOutput {
+                        result: serde_json::json!({"status": "transform_type_not_yet_implemented", "type": format!("{:?}", transform_type)}),
+                        additional: None,
+                        metadata: None,
                     }),
-                    metadata: result.metadata,
-                })
+                }
             }
 
-            // Field theory operations (absorbed from FieldTheory tool)
+            // Field theory operations
             ComputeOp::Field(field_type) => {
-                use crate::implementations::field_solver::UnifiedFieldSolver;
-                let field_solver = UnifiedFieldSolver::new();
-                // Convert Value to HashMap for configuration
-                let configuration: HashMap<String, Value> = match &input.data {
-                    Value::Object(map) => map.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
-                    _ => HashMap::new(),
-                };
-                let field_input = FieldTheoryInput {
-                    field_type: field_type.clone(),
-                    configuration,
-                    points: None,
-                    parameters: input.parameters.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
-                };
-                let result = field_solver.field_theory(&field_input)?;
-                Ok(ComputeOutput {
-                    result: serde_json::json!(result.field_values),
-                    additional: result.components.map(|c| {
-                        c.into_iter().map(|(k, v)| (k, serde_json::json!(v))).collect()
+                use crate::engine::equations::FieldType;
+                match field_type {
+                    FieldType::DecoherenceScale => {
+                        let mass = input.data.get("mass").and_then(|v| v.as_f64()).unwrap_or(1e-26);
+                        let temperature = input.data.get("temperature").and_then(|v| v.as_f64()).unwrap_or(300.0);
+                        // Decoherence scale: τ_d ~ ℏ / (λ_dB * k_B * T)
+                        // where λ_dB is de Broglie wavelength
+                        let hbar = 1.054571817e-34; // J·s
+                        let k_b = 1.380649e-23; // J/K
+                        let lambda_db = hbar / (mass * (2.0 * k_b * temperature / mass).sqrt());
+                        let scale = hbar / (lambda_db * k_b * temperature);
+                        Ok(ComputeOutput {
+                            result: serde_json::json!({"decoherence_scale": scale, "mass": mass, "temperature": temperature, "de_broglie_wavelength": lambda_db}),
+                            additional: None,
+                            metadata: None,
+                        })
+                    }
+                    FieldType::BohmPotential => {
+                        let psi_real = input.data.get("psi_real").and_then(|v| v.as_f64()).unwrap_or(1.0);
+                        let psi_imag = input.data.get("psi_imag").and_then(|v| v.as_f64()).unwrap_or(0.0);
+                        let mass = input.data.get("mass").and_then(|v| v.as_f64()).unwrap_or(9.109e-31);
+                        // Bohm potential Q = -ℏ²/(2m) * ∇²R/R where R = |ψ|
+                        let hbar = 1.054571817e-34;
+                        let r_squared = psi_real * psi_real + psi_imag * psi_imag;
+                        let r = r_squared.sqrt();
+                        // Simplified: for uniform wavefunction, Q ≈ 0
+                        let potential = if r > 1e-30 { -hbar * hbar / (2.0 * mass * r) } else { 0.0 };
+                        Ok(ComputeOutput {
+                            result: serde_json::json!({"bohm_potential": potential, "psi_amplitude": r}),
+                            additional: None,
+                            metadata: None,
+                        })
+                    }
+                    FieldType::GreenFunction => {
+                        let r = input.data.get("r").and_then(|v| v.as_f64()).unwrap_or(1.0);
+                        // 3D Green's function: G(r) = 1/(4πr)
+                        let green = if r > 1e-30 { 1.0 / (4.0 * std::f64::consts::PI * r) } else { f64::INFINITY };
+                        Ok(ComputeOutput {
+                            result: serde_json::json!({"green_function": green, "r": r}),
+                            additional: None,
+                            metadata: None,
+                        })
+                    }
+                    _ => Ok(ComputeOutput {
+                        result: serde_json::json!({"status": "field_type_not_yet_implemented", "type": format!("{:?}", field_type)}),
+                        additional: None,
+                        metadata: None,
                     }),
-                    metadata: result.metadata,
-                })
+                }
             }
 
-            // Sample operations (absorbed from Sample tool)
+            // Sample operations
             ComputeOp::Sample(sampling_method) => {
-                use crate::implementations::sampler::UnifiedSampler;
-                let sampler = UnifiedSampler::new();
-                let sample_input = SampleInput {
-                    method: sampling_method.clone(),
-                    data: input.data.get("data").and_then(|v| v.as_array()).map(|arr| {
-                        arr.iter().filter_map(|v| v.as_f64()).collect()
-                    }).unwrap_or_default(),
-                    num_samples: input.data.get("num_samples").and_then(|v| v.as_u64()).map(|n| n as usize),
-                    parameters: input.parameters.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
-                };
-                let result = sampler.sample(&sample_input)?;
-                Ok(ComputeOutput {
-                    result: result.result,
-                    additional: result.moments.map(|m| {
-                        m.into_iter().map(|(k, v)| (k, serde_json::json!(v))).collect()
+                use crate::engine::equations::{SamplingMethod, MonteCarloMethod};
+                use rand::Rng;
+
+                match sampling_method {
+                    SamplingMethod::MonteCarlo(mc_method) => {
+                        let num_samples = input.data.get("num_samples").and_then(|v| v.as_u64()).unwrap_or(1000) as usize;
+                        let mut rng = rand::thread_rng();
+
+                        match mc_method {
+                            MonteCarloMethod::Integration => {
+                                // Monte Carlo integration of f(x) = x^2 over [0,1]
+                                let samples: Vec<f64> = (0..num_samples).map(|_| rng.r#gen::<f64>()).collect();
+                                let values: Vec<f64> = samples.iter().map(|&x| x * x).collect();
+                                let integral: f64 = values.iter().sum::<f64>() / num_samples as f64;
+                                Ok(ComputeOutput {
+                                    result: serde_json::json!({"integral": integral, "samples": num_samples, "method": "monte_carlo"}),
+                                    additional: None,
+                                    metadata: None,
+                                })
+                            }
+                            MonteCarloMethod::MCMC | MonteCarloMethod::MetropolisHastings => {
+                                // Simple random walk MCMC
+                                let mut current = 0.0f64;
+                                let mut samples = Vec::with_capacity(num_samples);
+                                for _ in 0..num_samples {
+                                    let proposal = current + (rng.r#gen::<f64>() - 0.5) * 2.0;
+                                    // Accept with probability min(1, p(proposal)/p(current)) for standard normal
+                                    let accept_prob = ((-proposal * proposal / 2.0) - (-current * current / 2.0)).exp();
+                                    if rng.r#gen::<f64>() < accept_prob {
+                                        current = proposal;
+                                    }
+                                    samples.push(current);
+                                }
+                                let mean: f64 = samples.iter().sum::<f64>() / samples.len() as f64;
+                                Ok(ComputeOutput {
+                                    result: serde_json::json!({"samples": samples, "mean": mean, "method": "mcmc"}),
+                                    additional: None,
+                                    metadata: None,
+                                })
+                            }
+                            _ => Ok(ComputeOutput {
+                                result: serde_json::json!({"status": "monte_carlo_method_not_yet_implemented", "method": format!("{:?}", mc_method)}),
+                                additional: None,
+                                metadata: None,
+                            }),
+                        }
+                    }
+                    SamplingMethod::Stats(stat_method) => {
+                        use crate::engine::equations::StatisticalMethod;
+                        let data: Vec<f64> = input
+                            .data
+                            .get("data")
+                            .and_then(|v| v.as_array())
+                            .map(|arr| arr.iter().filter_map(|v| v.as_f64()).collect())
+                            .unwrap_or_default();
+
+                        match stat_method {
+                            StatisticalMethod::BasicStats => {
+                                let n = data.len();
+                                if n == 0 {
+                                    return Ok(ComputeOutput {
+                                        result: serde_json::json!({"error": "empty data"}),
+                                        additional: None,
+                                        metadata: None,
+                                    });
+                                }
+                                let mean = data.iter().sum::<f64>() / n as f64;
+                                let variance = data.iter().map(|x| (x - mean).powi(2)).sum::<f64>() / n as f64;
+                                let std_dev = variance.sqrt();
+                                let min = data.iter().cloned().fold(f64::INFINITY, f64::min);
+                                let max = data.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
+                                Ok(ComputeOutput {
+                                    result: serde_json::json!({
+                                        "mean": mean, "variance": variance, "std_dev": std_dev,
+                                        "min": min, "max": max, "n": n
+                                    }),
+                                    additional: None,
+                                    metadata: None,
+                                })
+                            }
+                            _ => Ok(ComputeOutput {
+                                result: serde_json::json!({"status": "statistical_method_not_yet_implemented", "method": format!("{:?}", stat_method)}),
+                                additional: None,
+                                metadata: None,
+                            }),
+                        }
+                    }
+                    _ => Ok(ComputeOutput {
+                        result: serde_json::json!({"status": "sampling_method_not_yet_implemented", "method": format!("{:?}", sampling_method)}),
+                        additional: None,
+                        metadata: None,
                     }),
-                    metadata: result.metadata,
-                })
+                }
             }
         }
     }

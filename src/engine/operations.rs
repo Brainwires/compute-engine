@@ -4,12 +4,11 @@
 
 use std::collections::HashMap;
 
-/// Returns a list of all primary and legacy tools
-pub fn list_tools() -> (Vec<&'static str>, Vec<&'static str>) {
-    (
-        vec!["solve", "compute", "analyze", "simulate", "ml", "chaos", "units", "validate"],
-        vec!["differentiate", "integrate", "transform", "fieldtheory", "sample", "optimize"],
-    )
+/// Returns a list of all available tools (8 tools)
+pub fn list_tools() -> Vec<&'static str> {
+    vec![
+        "solve", "compute", "analyze", "simulate", "ml", "chaos", "units", "validate",
+    ]
 }
 
 /// List all available operations across all modules
@@ -429,12 +428,16 @@ mod tests {
 
     #[test]
     fn test_list_tools() {
-        let (primary, legacy) = list_tools();
-        assert_eq!(primary.len(), 8);
-        assert_eq!(legacy.len(), 6);
-        assert!(primary.contains(&"solve"));
-        assert!(primary.contains(&"ml"));
-        assert!(legacy.contains(&"differentiate"));
+        let tools = list_tools();
+        assert_eq!(tools.len(), 8);
+        assert!(tools.contains(&"solve"));
+        assert!(tools.contains(&"compute"));
+        assert!(tools.contains(&"analyze"));
+        assert!(tools.contains(&"simulate"));
+        assert!(tools.contains(&"ml"));
+        assert!(tools.contains(&"chaos"));
+        assert!(tools.contains(&"units"));
+        assert!(tools.contains(&"validate"));
     }
 
     #[test]

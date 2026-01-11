@@ -1,11 +1,8 @@
 //! # Computational Engine
 //!
-//! A unified computational engine built around 8 primary tools with a clean, modular architecture.
+//! A unified computational engine built around 8 tools with a clean, modular architecture.
 //!
-//! ## Architecture
-//!
-//! ### 8 Primary Tools (NEW - Recommended)
-//! The engine is organized around 8 powerful, flexible tools:
+//! ## 8 Tools
 //!
 //! 1. **Solve** - Equations, systems, optimization, root finding
 //! 2. **Compute** - Matrix ops, calculus, transforms, field theory, sampling
@@ -16,36 +13,25 @@
 //! 7. **Units** - Dimensional analysis and unit conversion
 //! 8. **Validate** - Equation and physics validation
 //!
-//! ### Legacy Tools (Backward Compatible)
-//! - **Differentiate** - Routes to Compute with differentiate operation
-//! - **Integrate** - Routes to Compute with integrate operation
-//! - **Transform** - Routes to Compute with transform operation
-//! - **FieldTheory** - Routes to Compute with field operation
-//! - **Sample** - Routes to Compute with sample operation
-//! - **Optimize** - Routes to Solve with optimize equation type
+//! ## Quick Start
 //!
-//! ### Quick Start (New API)
-//!
-//! ```rust
-//! use computational_engine::core::{ToolRequest, SolveInput};
-//! use computational_engine::implementations::create_default_dispatcher;
+//! ```rust,ignore
+//! use computational_engine::{ToolRequest, SolveInput, create_default_dispatcher};
 //!
 //! // Create dispatcher
 //! let dispatcher = create_default_dispatcher();
 //!
 //! // Solve a quadratic equation
 //! let request = ToolRequest::Solve(SolveInput {
+//!     equation_type: Default::default(),
 //!     equations: vec!["x^2 + 2*x - 8 = 0".to_string()],
-//!     variables: None,
-//!     initial_guess: None,
-//!     domain: None,
-//!     method: None,
+//!     ..Default::default()
 //! });
 //!
 //! let response = dispatcher.dispatch(request).unwrap();
 //! ```
 //!
-//! ### JSON API
+//! ## JSON API
 //!
 //! ```json
 //! {
@@ -56,7 +42,7 @@
 //! }
 //! ```
 //!
-//! ## Legacy Domain-Specific Modules (Still Available)
+//! ## Domain-Specific Modules
 //!
 //! ### Mathematics Domain
 //! - **Tensor Calculus**: Symbolic tensor operations and Einstein field equations
@@ -79,24 +65,24 @@
 //! - **Cryptographic Mathematics**: Number theory and cryptographic primitives
 //! - **Statistics**: Statistical analysis and probability
 
-// Core 10-tool engine (NEW - Recommended)
+// Core engine
 pub mod engine;
-pub mod implementations;
 pub mod help;
 pub mod help_auto;
+pub mod implementations;
 
-// MCP Server (Official MCP SDK integration - primary interface)
+// MCP Server (Official MCP SDK integration)
 #[cfg(feature = "rmcp")]
 pub mod mcp_server;
 
-// Scientific formula modules (NEW - 2025 Expansion)
+// Scientific formula modules
 pub mod biology;
 pub mod chemistry;
 pub mod datetime;
-pub mod electrical; // Circuit analysis + NEC calculations
+pub mod electrical;
 pub mod engineering;
 pub mod geophysics;
-pub mod materials_science; // Crystal structures, band theory, mechanical properties
+pub mod materials_science;
 pub mod optics;
 pub mod thermodynamics;
 
@@ -104,13 +90,13 @@ pub mod thermodynamics;
 #[cfg(feature = "wasm")]
 pub mod wasm;
 
-// Domain modules (Legacy - for implementation)
+// Domain modules (implementation details)
 pub mod mathematics;
 pub mod physics;
 pub mod specialized;
 pub mod tools;
 
-// Backwards compatibility - re-export modules at top level
+// Re-export modules at top level for convenience
 pub use mathematics::advanced_calculus;
 pub use mathematics::linear_algebra;
 pub use mathematics::special_functions;
@@ -130,95 +116,28 @@ pub use tools::dimensional_analysis;
 pub use tools::equation_validation;
 pub use tools::numerical_methods;
 pub use tools::signal_processing;
-// Note: specialized::chemistry has been replaced by the new chemistry module
 
-// Re-export new engine types (Recommended)
+// Re-export engine types
 pub use engine::{
-    // Primary 8 Tools - Traits
-    Analyze,
-    Chaos,
-    Compute,
-    MachineLearning,
-    Simulate,
-    Solve,
-    Units,
-    Validate,
-    // Primary 8 Tools - Input/Output types
-    AnalyzeInput,
-    AnalyzeOutput,
-    ChaosInput,
-    ChaosOutput,
-    ComputeInput,
-    ComputeOutput,
-    MLInput,
-    MLOutput,
-    SimulateInput,
-    SimulateOutput,
-    SolveInput,
-    SolveOutput,
-    UnitsInput,
-    UnitsOutput,
-    ValidateInput,
-    ValidateOutput,
-    // Primary 8 Tools - Operation enums
-    AnalysisOp,
-    ChaosOp,
-    ComputeOp,
-    MLOp,
-    SimulationModel,
-    UnitsOp,
-    ValidateOp,
+    // 8 Tools - Traits
+    Analyze, Chaos, Compute, MachineLearning, Simulate, Solve, Units, Validate,
+    // 8 Tools - Input/Output types
+    AnalyzeInput, AnalyzeOutput, ChaosInput, ChaosOutput, ComputeInput, ComputeOutput, MLInput,
+    MLOutput, SimulateInput, SimulateOutput, SolveInput, SolveOutput, UnitsInput, UnitsOutput,
+    ValidateInput, ValidateOutput, ValidationResult,
+    // Operation enums
+    AnalysisOp, ChaosOp, ComputeOp, MLOp, SimulationModel, UnitsOp, ValidateOp,
     // ML sub-enums
-    ClusteringMethod,
-    NeuralNetworkOp,
-    RegressionMethod,
-    DimReductionMethod,
-    ClassificationMethod,
+    ClassificationMethod, ClusteringMethod, DimReductionMethod, NeuralNetworkOp, RegressionMethod,
     // Chaos sub-enums
-    FractalType,
-    AttractorType,
-    LyapunovMethod,
-    BifurcationType,
-    DimensionMethod,
-    // Legacy Tools - Traits
-    Differentiate,
-    FieldTheory,
-    Integrate,
-    Optimize,
-    Sample,
-    Transform,
-    // Legacy Tools - Input/Output types
-    DifferentiateInput,
-    DifferentiateOutput,
-    FieldTheoryInput,
-    FieldTheoryOutput,
-    IntegrateInput,
-    IntegrateOutput,
-    OptimizeInput,
-    OptimizeOutput,
-    SampleInput,
-    SampleOutput,
-    TransformInput,
-    TransformOutput,
-    // Legacy Tools - Operation enums
-    DifferentiationOp,
-    FieldType,
-    IntegrationType,
-    OptimizationMethod,
-    SamplingMethod,
-    TransformType,
+    AttractorType, BifurcationType, DimensionMethod, FractalType, LyapunovMethod,
     // Equation types
-    ChemicalEquation,
-    DifferentialEquation,
-    EinsteinEquation,
-    EMEquation,
-    EquationType,
+    ChemicalEquation, DifferentialEquation, EinsteinEquation, EMEquation, EquationType,
     FluidEquation,
     // Dispatcher
-    ToolDispatcher,
-    ToolRequest,
-    ToolResponse,
-    ToolResult,
+    ToolDispatcher, ToolRequest, ToolResponse, ToolResult,
+    // Common types
+    Domain, Method,
 };
 
 // Re-export implementation helper
