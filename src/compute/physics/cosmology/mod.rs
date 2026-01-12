@@ -134,6 +134,6 @@ impl From<f64> for Redshift {
 }
 
 #[cfg(test)]
-#[path = "../../../../tests/unit/physics/cosmology_tests.rs"]
+#[path = "../../../../tests/unit/compute/physics/cosmology_tests.rs"]
 mod tests;
 

@@ -71,6 +71,6 @@ impl KalmanFilter {
 
 // Test module
 #[cfg(test)]
-#[path = "../../../../tests/unit/specialized/control_theory_kalman_filter_tests.rs"]
+#[path = "../../../../tests/unit/compute/control/control_theory_kalman_filter_tests.rs"]
 mod tests;
 

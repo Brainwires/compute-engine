@@ -1,4 +1,4 @@
-//! Tests for the new 10-tool unified API
+//! Tests for the 8-tool unified API
 
 use computational_engine::create_default_dispatcher;
 use computational_engine::engine::*;
@@ -64,10 +64,10 @@ fn test_json_api() {
 }
 
 #[test]
-fn test_all_10_tools_registered() {
+fn test_all_8_tools_registered() {
     let dispatcher = create_default_dispatcher();
 
-    // Test that all 10 tools can be called (even if stubbed)
+    // Test that all 8 tools can be called (even if stubbed)
     let tools = vec![
         (
             "solve",

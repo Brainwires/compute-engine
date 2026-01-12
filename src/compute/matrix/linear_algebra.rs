@@ -608,5 +608,5 @@ fn factorial(n: usize) -> usize {
 
 // Test module - part of this module, can access private functions
 #[cfg(test)]
-#[path = "../../../tests/unit/mathematics/linear_algebra_tests.rs"]
+#[path = "../../../tests/unit/compute/matrix/linear_algebra_tests.rs"]
 mod tests;

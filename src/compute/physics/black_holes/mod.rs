@@ -169,6 +169,6 @@ impl BlackHoleConfig {
 }
 
 #[cfg(test)]
-#[path = "../../../../tests/unit/physics/black_holes_tests.rs"]
+#[path = "../../../../tests/unit/compute/physics/black_holes_tests.rs"]
 mod tests;
 

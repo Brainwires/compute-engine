@@ -405,7 +405,7 @@ fn process_request(input: &str) -> String {
 
 // Test module for legacy functions
 #[cfg(test)]
-#[path = "../../../tests/unit/specialized/stochastic_processes_tests.rs"]
+#[path = "../../../tests/unit/simulate/stochastic/stochastic_tests.rs"]
 mod legacy_tests;
 
 // ============================================================================

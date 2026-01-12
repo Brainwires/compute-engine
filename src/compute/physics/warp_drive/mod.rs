@@ -110,6 +110,6 @@ impl WarpDriveConfig {
 }
 
 #[cfg(test)]
-#[path = "../../../../tests/unit/physics/warp_drive_tests.rs"]
+#[path = "../../../../tests/unit/compute/physics/warp_drive_tests.rs"]
 mod tests;
 

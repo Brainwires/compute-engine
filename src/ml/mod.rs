@@ -707,21 +707,21 @@ impl MachineLearning for UnifiedML {
 
 // Test modules
 #[cfg(test)]
-#[path = "../../tests/unit/specialized/machine_learning/regression_tests.rs"]
+#[path = "../../tests/unit/ml/regression/regression_tests.rs"]
 mod regression_tests;
 
 #[cfg(test)]
-#[path = "../../tests/unit/specialized/machine_learning/clustering_tests.rs"]
+#[path = "../../tests/unit/ml/clustering/clustering_tests.rs"]
 mod clustering_tests;
 
 #[cfg(test)]
-#[path = "../../tests/unit/specialized/machine_learning/neural_network_tests.rs"]
+#[path = "../../tests/unit/ml/neural_network/neural_network_tests.rs"]
 mod neural_network_tests;
 
 #[cfg(test)]
-#[path = "../../tests/unit/specialized/machine_learning/optimization_tests.rs"]
+#[path = "../../tests/unit/ml/optimization/optimization_tests.rs"]
 mod optimization_tests;
 
 #[cfg(test)]
-#[path = "../../tests/unit/specialized/machine_learning/dimensionality_reduction_tests.rs"]
+#[path = "../../tests/unit/ml/dim_reduction/dim_reduction_tests.rs"]
 mod dimensionality_reduction_tests;

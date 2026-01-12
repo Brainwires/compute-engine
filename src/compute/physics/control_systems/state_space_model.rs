@@ -251,6 +251,6 @@ pub fn siso_state_space(
 
 // Test module
 #[cfg(test)]
-#[path = "../../../../tests/unit/specialized/control_theory_state_space_tests.rs"]
+#[path = "../../../../tests/unit/compute/control/control_theory_state_space_tests.rs"]
 mod tests;
 

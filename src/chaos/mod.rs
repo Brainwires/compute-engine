@@ -636,5 +636,5 @@ impl Chaos for UnifiedChaos {
 }
 
 #[cfg(test)]
-#[path = "../../tests/unit/mathematics/chaos_tests.rs"]
+#[path = "../../tests/unit/chaos/chaos_tests.rs"]
 mod tests;

@@ -648,6 +648,6 @@ fn process_request(input: &str) -> String {
 
 // Test module
 #[cfg(test)]
-#[path = "../../../tests/unit/specialized/cryptographic_mathematics_tests.rs"]
+#[path = "../../../tests/unit/compute/cryptographic_mathematics/cryptographic_mathematics_tests.rs"]
 mod tests;
 

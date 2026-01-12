@@ -143,5 +143,5 @@ impl LinearProgram {
 
 // Test module
 #[cfg(test)]
-#[path = "../../../../tests/unit/specialized/linear_programming_tests.rs"]
+#[path = "../../../../tests/unit/solve/specialized/linear_programming_tests.rs"]
 mod tests;

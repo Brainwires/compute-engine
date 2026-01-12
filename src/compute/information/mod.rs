@@ -678,5 +678,5 @@ pub fn compute_information(op: &InformationOp, input: &ComputeInput) -> ToolResu
 // ============================================================================
 
 #[cfg(test)]
-#[path = "../../../tests/unit/specialized/information_theory_tests.rs"]
+#[path = "../../../tests/unit/compute/information/information_theory_tests.rs"]
 mod tests;

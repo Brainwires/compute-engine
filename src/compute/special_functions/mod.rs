@@ -52,10 +52,10 @@ pub struct HypergeometricResult {
 
 // Test module - part of this module, can access private functions
 #[cfg(test)]
-#[path = "../../../tests/unit/mathematics/special_functions_tests.rs"]
+#[path = "../../../tests/unit/compute/special_functions_tests.rs"]
 mod tests;
 
 // Advanced calculus tests (comprehensive unit tests for all special functions)
 #[cfg(test)]
-#[path = "../../../tests/unit/mathematics/advanced_calculus_tests.rs"]
+#[path = "../../../tests/unit/compute/calculus/advanced_calculus_tests.rs"]
 mod advanced_calculus_tests;

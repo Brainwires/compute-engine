@@ -58,5 +58,5 @@ pub struct Branch {
 }
 
 #[cfg(test)]
-#[path = "../../../tests/unit/electrical_tests.rs"]
+#[path = "../../../tests/unit/compute/electrical/electrical_tests.rs"]
 mod tests;

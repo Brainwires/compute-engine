@@ -42,7 +42,7 @@ pub struct TensorResult {
 
 // Test module - part of this module, can access private functions
 #[cfg(test)]
-#[path = "../../../tests/unit/mathematics/tensor_calculus_tests.rs"]
+#[path = "../../../tests/unit/compute/tensor_tests.rs"]
 mod tests;
 
 // Also export compute_tensor function for the compute module

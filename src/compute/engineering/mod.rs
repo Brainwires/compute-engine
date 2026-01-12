@@ -495,5 +495,5 @@ impl Default for EngineeringParams {
 }
 
 #[cfg(test)]
-#[path = "../../../tests/unit/engineering_tests.rs"]
+#[path = "../../../tests/unit/compute/engineering/engineering_tests.rs"]
 mod tests;

@@ -119,6 +119,6 @@ impl Waveform {
 }
 
 #[cfg(test)]
-#[path = "../../../../tests/unit/physics/gravitational_waves_tests.rs"]
+#[path = "../../../../tests/unit/compute/physics/gravitational_waves_tests.rs"]
 mod tests;
 

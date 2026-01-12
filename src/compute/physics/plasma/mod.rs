@@ -145,5 +145,5 @@ pub fn is_plasma(params: &PlasmaParams) -> bool {
 }
 
 #[cfg(test)]
-#[path = "../../../../tests/unit/physics/plasma_tests.rs"]
+#[path = "../../../../tests/unit/compute/physics/plasma_tests.rs"]
 mod tests;

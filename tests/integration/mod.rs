@@ -1,7 +1,7 @@
-pub mod api;
+pub mod engine;
 pub mod compute;
 pub mod coverage;
-pub mod modules;
 pub mod other;
-pub mod physics;
+pub mod simulate;
+pub mod solve;
 pub mod tools;

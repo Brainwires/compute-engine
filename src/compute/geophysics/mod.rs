@@ -379,5 +379,5 @@ impl Default for GeophysicsParams {
 }
 
 #[cfg(test)]
-#[path = "../../../tests/unit/geophysics_tests.rs"]
+#[path = "../../../tests/unit/compute/geophysics/geophysics_tests.rs"]
 mod tests;

@@ -196,6 +196,6 @@ pub fn cohen_coon_tuning(k: f64, tau: f64, theta: f64) -> PIDConfig {
 
 // Test module
 #[cfg(test)]
-#[path = "../../../../tests/unit/specialized/control_theory_pid_controller_tests.rs"]
+#[path = "../../../../tests/unit/compute/control/control_theory_pid_controller_tests.rs"]
 mod tests;
 

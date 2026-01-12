@@ -351,5 +351,5 @@ impl Default for OpticsParams {
 }
 
 #[cfg(test)]
-#[path = "../../../tests/unit/optics_tests.rs"]
+#[path = "../../../tests/unit/compute/optics/optics_tests.rs"]
 mod tests;

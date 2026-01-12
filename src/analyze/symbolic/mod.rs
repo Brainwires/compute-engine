@@ -772,5 +772,5 @@ pub fn analyze_partial_fraction(input: &AnalyzeInput) -> ToolResult<AnalyzeOutpu
 }
 
 #[cfg(test)]
-#[path = "../../../tests/unit/mathematics/symbolic_cas_tests.rs"]
+#[path = "../../../tests/unit/analyze/symbolic_tests.rs"]
 mod tests;

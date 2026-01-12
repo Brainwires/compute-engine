@@ -372,5 +372,5 @@ impl Default for ThermodynamicsParams {
 }
 
 #[cfg(test)]
-#[path = "../../../tests/unit/thermodynamics_tests.rs"]
+#[path = "../../../tests/unit/compute/thermodynamics/thermodynamics_tests.rs"]
 mod tests;
