@@ -41,16 +41,6 @@ println!("{:#?}", response);
 | **Units** | Dimensional analysis | Unit conversion, dimensional consistency checking |
 | **Validate** | Equation validation | Physics compliance, conservation laws, symmetry checks |
 
-### Legacy Tool Names (Backward Compatible)
-
-The following legacy tool names are supported and route to the unified tools:
-- `differentiate` → `compute` with `operation: {differentiate: ...}`
-- `integrate` → `compute` with `operation: {integrate: ...}`
-- `transform` → `compute` with `operation: {transform: ...}`
-- `fieldtheory` → `compute` with `operation: {field: ...}`
-- `sample` → `compute` with `operation: {sample: ...}`
-- `optimize` → `solve` with `equation_type: {optimize: ...}`
-
 ## ✨ Key Features
 
 ### Core Capabilities
@@ -398,12 +388,11 @@ cargo bench
 ## 🆕 Recent Updates
 
 ### January 2025
-- ✅ **8-Tool Architecture Consolidation**: Unified from 10 tools to 8 primary tools
-  - Legacy tool names (differentiate, integrate, transform, fieldtheory, sample, optimize) route to primary tools
-  - Cleaner, more intuitive API with backward compatibility
+- ✅ **8-Tool Architecture Consolidation**: Unified architecture with 8 primary tools
+  - Cleaner, more intuitive API
 - ✅ **Test Reorganization**: Tests now mirror source structure
   - `tests/unit/` organized by tool: `solve/`, `compute/`, `analyze/`, `simulate/`, `ml/`, `chaos/`, `units/`, `validate/`
-  - `tests/integration/` organized by tool: `engine/`, `compute/`, `solve/`, `simulate/`, `tools/`
+  - `tests/integration/` organized by tool: `engine/`, `compute/`, `solve/`, `simulate/`, `tools/`, `coverage/`, `other/`
   - Total: 2,067 tests (up from 1,685)
 
 ### October 2024

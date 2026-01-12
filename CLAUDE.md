@@ -16,8 +16,6 @@ A unified computational engine for mathematical and scientific computing in Rust
 - **Units**: Dimensional analysis and unit conversion
 - **Validate**: Equation and physics validation
 
-**Legacy tool names** (differentiate, integrate, transform, fieldtheory, sample, optimize) are maintained for backward compatibility and route internally to the primary tools.
-
 Supports native Rust, WebAssembly (browser/Node.js), and MCP server interfaces.
 
 **Comprehensive Test Coverage**: 2,067 tests passing (1,089 integration tests + 960 unit tests + 18 doc tests) with 100% pass rate.
@@ -84,20 +82,11 @@ echo '{"tool":"solve","input":{"equations":["x^2 - 4 = 0"]}}' | cargo run --rele
 
 ### Consolidated 8-Tool Architecture
 
-**Public API Layer**: 8 primary tools + 6 legacy tools for backward compatibility
+**Public API Layer**: 8 primary tools
 - Defined in `src/engine/traits.rs` and `src/engine/dispatcher.rs`
-- **Primary Tools**: Solve, Compute, Analyze, Simulate, ML, Chaos, Units, Validate
-- **Legacy Tools** (route to primary): Differentiate, Integrate, Transform, FieldTheory, Sample, Optimize
+- **Tools**: Solve, Compute, Analyze, Simulate, ML, Chaos, Units, Validate
 - Clean trait-based interface with JSON-serializable types
 - Request/response handled by `ToolDispatcher` in `src/engine/dispatcher.rs`
-
-**Tool Routing**:
-- `differentiate` → `compute` with `operation: {differentiate: ...}`
-- `integrate` → `compute` with `operation: {integrate: ...}`
-- `transform` → `compute` with `operation: {transform: ...}`
-- `fieldtheory` → `compute` with `operation: {field: ...}`
-- `sample` → `compute` with `operation: {sample: ...}`
-- `optimize` → `solve` with `equation_type: {optimize: ...}`
 
 **8 Tool Modules**: Each tool in its own folder with unified implementation + domain submodules
 - `src/solve/` - UnifiedSolver + equations, optimization, physics solvers, specialized (game_theory, linear_programming)
@@ -400,8 +389,9 @@ tests/
 │   ├── compute/            # Compute integration tests
 │   ├── solve/              # Solve integration tests
 │   ├── simulate/           # Simulate integration tests
-│   ├── tools/              # Legacy tool name tests
-│   └── coverage/           # Coverage verification tests
+│   ├── tools/              # Comprehensive tool operation tests
+│   ├── coverage/           # Coverage verification tests
+│   └── other/              # Additional integration tests
 ```
 
 ### WebAssembly Development
@@ -480,7 +470,7 @@ Enable with `--features quantum,gpu-acceleration` for quantum physics simulation
 ## Common Pitfalls
 
 1. **Using `println!` in library code** - Breaks MCP server JSON output (use `eprintln!` instead)
-2. **Modifying old `main()` functions** - These are legacy and should not be called
+2. **Modifying old `main()` functions** - These are deprecated and should not be called
 3. **Forgetting `--release` flag** - Debug builds are extremely slow for math operations
 4. **Not enabling features** - Quantum operations require `--features quantum`
 5. **WASM target mismatch** - Use correct target (bundler vs nodejs vs web) for your environment
@@ -498,9 +488,8 @@ This engine aims to compete with Mathematica/Wolfram Alpha by providing:
 ## Recent Updates
 
 ### January 2025
-- ✅ **8-Tool Architecture Consolidation**: Unified from 10 legacy tools to 8 primary tools
-  - Primary: Solve, Compute, Analyze, Simulate, ML, Chaos, Units, Validate
-  - Legacy names (differentiate, integrate, transform, fieldtheory, sample, optimize) route to primary tools
+- ✅ **8-Tool Architecture Consolidation**: Unified architecture with 8 primary tools
+  - Tools: Solve, Compute, Analyze, Simulate, ML, Chaos, Units, Validate
 - ✅ **Test Reorganization**: Tests now mirror source structure
   - `tests/unit/` organized by tool
   - `tests/integration/` organized by tool
