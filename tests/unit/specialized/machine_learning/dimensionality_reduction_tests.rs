@@ -1,5 +1,5 @@
 // Unit tests for specialized::machine_learning::dimensionality_reduction
-use crate::specialized::machine_learning::*;
+use crate::ml::*;
 
 use super::*;
 

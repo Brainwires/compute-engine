@@ -1,5 +1,5 @@
 // Comprehensive unit tests for mathematics::symbolic_cas module
-use crate::mathematics::symbolic_cas::*;
+use crate::analyze::symbolic::*;
 use std::collections::HashMap;
 
 mod symbolic_cas_tests {

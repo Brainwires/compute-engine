@@ -1,5 +1,5 @@
 // Unit tests for physics::gravitational_waves::detector
-use computational_engine::physics::gravitational_waves::detector::*;
+use computational_engine::compute::physics::gravitational_waves::detector::*;
 
 use super::*;
 

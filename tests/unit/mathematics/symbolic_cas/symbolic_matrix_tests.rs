@@ -1,8 +1,8 @@
 // Unit tests for mathematics::symbolic_cas::symbolic_matrix
-use computational_engine::mathematics::symbolic_cas::symbolic_matrix::*;
+use computational_engine::analyze::symbolic::symbolic_matrix::*;
 
 use super::*;
-    use crate::mathematics::symbolic_cas::Expr;
+    use crate::analyze::symbolic::Expr;
 
     #[test]
     fn test_identity_matrix() {

@@ -1,8 +1,8 @@
 // Unit tests for physics::wormholes::traversal
-use computational_engine::physics::wormholes::traversal::*;
+use computational_engine::compute::physics::wormholes::traversal::*;
 
 use super::*;
-    use crate::physics::wormholes::WormholeConfig;
+    use crate::compute::physics::wormholes::WormholeConfig;
 
     #[test]
     fn test_tidal_forces_at_throat() {

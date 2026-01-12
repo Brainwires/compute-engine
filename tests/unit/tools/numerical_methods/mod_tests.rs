@@ -1,5 +1,5 @@
 // Unit tests for tools::numerical_methods::mod
-use computational_engine::tools::numerical_methods::mod::*;
+use computational_engine::compute::numerical_methods::mod::*;
 
 use super::*;
 

@@ -30,7 +30,7 @@ fn test_transfer_function_evaluate() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Transfer function evaluation should succeed");
 }
@@ -52,7 +52,7 @@ fn test_transfer_function_series() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Series transfer function should succeed");
 }
@@ -74,7 +74,7 @@ fn test_transfer_function_parallel() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Parallel transfer function should succeed");
 }
@@ -95,7 +95,7 @@ fn test_pole_zero_analysis_first_order() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Pole-zero analysis should succeed");
 }
@@ -112,7 +112,7 @@ fn test_pole_zero_analysis_second_order() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Second-order pole-zero analysis should succeed");
 }
@@ -136,7 +136,7 @@ fn test_bode_plot_first_order() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Bode plot should succeed");
 }
@@ -156,7 +156,7 @@ fn test_bode_plot_second_order() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Second-order Bode plot should succeed");
 }
@@ -180,7 +180,7 @@ fn test_nyquist_plot() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Nyquist plot should succeed");
 }
@@ -204,7 +204,7 @@ fn test_root_locus() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Root locus should succeed");
 }
@@ -227,7 +227,7 @@ fn test_state_space_first_order() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "State-space representation should succeed");
 }
@@ -246,7 +246,7 @@ fn test_state_space_second_order() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Second-order state-space should succeed");
 }
@@ -267,7 +267,7 @@ fn test_controllability_controllable() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Controllability test should succeed");
 }
@@ -284,7 +284,7 @@ fn test_controllability_uncontrollable() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Uncontrollable system test should succeed");
 }
@@ -305,7 +305,7 @@ fn test_observability_observable() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Observability test should succeed");
 }
@@ -322,7 +322,7 @@ fn test_observability_unobservable() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Unobservable system test should succeed");
 }
@@ -343,7 +343,7 @@ fn test_routh_hurwitz_stable() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Routh-Hurwitz stable system should succeed");
 }
@@ -360,7 +360,7 @@ fn test_routh_hurwitz_unstable() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Routh-Hurwitz unstable system should succeed");
 }
@@ -381,7 +381,7 @@ fn test_gain_margin() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Gain margin calculation should succeed");
 }
@@ -402,7 +402,7 @@ fn test_phase_margin() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Phase margin calculation should succeed");
 }
@@ -425,7 +425,7 @@ fn test_step_response_first_order() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "First-order step response should succeed");
 }
@@ -444,7 +444,7 @@ fn test_step_response_second_order_underdamped() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -466,7 +466,7 @@ fn test_step_response_second_order_critically_damped() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -488,7 +488,7 @@ fn test_step_response_second_order_overdamped() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Overdamped step response should succeed");
 }

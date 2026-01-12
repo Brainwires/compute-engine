@@ -1,5 +1,5 @@
-use computational_engine::mathematics::numerical::*;
-use computational_engine::mathematics::symbolic_cas::*;
+use computational_engine::compute::numerical::*;
+use computational_engine::analyze::symbolic::*;
 use std::collections::HashMap;
 
 fn main() {

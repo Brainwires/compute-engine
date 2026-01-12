@@ -1,5 +1,5 @@
 // Unit tests for physics::wormholes::mod
-use computational_engine::physics::wormholes::mod::*;
+use computational_engine::compute::physics::wormholes::mod::*;
 
 use super::*;
 

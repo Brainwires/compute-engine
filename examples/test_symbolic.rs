@@ -1,4 +1,4 @@
-use computational_engine::mathematics::symbolic_cas::{differentiate, expand, simplify};
+use computational_engine::analyze::symbolic::{differentiate, expand, simplify};
 
 fn main() {
     println!("Testing Symbolica integration...\n");

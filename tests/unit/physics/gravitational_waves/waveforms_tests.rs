@@ -1,8 +1,8 @@
 // Unit tests for physics::gravitational_waves::waveforms
-use computational_engine::physics::gravitational_waves::waveforms::*;
+use computational_engine::compute::physics::gravitational_waves::waveforms::*;
 
 use super::*;
-    use crate::physics::gravitational_waves::BinaryType;
+    use crate::compute::physics::gravitational_waves::BinaryType;
 
     #[test]
     fn test_taylor_f2_waveform() {

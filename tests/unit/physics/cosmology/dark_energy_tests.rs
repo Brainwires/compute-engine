@@ -1,5 +1,5 @@
 // Unit tests for physics::cosmology::dark_energy
-use computational_engine::physics::cosmology::dark_energy::*;
+use computational_engine::compute::physics::cosmology::dark_energy::*;
 
 use super::*;
 

@@ -5,7 +5,7 @@
 //!
 //! Run with: cargo run --example test_timing
 
-use computational_engine::implementations::create_default_dispatcher;
+use computational_engine::create_default_dispatcher;
 
 fn main() {
     println!("=== Computational Engine - Compute Time Tracking Demo ===\n");

@@ -3,7 +3,7 @@
 //! Tests transfer functions, pole-zero analysis, Bode plots, Nyquist plots,
 //! root locus, state-space, controllability, observability, stability analysis.
 
-use computational_engine::physics::control_systems::*;
+use computational_engine::compute::physics::control_systems::*;
 
 // ============================================================================
 // TRANSFER FUNCTION TESTS

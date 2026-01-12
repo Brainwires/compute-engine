@@ -1,8 +1,8 @@
 // Unit tests for physics::warp_drive::energy
-use computational_engine::physics::warp_drive::energy::*;
+use computational_engine::compute::physics::warp_drive::energy::*;
 
 use super::*;
-    use crate::physics::warp_drive::WarpDriveConfig;
+    use crate::compute::physics::warp_drive::WarpDriveConfig;
 
     #[test]
     fn test_stress_energy_at_bubble_edge() {

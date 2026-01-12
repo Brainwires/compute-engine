@@ -1,5 +1,5 @@
 // Unit tests for tools::computational_geometry::advanced
-use computational_engine::tools::computational_geometry::advanced::*;
+use computational_engine::compute::geometry::advanced::*;
 
 use super::*;
 

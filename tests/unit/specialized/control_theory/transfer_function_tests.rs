@@ -1,5 +1,5 @@
 // Unit tests for specialized::control_theory::transfer_function
-use computational_engine::specialized::control_theory::transfer_function::*;
+use computational_engine::compute::physics::control_systems::transfer_function::*;
 
 use super::*;
 

@@ -1,5 +1,5 @@
 // Unit tests for physics::plasma::confinement
-use computational_engine::physics::plasma::confinement::*;
+use computational_engine::compute::physics::plasma::confinement::*;
 
 use super::*;
 

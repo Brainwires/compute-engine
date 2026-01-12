@@ -1,5 +1,5 @@
 // Unit tests for specialized::information_theory::mod
-use computational_engine::specialized::information_theory::mod::*;
+use computational_engine::compute::information::mod::*;
 
 use super::*;
 

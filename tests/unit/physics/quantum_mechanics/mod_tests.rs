@@ -1,5 +1,5 @@
 // Unit tests for physics::quantum_mechanics::mod
-use computational_engine::physics::quantum_mechanics::mod::*;
+use computational_engine::compute::physics::quantum_mechanics::mod::*;
 
 use super::*;
 

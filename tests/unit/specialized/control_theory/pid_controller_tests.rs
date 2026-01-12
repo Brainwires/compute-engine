@@ -1,5 +1,5 @@
 // Unit tests for specialized::control_theory::pid_controller
-use computational_engine::specialized::control_theory::pid_controller::*;
+use computational_engine::compute::physics::control_systems::pid_controller::*;
 
 use super::*;
 

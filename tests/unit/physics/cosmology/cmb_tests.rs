@@ -1,5 +1,5 @@
 // Unit tests for physics::cosmology::cmb
-use computational_engine::physics::cosmology::cmb::*;
+use computational_engine::compute::physics::cosmology::cmb::*;
 
 use super::*;
 

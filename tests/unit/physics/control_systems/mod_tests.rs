@@ -1,5 +1,5 @@
 // Unit tests for physics::control_systems::mod
-use computational_engine::physics::control_systems::mod::*;
+use computational_engine::compute::physics::control_systems::mod::*;
 
 use super::*;
 

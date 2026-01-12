@@ -8,7 +8,7 @@
 //!
 //! Run with: cargo run --release --example machine_learning_demo
 
-use computational_engine::specialized::machine_learning::*;
+use computational_engine::ml::*;
 
 fn main() {
     println!("=== Machine Learning Demo ===\n");

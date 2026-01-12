@@ -1,5 +1,5 @@
 // Unit tests for mathematics::numerical
-use computational_engine::mathematics::numerical::*;
+use computational_engine::compute::numerical::*;
 
 use super::*;
 

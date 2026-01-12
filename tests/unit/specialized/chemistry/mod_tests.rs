@@ -1,5 +1,5 @@
 // Unit tests for specialized::chemistry::mod
-use computational_engine::specialized::chemistry::mod::*;
+use computational_engine::compute::chemistry::mod::*;
 
 use super::*;
 

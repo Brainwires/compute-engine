@@ -1,5 +1,5 @@
 // Unit tests for tools::equation_validation::lib
-use computational_engine::tools::equation_validation::lib::*;
+use computational_engine::validate::lib::*;
 
 use super::*;
 

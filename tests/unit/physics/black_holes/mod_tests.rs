@@ -1,5 +1,5 @@
 // Unit tests for physics::black_holes::mod
-use computational_engine::physics::black_holes::mod::*;
+use computational_engine::compute::physics::black_holes::mod::*;
 
 use super::*;
 

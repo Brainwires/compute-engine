@@ -1,5 +1,5 @@
 // Unit tests for specialized::control_theory::state_space
-use computational_engine::specialized::control_theory::state_space::*;
+use computational_engine::compute::physics::control_systems::state_space::*;
 
 use super::*;
 

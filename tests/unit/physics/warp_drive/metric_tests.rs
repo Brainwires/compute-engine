@@ -1,8 +1,8 @@
 // Unit tests for physics::warp_drive::metric
-use computational_engine::physics::warp_drive::metric::*;
+use computational_engine::compute::physics::warp_drive::metric::*;
 
 use super::*;
-    use crate::physics::warp_drive::WarpDriveConfig;
+    use crate::compute::physics::warp_drive::WarpDriveConfig;
 
     #[test]
     fn test_shape_function_tanh() {

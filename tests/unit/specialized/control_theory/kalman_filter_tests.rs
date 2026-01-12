@@ -1,5 +1,5 @@
 // Unit tests for specialized::control_theory::kalman_filter
-use computational_engine::specialized::control_theory::kalman_filter::*;
+use computational_engine::compute::physics::control_systems::kalman_filter::*;
 
 use super::*;
 

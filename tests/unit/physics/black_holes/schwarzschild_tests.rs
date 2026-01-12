@@ -1,8 +1,8 @@
 // Unit tests for physics::black_holes::schwarzschild
-use computational_engine::physics::black_holes::schwarzschild::*;
+use computational_engine::compute::physics::black_holes::schwarzschild::*;
 
 use super::*;
-    use crate::physics::black_holes::BlackHoleConfig;
+    use crate::compute::physics::black_holes::BlackHoleConfig;
 
     #[test]
     fn test_metric_far_from_horizon() {

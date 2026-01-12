@@ -3,7 +3,7 @@
 //! Tests Maxwell's equations, EM waves, antennas, transmission lines,
 //! waveguides, scattering, and related electromagnetic phenomena.
 
-use computational_engine::physics::electromagnetism::*;
+use computational_engine::compute::physics::electromagnetism::*;
 
 // ============================================================================
 // MAXWELL'S EQUATIONS TESTS

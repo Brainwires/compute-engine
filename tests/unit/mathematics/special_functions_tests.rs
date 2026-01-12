@@ -1,6 +1,6 @@
 //! Unit tests for mathematics::special_functions
 
-use crate::mathematics::special_functions::*;
+use crate::compute::special_functions::*;
 
 // ==================== Bessel Function Tests ====================
 

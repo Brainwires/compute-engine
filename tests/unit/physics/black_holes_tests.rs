@@ -10,7 +10,7 @@
 //! - Time dilation and redshift
 //! - Tidal forces
 
-use crate::physics::black_holes::*;
+use crate::compute::physics::black_holes::*;
 use std::f64::consts::PI;
 
 // Physical constants for testing

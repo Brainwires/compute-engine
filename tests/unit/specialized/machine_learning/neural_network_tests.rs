@@ -1,5 +1,5 @@
 // Unit tests for specialized::machine_learning::neural_network
-use crate::specialized::machine_learning::*;
+use crate::ml::*;
 
     #[test]
     fn test_activation_functions() {

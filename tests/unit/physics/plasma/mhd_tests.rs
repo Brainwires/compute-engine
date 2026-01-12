@@ -1,5 +1,5 @@
 // Unit tests for physics::plasma::mhd
-use computational_engine::physics::plasma::mhd::*;
+use computational_engine::compute::physics::plasma::mhd::*;
 
 use super::*;
 

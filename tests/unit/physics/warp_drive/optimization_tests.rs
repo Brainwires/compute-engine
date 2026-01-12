@@ -1,8 +1,8 @@
 // Unit tests for physics::warp_drive::optimization
-use computational_engine::physics::warp_drive::optimization::*;
+use computational_engine::compute::physics::warp_drive::optimization::*;
 
 use super::*;
-    use crate::physics::warp_drive::C;
+    use crate::compute::physics::warp_drive::C;
 
     #[test]
     fn test_optimization_minimize_energy() {

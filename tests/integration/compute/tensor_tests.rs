@@ -26,7 +26,7 @@ fn test_christoffel_flat_2d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -45,7 +45,7 @@ fn test_christoffel_minkowski_2d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -64,7 +64,7 @@ fn test_christoffel_flat_3d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -87,7 +87,7 @@ fn test_riemann_flat_2d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -106,7 +106,7 @@ fn test_riemann_minkowski_2d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -125,7 +125,7 @@ fn test_riemann_flat_3d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -148,7 +148,7 @@ fn test_ricci_flat_2d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -167,7 +167,7 @@ fn test_ricci_minkowski_2d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -186,7 +186,7 @@ fn test_ricci_flat_3d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -209,7 +209,7 @@ fn test_ricci_scalar_flat_2d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -228,7 +228,7 @@ fn test_ricci_scalar_minkowski_2d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -247,7 +247,7 @@ fn test_ricci_scalar_flat_3d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -270,7 +270,7 @@ fn test_einstein_flat_2d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -289,7 +289,7 @@ fn test_einstein_minkowski_2d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -308,7 +308,7 @@ fn test_einstein_flat_3d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -331,7 +331,7 @@ fn test_weyl_flat_2d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     // Note: Weyl tensor is always zero in 2D (needs dimension >= 3)
     assert!(
@@ -351,7 +351,7 @@ fn test_weyl_minkowski_2d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -370,7 +370,7 @@ fn test_weyl_flat_3d() {
         parameters: HashMap::new(),
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),

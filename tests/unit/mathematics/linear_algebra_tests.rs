@@ -1,6 +1,6 @@
 //! Unit tests for mathematics::linear_algebra
 
-use crate::mathematics::linear_algebra::*;
+use crate::compute::matrix::linear_algebra::*;
 
 // Test SVD computation
 #[test]

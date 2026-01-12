@@ -8,7 +8,7 @@
 //! - Principal Component Analysis (PCA)
 //! - Linear system solving
 
-use computational_engine::mathematics::linear_algebra::*;
+use computational_engine::compute::matrix::linear_algebra::*;
 
 // ============================================================================
 // SINGULAR VALUE DECOMPOSITION (SVD) TESTS

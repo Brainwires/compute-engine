@@ -1,5 +1,5 @@
 // Unit tests for physics::relativity::mod
-use computational_engine::physics::relativity::mod::*;
+use computational_engine::compute::physics::relativity::mod::*;
 
 use super::*;
 

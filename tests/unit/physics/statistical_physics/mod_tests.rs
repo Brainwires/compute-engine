@@ -1,5 +1,5 @@
 // Unit tests for physics::statistical_physics::mod
-use computational_engine::physics::statistical_physics::mod::*;
+use computational_engine::compute::physics::statistical_physics::mod::*;
 
 use super::*;
 

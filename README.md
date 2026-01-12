@@ -9,8 +9,7 @@ A comprehensive computational engine for mathematical and scientific computing i
 ## 🚀 Quick Start
 
 ```rust
-use computational_engine::engine::{ToolRequest, SolveInput};
-use computational_engine::implementations::create_default_dispatcher;
+use computational_engine::{ToolRequest, SolveInput, create_default_dispatcher};
 
 // Create dispatcher
 let dispatcher = create_default_dispatcher();
@@ -145,8 +144,8 @@ brainwires-compute-engine = { git = "https://github.com/nightness/brainwires-com
 Direct Rust integration with full type safety:
 
 ```rust
-use computational_engine::engine::{ToolRequest, DifferentiateInput};
-use computational_engine::implementations::create_default_dispatcher;
+use computational_engine::{ToolRequest, create_default_dispatcher};
+use computational_engine::engine::DifferentiateInput;
 
 let dispatcher = create_default_dispatcher();
 
@@ -211,9 +210,8 @@ Clean layered architecture with 10 unified tools:
 JSON/WASM API → ToolDispatcher → Tool Traits → Unified Implementations → Domain Modules
 ```
 
-- **Tool Traits**: Define the 10-tool interface (`src/engine/traits.rs`)
-- **Unified Implementations**: Wire tools to domain modules (`src/implementations/`)
-- **Domain Modules**: Specialized algorithms (`src/mathematics/`, `src/physics/`, etc.)
+- **Tool Traits**: Define the 8-tool interface (`src/engine/traits.rs`)
+- **8 Tool Modules**: Each tool in its own folder (`src/solve/`, `src/compute/`, `src/analyze/`, `src/simulate/`, `src/ml/`, `src/chaos/`, `src/units/`, `src/validate/`)
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed documentation.
 
@@ -404,7 +402,7 @@ Contributions welcome! The 10-tool architecture makes it easy to:
 4. Add scientific formula modules
 5. Integrate specialized libraries
 
-See the implementation files in `src/implementations/` for examples.
+See the tool modules in `src/solve/`, `src/compute/`, etc. for examples.
 
 ## 🙏 Acknowledgments
 

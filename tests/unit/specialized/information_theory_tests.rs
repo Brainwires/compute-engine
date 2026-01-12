@@ -1,6 +1,6 @@
 //! Unit tests for specialized::information_theory
 
-use crate::specialized::information_theory::*;
+use crate::compute::information::*;
 
 #[test]
 #[ignore] // TODO: Fix entropy calculation - returns unexpected values

@@ -1,5 +1,5 @@
 // Unit tests for mathematics::special_functions::bessel
-use computational_engine::mathematics::special_functions::bessel::*;
+use computational_engine::compute::special_functions::bessel::*;
 
 use super::*;
 

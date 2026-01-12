@@ -1,9 +1,0 @@
-{
-  "module": "advanced_calculus",
-  "operation": "riemann_zeta",
-  "parameters": {
-    "s": {
-      "real": 2.0
-    }
-  }
-}

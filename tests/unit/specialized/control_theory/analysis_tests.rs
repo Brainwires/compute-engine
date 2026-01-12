@@ -1,5 +1,5 @@
 // Unit tests for specialized::control_theory::analysis
-use computational_engine::specialized::control_theory::analysis::*;
+use computational_engine::compute::physics::control_systems::analysis::*;
 
 use super::*;
 

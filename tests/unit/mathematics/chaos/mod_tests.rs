@@ -1,5 +1,5 @@
 // Unit tests for mathematics::chaos::mod
-use computational_engine::mathematics::chaos::mod::*;
+use computational_engine::chaos::mod::*;
 
 use super::*;
 

@@ -1,8 +1,8 @@
 // Unit tests for physics::wormholes::energy
-use computational_engine::physics::wormholes::energy::*;
+use computational_engine::compute::physics::wormholes::energy::*;
 
 use super::*;
-    use crate::physics::wormholes::WormholeConfig;
+    use crate::compute::physics::wormholes::WormholeConfig;
 
     #[test]
     fn test_energy_density_at_throat() {

@@ -1,5 +1,5 @@
 // Unit tests for mathematics::symbolic_cas::parser
-use computational_engine::mathematics::symbolic_cas::parser::*;
+use computational_engine::analyze::symbolic::parser::*;
 
 use super::*;
 

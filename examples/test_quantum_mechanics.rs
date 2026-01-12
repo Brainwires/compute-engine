@@ -1,4 +1,4 @@
-use computational_engine::mathematics::symbolic_cas::{
+use computational_engine::analyze::symbolic::{
     Expr, SymbolicMatrix, angular_momentum_x, angular_momentum_y, angular_momentum_z,
     annihilation_operator_symbolic, anticommutator, commutator, creation_operator_symbolic,
     dirac_gamma_0, dirac_gamma_1, dirac_gamma_2, dirac_gamma_3, expectation_value, pauli_x,

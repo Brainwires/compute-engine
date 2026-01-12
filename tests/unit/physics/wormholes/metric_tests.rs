@@ -1,8 +1,8 @@
 // Unit tests for physics::wormholes::metric
-use computational_engine::physics::wormholes::metric::*;
+use computational_engine::compute::physics::wormholes::metric::*;
 
 use super::*;
-    use crate::physics::wormholes::WormholeConfig;
+    use crate::compute::physics::wormholes::WormholeConfig;
 
     #[test]
     fn test_redshift_function_zero() {

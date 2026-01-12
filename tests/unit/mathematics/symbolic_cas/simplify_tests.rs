@@ -1,8 +1,8 @@
 // Unit tests for mathematics::symbolic_cas::simplify
-use computational_engine::mathematics::symbolic_cas::simplify::*;
+use computational_engine::analyze::symbolic::simplify::*;
 
 use super::*;
-    use crate::mathematics::symbolic_cas::parser::parse;
+    use crate::analyze::symbolic::parser::parse;
 
     #[test]
     fn test_simplify_add_zero() {

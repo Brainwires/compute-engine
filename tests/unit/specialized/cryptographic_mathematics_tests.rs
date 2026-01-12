@@ -1,6 +1,6 @@
 //! Unit tests for specialized::cryptographic_mathematics
 
-use crate::specialized::cryptographic_mathematics::*;
+use crate::compute::cryptographic_mathematics::*;
 use num_bigint::BigInt;
 use num_traits::One;
 

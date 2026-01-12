@@ -9,7 +9,7 @@
 //! - Orthogonal polynomials (Legendre, Hermite, Laguerre, Chebyshev)
 //! - Airy functions (Ai, Bi)
 
-use crate::mathematics::special_functions::*;
+use crate::compute::special_functions::*;
 
 // ==================== Gamma Function Tests ====================
 

@@ -5,7 +5,7 @@
 
 pub mod server {
     use crate::engine::*;
-    use crate::implementations::create_default_dispatcher;
+    use crate::create_default_dispatcher;
     use rmcp::{
         handler::server::{ServerHandler, tool::ToolRouter, wrapper::Parameters},
         model::{Implementation, ProtocolVersion, ServerCapabilities, ServerInfo},

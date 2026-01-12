@@ -1,5 +1,5 @@
 // Unit tests for physics::quantum::propagators
-use computational_engine::physics::quantum::propagators::*;
+use computational_engine::compute::physics::quantum::propagators::*;
 
 use super::*;
 

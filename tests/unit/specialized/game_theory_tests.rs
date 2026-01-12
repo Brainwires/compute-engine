@@ -1,6 +1,6 @@
 //! Unit tests for specialized::game_theory
 
-use crate::specialized::game_theory::normal_form::*;
+use crate::solve::specialized::game_theory::normal_form::*;
 
 #[test]
 fn test_prisoners_dilemma() {

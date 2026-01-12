@@ -1,5 +1,5 @@
 // Unit tests for mathematics::symbolic_cas::symbolic_eigenvalues
-use computational_engine::mathematics::symbolic_cas::symbolic_eigenvalues::*;
+use computational_engine::analyze::symbolic::symbolic_eigenvalues::*;
 
 use super::*;
 

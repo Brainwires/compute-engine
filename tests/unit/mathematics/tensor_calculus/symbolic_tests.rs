@@ -1,5 +1,5 @@
 // Unit tests for mathematics::tensor_calculus::symbolic
-use computational_engine::mathematics::tensor_calculus::symbolic::*;
+use computational_engine::compute::tensor::symbolic::*;
 
 use super::*;
 

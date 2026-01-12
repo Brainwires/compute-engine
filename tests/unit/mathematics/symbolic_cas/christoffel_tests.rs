@@ -1,8 +1,8 @@
 // Unit tests for mathematics::symbolic_cas::christoffel
-use computational_engine::mathematics::symbolic_cas::christoffel::*;
+use computational_engine::analyze::symbolic::christoffel::*;
 
 use super::*;
-    use crate::mathematics::symbolic_cas::{euclidean_metric, minkowski_2d};
+    use crate::analyze::symbolic::{euclidean_metric, minkowski_2d};
 
     #[test]
     fn test_flat_space_christoffel() {
@@ -53,7 +53,7 @@ use super::*;
 
     #[test]
     fn test_schwarzschild_christoffel() {
-        use crate::mathematics::symbolic_cas::schwarzschild_metric;
+        use crate::analyze::symbolic::schwarzschild_metric;
 
         let metric = schwarzschild_metric().unwrap();
         let coords = vec!["t", "r", "θ", "φ"];

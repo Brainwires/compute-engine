@@ -1,4 +1,4 @@
-use crate::electrical::*;
+use crate::compute::electrical::*;
 use num_complex::Complex64;
 use nalgebra::{dmatrix, dvector};
 

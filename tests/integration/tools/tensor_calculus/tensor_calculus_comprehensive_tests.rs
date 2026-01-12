@@ -12,14 +12,14 @@
 //! 9. Symbolic tensor expressions
 //! 10. Quantum tensor operations
 
-use computational_engine::mathematics::tensor_calculus::einstein::{
+use computational_engine::compute::tensor::einstein::{
     BoundaryCondition, EinsteinEquationSystem, EinsteinSolution, StressEnergyTensor,
     construct_einstein_field_equations, solve_einstein_constraint_equations,
     solve_vacuum_einstein_equations, verify_einstein_solution,
 };
-use computational_engine::mathematics::tensor_calculus::quantum_tensors;
-use computational_engine::mathematics::tensor_calculus::symbolic::SymbolicExpr;
-use computational_engine::mathematics::tensor_calculus::tensor::{
+use computational_engine::compute::tensor::quantum_tensors;
+use computational_engine::compute::tensor::symbolic::SymbolicExpr;
+use computational_engine::compute::tensor::tensor::{
     self, ChristoffelResult, MetricTensor, RiemannResult, TensorComponent,
     calculate_christoffel_symbols, calculate_einstein_tensor, calculate_ricci_scalar,
     calculate_ricci_tensor, calculate_riemann_tensor, parse_metric_tensor,

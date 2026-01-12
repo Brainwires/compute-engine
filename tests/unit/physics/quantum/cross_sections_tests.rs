@@ -1,5 +1,5 @@
 // Unit tests for physics::quantum::cross_sections
-use computational_engine::physics::quantum::cross_sections::*;
+use computational_engine::compute::physics::quantum::cross_sections::*;
 
 use super::*;
 

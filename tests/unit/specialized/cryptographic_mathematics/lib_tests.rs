@@ -1,5 +1,5 @@
 // Unit tests for specialized::cryptographic_mathematics::lib
-use computational_engine::specialized::cryptographic_mathematics::lib::*;
+use computational_engine::compute::cryptographic_mathematics::lib::*;
 
 use super::*;
     use num_bigint::BigInt;

@@ -1,7 +1,7 @@
 //! Unit tests for specialized::linear_programming
 
-use crate::specialized::linear_programming::*;
-use crate::specialized::linear_programming::simplex::simplex;
+use crate::solve::specialized::linear_programming::*;
+use crate::solve::specialized::linear_programming::simplex::simplex;
 
 #[test]
 fn test_simplex_basic() {

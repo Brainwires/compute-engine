@@ -8,7 +8,7 @@
 //!
 //! Note: Stochastic calculus tests are excluded as they involve randomness
 
-use computational_engine::mathematics::calculus::*;
+use computational_engine::compute::calculus::*;
 use serde_json::json;
 use std::collections::HashMap;
 

@@ -1,5 +1,5 @@
 // Unit tests for mathematics::special_functions::airy
-use computational_engine::mathematics::special_functions::airy::*;
+use computational_engine::compute::special_functions::airy::*;
 
 use super::*;
 

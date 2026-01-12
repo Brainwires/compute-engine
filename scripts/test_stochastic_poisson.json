@@ -1,8 +1,0 @@
-{
-  "module": "stochastic_processes",
-  "operation": "poisson_process",
-  "parameters": {
-    "rate": 5.0,
-    "time_horizon": 10.0
-  }
-}

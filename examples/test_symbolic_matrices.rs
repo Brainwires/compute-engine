@@ -1,4 +1,4 @@
-use computational_engine::mathematics::symbolic_cas::{
+use computational_engine::analyze::symbolic::{
     Expr, SymbolicMatrix, characteristic_polynomial, eigenvalues_2x2, matrix_inverse,
 };
 

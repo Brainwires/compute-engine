@@ -44,78 +44,116 @@
 //!
 //! ## Domain-Specific Modules
 //!
-//! ### Mathematics Domain
-//! - **Tensor Calculus**: Symbolic tensor operations and Einstein field equations
-//! - **Advanced Calculus**: Fractional, variational, and stochastic calculus
-//! - **Linear Algebra**: Matrix operations, decompositions, PCA
-//! - **Symbolic Regression**: Automated function discovery
+//! All domain functionality is organized under the 8 tool modules:
 //!
-//! ### Physics Domain
-//! - **Fluid Dynamics**: Navier-Stokes solvers and flow analysis
-//! - **Quantum Physics**: Quantum simulations and particle physics
+//! ### Solve Tool (`solve/`)
+//! - Equation solving, optimization, root finding
+//! - Specialized: Game theory, linear programming
 //!
-//! ### Engineering Tools
-//! - **Signal Processing**: FFT, filters, and signal analysis
-//! - **Dimensional Analysis**: Unit checking and dimensional validation
-//! - **Equation Validation**: Mathematical equation verification
-//! - **Computational Geometry**: Geometric algorithms and spatial computations
+//! ### Compute Tool (`compute/`)
+//! - Matrix operations, tensor calculus, linear algebra
+//! - Calculus: Differentiation, integration
+//! - Transforms: FFT, Laplace, wavelets
+//! - Physics: EM, quantum, relativity, nuclear
+//! - Scientific: Chemistry, biology, thermodynamics, optics
+//! - Geometry, graph algorithms, information theory
 //!
-//! ### Specialized Domains
-//! - **Stochastic Processes**: Random walks, Monte Carlo, and stochastic simulations
-//! - **Cryptographic Mathematics**: Number theory and cryptographic primitives
-//! - **Statistics**: Statistical analysis and probability
+//! ### Analyze Tool (`analyze/`)
+//! - Symbolic simplification, expansion, factorization
+//! - Series: Taylor, Laurent
+//! - Stability analysis
+//!
+//! ### Simulate Tool (`simulate/`)
+//! - ODE solvers: Euler, Runge-Kutta
+//! - Stochastic: Brownian motion, Monte Carlo
+//! - Fluid dynamics: Navier-Stokes
+//! - Finance: Black-Scholes, Heston
+//!
+//! ### ML Tool (`ml/`)
+//! - Clustering, regression, classification
+//! - Neural networks, dimensionality reduction
+//!
+//! ### Chaos Tool (`chaos/`)
+//! - Fractals: Mandelbrot, Julia
+//! - Attractors: Lorenz, Rossler
+//! - Lyapunov exponents, bifurcation analysis
+//!
+//! ### Units Tool (`units/`)
+//! - Unit conversion, dimensional analysis
+//!
+//! ### Validate Tool (`validate/`)
+//! - Equation validation, physics consistency checks
 
 // Core engine
 pub mod engine;
 pub mod help;
 pub mod help_auto;
-pub mod implementations;
 
 // MCP Server (Official MCP SDK integration)
 #[cfg(feature = "rmcp")]
 pub mod mcp_server;
 
-// Scientific formula modules
-pub mod biology;
-pub mod chemistry;
-pub mod datetime;
-pub mod electrical;
-pub mod engineering;
-pub mod geophysics;
-pub mod materials_science;
-pub mod optics;
-pub mod thermodynamics;
+// ============================================================================
+// 8 TOOL MODULES - All computational functionality organized by tool
+// ============================================================================
+pub mod analyze;
+pub mod chaos;
+pub mod compute;
+pub mod ml;
+pub mod simulate;
+pub mod solve;
+pub mod units;
+pub mod validate;
 
 // WebAssembly bindings (when compiled with wasm feature)
 #[cfg(feature = "wasm")]
 pub mod wasm;
 
-// Domain modules (implementation details)
-pub mod mathematics;
-pub mod physics;
-pub mod specialized;
-pub mod tools;
+// ============================================================================
+// BACKWARD COMPATIBILITY RE-EXPORTS
+// ============================================================================
+// These provide the old module paths for backward compatibility.
+// New code should use the 8 tool modules directly.
 
-// Re-export modules at top level for convenience
-pub use mathematics::advanced_calculus;
-pub use mathematics::linear_algebra;
-pub use mathematics::special_functions;
-pub use mathematics::symbolic_regression;
-pub use mathematics::tensor_calculus;
-pub use physics::electromagnetism;
-pub use physics::fluid_dynamics;
-pub use physics::quantum_physics;
-pub use specialized::cryptographic_mathematics;
-pub use specialized::graph_theory;
-pub use specialized::information_theory;
-pub use specialized::optimization;
-pub use specialized::statistics;
-pub use specialized::stochastic_processes;
-pub use tools::computational_geometry;
-pub use tools::dimensional_analysis;
-pub use tools::equation_validation;
-pub use tools::numerical_methods;
-pub use tools::signal_processing;
+// Mathematics domain -> compute/
+pub use compute::calculus as advanced_calculus;
+pub use compute::matrix::linear_algebra;
+pub use compute::special_functions;
+pub use compute::symbolic_regression;
+pub use compute::tensor as tensor_calculus;
+
+// Physics domain -> compute/physics/ and simulate/fluids/
+pub use compute::physics::electromagnetism;
+pub use simulate::fluids as fluid_dynamics;
+pub use compute::physics::quantum as quantum_physics;
+
+// Specialized domain -> various tools
+pub use compute::cryptographic_mathematics;
+pub use compute::graph as graph_theory;
+pub use compute::information as information_theory;
+pub use solve::optimization;
+pub use compute::sampling as statistics;
+pub use simulate::stochastic as stochastic_processes;
+
+// Tools domain -> compute/
+pub use compute::geometry as computational_geometry;
+pub use compute::numerical_methods;
+pub use compute::transforms as signal_processing;
+
+// Units and validation
+pub use units::dimensional_analysis;
+pub use validate as equation_validation;
+
+// Scientific formula modules at top level
+pub use compute::biology;
+pub use compute::chemistry;
+pub use compute::datetime;
+pub use compute::electrical;
+pub use compute::engineering;
+pub use compute::geophysics;
+pub use compute::materials_science;
+pub use compute::optics;
+pub use compute::thermodynamics;
 
 // Re-export engine types
 pub use engine::{
@@ -140,9 +178,6 @@ pub use engine::{
     Domain, Method,
 };
 
-// Re-export implementation helper
-pub use implementations::create_default_dispatcher;
-
 // Re-export operation listing from engine
 pub use engine::{list_all_operations, list_tools};
 
@@ -155,3 +190,29 @@ pub type ComputationalResult<T> = Result<T, Box<dyn std::error::Error>>;
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub const NAME: &str = env!("CARGO_PKG_NAME");
 
+// ============================================================================
+// DISPATCHER FACTORY
+// ============================================================================
+
+use analyze::UnifiedAnalyzer;
+use chaos::UnifiedChaos;
+use compute::UnifiedComputer;
+use ml::UnifiedML;
+use simulate::UnifiedSimulator;
+use solve::UnifiedSolver;
+use units::UnifiedUnits;
+use validate::UnifiedValidator;
+
+/// Create a fully configured ToolDispatcher with all 8 tool implementations
+pub fn create_default_dispatcher() -> ToolDispatcher {
+    ToolDispatcher::new(
+        Box::new(UnifiedSolver::new()),
+        Box::new(UnifiedComputer::new()),
+        Box::new(UnifiedAnalyzer::new()),
+        Box::new(UnifiedSimulator::new()),
+        Box::new(UnifiedML::new()),
+        Box::new(UnifiedChaos::new()),
+        Box::new(UnifiedUnits::new()),
+        Box::new(UnifiedValidator::new()),
+    )
+}

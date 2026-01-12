@@ -1,5 +1,5 @@
 // Unit tests for tools::computational_geometry::spatial_3d
-use computational_engine::tools::computational_geometry::spatial_3d::*;
+use computational_engine::compute::geometry::spatial_3d::*;
 
 use super::*;
 

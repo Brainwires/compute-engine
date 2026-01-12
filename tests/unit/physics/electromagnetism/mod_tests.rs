@@ -1,5 +1,5 @@
 // Unit tests for physics::electromagnetism::mod
-use computational_engine::physics::electromagnetism::mod::*;
+use computational_engine::compute::physics::electromagnetism::mod::*;
 
 use super::*;
 

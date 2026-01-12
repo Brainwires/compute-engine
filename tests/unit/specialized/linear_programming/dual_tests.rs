@@ -1,8 +1,8 @@
 // Unit tests for specialized::linear_programming::dual
-use computational_engine::specialized::linear_programming::*;
+use computational_engine::solve::specialized::linear_programming::*;
 
 use super::*;
-    use computational_engine::specialized::linear_programming::simplex;
+    use computational_engine::solve::specialized::linear_programming::simplex;
 
     #[test]
     fn test_dual_construction() {

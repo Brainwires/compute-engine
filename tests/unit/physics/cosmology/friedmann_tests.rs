@@ -1,5 +1,5 @@
 // Unit tests for physics::cosmology::friedmann
-use computational_engine::physics::cosmology::friedmann::*;
+use computational_engine::compute::physics::cosmology::friedmann::*;
 
 use super::*;
 

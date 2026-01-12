@@ -94,81 +94,92 @@ echo '{"tool":"solve","input":{"equations":["x^2 - 4 = 0"]}}' | cargo run --rele
 - `sample` → `compute` with `operation: {sample: ...}`
 - `optimize` → `solve` with `equation_type: {optimize: ...}`
 
-**Implementation Layer**: Unified tool implementations
-- Located in `src/implementations/`
-- Each tool has a `Unified*` implementation (e.g., `UnifiedSolver`, `UnifiedComputer`)
-- These wire the 4-tool API to the 245 domain-specific functions
-- Legacy tool implementations maintained for backward compatibility
-
-**Domain Modules**: Implementation details (not a separate API)
-- Located in `src/mathematics/`, `src/physics/`, `src/tools/`, `src/specialized/`
-- Contains the actual math/physics algorithms
-- Called by the Unified implementations
-- Not meant to be used directly by end users
+**8 Tool Modules**: Each tool in its own folder with unified implementation + domain submodules
+- `src/solve/` - UnifiedSolver + equations, optimization, physics solvers, specialized (game_theory, linear_programming)
+- `src/compute/` - UnifiedComputer + 27 domain submodules (matrix, tensor, physics, chemistry, biology, etc.)
+- `src/analyze/` - UnifiedAnalyzer + symbolic CAS, series, stability analysis
+- `src/simulate/` - UnifiedSimulator + ODE solvers, stochastic, fluids, finance
+- `src/ml/` - UnifiedML + clustering, regression, neural networks, dim reduction
+- `src/chaos/` - UnifiedChaos + fractals, attractors, Lyapunov, bifurcation
+- `src/units/` - UnifiedUnits + dimensional analysis
+- `src/validate/` - UnifiedValidator + equation validation
 
 ### Module Organization
 
 ```
 src/
-├── engine/              # 10-tool public API
-│   ├── traits.rs       # Tool traits (Solve, Differentiate, etc.)
+├── engine/              # 8-tool public API
+│   ├── traits.rs       # Tool traits (Solve, Compute, etc.)
 │   ├── types.rs        # Input/Output types for each tool
 │   ├── dispatcher.rs   # Routes requests to implementations
 │   └── equations.rs    # Equation type definitions
 │
-├── implementations/     # Unified tool implementations
-│   ├── solver.rs       # UnifiedSolver
-│   ├── differentiator.rs
-│   ├── integrator.rs
-│   ├── analyzer.rs
-│   ├── simulator.rs
-│   ├── computer.rs
-│   ├── transformer.rs
-│   ├── field_solver.rs
-│   ├── sampler.rs
-│   ├── optimizer.rs
-│   └── mod.rs          # Dispatcher factory
+├── solve/               # SOLVE TOOL
+│   ├── mod.rs          # UnifiedSolver
+│   ├── equations.rs    # Root finding, linear systems
+│   ├── differential.rs # ODE/PDE solving
+│   ├── optimization/   # Curve fitting, minimization
+│   ├── physics/        # Einstein, EM, fluid equation solvers
+│   └── specialized/    # Game theory, linear programming
 │
-├── mathematics/         # Math implementation modules
-│   ├── tensor_calculus/
-│   ├── advanced_calculus/
-│   ├── linear_algebra/
-│   ├── symbolic_regression/
-│   ├── special_functions/
-│   └── symbolic_cas/   # Custom computer algebra system
+├── compute/             # COMPUTE TOOL (largest - 27 submodules)
+│   ├── mod.rs          # UnifiedComputer
+│   ├── matrix/         # Linear algebra, decompositions
+│   ├── tensor/         # Tensor calculus, Christoffel symbols
+│   ├── calculus/       # Differentiation, integration
+│   ├── transforms/     # FFT, wavelets, filters
+│   ├── special_functions/ # Bessel, gamma, elliptic
+│   ├── physics/        # 14 physics submodules (quantum, relativity, etc.)
+│   ├── sampling/       # Monte Carlo, MCMC, statistics
+│   ├── geometry/       # Computational geometry
+│   ├── graph/          # Graph algorithms
+│   ├── information/    # Information theory
+│   ├── biology/        # Biology formulas
+│   ├── chemistry/      # Chemistry formulas
+│   ├── thermodynamics/ # Thermodynamics
+│   └── ...             # More domain modules
 │
-├── physics/            # Physics implementation modules
-│   ├── fluid_dynamics/
-│   ├── quantum_physics/
-│   └── electromagnetism/
+├── analyze/             # ANALYZE TOOL
+│   ├── mod.rs          # UnifiedAnalyzer
+│   ├── symbolic/       # Custom CAS (simplify, expand, factor)
+│   ├── series/         # Taylor, Laurent series
+│   ├── stability/      # Stability analysis
+│   └── validation/     # Expression validation
 │
-├── tools/              # Engineering implementation modules
-│   ├── signal_processing/
-│   ├── dimensional_analysis/
-│   ├── equation_validation/
-│   ├── computational_geometry/
-│   └── numerical_methods/
+├── simulate/            # SIMULATE TOOL
+│   ├── mod.rs          # UnifiedSimulator
+│   ├── ode/            # Euler, Runge-Kutta solvers
+│   ├── stochastic/     # Brownian motion, Monte Carlo
+│   ├── fluids/         # Navier-Stokes, flow analysis
+│   └── finance/        # Black-Scholes, Heston
 │
-├── specialized/        # Specialized implementation modules
-│   ├── stochastic_processes/
-│   ├── cryptographic_mathematics/
-│   ├── statistics/
-│   ├── optimization/
-│   ├── graph_theory/
-│   └── information_theory/
+├── ml/                  # ML TOOL
+│   ├── mod.rs          # UnifiedML
+│   ├── clustering/     # K-means, DBSCAN
+│   ├── regression/     # Linear, logistic, ridge
+│   ├── neural_network/ # Dense layers, training
+│   ├── classification/ # Decision trees, SVM
+│   └── dim_reduction/  # PCA, t-SNE
 │
-├── chemistry/          # Chemistry formulas (2025 expansion)
-├── biology/            # Biology formulas (2025 expansion)
-├── thermodynamics/     # Thermodynamics (2025 expansion)
-├── datetime/           # Date/time calculations (2025 expansion)
-├── optics/             # Optics (2025 expansion)
-├── geophysics/         # Geophysics (2025 expansion)
-├── engineering/        # Engineering (2025 expansion)
+├── chaos/               # CHAOS TOOL
+│   ├── mod.rs          # UnifiedChaos
+│   ├── fractals/       # Mandelbrot, Julia
+│   ├── attractors/     # Lorenz, Rossler
+│   ├── lyapunov/       # Lyapunov exponents
+│   ├── bifurcation/    # Bifurcation diagrams
+│   └── dimension/      # Box-counting, Kaplan-Yorke
 │
-├── api/                # Backwards-compatible JSON API (old format)
-├── wasm/               # WASM bindings (--features wasm)
+├── units/               # UNITS TOOL
+│   ├── mod.rs          # UnifiedUnits
+│   └── dimensional_analysis.rs
+│
+├── validate/            # VALIDATE TOOL
+│   ├── mod.rs          # UnifiedValidator
+│   └── equation.rs     # Equation validation
+│
+├── wasm.rs             # WASM bindings (--features wasm)
 ├── main.rs             # CLI binary entry point
-└── lib.rs              # Library root
+└── lib.rs              # Library root + create_default_dispatcher()
 ```
 
 ### Data Flow
@@ -311,19 +322,15 @@ wasm = ["wasm-bindgen"]      # WebAssembly support
 1. Update the appropriate input enum in `src/engine/types.rs`
 2. Add parameters needed for the operation
 
-**Step 3: Implement in the Unified implementation**
-1. Edit the corresponding file in `src/implementations/` (e.g., `solver.rs` for Solve)
+**Step 3: Implement in the tool module**
+1. Edit the corresponding file in `src/{tool}/mod.rs` (e.g., `src/solve/mod.rs` for Solve)
 2. Add match arm to handle new operation
-3. Call existing domain module or create new one
+3. Call existing domain submodule or create new one
 
-**Step 4: Add domain module implementation (if needed)**
-1. Create/update module in `src/mathematics/`, `src/physics/`, etc.
+**Step 4: Add domain submodule implementation (if needed)**
+1. Create/update submodule in the tool folder (e.g., `src/compute/physics/`)
 2. Implement the core algorithm
 3. Add tests
-
-**Step 5: Update old API (for backwards compatibility)**
-1. Add handler in `src/api/handlers/` if needed
-2. Register in `src/api/mod.rs`
 
 ### Testing Strategy
 
@@ -394,11 +401,10 @@ WASM builds generate multiple targets for different environments:
 
 ## Common Patterns
 
-### Using the 10-Tool API (Recommended)
+### Using the 8-Tool API (Recommended)
 
 ```rust
-use computational_engine::engine::{ToolRequest, SolveInput};
-use computational_engine::implementations::create_default_dispatcher;
+use computational_engine::{ToolRequest, SolveInput, create_default_dispatcher};
 
 let dispatcher = create_default_dispatcher();
 
@@ -408,6 +414,7 @@ let request = ToolRequest::Solve(SolveInput {
     initial_guess: None,
     domain: None,
     method: None,
+    ..Default::default()
 });
 
 let response = dispatcher.dispatch(request).unwrap();
@@ -435,7 +442,7 @@ let response = process_request(&request);
 ### Custom Computer Algebra System
 
 This engine includes a custom CAS (not using external libraries like SymPy):
-- Located in `src/mathematics/symbolic_cas/`
+- Located in `src/analyze/symbolic/`
 - Components: `expr.rs`, `parser.rs`, `simplify.rs`, `differentiate.rs`
 - Supports symbolic differentiation, simplification, integration
 - Matrix symbolic operations in `symbolic_matrix.rs`

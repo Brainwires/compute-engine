@@ -1,5 +1,5 @@
 // Unit tests for physics::n_body::integrator
-use computational_engine::physics::n_body::integrator::*;
+use computational_engine::compute::physics::n_body::integrator::*;
 
 use super::*;
 

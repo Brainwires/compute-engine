@@ -1,5 +1,5 @@
 // Unit tests for tools::dimensional_analysis::lib
-use computational_engine::tools::dimensional_analysis::lib::*;
+use computational_engine::units::dimensional_analysis::lib::*;
 
 use super::*;
 

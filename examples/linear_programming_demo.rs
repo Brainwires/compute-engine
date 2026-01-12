@@ -4,7 +4,7 @@
 //!
 //! Run with: cargo run --release --example linear_programming_demo
 
-use computational_engine::specialized::linear_programming::*;
+use computational_engine::solve::specialized::linear_programming::*;
 
 fn main() {
     println!("=== Linear Programming Demo ===\n");

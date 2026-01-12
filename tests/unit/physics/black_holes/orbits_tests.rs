@@ -1,8 +1,8 @@
 // Unit tests for physics::black_holes::orbits
-use computational_engine::physics::black_holes::orbits::*;
+use computational_engine::compute::physics::black_holes::orbits::*;
 
 use super::*;
-    use crate::physics::black_holes::BlackHoleConfig;
+    use crate::compute::physics::black_holes::BlackHoleConfig;
 
     #[test]
     fn test_circular_orbit() {

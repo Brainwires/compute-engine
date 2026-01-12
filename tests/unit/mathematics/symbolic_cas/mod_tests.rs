@@ -1,5 +1,5 @@
 // Unit tests for mathematics::symbolic_cas::mod
-use computational_engine::mathematics::symbolic_cas::mod::*;
+use computational_engine::analyze::symbolic::mod::*;
 
 use super::*;
 

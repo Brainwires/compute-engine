@@ -1,5 +1,5 @@
 // Unit tests for mathematics::symbolic_cas::fluid_dynamics
-use computational_engine::mathematics::symbolic_cas::fluid_dynamics::*;
+use computational_engine::analyze::symbolic::fluid_dynamics::*;
 
 use super::*;
 

@@ -1,8 +1,8 @@
 // Unit tests for mathematics::symbolic_cas::differentiate
-use computational_engine::mathematics::symbolic_cas::differentiate::*;
+use computational_engine::analyze::symbolic::differentiate::*;
 
 use super::*;
-    use crate::mathematics::symbolic_cas::parser::parse;
+    use crate::analyze::symbolic::parser::parse;
 
     #[test]
     fn test_diff_constant() {

@@ -1,5 +1,5 @@
 // Unit tests for mathematics::tensor_calculus::einstein
-use computational_engine::mathematics::tensor_calculus::einstein::*;
+use computational_engine::compute::tensor::einstein::*;
 
 use super::*;
 

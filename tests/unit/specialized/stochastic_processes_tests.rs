@@ -1,6 +1,6 @@
 //! Unit tests for specialized::stochastic_processes
 
-use crate::specialized::stochastic_processes::*;
+use crate::simulate::stochastic::*;
 
 #[test]
 #[ignore] // TODO: Fix brownian motion test

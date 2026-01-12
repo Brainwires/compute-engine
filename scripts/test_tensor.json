@@ -1,7 +1,0 @@
-{
-  "module": "tensor_calculus",
-  "operation": "solve_vacuum_einstein",
-  "parameters": {
-    "system": "spherical"
-  }
-}

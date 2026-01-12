@@ -1,4 +1,4 @@
-use computational_engine::mathematics::symbolic_cas::{
+use computational_engine::analyze::symbolic::{
     Expr, IndexType, SymbolicMatrix, SymbolicTensor, euclidean_metric, minkowski_metric,
     schwarzschild_metric,
 };

@@ -1,8 +1,8 @@
 // Unit tests for physics::plasma::waves
-use computational_engine::physics::plasma::waves::*;
+use computational_engine::compute::physics::plasma::waves::*;
 
 use super::*;
-    use crate::physics::plasma::{plasma_frequency, electron_cyclotron_frequency, C};
+    use crate::compute::physics::plasma::{plasma_frequency, electron_cyclotron_frequency, C};
 
     #[test]
     fn test_langmuir_wave() {

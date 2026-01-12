@@ -1,5 +1,5 @@
 // Unit tests for mathematics::special_functions::gamma
-use computational_engine::mathematics::special_functions::gamma::*;
+use computational_engine::compute::special_functions::gamma::*;
 
 use super::*;
 

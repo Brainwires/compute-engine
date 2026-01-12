@@ -1,5 +1,5 @@
 // Unit tests for physics::nuclear_physics::mod
-use computational_engine::physics::nuclear_physics::mod::*;
+use computational_engine::compute::physics::nuclear_physics::mod::*;
 
 use super::*;
 

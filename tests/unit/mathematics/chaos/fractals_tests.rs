@@ -1,5 +1,5 @@
 // Unit tests for mathematics::chaos::fractals
-use computational_engine::mathematics::chaos::fractals::*;
+use computational_engine::chaos::fractals::*;
 
 use super::*;
 

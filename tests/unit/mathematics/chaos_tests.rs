@@ -14,7 +14,7 @@
 //! - Box-counting dimension
 //! - Koch snowflake
 
-use crate::mathematics::chaos::*;
+use crate::chaos::*;
 
 // ============================================================================
 // Complex Number Tests

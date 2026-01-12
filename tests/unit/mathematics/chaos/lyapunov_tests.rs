@@ -1,5 +1,5 @@
 // Unit tests for mathematics::chaos::lyapunov
-use computational_engine::mathematics::chaos::lyapunov::*;
+use computational_engine::chaos::lyapunov::*;
 
 use super::*;
 

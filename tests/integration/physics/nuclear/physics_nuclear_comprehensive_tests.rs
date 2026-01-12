@@ -3,7 +3,7 @@
 //! Tests radioactive decay, decay chains, half-life calculations,
 //! binding energy, mass defect, fission, fusion, and nuclear reactions.
 
-use computational_engine::physics::nuclear_physics::*;
+use computational_engine::compute::physics::nuclear_physics::*;
 
 // ============================================================================
 // RADIOACTIVE DECAY TESTS

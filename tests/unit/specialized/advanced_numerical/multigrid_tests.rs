@@ -1,5 +1,5 @@
 // Unit tests for specialized::advanced_numerical::multigrid
-use computational_engine::specialized::advanced_numerical::multigrid::*;
+use computational_engine::compute::advanced_numerical::multigrid::*;
 
 use super::*;
 

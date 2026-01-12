@@ -26,7 +26,7 @@ fn test_generate_prime_small() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "8-bit prime generation should succeed");
 }
@@ -42,7 +42,7 @@ fn test_generate_prime_medium() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "64-bit prime generation should succeed");
 }
@@ -58,7 +58,7 @@ fn test_generate_prime_large() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "128-bit prime generation should succeed");
 }
@@ -80,7 +80,7 @@ fn test_modular_exponentiation_small() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Small modular exponentiation should succeed");
 }
@@ -98,7 +98,7 @@ fn test_modular_exponentiation_large() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Large modular exponentiation should succeed");
 }
@@ -119,7 +119,7 @@ fn test_modular_inverse_exists() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -139,7 +139,7 @@ fn test_modular_inverse_not_exists() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_err(),
@@ -163,7 +163,7 @@ fn test_gcd_coprime() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "GCD of coprime numbers should succeed");
 }
@@ -180,7 +180,7 @@ fn test_gcd_common_divisor() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "GCD with common divisor should succeed");
 }
@@ -197,7 +197,7 @@ fn test_gcd_large_numbers() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "GCD of large numbers should succeed");
 }
@@ -218,7 +218,7 @@ fn test_lcm_small() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "LCM of small numbers should succeed");
 }
@@ -235,7 +235,7 @@ fn test_lcm_coprime() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "LCM of coprime numbers should succeed");
 }
@@ -255,7 +255,7 @@ fn test_euler_totient_prime() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Euler totient of prime should succeed");
 }
@@ -271,7 +271,7 @@ fn test_euler_totient_composite() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Euler totient of composite should succeed");
 }
@@ -291,7 +291,7 @@ fn test_carmichael_lambda_prime() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "Carmichael lambda of prime should succeed");
 }
@@ -307,7 +307,7 @@ fn test_carmichael_lambda_composite() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -330,7 +330,7 @@ fn test_rsa_keypair_small() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "512-bit RSA keypair generation should succeed");
 }
@@ -346,7 +346,7 @@ fn test_rsa_keypair_medium() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -371,7 +371,7 @@ fn test_rsa_encrypt() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "RSA encryption should succeed");
 }
@@ -389,7 +389,7 @@ fn test_rsa_decrypt() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "RSA decryption should succeed");
 }
@@ -409,7 +409,7 @@ fn test_sha256_empty() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "SHA-256 of empty string should succeed");
 }
@@ -425,7 +425,7 @@ fn test_sha256_simple() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "SHA-256 of simple message should succeed");
 }
@@ -444,7 +444,7 @@ fn test_sha256_long() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "SHA-256 of longer message should succeed");
 }
@@ -460,7 +460,7 @@ fn test_sha3_256_empty() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "SHA3-256 of empty string should succeed");
 }
@@ -476,7 +476,7 @@ fn test_sha3_256_simple() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "SHA3-256 of simple message should succeed");
 }
@@ -497,7 +497,7 @@ fn test_chinese_remainder_two_congruences() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -517,7 +517,7 @@ fn test_chinese_remainder_three_congruences() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(
         response.is_ok(),
@@ -546,7 +546,7 @@ fn test_ec_point_add() {
         parameters,
     });
 
-    let dispatcher = computational_engine::implementations::create_default_dispatcher();
+    let dispatcher = computational_engine::create_default_dispatcher();
     let response = dispatcher.dispatch(request);
     assert!(response.is_ok(), "EC point addition should succeed");
 }

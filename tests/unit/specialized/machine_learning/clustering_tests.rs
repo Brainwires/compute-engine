@@ -1,5 +1,5 @@
 // Unit tests for specialized::machine_learning::clustering
-use crate::specialized::machine_learning::*;
+use crate::ml::*;
 
 use super::*;
 

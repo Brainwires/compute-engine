@@ -1,7 +1,7 @@
 //! Unit tests for mathematics::tensor_calculus
 
-use crate::mathematics::tensor_calculus::symbolic::SymbolicExpr;
-use crate::mathematics::tensor_calculus::tensor::*;
+use crate::compute::tensor::symbolic::SymbolicExpr;
+use crate::compute::tensor::tensor::*;
 
 // ==================== Symbolic Expression Tests ====================
 

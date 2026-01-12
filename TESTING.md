@@ -83,7 +83,7 @@ fn test_solve_quadratic() {
 
 **Structure:**
 ```rust
-// src/physics/black_holes/mod.rs
+// src/compute/physics/black_holes/mod.rs
 pub fn schwarzschild_radius(mass: f64) -> f64 {
     2.0 * G * mass / C2
 }
@@ -290,13 +290,13 @@ See [CLAUDE.md](CLAUDE.md) section "ALWAYS Fix Implementation Bugs, NEVER Weaken
 
 ```bash
 # All physics tests
-cargo test physics::
+cargo test compute::physics::
 
 # All black hole tests
-cargo test physics::black_holes::
+cargo test compute::physics::black_holes::
 
 # All tensor calculus tests
-cargo test mathematics::tensor_calculus::
+cargo test compute::tensor::
 ```
 
 ### By Pattern

@@ -1,5 +1,5 @@
 // Unit tests for mathematics::special_functions::error
-use computational_engine::mathematics::special_functions::error::*;
+use computational_engine::compute::special_functions::error::*;
 
 use super::*;
 

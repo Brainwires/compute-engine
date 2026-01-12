@@ -1,5 +1,5 @@
 // Unit tests for physics::fluid_dynamics::boundary_conditions
-use computational_engine::physics::fluid_dynamics::boundary_conditions::*;
+use computational_engine::simulate::fluids::boundary_conditions::*;
 
 use super::*;
     use ndarray::Array2;

@@ -1,9 +1,9 @@
 // Unit tests for physics::gravitational_waves::snr
-use computational_engine::physics::gravitational_waves::snr::*;
+use computational_engine::compute::physics::gravitational_waves::snr::*;
 
 use super::*;
-    use crate::physics::gravitational_waves::{BinarySystem, BinaryType};
-    use crate::physics::gravitational_waves::waveforms::taylor_f2_waveform;
+    use crate::compute::physics::gravitational_waves::{BinarySystem, BinaryType};
+    use crate::compute::physics::gravitational_waves::waveforms::taylor_f2_waveform;
 
     #[test]
     fn test_snr_calculation() {

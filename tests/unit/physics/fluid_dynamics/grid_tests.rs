@@ -1,5 +1,5 @@
 // Unit tests for physics::fluid_dynamics::grid
-use computational_engine::physics::fluid_dynamics::grid::*;
+use computational_engine::simulate::fluids::grid::*;
 
 use super::*;
 

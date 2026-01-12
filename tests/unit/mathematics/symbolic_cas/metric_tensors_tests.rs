@@ -1,5 +1,5 @@
 // Unit tests for mathematics::symbolic_cas::metric_tensors
-use computational_engine::mathematics::symbolic_cas::metric_tensors::*;
+use computational_engine::analyze::symbolic::metric_tensors::*;
 
 use super::*;
 

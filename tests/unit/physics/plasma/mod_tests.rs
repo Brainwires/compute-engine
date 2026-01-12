@@ -1,5 +1,5 @@
 // Unit tests for physics::plasma::mod
-use computational_engine::physics::plasma::mod::*;
+use computational_engine::compute::physics::plasma::mod::*;
 
 use super::*;
 

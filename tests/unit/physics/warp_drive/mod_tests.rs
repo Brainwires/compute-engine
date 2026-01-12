@@ -1,5 +1,5 @@
 // Unit tests for physics::warp_drive::mod
-use computational_engine::physics::warp_drive::mod::*;
+use computational_engine::compute::physics::warp_drive::mod::*;
 
 use super::*;
 

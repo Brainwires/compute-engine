@@ -1,5 +1,5 @@
 // Unit tests for mathematics::chaos::attractors
-use computational_engine::mathematics::chaos::attractors::*;
+use computational_engine::chaos::attractors::*;
 
 use super::*;
 

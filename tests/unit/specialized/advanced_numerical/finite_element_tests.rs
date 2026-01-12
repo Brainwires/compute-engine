@@ -1,5 +1,5 @@
 // Unit tests for specialized::advanced_numerical::finite_element
-use computational_engine::specialized::advanced_numerical::finite_element::*;
+use computational_engine::compute::advanced_numerical::finite_element::*;
 
 use super::*;
 
