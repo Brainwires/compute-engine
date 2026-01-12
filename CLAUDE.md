@@ -4,18 +4,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-A unified computational engine for mathematical and scientific computing in Rust, providing **194+ mathematical operations** accessible through a **consolidated 4-tool API**:
+A unified computational engine for mathematical and scientific computing in Rust, providing **400+ mathematical operations** accessible through a **consolidated 8-tool API**:
 
+**Primary Tools (8):**
 - **Solve**: Equations, systems, optimization, root finding
 - **Compute**: Calculus, transforms, field theory, sampling, matrix ops
 - **Analyze**: Series, limits, stability analysis, simplification
 - **Simulate**: Time evolution, stochastic processes, fluid dynamics
+- **ML**: Machine learning (clustering, regression, neural networks)
+- **Chaos**: Chaos theory (fractals, attractors, Lyapunov exponents)
+- **Units**: Dimensional analysis and unit conversion
+- **Validate**: Equation and physics validation
 
-Legacy tool names (differentiate, integrate, transform, fieldtheory, sample, optimize) are maintained for backward compatibility and route internally to the 4 primary tools.
+**Legacy tool names** (differentiate, integrate, transform, fieldtheory, sample, optimize) are maintained for backward compatibility and route internally to the primary tools.
 
 Supports native Rust, WebAssembly (browser/Node.js), and MCP server interfaces.
 
-**Comprehensive Test Coverage**: 2939 tests passing (1222 comprehensive integration tests + 1717 unit tests) with 100% pass rate.
+**Comprehensive Test Coverage**: 2,067 tests passing (1,089 integration tests + 960 unit tests + 18 doc tests) with 100% pass rate.
 
 ## Build Commands
 
@@ -77,11 +82,11 @@ echo '{"tool":"solve","input":{"equations":["x^2 - 4 = 0"]}}' | cargo run --rele
 
 ## Architecture Overview
 
-### Consolidated 4-Tool Architecture
+### Consolidated 8-Tool Architecture
 
-**Public API Layer**: 4 primary tools + 6 legacy tools for backward compatibility
+**Public API Layer**: 8 primary tools + 6 legacy tools for backward compatibility
 - Defined in `src/engine/traits.rs` and `src/engine/dispatcher.rs`
-- **Primary Tools**: Solve, Compute, Analyze, Simulate
+- **Primary Tools**: Solve, Compute, Analyze, Simulate, ML, Chaos, Units, Validate
 - **Legacy Tools** (route to primary): Differentiate, Integrate, Transform, FieldTheory, Sample, Optimize
 - Clean trait-based interface with JSON-serializable types
 - Request/response handled by `ToolDispatcher` in `src/engine/dispatcher.rs`
@@ -226,7 +231,7 @@ assert!(r_ergo >= r_h);  // Changed from > to >= to make test pass
 let a_geom = self.spin * m_geom;  // Fixed: was using wrong formula
 ```
 
-**Real incident from 2025-10-26:**
+**Real incident from 2024-10-26:**
 - Black hole ergosphere tests were failing
 - Initial response: Weakened test assertions from `>` to `>=`
 - **This was WRONG** - It hid a fundamental bug in spin parameter interpretation
@@ -307,16 +312,14 @@ wasm = ["wasm-bindgen"]      # WebAssembly support
 ### Adding a New Operation
 
 **Step 1: Identify which tool it belongs to**
-- Is it solving equations? → `Solve`
-- Computing derivatives? → `Differentiate`
-- Computing integrals? → `Integrate`
-- Simplifying/analyzing? → `Analyze`
+- Is it solving equations/optimization? → `Solve`
+- Computing derivatives/integrals/transforms/matrices? → `Compute`
+- Simplifying/analyzing expressions? → `Analyze`
 - Time evolution/simulation? → `Simulate`
-- Matrix/tensor operations? → `Compute`
-- Fourier/Laplace/filters? → `Transform`
-- EM/gravity/quantum fields? → `FieldTheory`
-- Statistical sampling? → `Sample`
-- Optimization/fitting? → `Optimize`
+- Machine learning? → `ML`
+- Fractals/chaos theory? → `Chaos`
+- Unit conversion? → `Units`
+- Validation? → `Validate`
 
 **Step 2: Add to the tool's input type**
 1. Update the appropriate input enum in `src/engine/types.rs`
@@ -335,24 +338,27 @@ wasm = ["wasm-bindgen"]      # WebAssembly support
 ### Testing Strategy
 
 ```bash
-# Run all tests (1685 total)
+# Run all tests (2,067 total)
 cargo test
 
-# Run comprehensive integration tests (202 tests)
+# Run integration tests only
+cargo test --test all_integration_tests
+
+# Run comprehensive integration test suites
 cargo test --test '*_comprehensive_tests'
 
 # Run specific comprehensive test suites
-cargo test --test differentiate_comprehensive_tests    # 21 tests
-cargo test --test integrate_comprehensive_tests        # 19 tests
-cargo test --test analyze_comprehensive_tests          # 25 tests
-cargo test --test simulate_comprehensive_tests         # 21 tests
-cargo test --test compute_scientific_comprehensive_tests # 29 tests
-cargo test --test transform_comprehensive_tests        # 22 tests
-cargo test --test fieldtheory_comprehensive_tests      # 15 tests
-cargo test --test sample_comprehensive_tests           # 23 tests
-cargo test --test optimize_comprehensive_tests         # 27 tests
+cargo test --test differentiate_comprehensive_tests
+cargo test --test integrate_comprehensive_tests
+cargo test --test analyze_comprehensive_tests
+cargo test --test simulate_comprehensive_tests
+cargo test --test compute_scientific_comprehensive_tests
+cargo test --test transform_comprehensive_tests
+cargo test --test fieldtheory_comprehensive_tests
+cargo test --test sample_comprehensive_tests
+cargo test --test optimize_comprehensive_tests
 
-# Run unit tests (1483 tests)
+# Run unit tests only
 cargo test --lib
 
 # Test specific module
@@ -365,16 +371,38 @@ cargo test --all-features
 wasm-pack test --headless --firefox
 ```
 
-**Comprehensive Test Coverage:**
-- ✅ **differentiate**: Symbolic, Numeric, Partial, Chain rule, Implicit, Parametric (21 tests)
-- ✅ **integrate**: Definite, Indefinite, Numeric, Improper, Multiple, Contour (19 tests)
-- ✅ **analyze**: Series, Limits, Roots, Extrema, Stability, Fourier, Wavelets (25 tests)
-- ✅ **simulate**: ODEs, PDEs, Stochastic, Monte Carlo, Cellular automata (21 tests)
-- ✅ **compute_scientific**: Chemistry, Biology, Thermodynamics, Optics, Geophysics, Engineering (29 tests)
-- ✅ **transform**: FFT, Fourier, Laplace, Wavelets, Filters, Windows, Conformal (22 tests)
-- ✅ **fieldtheory**: EM Fields, Green's Functions, Quantum Fields (15 tests)
-- ✅ **sample**: Monte Carlo, MCMC, Statistical Methods, Signal Analysis (23 tests)
-- ✅ **optimize**: Curve Fitting, Interpolation, Minimization, Symbolic Regression (27 tests)
+### Test Organization
+
+Tests mirror the 8-tool source structure:
+
+```
+tests/
+├── unit/                    # Unit tests (960 tests)
+│   ├── analyze/            # Analyze tool tests
+│   │   └── symbolic/
+│   ├── chaos/              # Chaos tool tests
+│   │   ├── attractors/
+│   │   ├── fractals/
+│   │   └── lyapunov/
+│   ├── compute/            # Compute tool tests
+│   │   ├── physics/        # 14 physics subdirectories
+│   │   ├── special_functions/
+│   │   ├── tensor/
+│   │   └── ...
+│   ├── ml/                 # ML tool tests
+│   ├── simulate/           # Simulate tool tests
+│   ├── solve/              # Solve tool tests
+│   ├── units/              # Units tool tests
+│   └── validate/           # Validate tool tests
+│
+├── integration/             # Integration tests (1,089 tests)
+│   ├── engine/             # 8-tool dispatcher tests
+│   ├── compute/            # Compute integration tests
+│   ├── solve/              # Solve integration tests
+│   ├── simulate/           # Simulate integration tests
+│   ├── tools/              # Legacy tool name tests
+│   └── coverage/           # Coverage verification tests
+```
 
 ### WebAssembly Development
 
@@ -392,12 +420,11 @@ WASM builds generate multiple targets for different environments:
 
 ## Important Documentation Files
 
-- **ARCHITECTURE.md** - Detailed 10-tool architecture explanation
+- **ARCHITECTURE.md** - Detailed 8-tool architecture explanation
 - **API.md** - Complete JSON API reference
 - **WASM.md** - WebAssembly build and usage guide
 - **STDOUT_STDERR_POLICY.md** - Critical MCP server compatibility rules
-- **OPERATIONS_COMPLETE_LIST.md** - Complete inventory of all 194+ operations with test coverage details
-- **MATHEMATICA_COMPETITION_PROGRESS.md** - Feature parity tracking
+- **OPERATIONS_COMPLETE_LIST.md** - Complete inventory of all 400+ operations with test coverage details
 
 ## Common Patterns
 
@@ -419,25 +446,6 @@ let request = ToolRequest::Solve(SolveInput {
 
 let response = dispatcher.dispatch(request).unwrap();
 ```
-
-### Using the Old JSON API Format (For Backwards Compatibility)
-
-The old `ComputationRequest`/`ComputationResponse` format from `src/api/` is still supported but deprecated:
-
-```rust
-use computational_engine::api::{ComputationRequest, process_request};
-use serde_json::json;
-
-let request = ComputationRequest {
-    module: "advanced_calculus".to_string(),
-    operation: "riemann_zeta".to_string(),
-    parameters: json!({"s": {"real": 2.0}}),
-};
-
-let response = process_request(&request);
-```
-
-**Note**: Migrate to the 10-tool API for new code. This old format may be removed in future versions.
 
 ### Custom Computer Algebra System
 
@@ -480,33 +488,34 @@ Enable with `--features quantum,gpu-acceleration` for quantum physics simulation
 ## Project Goals
 
 This engine aims to compete with Mathematica/Wolfram Alpha by providing:
-- Comprehensive mathematical operations (**194+ operations** across 10 tools, see OPERATIONS_COMPLETE_LIST.md)
-- Extensive test coverage with **1685 tests passing** (202 comprehensive integration + 1483 unit tests)
+- Comprehensive mathematical operations (**400+ operations** across 8 tools)
+- Extensive test coverage with **2,067 tests passing** (1,089 integration + 960 unit + 18 doc tests)
 - High-performance Rust implementation
 - Multiple interfaces (Rust API, JSON/MCP, WebAssembly)
 - Self-contained (custom CAS, no Python dependencies)
 - Free and open-source
 
-## Recent Implementations (2025-10-14)
+## Recent Updates
 
-### New Signal Processing Operations
-- ✅ Haar wavelet transform
-- ✅ Daubechies 4 wavelet transform
-- ✅ Mexican hat (Ricker) wavelet transform
-- ✅ Kaiser window function with Modified Bessel I₀
+### January 2025
+- ✅ **8-Tool Architecture Consolidation**: Unified from 10 legacy tools to 8 primary tools
+  - Primary: Solve, Compute, Analyze, Simulate, ML, Chaos, Units, Validate
+  - Legacy names (differentiate, integrate, transform, fieldtheory, sample, optimize) route to primary tools
+- ✅ **Test Reorganization**: Tests now mirror source structure
+  - `tests/unit/` organized by tool
+  - `tests/integration/` organized by tool
+  - Total: 2,067 tests (up from 1,685)
 
-### New Curve Fitting Models
-- ✅ Exponential fitting: y = a·exp(bx)
-- ✅ Logarithmic fitting: y = a + b·ln(x)
-- ✅ Power law fitting: y = a·x^b
-- ✅ Rational function fitting: y = (a+bx)/(1+cx)
-
-### Bug Fixes
-- ✅ Fixed 13 scientific computing parameter name mismatches
-- ✅ Fixed type ambiguity in mexican_hat_wavelet implementation
+### October 2024
+- ✅ **Major Test Coverage Improvement**: Achieved ~80% production code coverage
+- ✅ **Black Hole Physics Fix**: Corrected Kerr black hole implementation
+  - Changed spin parameter from mass units to dimensionless (0-1)
+  - Fixed event horizon, ergosphere, and ISCO calculations
+- ✅ New signal processing operations (Haar, Daubechies, Mexican hat wavelets)
+- ✅ New curve fitting models (exponential, logarithmic, power law, rational)
 
 ## Version Information
 
 Current version: 0.1.0 (see Cargo.toml)
 
-Project structure is stable but API is still evolving. The 10-tool unified API is the recommended interface for new code.
+Project structure is stable. The 8-tool unified API is the recommended interface for new code.
