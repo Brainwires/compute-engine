@@ -24,11 +24,9 @@
 //! ```
 
 use crate::{
-    api::process_json_request,
-    engine::{ToolRequest, ToolResponse},
-    implementations::create_default_dispatcher,
+    create_default_dispatcher,
+    engine::ToolRequest,
 };
-use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
 /// Set panic hook for better error messages in WASM
@@ -69,7 +67,6 @@ impl ComputationalEngine {
     /// ```
     #[wasm_bindgen(js_name = processJson)]
     pub fn process_json(&self, json_request: &str) -> String {
-        // Try new unified API first
         match serde_json::from_str::<ToolRequest>(json_request) {
             Ok(tool_request) => {
                 let dispatcher = create_default_dispatcher();
@@ -85,9 +82,8 @@ impl ComputationalEngine {
                     }
                 }
             }
-            Err(_) => {
-                // Fall back to legacy API
-                process_json_request(json_request)
+            Err(e) => {
+                format!(r#"{{"success":false,"error":"Parse error: {}"}}"#, e)
             }
         }
     }
@@ -114,72 +110,13 @@ impl ComputationalEngine {
         }
     }
 
-    /// Differentiate expressions
-    #[wasm_bindgen(js_name = differentiate)]
-    pub fn differentiate(&self, input: JsValue) -> Result<JsValue, JsValue> {
-        let diff_input: crate::engine::DifferentiateInput =
-            serde_wasm_bindgen::from_value(input)
-                .map_err(|e| JsValue::from_str(&format!("Invalid input: {}", e)))?;
-
-        let request = ToolRequest::Differentiate(diff_input);
-        let dispatcher = create_default_dispatcher();
-
-        match dispatcher.dispatch(request) {
-            Ok(response) => serde_wasm_bindgen::to_value(&response)
-                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
-            Err(e) => Err(JsValue::from_str(&e)),
-        }
-    }
-
-    /// Integrate expressions
-    #[wasm_bindgen(js_name = integrate)]
-    pub fn integrate(&self, input: JsValue) -> Result<JsValue, JsValue> {
-        let int_input: crate::engine::IntegrateInput = serde_wasm_bindgen::from_value(input)
-            .map_err(|e| JsValue::from_str(&format!("Invalid input: {}", e)))?;
-
-        let request = ToolRequest::Integrate(int_input);
-        let dispatcher = create_default_dispatcher();
-
-        match dispatcher.dispatch(request) {
-            Ok(response) => serde_wasm_bindgen::to_value(&response)
-                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
-            Err(e) => Err(JsValue::from_str(&e)),
-        }
-    }
-
-    /// Analyze expressions (simplify, expand, factor, etc.)
-    #[wasm_bindgen(js_name = analyze)]
-    pub fn analyze(&self, input: JsValue) -> Result<JsValue, JsValue> {
-        let analyze_input: crate::engine::AnalyzeInput = serde_wasm_bindgen::from_value(input)
-            .map_err(|e| JsValue::from_str(&format!("Invalid input: {}", e)))?;
-
-        let request = ToolRequest::Analyze(analyze_input);
-        let dispatcher = create_default_dispatcher();
-
-        match dispatcher.dispatch(request) {
-            Ok(response) => serde_wasm_bindgen::to_value(&response)
-                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
-            Err(e) => Err(JsValue::from_str(&e)),
-        }
-    }
-
-    /// Simulate systems (ODEs, PDEs, physics, etc.)
-    #[wasm_bindgen(js_name = simulate)]
-    pub fn simulate(&self, input: JsValue) -> Result<JsValue, JsValue> {
-        let sim_input: crate::engine::SimulateInput = serde_wasm_bindgen::from_value(input)
-            .map_err(|e| JsValue::from_str(&format!("Invalid input: {}", e)))?;
-
-        let request = ToolRequest::Simulate(sim_input);
-        let dispatcher = create_default_dispatcher();
-
-        match dispatcher.dispatch(request) {
-            Ok(response) => serde_wasm_bindgen::to_value(&response)
-                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
-            Err(e) => Err(JsValue::from_str(&e)),
-        }
-    }
-
-    /// Compute (tensors, matrices, special functions)
+    /// Compute operations (calculus, matrices, transforms, field theory, sampling)
+    ///
+    /// # Arguments
+    /// * `input` - JsValue containing ComputeInput structure
+    ///
+    /// # Returns
+    /// JsValue with the computation result
     #[wasm_bindgen(js_name = compute)]
     pub fn compute(&self, input: JsValue) -> Result<JsValue, JsValue> {
         let compute_input: crate::engine::ComputeInput = serde_wasm_bindgen::from_value(input)
@@ -195,13 +132,19 @@ impl ComputationalEngine {
         }
     }
 
-    /// Transform (FFT, Fourier, Laplace, wavelets)
-    #[wasm_bindgen(js_name = transform)]
-    pub fn transform(&self, input: JsValue) -> Result<JsValue, JsValue> {
-        let transform_input: crate::engine::TransformInput = serde_wasm_bindgen::from_value(input)
+    /// Analyze expressions (simplify, expand, factor, series, etc.)
+    ///
+    /// # Arguments
+    /// * `input` - JsValue containing AnalyzeInput structure
+    ///
+    /// # Returns
+    /// JsValue with the analysis result
+    #[wasm_bindgen(js_name = analyze)]
+    pub fn analyze(&self, input: JsValue) -> Result<JsValue, JsValue> {
+        let analyze_input: crate::engine::AnalyzeInput = serde_wasm_bindgen::from_value(input)
             .map_err(|e| JsValue::from_str(&format!("Invalid input: {}", e)))?;
 
-        let request = ToolRequest::Transform(transform_input);
+        let request = ToolRequest::Analyze(analyze_input);
         let dispatcher = create_default_dispatcher();
 
         match dispatcher.dispatch(request) {
@@ -211,13 +154,19 @@ impl ComputationalEngine {
         }
     }
 
-    /// Field theory (EM fields, quantum fields)
-    #[wasm_bindgen(js_name = fieldtheory)]
-    pub fn fieldtheory(&self, input: JsValue) -> Result<JsValue, JsValue> {
-        let field_input: crate::engine::FieldTheoryInput = serde_wasm_bindgen::from_value(input)
+    /// Simulate systems (ODEs, PDEs, physics, stochastic, finance)
+    ///
+    /// # Arguments
+    /// * `input` - JsValue containing SimulateInput structure
+    ///
+    /// # Returns
+    /// JsValue with the simulation result
+    #[wasm_bindgen(js_name = simulate)]
+    pub fn simulate(&self, input: JsValue) -> Result<JsValue, JsValue> {
+        let sim_input: crate::engine::SimulateInput = serde_wasm_bindgen::from_value(input)
             .map_err(|e| JsValue::from_str(&format!("Invalid input: {}", e)))?;
 
-        let request = ToolRequest::FieldTheory(field_input);
+        let request = ToolRequest::Simulate(sim_input);
         let dispatcher = create_default_dispatcher();
 
         match dispatcher.dispatch(request) {
@@ -227,13 +176,19 @@ impl ComputationalEngine {
         }
     }
 
-    /// Sample (Monte Carlo, statistics)
-    #[wasm_bindgen(js_name = sample)]
-    pub fn sample(&self, input: JsValue) -> Result<JsValue, JsValue> {
-        let sample_input: crate::engine::SampleInput = serde_wasm_bindgen::from_value(input)
+    /// Machine learning operations (clustering, regression, neural networks)
+    ///
+    /// # Arguments
+    /// * `input` - JsValue containing MLInput structure
+    ///
+    /// # Returns
+    /// JsValue with the ML result
+    #[wasm_bindgen(js_name = ml)]
+    pub fn ml(&self, input: JsValue) -> Result<JsValue, JsValue> {
+        let ml_input: crate::engine::MLInput = serde_wasm_bindgen::from_value(input)
             .map_err(|e| JsValue::from_str(&format!("Invalid input: {}", e)))?;
 
-        let request = ToolRequest::Sample(sample_input);
+        let request = ToolRequest::Ml(ml_input);
         let dispatcher = create_default_dispatcher();
 
         match dispatcher.dispatch(request) {
@@ -243,13 +198,63 @@ impl ComputationalEngine {
         }
     }
 
-    /// Optimize (curve fitting, minimization)
-    #[wasm_bindgen(js_name = optimize)]
-    pub fn optimize(&self, input: JsValue) -> Result<JsValue, JsValue> {
-        let optimize_input: crate::engine::OptimizeInput = serde_wasm_bindgen::from_value(input)
+    /// Chaos theory operations (fractals, attractors, Lyapunov exponents)
+    ///
+    /// # Arguments
+    /// * `input` - JsValue containing ChaosInput structure
+    ///
+    /// # Returns
+    /// JsValue with the chaos analysis result
+    #[wasm_bindgen(js_name = chaos)]
+    pub fn chaos(&self, input: JsValue) -> Result<JsValue, JsValue> {
+        let chaos_input: crate::engine::ChaosInput = serde_wasm_bindgen::from_value(input)
             .map_err(|e| JsValue::from_str(&format!("Invalid input: {}", e)))?;
 
-        let request = ToolRequest::Optimize(optimize_input);
+        let request = ToolRequest::Chaos(chaos_input);
+        let dispatcher = create_default_dispatcher();
+
+        match dispatcher.dispatch(request) {
+            Ok(response) => serde_wasm_bindgen::to_value(&response)
+                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
+            Err(e) => Err(JsValue::from_str(&e)),
+        }
+    }
+
+    /// Unit conversion and dimensional analysis
+    ///
+    /// # Arguments
+    /// * `input` - JsValue containing UnitsInput structure
+    ///
+    /// # Returns
+    /// JsValue with the conversion result
+    #[wasm_bindgen(js_name = units)]
+    pub fn units(&self, input: JsValue) -> Result<JsValue, JsValue> {
+        let units_input: crate::engine::UnitsInput = serde_wasm_bindgen::from_value(input)
+            .map_err(|e| JsValue::from_str(&format!("Invalid input: {}", e)))?;
+
+        let request = ToolRequest::Units(units_input);
+        let dispatcher = create_default_dispatcher();
+
+        match dispatcher.dispatch(request) {
+            Ok(response) => serde_wasm_bindgen::to_value(&response)
+                .map_err(|e| JsValue::from_str(&format!("Serialization error: {}", e))),
+            Err(e) => Err(JsValue::from_str(&e)),
+        }
+    }
+
+    /// Validate equations and physics
+    ///
+    /// # Arguments
+    /// * `input` - JsValue containing ValidateInput structure
+    ///
+    /// # Returns
+    /// JsValue with the validation result
+    #[wasm_bindgen(js_name = validate)]
+    pub fn validate(&self, input: JsValue) -> Result<JsValue, JsValue> {
+        let validate_input: crate::engine::ValidateInput = serde_wasm_bindgen::from_value(input)
+            .map_err(|e| JsValue::from_str(&format!("Invalid input: {}", e)))?;
+
+        let request = ToolRequest::Validate(validate_input);
         let dispatcher = create_default_dispatcher();
 
         match dispatcher.dispatch(request) {
@@ -278,4 +283,3 @@ impl Default for ComputationalEngine {
         Self::new()
     }
 }
-
