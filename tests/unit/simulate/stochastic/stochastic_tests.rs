@@ -3,7 +3,6 @@
 use crate::simulate::stochastic::*;
 
 #[test]
-#[ignore] // TODO: Fix brownian motion test
 fn test_brownian_motion_basic() {
     let params = BrownianMotionParams {
         time_steps: 100,
@@ -14,12 +13,12 @@ fn test_brownian_motion_basic() {
     };
 
     let result = generate_brownian_motion(params).unwrap();
-    assert_eq!(result.len(), 100);
+    // Returns time_steps + 1 elements (initial value + 100 steps)
+    assert_eq!(result.len(), 101);
     assert_eq!(result[0], 0.0); // Initial value
 }
 
 #[test]
-#[ignore] // TODO: Fix markov chain test
 fn test_markov_chain_basic() {
     let params = MarkovChainParams {
         states: vec!["A".to_string(), "B".to_string()],
@@ -32,7 +31,8 @@ fn test_markov_chain_basic() {
     };
 
     let result = simulate_markov_chain(params).unwrap();
-    assert_eq!(result.len(), 10);
+    // Returns steps + 1 elements (initial state + 10 steps)
+    assert_eq!(result.len(), 11);
     assert_eq!(result[0], "A");
 }
 

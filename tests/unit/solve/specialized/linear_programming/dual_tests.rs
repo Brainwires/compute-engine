@@ -25,15 +25,18 @@ use super::*;
     }
 
     #[test]
-    #[ignore] // TODO: Requires two-phase simplex or Big-M method for >= constraints
+    #[ignore] // KNOWN LIMITATION: Requires two-phase simplex or Big-M for negative RHS
     fn test_strong_duality() {
-        // The dual problem involves >= constraints which our basic Simplex
-        // implementation doesn't handle yet. This requires either:
-        // 1. Two-phase Simplex method
-        // 2. Big-M method
-        // 3. Revised Simplex with artificial variables
+        // The dual problem has constraint matrix with negative RHS values (-c = [-3, -2])
+        // after converting A^T·y ≥ c to -A^T·y ≤ -c.
         //
-        // For now, we skip this test and mark it as a future enhancement.
+        // Our basic simplex requires non-negative RHS (feasible starting basis).
+        // To handle this, we need either:
+        // 1. Two-phase Simplex method (add artificial variables, minimize them first)
+        // 2. Big-M method (penalize artificial variables in objective)
+        // 3. Dual simplex (start from dual-feasible basis)
+        //
+        // This is a future enhancement tracked separately.
 
         let primal = LinearProgram::new(vec![3.0, 2.0], true).with_inequality_constraints(
             vec![vec![1.0, 1.0], vec![1.0, 3.0]],

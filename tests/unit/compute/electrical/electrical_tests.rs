@@ -667,10 +667,10 @@ fn test_complex_power() {
 }
 
 #[test]
-#[ignore] // TODO: Fix expected value - actual implementation differs from expected
 fn test_three_phase_power() {
     let p = three_phase_power(480.0, 100.0, 0.85); // 480V line, 100A, PF=0.85
-    assert!((p - 70630.0).abs() < 10.0); // ~70.6 kW (relaxed tolerance for floating point)
+    // P = √3 × V_L × I_L × PF = √3 × 480 × 100 × 0.85 ≈ 70667.67 W
+    assert!((p - 70667.67).abs() < 1.0);
 }
 
 #[test]
